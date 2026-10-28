@@ -79,7 +79,7 @@ public class PluginDataGatewayTest {
                 {
                   "entities": [
                     {"name":"Thing","table":"things","storage_scope":"TENANT",
-                     "public_fields":["id","tenant_id","code","name","status","kind_id","valid_from","valid_to"],
+                     "public_fields":["id","tenant_id","code","name","status","kind_id","valid_from","valid_to","note","tags"],
                      "relations":[{"name":"kind","target_entity":"Kind","type":"many_to_one",
                                    "local_field":"kind_id","target_field":"id"}]},
                     {"name":"Kind","table":"kinds","storage_scope":"TENANT",
@@ -102,6 +102,15 @@ public class PluginDataGatewayTest {
                     {"id":"test.things.insert","mode":"WRITE","operation":"INSERT","entity":"Thing",
                      "values":{"code":{"param":"code"},"name":{"param":"name"},"status":{"param":"status"}},
                      "returning":["id","code","name","status"]},
+                    {"id":"test.things.insert.optional","mode":"WRITE","operation":"INSERT","entity":"Thing",
+                     "values":{
+                       "code":{"param":"code"},
+                       "name":{"param":"name"},
+                       "status":{"param":"status"},
+                       "note":{"param":"note","optional":true,"allow_null":true},
+                       "tags":{"param":"tags","optional":true,"type":"text[]"}
+                     },
+                     "returning":["id","code","name","status","note","tags"]},
                     {"id":"test.things.update","mode":"WRITE","operation":"UPDATE","entity":"Thing",
                      "values":{"name":{"param":"name"}},
                      "filters":[{"field":"id","op":"EQ","param":"id","required":true}],
@@ -174,7 +183,8 @@ public class PluginDataGatewayTest {
         em.createNativeQuery("CREATE TABLE " + schema + ".things ("
                 + "id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid,"
                 + "code text NOT NULL, name text NOT NULL, status text NOT NULL, kind_id uuid,"
-                + "valid_from timestamptz NOT NULL DEFAULT now(), valid_to timestamptz)").executeUpdate();
+                + "valid_from timestamptz NOT NULL DEFAULT now(), valid_to timestamptz,"
+                + "note text, tags text[])").executeUpdate();
 
         UUID kindId = UUID.randomUUID();
         em.createNativeQuery("INSERT INTO " + schema + ".kinds (id, tenant_id, code, name) VALUES (?1, ?2, 'K1', 'Kind one')")
@@ -333,6 +343,51 @@ public class PluginDataGatewayTest {
                         Map.of("status", string("ACTIVE")))));
         assertEquals(2, results.size());
         assertEquals(3, results.get(1).totalRows());
+    }
+
+    @Test
+    @Transactional
+    void writeIdempotencyReplaysAndRejectsConflicts() {
+        Map<String, Value> params = Map.of(
+                "code", string("IDEM"),
+                "name", string("Idempotent"),
+                "status", string("ACTIVE"),
+                "note", Value.newBuilder().setNullValue(com.google.protobuf.NullValue.NULL_VALUE).build(),
+                "tags", Value.newBuilder().setListValue(com.google.protobuf.ListValue.newBuilder()
+                        .addValues(string("a")).addValues(string("b"))).build());
+        PluginDataExecutor.Result first = executor.execute(identity(), "test.things.insert.optional",
+                "idem-1", params, "idem-key-1");
+        PluginDataExecutor.Result replay = executor.execute(identity(), "test.things.insert.optional",
+                "idem-2", params, "idem-key-1");
+        assertEquals(first.rows().get(0).get("id"), replay.rows().get(0).get("id"));
+        Number count = (Number) em.createNativeQuery(
+                        "SELECT count(*) FROM " + schema + ".things WHERE code = 'IDEM'")
+                .getSingleResult();
+        assertEquals(1, count.intValue());
+
+        PluginDataException conflict = org.junit.jupiter.api.Assertions.assertThrows(
+                PluginDataException.class, () -> executor.execute(identity(),
+                        "test.things.insert.optional", "idem-3",
+                        Map.of("code", string("IDEM2"), "name", string("Other"), "status", string("ACTIVE")),
+                        "idem-key-1"));
+        assertEquals(PluginDataException.Code.IDEMPOTENCY_CONFLICT, conflict.code());
+    }
+
+    @Test
+    @Transactional
+    void batchIdempotencyReplaysWithoutDoubleWrite() {
+        List<PluginDataExecutor.BatchStatement> batch = List.of(
+                new PluginDataExecutor.BatchStatement("test.things.insert.optional", "batch-1",
+                        Map.of("code", string("B1"), "name", string("Batch one"), "status", string("ACTIVE"))),
+                new PluginDataExecutor.BatchStatement("test.things.insert.optional", "batch-2",
+                        Map.of("code", string("B2"), "name", string("Batch two"), "status", string("ACTIVE"))));
+        List<PluginDataExecutor.Result> first = executor.executeBatch(identity(), batch, "batch-key-1");
+        List<PluginDataExecutor.Result> replay = executor.executeBatch(identity(), batch, "batch-key-1");
+        assertEquals(first.get(0).rows().get(0).get("id"), replay.get(0).rows().get(0).get("id"));
+        Number count = (Number) em.createNativeQuery(
+                        "SELECT count(*) FROM " + schema + ".things WHERE code IN ('B1','B2')")
+                .getSingleResult();
+        assertEquals(2, count.intValue());
     }
 
     @Test

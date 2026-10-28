@@ -12,12 +12,10 @@ import com.vn9melody.openerp.plugins.catalog.api.CatalogResponseKey;
 import com.vn9melody.openerp.plugins.catalog.api.CatalogSupport;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogItemDtos.EdgeCreateRequest;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogItemDtos.EdgeResponse;
+import com.vn9melody.openerp.plugins.catalog.gateway.CatalogGateway;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogItem;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogItemEdge;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogType;
-import com.vn9melody.openerp.plugins.catalog.repository.CatalogItemEdgeRepository;
-import com.vn9melody.openerp.plugins.catalog.repository.CatalogItemRepository;
-import com.vn9melody.openerp.plugins.catalog.repository.CatalogTypeRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -36,13 +34,7 @@ import java.util.UUID;
 public class CatalogEdgeService {
 
     @Inject
-    CatalogItemEdgeRepository edgeRepository;
-
-    @Inject
-    CatalogItemRepository itemRepository;
-
-    @Inject
-    CatalogTypeRepository typeRepository;
+    CatalogGateway gateway;
 
     @Inject
     CatalogPermissionGuard guard;
@@ -64,8 +56,8 @@ public class CatalogEdgeService {
 
         CatalogItem parent = requireVisibleItem(tenantId, parentId);
         CatalogItem child = requireVisibleItem(tenantId, childId);
-        CatalogType parentType = requireType(parent.typeId);
-        CatalogType childType = requireType(child.typeId);
+        CatalogType parentType = requireType(tenantId, parent.typeId);
+        CatalogType childType = requireType(tenantId, child.typeId);
 
         if (tenantId != null) {
             // Tenants cannot restructure the platform-owned system catalogue; their
@@ -89,13 +81,13 @@ public class CatalogEdgeService {
                 "Cross-type parents are not allowed by the child catalog type",
                 Map.of(ResponseKey.CODE.getKey(), childType.code));
         }
-        if (edgeRepository.wouldCreateCycle(parentId, childId)) {
+        if (gateway.wouldCreateCycle(tenantId, parentId, childId)) {
             throw new ApiException(400, CatalogErrorCode.CATALOG_EDGE_CYCLE,
                 "The edge would create a cycle in the catalog graph",
                 Map.of(ResponseKey.PARENT_ID.getKey(), parentId.toString(),
                     ResponseKey.ID.getKey(), childId.toString()));
         }
-        if (edgeRepository.findActiveEdge(tenantId, parentId, childId, relation) != null) {
+        if (gateway.activeEdge(tenantId, parentId, childId, relation.name(), tenantId == null) != null) {
             throw CatalogSupport.conflict(CatalogErrorCode.CATALOG_EDGE_DUPLICATE,
                 Map.of(ResponseKey.PARENT_ID.getKey(), parentId.toString(),
                     ResponseKey.ID.getKey(), childId.toString()));
@@ -110,47 +102,48 @@ public class CatalogEdgeService {
         edge.status = CatalogStatus.ACTIVE;
         edge.createdBy = auditTrail.currentActorUserId();
         edge.validFrom = Instant.now();
-        edge.persist();
+        edge.createdAt = edge.validFrom;
+        CatalogItemEdge saved = gateway.insertEdge(tenantId, edge, tenantId == null);
 
-        auditTrail.recordSuccess(tenantId, PlatformAction.CATALOG_EDGE_CREATE, "CATALOG_EDGE", edge.id,
+        auditTrail.recordSuccess(tenantId, PlatformAction.CATALOG_EDGE_CREATE, "CATALOG_EDGE", saved.id,
             Map.of(ResponseKey.PARENT_ID.getKey(), parentId.toString(),
                 ResponseKey.ID.getKey(), childId.toString()));
-        return toResponse(edge);
+        return toResponse(saved);
     }
 
     @Transactional
     public void close(UUID tenantId, UUID edgeId) {
-        CatalogItemEdge edge = edgeRepository.findVisibleEdge(tenantId, edgeId);
+        CatalogItemEdge edge = gateway.edgeById(tenantId, edgeId, tenantId == null);
         if (edge == null || edge.validTo != null) {
             throw CatalogSupport.notFound(CatalogErrorCode.CATALOG_EDGE_NOT_FOUND,
                 ResponseKey.ID.getKey(), edgeId);
         }
-        CatalogItem child = itemRepository.findVisibleById(tenantId, edge.childItemId);
+        CatalogItem child = gateway.itemById(tenantId, edge.childItemId);
         if (child == null) {
             throw CatalogSupport.notFound(CatalogErrorCode.CATALOG_EDGE_NOT_FOUND,
                 ResponseKey.ID.getKey(), edgeId);
         }
-        CatalogType childType = requireType(child.typeId);
+        CatalogType childType = requireType(tenantId, child.typeId);
         if (tenantId != null) {
             if (childType.tenantId == null) {
                 throw CatalogPermissionGuard.typeForbidden(childType.code);
             }
             guard.requireTypeAccess(tenantId, childType, CatalogPermissionGuard.Access.WRITE);
         }
-        if (childType.minParents > 0
-                && edgeRepository.countActiveParents(edge.childItemId) - 1 < childType.minParents) {
+        long parents = gateway.currentEdgesByChild(tenantId, edge.childItemId).size();
+        if (childType.minParents > 0 && parents - 1 < childType.minParents) {
             throw CatalogSupport.conflict(CatalogErrorCode.CATALOG_EDGE_MIN_PARENTS,
                 Map.of(ResponseKey.CODE.getKey(), childType.code,
                     CatalogResponseKey.MIN_PARENTS.getKey(), childType.minParents));
         }
 
-        edge.validTo = Instant.now();
+        gateway.closeEdge(tenantId, edge.id, Instant.now(), tenantId == null);
         auditTrail.recordSuccess(tenantId, PlatformAction.CATALOG_EDGE_CLOSE, "CATALOG_EDGE", edge.id,
             Map.of(ResponseKey.ID.getKey(), edge.id.toString()));
     }
 
     private CatalogItem requireVisibleItem(UUID tenantId, UUID itemId) {
-        CatalogItem item = itemRepository.findVisibleById(tenantId, itemId);
+        CatalogItem item = gateway.itemById(tenantId, itemId);
         if (item == null) {
             throw CatalogSupport.notFound(CatalogErrorCode.CATALOG_ITEM_NOT_FOUND,
                 ResponseKey.ID.getKey(), itemId);
@@ -158,8 +151,8 @@ public class CatalogEdgeService {
         return item;
     }
 
-    private CatalogType requireType(UUID typeId) {
-        CatalogType type = typeRepository.findById(typeId);
+    private CatalogType requireType(UUID tenantId, UUID typeId) {
+        CatalogType type = gateway.typeById(tenantId, typeId);
         if (type == null) {
             throw CatalogTypeService.notFound(ResponseKey.ID.getKey(), typeId);
         }

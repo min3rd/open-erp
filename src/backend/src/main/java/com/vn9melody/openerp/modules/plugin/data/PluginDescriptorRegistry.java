@@ -104,6 +104,21 @@ public class PluginDescriptorRegistry {
             if (query.distinct() && query.operation() != PluginQueryDescriptor.Operation.LIST) {
                 fail(query, "distinct is only valid on LIST");
             }
+            if (query.operation() == PluginQueryDescriptor.Operation.TREE) {
+                if (query.mode() != PluginQueryDescriptor.Mode.READ || query.tree() == null) {
+                    fail(query, "TREE requires READ and a tree block");
+                }
+                PluginManifest.Entity edge = manifest.entities().get(query.tree().edgeEntity());
+                if (edge == null) {
+                    fail(query, "unknown tree edge entity " + query.tree().edgeEntity());
+                }
+                field(edge, query, query.tree().parentField());
+                field(edge, query, query.tree().childField());
+                if (query.tree().effectiveParam() != null) {
+                    field(edge, query, "valid_from");
+                    field(edge, query, "valid_to");
+                }
+            }
             for (PluginQueryDescriptor.PostFilter post : query.postFilters()) {
                 field(entity, query, post.field());
                 if (!List.of("EQ", "NE", "IS_NULL", "IS_NOT_NULL").contains(post.op())) {
@@ -131,7 +146,14 @@ public class PluginDescriptorRegistry {
             query.search().forEach(search -> search.fields()
                     .forEach(field -> field(entity, query, field)));
             query.sort().forEach(sort -> field(entity, query, sort.field()));
-            query.values().keySet().forEach(field -> field(entity, query, field));
+            query.values().forEach((field, spec) -> {
+                field(entity, query, field);
+                if (spec.type() != null && !spec.type().isBlank()
+                        && !List.of("json", "jsonb", "text[]", "varchar[]", "uuid[]")
+                        .contains(spec.type())) {
+                    fail(query, "unsupported value type " + spec.type());
+                }
+            });
             query.returning().forEach(field -> field(entity, query, field));
             for (PluginQueryDescriptor.Join join : query.joins()) {
                 PluginManifest.Relation relation = entity.relations().get(join.relation());

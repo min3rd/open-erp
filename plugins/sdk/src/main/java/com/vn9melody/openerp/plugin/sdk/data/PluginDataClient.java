@@ -7,6 +7,8 @@ import com.google.protobuf.NullValue;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import com.google.protobuf.util.JsonFormat;
+import com.vn9melody.openerp.plugin.data.v1.ExecuteBatchRequest;
+import com.vn9melody.openerp.plugin.data.v1.ExecuteBatchResponse;
 import com.vn9melody.openerp.plugin.data.v1.ExecuteRequest;
 import com.vn9melody.openerp.plugin.data.v1.ExecuteResponse;
 import com.vn9melody.openerp.plugin.data.v1.PluginDataServiceGrpc;
@@ -89,10 +91,20 @@ public class PluginDataClient {
     private volatile ManagedChannel channel;
 
     public PluginQueryResult query(String queryId, Map<String, ?> params) {
-        return query(queryId, params, false);
+        return query(queryId, params, false, null);
     }
 
     public PluginQueryResult query(String queryId, Map<String, ?> params, boolean primary) {
+        return query(queryId, params, primary, null);
+    }
+
+    /** WRITE call with an auto-generated idempotency key. */
+    public PluginQueryResult write(String queryId, Map<String, ?> params) {
+        return query(queryId, params, false, UUID.randomUUID().toString());
+    }
+
+    public PluginQueryResult query(String queryId, Map<String, ?> params, boolean primary,
+                                   String idempotencyKey) {
         if (gatewayUrl.isEmpty() || gatewayUrl.get().isBlank()) {
             throw new ApiException(503, ErrorCode.PLUGIN_DATA_GATEWAY_UNAVAILABLE,
                     "Plugin data gateway is not configured", Map.of());
@@ -101,6 +113,9 @@ public class PluginDataClient {
                 .setQueryId(queryId)
                 .setRequestId(UUID.randomUUID().toString())
                 .setPrimary(primary);
+        if (idempotencyKey != null && !idempotencyKey.isBlank()) {
+            request.setIdempotencyKey(idempotencyKey);
+        }
         if (params != null) {
             params.forEach((key, value) -> request.putParams(key, toValue(value)));
         }
@@ -109,6 +124,40 @@ public class PluginDataClient {
             return new PluginQueryResult(rows(response), response.getTotalRows(), response.getAffectedRows());
         } catch (StatusRuntimeException e) {
             throw mapError(queryId, e);
+        }
+    }
+
+    public record BatchStatement(String queryId, Map<String, ?> params) {}
+
+    public List<PluginQueryResult> executeBatch(List<BatchStatement> statements) {
+        return executeBatch(statements, UUID.randomUUID().toString());
+    }
+
+    public List<PluginQueryResult> executeBatch(List<BatchStatement> statements, String idempotencyKey) {
+        if (gatewayUrl.isEmpty() || gatewayUrl.get().isBlank()) {
+            throw new ApiException(503, ErrorCode.PLUGIN_DATA_GATEWAY_UNAVAILABLE,
+                    "Plugin data gateway is not configured", Map.of());
+        }
+        ExecuteBatchRequest.Builder request = ExecuteBatchRequest.newBuilder()
+                .setRequestId(UUID.randomUUID().toString());
+        if (idempotencyKey != null && !idempotencyKey.isBlank()) {
+            request.setIdempotencyKey(idempotencyKey);
+        }
+        for (BatchStatement statement : statements) {
+            ExecuteRequest.Builder item = ExecuteRequest.newBuilder()
+                    .setQueryId(statement.queryId())
+                    .setRequestId(UUID.randomUUID().toString());
+            if (statement.params() != null) {
+                statement.params().forEach((key, value) -> item.putParams(key, toValue(value)));
+            }
+            request.addStatements(item);        }
+        try {
+            ExecuteBatchResponse response = stub().executeBatch(request.build());
+            return response.getStatementsList().stream()
+                    .map(item -> new PluginQueryResult(rows(item), item.getTotalRows(), item.getAffectedRows()))
+                    .toList();
+        } catch (StatusRuntimeException e) {
+            throw mapError("__batch__", e);
         }
     }
 
@@ -200,6 +249,7 @@ public class PluginDataClient {
                 code = ErrorCode.PLUGIN_DATA_GATEWAY_UNAVAILABLE;
                 status = 503;
             }
+            case ALREADY_EXISTS, ABORTED -> status = 409;
             default -> {
                 // keep the generic error code
             }

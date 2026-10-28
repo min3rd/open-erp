@@ -19,8 +19,6 @@ import com.vn9melody.openerp.plugins.catalog.dto.CatalogTypeDtos.TypeUpdateReque
 import com.vn9melody.openerp.plugins.catalog.gateway.CatalogGateway;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogType;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogTypeGrant;
-import com.vn9melody.openerp.plugins.catalog.repository.CatalogTypeGrantRepository;
-import com.vn9melody.openerp.plugins.catalog.repository.CatalogTypeRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -45,12 +43,6 @@ public class CatalogTypeService {
 
     private static final String[] DEFAULT_RELATIONS = {"HIERARCHY"};
     private static final Set<String> DEFAULT_GRANT_ROLE_CODES = Set.of("TENANT_OWNER", "TENANT_ADMIN");
-
-    @Inject
-    CatalogTypeRepository typeRepository;
-
-    @Inject
-    CatalogTypeGrantRepository grantRepository;
 
     @Inject
     CatalogGateway gateway;
@@ -82,21 +74,19 @@ public class CatalogTypeService {
             throw CatalogSupport.validation("code", ErrorCode.VALIDATION_MAX,
                 Map.of("max", CatalogSupport.MAX_CODE_LENGTH));
         }
-        CatalogType existing = tenantId == null
-            ? typeRepository.findSystemByCode(code)
-            : typeRepository.findByTenantAndCode(tenantId, code);
+        CatalogType existing = gateway.typeByCodeExact(tenantId, code);
         if (existing != null) {
             throw CatalogSupport.conflict(CatalogErrorCode.CATALOG_TYPE_CODE_EXISTS,
                 Map.of(ResponseKey.CODE.getKey(), code));
         }
 
-        CatalogType type = new CatalogType();
-        type.tenantId = tenantId;
-        type.code = code;
-        applyCreate(type, request);
-        type.createdAt = Instant.now();
-        type.updatedAt = type.createdAt;
-        type.persist();
+        CatalogType draft = new CatalogType();
+        draft.tenantId = tenantId;
+        draft.code = code;
+        applyCreate(draft, request);
+        draft.createdAt = Instant.now();
+        draft.updatedAt = draft.createdAt;
+        CatalogType type = gateway.insertType(tenantId, typeParams(draft), tenantId == null);
 
         if (tenantId != null) {
             createDefaultGrants(tenantId, type.id);
@@ -111,9 +101,10 @@ public class CatalogTypeService {
         CatalogType type = requireOwnedType(tenantId, typeId);
         applyUpdate(type, request);
         type.updatedAt = Instant.now();
-        auditTrail.recordSuccess(tenantId, PlatformAction.CATALOG_TYPE_UPDATE, "CATALOG_TYPE", type.id,
-            Map.of(ResponseKey.CODE.getKey(), type.code));
-        return toResponse(type);
+        CatalogType saved = gateway.updateType(tenantId, typeParams(type), tenantId == null);
+        auditTrail.recordSuccess(tenantId, PlatformAction.CATALOG_TYPE_UPDATE, "CATALOG_TYPE", saved.id,
+            Map.of(ResponseKey.CODE.getKey(), saved.code));
+        return toResponse(saved);
     }
 
     public List<GrantResponse> grants(UUID tenantId, String code) {
@@ -129,8 +120,9 @@ public class CatalogTypeService {
         CatalogType type = requireTenantManagedType(tenantId, code);
         List<GrantItem> items = request != null && request.grants() != null ? request.grants() : List.of();
 
-        List<CatalogTypeGrant> replacements = new ArrayList<>();
+        List<Map<String, Object>> replacements = new ArrayList<>();
         Set<String> seenRoles = new HashSet<>();
+        Instant now = Instant.now();
         for (GrantItem item : items) {
             String roleCode = item.roleCode() == null ? null : item.roleCode().trim().toUpperCase();
             if (roleCode == null || roleCode.isBlank()) {
@@ -140,29 +132,27 @@ public class CatalogTypeService {
                 throw CatalogSupport.validation(ResponseKey.ROLE_CODE.getKey(), ErrorCode.VALIDATION_INVALID,
                     Map.of(ResponseKey.ROLE_CODE.getKey(), roleCode));
             }
-            CatalogTypeGrant grant = new CatalogTypeGrant();
-            grant.tenantId = tenantId;
-            grant.typeId = type.id;
-            grant.roleCode = roleCode;
-            grant.canRead = item.canRead() == null || item.canRead();
-            grant.canWrite = item.canWrite() != null && item.canWrite();
-            grant.createdAt = Instant.now();
-            grant.updatedAt = grant.createdAt;
+            Map<String, Object> grant = new java.util.LinkedHashMap<>();
+            grant.put("type_id", type.id);
+            grant.put("role_code", roleCode);
+            grant.put("can_read", item.canRead() == null || item.canRead());
+            grant.put("can_write", item.canWrite() != null && item.canWrite());
+            grant.put("created_at", now);
+            grant.put("updated_at", now);
             replacements.add(grant);
         }
 
-        CatalogTypeGrant.delete("tenantId = ?1 and typeId = ?2", tenantId, type.id);
-        replacements.forEach(grantRepository::persist);
+        List<CatalogTypeGrant> saved = gateway.replaceGrants(tenantId, type.id, replacements);
         auditTrail.recordSuccess(tenantId, PlatformAction.CATALOG_GRANT_UPDATE, "CATALOG_TYPE", type.id,
             Map.of(ResponseKey.CODE.getKey(), type.code));
 
-        return replacements.stream()
+        return saved.stream()
             .map(grant -> new GrantResponse(grant.id, grant.roleCode, grant.canRead, grant.canWrite))
             .toList();
     }
 
     private CatalogType requireOwnedType(UUID tenantId, UUID typeId) {
-        CatalogType type = typeId != null ? typeRepository.findById(typeId) : null;
+        CatalogType type = typeId != null ? gateway.typeById(tenantId, typeId) : null;
         if (type == null) {
             throw CatalogSupport.notFound(CatalogErrorCode.CATALOG_TYPE_NOT_FOUND, ResponseKey.ID.getKey(), typeId);
         }
@@ -186,15 +176,39 @@ public class CatalogTypeService {
     }
 
     private void createDefaultGrants(UUID tenantId, UUID typeId) {
+        Instant now = Instant.now();
+        List<Map<String, Object>> grants = new ArrayList<>();
         for (String roleCode : DEFAULT_GRANT_ROLE_CODES) {
-            CatalogTypeGrant grant = new CatalogTypeGrant();
-            grant.tenantId = tenantId;
-            grant.typeId = typeId;
-            grant.roleCode = roleCode;
-            grant.canRead = true;
-            grant.canWrite = true;
-            grant.persist();
+            Map<String, Object> grant = new java.util.LinkedHashMap<>();
+            grant.put("type_id", typeId);
+            grant.put("role_code", roleCode);
+            grant.put("can_read", true);
+            grant.put("can_write", true);
+            grant.put("created_at", now);
+            grant.put("updated_at", now);
+            grants.add(grant);
         }
+        gateway.replaceGrants(tenantId, typeId, grants);
+    }
+
+    private static Map<String, Object> typeParams(CatalogType type) {
+        Map<String, Object> params = new java.util.LinkedHashMap<>();
+        params.put("id", type.id);
+        params.put("code", type.code);
+        params.put("name_key", type.nameKey);
+        params.put("description_key", type.descriptionKey);
+        params.put("hierarchy_mode", type.hierarchyMode == null ? null : type.hierarchyMode.name());
+        params.put("allowed_relations", type.allowedRelations == null ? null : List.of(type.allowedRelations));
+        params.put("allowed_parent_types", type.allowedParentTypes == null ? null : List.of(type.allowedParentTypes));
+        params.put("max_depth", type.maxDepth);
+        params.put("min_parents", type.minParents);
+        params.put("allow_free_text", type.allowFreeText);
+        params.put("versioned", type.versioned);
+        params.put("effective_dated", type.effectiveDated);
+        params.put("attributes_schema", type.attributesSchema);
+        params.put("status", type.status == null ? null : type.status.name());
+        params.put("updated_at", type.updatedAt);
+        return params;
     }
 
     private static void applyCreate(CatalogType type, TypeCreateRequest request) {

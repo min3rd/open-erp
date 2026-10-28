@@ -25,21 +25,26 @@ public record PluginQueryDescriptor(
         List<Exists> exists,
         List<PostFilter> postFilters,
         String mergeKey,
+        Tree tree,
         List<Sort> sort,
-        Map<String, String> values,
+        Map<String, ValueSpec> values,
         List<String> returning,
         List<Join> joins,
         Page page,
         boolean distinct,
+        boolean bulk,
         int maxRows,
         int timeoutMs) {
 
     public enum Mode { READ, WRITE }
 
-    public enum Operation { LIST, GET, INSERT, UPDATE, DELETE, MERGED_LIST }
+    public enum Operation { LIST, GET, INSERT, UPDATE, DELETE, MERGED_LIST, TREE }
 
     /** Tenant isolation applied by the compiler; metadata never comes from the payload. */
     public enum Scope { TENANT, TENANT_OR_SYSTEM, SYSTEM }
+
+    /** One write value: source param, optionality and SQL cast (jsonb/array). */
+    public record ValueSpec(String param, boolean optional, boolean allowNull, String type) {}
 
     public record Filter(String field, String op, String param, boolean required, boolean contains) {}
 
@@ -54,13 +59,19 @@ public record PluginQueryDescriptor(
     /** Filter applied after tenant/system merge, e.g. hide rows whose tenant override is INACTIVE. */
     public record PostFilter(String field, String op, String value) {}
 
+    /** Recursive descendants through a declared edge entity. */
+    public record Tree(String edgeEntity, String rootParam, String parentField, String childField,
+                       String effectiveParam, String depthParam, int defaultDepth, int maxDepth,
+                       String status) {}
+
     public record Sort(String field, String direction) {}
 
     public record Join(String relation, List<String> select) {}
 
     public record Page(String pageParam, String sizeParam, int maxSize, int defaultSize) {}
 
-    private static final Set<String> OPERATIONS = Set.of("LIST", "GET", "INSERT", "UPDATE", "DELETE", "MERGED_LIST");
+    private static final Set<String> OPERATIONS = Set.of("LIST", "GET", "INSERT", "UPDATE", "DELETE",
+            "MERGED_LIST", "TREE");
 
     public static PluginQueryDescriptor parse(JsonNode node) {
         String id = text(node, "id", null);
@@ -132,11 +143,35 @@ public record PluginQueryDescriptor(
             }
         }
         String mergeKey = text(node, "merge_key", null);
-        Map<String, String> values = new LinkedHashMap<>();
+        Tree tree = null;
+        JsonNode treeNode = node.path("tree");
+        if (treeNode.isObject()) {
+            tree = new Tree(
+                    text(treeNode, "edge_entity", null),
+                    text(treeNode, "root_param", "root_id"),
+                    text(treeNode, "parent_field", "parent_item_id"),
+                    text(treeNode, "child_field", "child_item_id"),
+                    text(treeNode, "effective_param", null),
+                    text(treeNode, "depth_param", "max_depth"),
+                    treeNode.path("default_depth").asInt(100),
+                    treeNode.path("max_depth").asInt(1000),
+                    text(treeNode, "status", null));
+        }
+        Map<String, ValueSpec> values = new LinkedHashMap<>();
         JsonNode valuesNode = node.path("values");
         if (valuesNode.isObject()) {
-            valuesNode.fields().forEachRemaining(entry ->
-                    values.put(entry.getKey(), text(entry.getValue(), "param", entry.getKey())));
+            valuesNode.fields().forEachRemaining(entry -> {
+                JsonNode spec = entry.getValue();
+                if (spec.isTextual()) {
+                    values.put(entry.getKey(), new ValueSpec(spec.asText(), false, false, null));
+                } else {
+                    values.put(entry.getKey(), new ValueSpec(
+                            text(spec, "param", entry.getKey()),
+                            spec.path("optional").asBoolean(false),
+                            spec.path("allow_null").asBoolean(false),
+                            text(spec, "type", null)));
+                }
+            });
         }
         List<String> returning = strings(node.path("returning"));
         List<Join> joins = new ArrayList<>();
@@ -156,8 +191,10 @@ public record PluginQueryDescriptor(
         int maxRows = node.path("maxRows").asInt(0);
         int timeoutMs = node.path("timeoutMs").asInt(0);
         boolean distinct = node.path("distinct").asBoolean(false);
+        boolean bulk = node.path("bulk").asBoolean(false);
         return new PluginQueryDescriptor(id, mode, operation, entity, scope, select, filters, search,
-                exists, postFilters, mergeKey, sort, values, returning, joins, page, distinct, maxRows, timeoutMs);
+                exists, postFilters, mergeKey, tree, sort, values, returning, joins, page, distinct, bulk,
+                maxRows, timeoutMs);
     }
 
     private static String text(JsonNode node, String field, String defaultValue) {

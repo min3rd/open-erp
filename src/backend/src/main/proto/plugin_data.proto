@@ -33,6 +33,8 @@ message ExecuteRequest {
 
 message ExecuteBatchRequest {
   repeated ExecuteRequest statements = 1;
+  string idempotency_key = 2;
+  string request_id = 3;
 }
 
 message ExecuteResponse {

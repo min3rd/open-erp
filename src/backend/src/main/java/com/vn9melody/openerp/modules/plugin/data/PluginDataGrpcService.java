@@ -21,6 +21,7 @@ import jakarta.inject.Inject;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import org.jboss.logging.Logger;
 
 /**
  * Internal gRPC entry point for plugin data access. Plugins send a descriptor
@@ -29,6 +30,8 @@ import java.util.Map;
 @GrpcService
 @Blocking
 public class PluginDataGrpcService extends PluginDataServiceGrpc.PluginDataServiceImplBase {
+
+    private static final Logger LOG = Logger.getLogger(PluginDataGrpcService.class);
 
     private static final Metadata.Key<String> ERROR_CODE =
             Metadata.Key.of("x-error-code", Metadata.ASCII_STRING_MARSHALLER);
@@ -53,7 +56,7 @@ public class PluginDataGrpcService extends PluginDataServiceGrpc.PluginDataServi
         try {
             PluginServiceIdentity identity = identity();
             PluginDataExecutor.Result result = executor.execute(identity, request.getQueryId(),
-                    request.getRequestId(), request.getParamsMap());
+                    request.getRequestId(), request.getParamsMap(), request.getIdempotencyKey());
             responseObserver.onNext(response(request.getRequestId(), result));
             responseObserver.onCompleted();
         } catch (RuntimeException e) {
@@ -70,7 +73,8 @@ public class PluginDataGrpcService extends PluginDataServiceGrpc.PluginDataServi
                     .map(statement -> new PluginDataExecutor.BatchStatement(statement.getQueryId(),
                             statement.getRequestId(), statement.getParamsMap()))
                     .toList();
-            List<PluginDataExecutor.Result> results = executor.executeBatch(identity, statements);
+            List<PluginDataExecutor.Result> results = executor.executeBatch(identity, statements,
+                    request.getIdempotencyKey());
             ExecuteBatchResponse.Builder response = ExecuteBatchResponse.newBuilder()
                     .setSuccess(true)
                     .setCode("PLUGIN_DATA_SUCCESS")
@@ -148,6 +152,7 @@ public class PluginDataGrpcService extends PluginDataServiceGrpc.PluginDataServi
                 ? plugin
                 : new PluginDataException(PluginDataException.Code.EXECUTION_FAILED,
                         "PLUGIN_DATA_EXECUTION_FAILED", error);
+        LOG.debugf("plugin-data gRPC failure: %s", exception.getMessage());
         String code = exception.getMessage() != null ? exception.getMessage() : "PLUGIN_DATA_FAILED";
         int separator = code.indexOf(':');
         if (separator > 0) {

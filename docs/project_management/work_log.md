@@ -2,6 +2,17 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-28 — TASK-402 P3.1 + P4: write path gRPC, batch, idempotency
+
+- **P3.1**: core `TREE` recursive descriptor + bulk LIST (20k) cho export; catalog `descendants`, export items/edges/parent lookup qua gateway, bỏ DB read tương ứng.
+- **P4**: write descriptors type/item/edge/grant + current-row/active-edge lookups; `CatalogTypeService`, `CatalogItemService`, `CatalogEdgeService`, `CatalogLookupService.inline` ghi qua gateway.
+- **Batch**: item version update = close + insert; grant replace = delete + insert; một transaction core.
+- **Idempotency**: `plugin_data_idempotency` + V5.1.0; SDK tự sinh key; replay/conflict/in-progress; WRITE retry an toàn.
+- **Compiler/executor**: value spec optional/allow_null/jsonb/array; `LOWER_EQ`; bulk row limit.
+- **Seed**: V5.1.1, 49 descriptors.
+- **Kiểm chứng**: create/update type, create/update/close item, edge + parents, inline, descendants, export CSV; read cache vẫn PASS; full backend test PASS.
+- **Còn**: import/system sync/seeders DB (P4.1/P5); outbox P6; mTLS P5.
+
 ## 2026-10-27 — TASK-402 P3: catalog read path qua gRPC + Redis cache do plugin quản lý
 
 - **SDK**: `plugins/sdk` thêm proto/stub gRPC (`PluginDataClient`, `PluginQueryResult`), deadline, service token; mTLS đọc từ PEM khi gateway URL `https`.

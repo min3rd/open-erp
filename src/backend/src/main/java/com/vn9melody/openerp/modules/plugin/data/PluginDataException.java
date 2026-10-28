@@ -16,6 +16,8 @@ public class PluginDataException extends RuntimeException {
         INVALID_QUERY(Status.Code.FAILED_PRECONDITION),
         PARAM_MISSING(Status.Code.INVALID_ARGUMENT),
         PARAM_INVALID(Status.Code.INVALID_ARGUMENT),
+        IDEMPOTENCY_CONFLICT(Status.Code.ALREADY_EXISTS),
+        IDEMPOTENCY_IN_PROGRESS(Status.Code.ABORTED),
         EXECUTION_FAILED(Status.Code.INTERNAL),
         UNAVAILABLE(Status.Code.UNAVAILABLE);
 

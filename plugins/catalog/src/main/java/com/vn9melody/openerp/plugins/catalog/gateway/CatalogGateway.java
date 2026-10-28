@@ -18,11 +18,14 @@ import jakarta.inject.Inject;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -91,6 +94,24 @@ public class CatalogGateway {
                 () -> row(query("catalog.types.by.id", Map.of("id", id))));
     }
 
+    /** Exact owner row (tenant or system), used by write duplicate checks. */
+    public CatalogType typeByCodeExact(UUID tenantId, String code) {
+        return visibleTypes(tenantId).stream()
+                .filter(type -> Objects.equals(type.tenantId, tenantId) && code.equals(type.code))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public CatalogType insertType(UUID tenantId, Map<String, ?> params, boolean system) {
+        String queryId = system ? "catalog.type.insert.system" : "catalog.type.insert";
+        return toType(write(queryId, params).first());
+    }
+
+    public CatalogType updateType(UUID tenantId, Map<String, ?> params, boolean system) {
+        String queryId = system ? "catalog.type.update.system" : "catalog.type.update";
+        return toType(write(queryId, params).first());
+    }
+
     public List<CatalogType> typesByIds(UUID tenantId, Collection<UUID> ids) {
         if (ids == null || ids.isEmpty()) {
             return List.of();
@@ -128,9 +149,134 @@ public class CatalogGateway {
                         .map(this::toItem).toList());
     }
 
-    public Page<CatalogItem> adminPage(UUID tenantId, UUID typeId, Instant asOf, String q, String status,
-                                       UUID parentId, String relationType, int page, int size) {
+    public List<CatalogItem> descendants(UUID tenantId, UUID rootId, Instant asOf, int maxDepth) {
+        return cache.getOrLoad(tenantId, "items:descendants:" + CatalogCache.hash(rootId, cacheInstant(asOf), maxDepth),
+                new TypeReference<List<CatalogItem>>() {},
+                () -> query("catalog.items.descendants", Map.of(
+                                "root_id", rootId,
+                                "as_of", asOf,
+                                "max_depth", maxDepth))
+                        .rows().stream().map(this::toItem).toList());
+    }
+
+    public CatalogItem currentItemByCode(UUID tenantId, UUID typeId, String code, boolean system) {
+        String queryId = system ? "catalog.item.current.by.code.system" : "catalog.item.current.by.code";
+        List<Map<String, Object>> rows = query(queryId, Map.of("type_id", typeId, "code", code)).rows();
+        return rows.isEmpty() ? null : toItem(rows.get(0));
+    }
+
+    public CatalogItem visibleCurrentByCodeOrName(UUID tenantId, UUID typeId, String code, String name) {
+        List<Map<String, Object>> byCode = query("catalog.item.visible.current.by.code",
+                Map.of("type_id", typeId, "code", code)).rows();
+        if (!byCode.isEmpty()) {
+            return toItem(byCode.get(0));
+        }
+        List<Map<String, Object>> byName = query("catalog.item.visible.current.by.name",
+                Map.of("type_id", typeId, "name", name)).rows();
+        return byName.isEmpty() ? null : toItem(byName.get(0));
+    }
+
+    public CatalogItem insertItem(UUID tenantId, Map<String, ?> params, boolean system) {
+        String queryId = system ? "catalog.item.insert.system" : "catalog.item.insert";
+        return toItem(write(queryId, params).first());
+    }
+
+    public CatalogItem insertItem(UUID tenantId, CatalogItem item, boolean system) {
+        return insertItem(tenantId, itemParams(item), system);
+    }
+
+    public CatalogItem updateItemVersioned(UUID tenantId, CatalogItem current, CatalogItem next,
+                                           Instant now, UUID actor) {
+        boolean system = current.tenantId == null;
+        Map<String, Object> close = new java.util.LinkedHashMap<>();
+        close.put("id", current.id);
+        close.put("valid_to", now);
+        close.put("updated_at", now);
+        close.put("updated_by", actor);
+        List<PluginDataClient.BatchStatement> statements = new ArrayList<>();
+        statements.add(new PluginDataClient.BatchStatement(
+                system ? "catalog.item.close.system" : "catalog.item.close", close));
+        statements.add(new PluginDataClient.BatchStatement(
+                system ? "catalog.item.insert.system" : "catalog.item.insert", itemParams(next)));
+        List<PluginQueryResult> results = client.executeBatch(statements);
+        return toItem(results.get(1).first());
+    }
+
+    public CatalogItem closeItem(UUID tenantId, UUID itemId, Instant validTo, UUID actor, boolean system) {
         Map<String, Object> params = new java.util.LinkedHashMap<>();
+        params.put("id", itemId);
+        params.put("valid_to", validTo);
+        params.put("updated_at", validTo);
+        params.put("updated_by", actor);
+        return toItem(write(system ? "catalog.item.close.system" : "catalog.item.close", params).first());
+    }
+
+    private static Map<String, Object> itemParams(CatalogItem item) {
+        Map<String, Object> params = new java.util.LinkedHashMap<>();
+        params.put("type_id", item.typeId);
+        params.put("version_group_id", item.versionGroupId);
+        params.put("version", item.version);
+        params.put("code", item.code);
+        params.put("name", item.name);
+        params.put("name_en", item.nameEn);
+        params.put("description", item.description);
+        params.put("attributes", item.attributes);
+        params.put("sort_order", item.sortOrder);
+        params.put("status", item.status == null ? null : item.status.name());
+        params.put("valid_from", item.validFrom);
+        params.put("valid_to", item.validTo);
+        params.put("supersedes_item_id", item.supersedesItemId);
+        params.put("created_by", item.createdBy);
+        params.put("created_at", item.createdAt);
+        params.put("updated_by", item.updatedBy);
+        params.put("updated_at", item.updatedAt);
+        return params;
+    }
+
+    public List<CatalogItem> exportItems(UUID tenantId, UUID typeId, Instant asOf, String q, String status,
+                                         UUID parentId, String relationType) {
+        Map<String, Object> params = new java.util.LinkedHashMap<>();
+        params.put("type_id", typeId);
+        params.put("as_of", asOf);
+        params.put("page", 0);
+        params.put("size", 20000);
+        putIfPresent(params, "q", q);
+        putIfPresent(params, "status", status);
+        if (parentId != null) {
+            params.put("parent_id", parentId);
+        }
+        putIfPresent(params, "relation_type", relationType);
+        return query("catalog.items.export", params).rows().stream().map(this::toItem).toList();
+    }
+
+    public List<CatalogItemEdge> exportEdgesByChildren(UUID tenantId, Collection<UUID> childIds, Instant asOf) {
+        if (childIds == null || childIds.isEmpty()) {
+            return List.of();
+        }
+        List<UUID> sorted = childIds.stream().distinct().sorted().toList();
+        return query("catalog.edges.by.children.export", Map.of(
+                        "child_item_ids", sorted,
+                        "status", CatalogStatus.ACTIVE.name(),
+                        "as_of", asOf,
+                        "page", 0,
+                        "size", 20000))
+                .rows().stream().map(this::toEdge).toList();
+    }
+
+    public List<CatalogItem> exportItemsByIds(UUID tenantId, Collection<UUID> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        List<UUID> sorted = ids.stream().distinct().sorted().toList();
+        return query("catalog.items.by.ids.export", Map.of(
+                        "ids", sorted,
+                        "page", 0,
+                        "size", 20000))
+                .rows().stream().map(this::toItem).toList();
+    }
+
+    public Page<CatalogItem> adminPage(UUID tenantId, UUID typeId, Instant asOf, String q, String status,
+                                       UUID parentId, String relationType, int page, int size) {        Map<String, Object> params = new java.util.LinkedHashMap<>();
         params.put("type_id", typeId);
         params.put("as_of", asOf);
         params.put("page", page);
@@ -141,7 +287,7 @@ public class CatalogGateway {
             params.put("parent_id", parentId);
         }
         putIfPresent(params, "relation_type", relationType);
-        String key = "items:admin:" + CatalogCache.hash(typeId, asOf, q, status, parentId, relationType, page, size);
+        String key = "items:admin:" + CatalogCache.hash(typeId, cacheInstant(asOf), q, status, parentId, relationType, page, size);
         return cache.getOrLoad(tenantId, key, new TypeReference<Page<CatalogItem>>() {},
                 () -> pageResult(query("catalog.items.admin", params), this::toItem));
     }
@@ -157,7 +303,7 @@ public class CatalogGateway {
         if (parentId != null) {
             params.put("parent_id", parentId);
         }
-        String key = "items:merged:" + CatalogCache.hash(typeId, asOf, q, parentId, page, size);
+        String key = "items:merged:" + CatalogCache.hash(typeId, cacheInstant(asOf), q, parentId, page, size);
         return cache.getOrLoad(tenantId, key, new TypeReference<Page<CatalogItem>>() {},
                 () -> pageResult(query("catalog.items.merged.options", params), this::toItem));
     }
@@ -167,7 +313,7 @@ public class CatalogGateway {
             return Set.of();
         }
         List<String> sorted = codes.stream().distinct().sorted().toList();
-        String key = "items:system-codes:" + CatalogCache.hash(typeId, asOf, sorted);
+        String key = "items:system-codes:" + CatalogCache.hash(typeId, cacheInstant(asOf), sorted);
         List<String> found = cache.getOrLoad(tenantId, key, new TypeReference<List<String>>() {},
                 () -> query("catalog.items.system.codes", Map.of(
                                 "type_id", typeId,
@@ -186,12 +332,20 @@ public class CatalogGateway {
         return edgesByChildren(tenantId, List.of(childId), asOf);
     }
 
+    public List<CatalogItemEdge> edgesByChildFresh(UUID tenantId, UUID childId, Instant asOf) {
+        return query("catalog.edges.by.child", Map.of(
+                        "child_item_id", childId,
+                        "status", CatalogStatus.ACTIVE.name(),
+                        "as_of", asOf))
+                .rows().stream().map(this::toEdge).toList();
+    }
+
     public List<CatalogItemEdge> edgesByChildren(UUID tenantId, Collection<UUID> childIds, Instant asOf) {
         if (childIds == null || childIds.isEmpty()) {
             return List.of();
         }
         List<UUID> sorted = childIds.stream().distinct().sorted().toList();
-        return cache.getOrLoad(tenantId, "edges:children:" + CatalogCache.hash(sorted, asOf),
+        return cache.getOrLoad(tenantId, "edges:children:" + CatalogCache.hash(sorted, cacheInstant(asOf)),
                 new TypeReference<List<CatalogItemEdge>>() {},
                 () -> query("catalog.edges.by.children", Map.of(
                                 "child_item_ids", sorted,
@@ -201,7 +355,7 @@ public class CatalogGateway {
     }
 
     public List<CatalogItemEdge> edgesByParent(UUID tenantId, UUID parentId, Instant asOf) {
-        return cache.getOrLoad(tenantId, "edges:parent:" + CatalogCache.hash(parentId, asOf),
+        return cache.getOrLoad(tenantId, "edges:parent:" + CatalogCache.hash(parentId, cacheInstant(asOf)),
                 new TypeReference<List<CatalogItemEdge>>() {},
                 () -> query("catalog.edges.by.parent", Map.of(
                                 "parent_item_id", parentId,
@@ -210,12 +364,87 @@ public class CatalogGateway {
                         .rows().stream().map(this::toEdge).toList());
     }
 
+    public CatalogItemEdge edgeById(UUID tenantId, UUID edgeId, boolean system) {
+        String queryId = system ? "catalog.edge.by.id.system" : "catalog.edge.by.id";
+        List<Map<String, Object>> rows = query(queryId, Map.of("id", edgeId)).rows();
+        return rows.isEmpty() ? null : toEdge(rows.get(0));
+    }
+
+    public CatalogItemEdge activeEdge(UUID tenantId, UUID parentId, UUID childId,
+                                      String relationType, boolean system) {
+        String queryId = system ? "catalog.edge.active.system" : "catalog.edge.active";
+        List<Map<String, Object>> rows = query(queryId, Map.of(
+                "parent_item_id", parentId,
+                "child_item_id", childId,
+                "relation_type", relationType)).rows();
+        return rows.isEmpty() ? null : toEdge(rows.get(0));
+    }
+
+    public List<CatalogItemEdge> currentEdgesByChild(UUID tenantId, UUID childId) {
+        return query("catalog.edges.current.by.child", Map.of(
+                        "child_item_id", childId,
+                        "status", CatalogStatus.ACTIVE.name()))
+                .rows().stream().map(this::toEdge).toList();
+    }
+
+    public PluginQueryResult write(String queryId, Map<String, ?> params) {
+        return client.write(queryId, params);
+    }
+
+    public CatalogItemEdge insertEdge(UUID tenantId, Map<String, ?> params, boolean system) {
+        String queryId = system ? "catalog.edge.insert.system" : "catalog.edge.insert";
+        return toEdge(write(queryId, params).first());
+    }
+
+    public CatalogItemEdge insertEdge(UUID tenantId, CatalogItemEdge edge, boolean system) {
+        Map<String, Object> params = new java.util.LinkedHashMap<>();
+        params.put("parent_item_id", edge.parentItemId);
+        params.put("child_item_id", edge.childItemId);
+        params.put("relation_type", edge.relationType == null ? null : edge.relationType.name());
+        params.put("sort_order", edge.sortOrder);
+        params.put("status", edge.status == null ? null : edge.status.name());
+        params.put("valid_from", edge.validFrom);
+        params.put("created_by", edge.createdBy);
+        params.put("created_at", edge.createdAt);
+        return insertEdge(tenantId, params, system);
+    }
+
+    public CatalogItemEdge closeEdge(UUID tenantId, UUID edgeId, Instant validTo, boolean system) {
+        String queryId = system ? "catalog.edge.close.system" : "catalog.edge.close";
+        return toEdge(write(queryId, Map.of("id", edgeId, "valid_to", validTo)).first());
+    }
+
+    public boolean wouldCreateCycle(UUID tenantId, UUID parentId, UUID childId) {
+        if (parentId.equals(childId)) {
+            return true;
+        }
+        java.util.Set<UUID> visited = new java.util.HashSet<>();
+        java.util.ArrayDeque<UUID> pending = new java.util.ArrayDeque<>();
+        pending.add(parentId);
+        int depth = 0;
+        while (!pending.isEmpty() && depth++ < 1000) {
+            UUID current = pending.poll();
+            if (!visited.add(current)) {
+                continue;
+            }
+            for (CatalogItemEdge edge : edgesByChildFresh(tenantId, current, Instant.now())) {
+                if (childId.equals(edge.parentItemId)) {
+                    return true;
+                }
+                if (!visited.contains(edge.parentItemId)) {
+                    pending.add(edge.parentItemId);
+                }
+            }
+        }
+        return false;
+    }
+
     public List<UUID> parentIdsWithChildren(UUID tenantId, Collection<UUID> parentIds, Instant asOf) {
         if (parentIds == null || parentIds.isEmpty()) {
             return List.of();
         }
         List<UUID> sorted = parentIds.stream().distinct().sorted().toList();
-        return cache.getOrLoad(tenantId, "edges:parents:" + CatalogCache.hash(sorted, asOf),
+        return cache.getOrLoad(tenantId, "edges:parents:" + CatalogCache.hash(sorted, cacheInstant(asOf)),
                 new TypeReference<List<UUID>>() {},
                 () -> query("catalog.edges.parents.with.children", Map.of(
                                 "parent_item_ids", sorted,
@@ -250,6 +479,28 @@ public class CatalogGateway {
                 new TypeReference<CatalogTypeGrant>() {},
                 () -> grantRow(query("catalog.grants.by.role",
                         Map.of("type_id", typeId, "role_code", roleCode))));
+    }
+
+    public void deleteGrantsByType(UUID tenantId, UUID typeId) {
+        client.write("catalog.grant.delete.by.type", Map.of("type_id", typeId));
+    }
+
+    public List<CatalogTypeGrant> replaceGrants(UUID tenantId, UUID typeId,
+                                                List<Map<String, Object>> grants) {
+        List<PluginDataClient.BatchStatement> statements = new ArrayList<>();
+        statements.add(new PluginDataClient.BatchStatement("catalog.grant.delete.by.type",
+                Map.of("type_id", typeId)));
+        for (Map<String, Object> grant : grants) {
+            statements.add(new PluginDataClient.BatchStatement("catalog.grant.insert", grant));
+        }
+        List<PluginQueryResult> results = client.executeBatch(statements);
+        return results.subList(1, results.size()).stream()
+                .map(result -> toGrant(result.first()))
+                .toList();
+    }
+
+    public List<PluginQueryResult> batch(List<PluginDataClient.BatchStatement> statements) {
+        return client.executeBatch(statements);
     }
 
     // ------------------------------------------------------------------
@@ -357,6 +608,10 @@ public class CatalogGateway {
         if (value != null && !value.isBlank()) {
             params.put(key, value);
         }
+    }
+
+    private static Instant cacheInstant(Instant asOf) {
+        return asOf == null ? null : asOf.truncatedTo(ChronoUnit.MINUTES);
     }
 
     private static UUID uuid(Map<String, Object> row, String key) {

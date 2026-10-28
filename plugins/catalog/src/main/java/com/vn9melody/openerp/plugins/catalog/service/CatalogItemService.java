@@ -16,12 +16,8 @@ import com.vn9melody.openerp.plugins.catalog.gateway.CatalogGateway;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogItem;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogItemEdge;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogType;
-import com.vn9melody.openerp.plugins.catalog.repository.CatalogItemEdgeRepository;
-import com.vn9melody.openerp.plugins.catalog.repository.CatalogItemRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -45,12 +41,6 @@ import java.util.function.Function;
 public class CatalogItemService {
 
     @Inject
-    CatalogItemRepository itemRepository;
-
-    @Inject
-    CatalogItemEdgeRepository edgeRepository;
-
-    @Inject
     CatalogGateway gateway;
 
     @Inject
@@ -58,9 +48,6 @@ public class CatalogItemService {
 
     @Inject
     AuditTrail auditTrail;
-
-    @Inject
-    EntityManager entityManager;
 
     public record ItemPage(List<ItemResponse> items, long total) {}
 
@@ -77,7 +64,7 @@ public class CatalogItemService {
     public ItemPage page(UUID tenantId, String typeCode, String q, String parentIdText, String relationType,
                          String asOfText, String status, int page, int size) {
         CatalogType type = guard.requireTypeAccess(tenantId, typeCode, CatalogPermissionGuard.Access.READ);
-        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MINUTES));
+        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now());
         UUID parentId = CatalogSupport.parseUuid(parentIdText, "parent_id");
         int resolvedPage = CatalogSupport.page(page);
         int resolvedSize = CatalogSupport.size(size);
@@ -130,7 +117,7 @@ public class CatalogItemService {
             throw CatalogSupport.validation("code", ErrorCode.VALIDATION_MAX,
                 Map.of("max", CatalogSupport.MAX_CODE_LENGTH));
         }
-        if (itemRepository.findCurrentByCode(tenantId, type.id, code) != null) {
+        if (gateway.currentItemByCode(tenantId, type.id, code, tenantId == null) != null) {
             throw CatalogSupport.conflict(CatalogErrorCode.CATALOG_ITEM_CODE_EXISTS,
                 Map.of(ResponseKey.CODE.getKey(), code));
         }
@@ -146,12 +133,13 @@ public class CatalogItemService {
         item.createdBy = actor;
         item.updatedBy = actor;
         item.validFrom = Instant.now();
-        item.persist();
-        flushWindowGuard();
+        item.createdAt = item.validFrom;
+        item.updatedAt = item.validFrom;
+        CatalogItem saved = gateway.insertItem(tenantId, itemParams(item), tenantId == null);
 
-        auditTrail.recordSuccess(tenantId, PlatformAction.CATALOG_ITEM_CREATE, "CATALOG_ITEM", item.id,
-            Map.of(ResponseKey.CODE.getKey(), item.code));
-        return toResponse(item, type.code, isOverridden(tenantId, item, type, item.validFrom));
+        auditTrail.recordSuccess(tenantId, PlatformAction.CATALOG_ITEM_CREATE, "CATALOG_ITEM", saved.id,
+            Map.of(ResponseKey.CODE.getKey(), saved.code));
+        return toResponse(saved, type.code, isOverridden(tenantId, saved, type, saved.validFrom));
     }
 
     @Transactional
@@ -162,12 +150,6 @@ public class CatalogItemService {
 
         Instant now = Instant.now();
         UUID actor = auditTrail.currentActorUserId();
-        item.validTo = now;
-        item.updatedAt = now;
-        item.updatedBy = actor;
-        // Close the current window before inserting n+1: Hibernate executes inserts
-        // before updates, and the EXCLUDE constraint would reject the overlap.
-        entityManager.flush();
 
         CatalogItem next = new CatalogItem();
         next.tenantId = item.tenantId;
@@ -179,13 +161,14 @@ public class CatalogItemService {
         next.validFrom = now;
         applyUpdate(next, request, item);
         next.createdBy = actor;
+        next.createdAt = now;
         next.updatedBy = actor;
-        next.persist();
-        flushWindowGuard();
+        next.updatedAt = now;
+        CatalogItem saved = gateway.updateItemVersioned(tenantId, item, next, now, actor);
 
-        auditTrail.recordSuccess(tenantId, PlatformAction.CATALOG_ITEM_UPDATE, "CATALOG_ITEM", next.id,
-            Map.of(ResponseKey.CODE.getKey(), next.code));
-        return toResponse(next, type.code, isOverridden(tenantId, next, type, now));
+        auditTrail.recordSuccess(tenantId, PlatformAction.CATALOG_ITEM_UPDATE, "CATALOG_ITEM", saved.id,
+            Map.of(ResponseKey.CODE.getKey(), saved.code));
+        return toResponse(saved, type.code, isOverridden(tenantId, saved, type, now));
     }
 
     @Transactional
@@ -194,9 +177,9 @@ public class CatalogItemService {
         CatalogType type = requireType(tenantId, item.typeId);
         requireItemWriteGrant(tenantId, type);
 
-        item.validTo = Instant.now();
-        item.updatedAt = item.validTo;
-        item.updatedBy = auditTrail.currentActorUserId();
+        Instant now = Instant.now();
+        UUID actor = auditTrail.currentActorUserId();
+        gateway.closeItem(tenantId, item.id, now, actor, item.tenantId == null);
         auditTrail.recordSuccess(tenantId, PlatformAction.CATALOG_ITEM_CLOSE, "CATALOG_ITEM", item.id,
             Map.of(ResponseKey.CODE.getKey(), item.code));
     }
@@ -204,7 +187,7 @@ public class CatalogItemService {
     public ItemResponse get(UUID tenantId, UUID itemId, String asOfText, boolean withRelations) {
         CatalogItem item = requireReadableItem(tenantId, itemId);
         CatalogType type = requireType(tenantId, item.typeId);
-        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MINUTES));
+        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now());
         boolean overridden = isOverridden(tenantId, item, type, asOf);
         if (!withRelations) {
             return toResponse(item, type.code, overridden);
@@ -216,7 +199,7 @@ public class CatalogItemService {
     public List<ItemResponse> versions(UUID tenantId, UUID itemId) {
         CatalogItem item = requireReadableItem(tenantId, itemId);
         CatalogType type = requireType(tenantId, item.typeId);
-        boolean overridden = isOverridden(tenantId, item, type, Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MINUTES));
+        boolean overridden = isOverridden(tenantId, item, type, Instant.now());
         return gateway.itemVersions(tenantId, item.versionGroupId).stream()
             .map(version -> toResponse(version, type.code, overridden))
             .toList();
@@ -224,7 +207,7 @@ public class CatalogItemService {
 
     public List<ItemParentResponse> parents(UUID tenantId, UUID itemId, String asOfText) {
         requireReadableItem(tenantId, itemId);
-        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MINUTES));
+        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now());
         List<CatalogItemEdge> edges = gateway.edgesByChild(tenantId, itemId, asOf);
         return toLinks(edges, tenantId, edge -> edge.parentItemId);
     }
@@ -232,9 +215,10 @@ public class CatalogItemService {
     public List<ItemResponse> descendants(UUID tenantId, UUID itemId, String asOfText, Integer depth) {
         CatalogItem item = requireReadableItem(tenantId, itemId);
         CatalogType type = requireType(tenantId, item.typeId);
-        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MINUTES));
+        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of",
+                Instant.now());
         int maxDepth = resolveMaxDepth(type, depth);
-        return edgeRepository.findDescendants(itemId, tenantId, asOf, maxDepth).stream()
+        return gateway.descendants(tenantId, itemId, asOf, maxDepth).stream()
             .map(descendant -> toResponse(descendant, type.code))
             .toList();
     }
@@ -260,7 +244,7 @@ public class CatalogItemService {
     }
 
     private CatalogItem requireWritableItem(UUID tenantId, UUID itemId) {
-        CatalogItem item = itemRepository.findVisibleById(tenantId, itemId);
+        CatalogItem item = gateway.itemById(tenantId, itemId);
         if (item == null) {
             throw CatalogSupport.notFound(CatalogErrorCode.CATALOG_ITEM_NOT_FOUND,
                 ResponseKey.ID.getKey(), itemId);
@@ -275,6 +259,28 @@ public class CatalogItemService {
                 ResponseKey.ID.getKey(), itemId);
         }
         return item;
+    }
+
+    private static Map<String, Object> itemParams(CatalogItem item) {
+        Map<String, Object> params = new java.util.LinkedHashMap<>();
+        params.put("type_id", item.typeId);
+        params.put("version_group_id", item.versionGroupId);
+        params.put("version", item.version);
+        params.put("code", item.code);
+        params.put("name", item.name);
+        params.put("name_en", item.nameEn);
+        params.put("description", item.description);
+        params.put("attributes", item.attributes);
+        params.put("sort_order", item.sortOrder);
+        params.put("status", item.status == null ? null : item.status.name());
+        params.put("valid_from", item.validFrom);
+        params.put("valid_to", item.validTo);
+        params.put("supersedes_item_id", item.supersedesItemId);
+        params.put("created_by", item.createdBy);
+        params.put("created_at", item.createdAt);
+        params.put("updated_by", item.updatedBy);
+        params.put("updated_at", item.updatedAt);
+        return params;
     }
 
     private void requireItemWriteGrant(UUID tenantId, CatalogType type) {
@@ -357,28 +363,6 @@ public class CatalogItemService {
             return type.maxDepth;
         }
         return CatalogSupport.DEFAULT_MAX_DEPTH;
-    }
-
-    private void flushWindowGuard() {
-        try {
-            entityManager.flush();
-        } catch (PersistenceException e) {
-            if (causeChain(e).contains("ex_catalog_item_window")) {
-                throw CatalogSupport.conflict(CatalogErrorCode.CATALOG_ITEM_WINDOW_OVERLAP, Map.of());
-            }
-            throw e;
-        }
-    }
-
-    private static String causeChain(Throwable failure) {
-        StringBuilder messages = new StringBuilder();
-        for (Throwable current = failure; current != null; current = current.getCause()) {
-            messages.append(current.getMessage()).append('\n');
-            if (current.getCause() == current) {
-                break;
-            }
-        }
-        return messages.toString();
     }
 
     private static void applyCreate(CatalogItem item, ItemCreateRequest request) {

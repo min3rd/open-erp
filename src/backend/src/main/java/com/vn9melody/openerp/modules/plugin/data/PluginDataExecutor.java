@@ -1,5 +1,7 @@
 package com.vn9melody.openerp.modules.plugin.data;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.Value;
 import com.vn9melody.openerp.core.enums.TenantPluginStatus;
 import com.vn9melody.openerp.modules.plugin.model.TenantPlugin;
@@ -7,6 +9,8 @@ import com.vn9melody.openerp.modules.plugin.repository.TenantPluginRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,9 +18,11 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
 import javax.sql.DataSource;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -45,34 +51,89 @@ public class PluginDataExecutor {
     @Inject
     PluginQueryCompiler compiler;
 
+    @Inject
+    ObjectMapper objectMapper;
+
     @ConfigProperty(name = "openerp.plugin.data.default-timeout-ms", defaultValue = "3000")
     int defaultTimeoutMs;
 
     @ConfigProperty(name = "openerp.plugin.data.max-rows", defaultValue = "1000")
     int maxRows;
 
+    @ConfigProperty(name = "openerp.plugin.data.max-export-rows", defaultValue = "20000")
+    int maxExportRows;
+
     @Transactional
     public Result execute(PluginServiceIdentity identity, String queryId, String requestId,
                           Map<String, Value> params) {
+        return execute(identity, queryId, requestId, params, null);
+    }
+
+    @Transactional
+    public Result execute(PluginServiceIdentity identity, String queryId, String requestId,
+                          Map<String, Value> params, String idempotencyKey) {
         Resolved resolved = resolve(identity);
-        return executeOne(identity, resolved, queryId, requestId, params);
+        PluginManifest manifest = registry.manifest(identity.pluginKey(), resolved.version());
+        PluginQueryDescriptor query = manifest.requireQuery(queryId);
+        try (Connection connection = dataSource.getConnection()) {
+            configureSession(connection, resolved,
+                    query.timeoutMs() > 0 ? query.timeoutMs() : defaultTimeoutMs);
+            Idempotency idempotency = beginIdempotency(connection, identity, query, idempotencyKey,
+                    hash(queryId + "@" + resolved.version(), params));
+            if (idempotency.replay() != null) {
+                return objectMapper.readValue(idempotency.replay(), Result.class);
+            }
+            Result result = executeOne(identity, resolved, queryId, requestId, params, connection);
+            finishIdempotency(connection, idempotency, result);
+            return result;
+        } catch (SQLException e) {
+            LOG.errorf("plugin-data execution failed plugin=%s tenant=%s query=%s: %s",
+                    identity.pluginKey(), identity.tenantId(), queryId, e.getMessage());
+            throw new PluginDataException(PluginDataException.Code.EXECUTION_FAILED,
+                    "PLUGIN_DATA_EXECUTION_FAILED", e);
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            throw new PluginDataException(PluginDataException.Code.EXECUTION_FAILED,
+                    "PLUGIN_DATA_IDEMPOTENCY_FAILED", e);
+        }
     }
 
     @Transactional
     public List<Result> executeBatch(PluginServiceIdentity identity, List<BatchStatement> statements) {
+        return executeBatch(identity, statements, null);
+    }
+
+    @Transactional
+    public List<Result> executeBatch(PluginServiceIdentity identity, List<BatchStatement> statements,
+                                     String idempotencyKey) {
         Resolved resolved = resolve(identity);
-        List<Result> results = new ArrayList<>(statements.size());
-        for (BatchStatement statement : statements) {
-            results.add(executeOne(identity, resolved, statement.queryId(),
-                    statement.requestId(), statement.params()));
+        try (Connection connection = dataSource.getConnection()) {
+            configureSession(connection, resolved, defaultTimeoutMs);
+            String hash = hash("__batch__@" + resolved.version(), statements);
+            Idempotency idempotency = beginBatchIdempotency(connection, identity, idempotencyKey, hash);
+            if (idempotency.replay() != null) {
+                return objectMapper.readValue(idempotency.replay(), new TypeReference<List<Result>>() {});
+            }
+            List<Result> results = new ArrayList<>(statements.size());
+            for (BatchStatement statement : statements) {
+                results.add(executeOne(identity, resolved, statement.queryId(),
+                        statement.requestId(), statement.params(), connection));
+            }
+            finishBatchIdempotency(connection, idempotency, results);
+            return results;
+        } catch (SQLException e) {
+            throw new PluginDataException(PluginDataException.Code.EXECUTION_FAILED,
+                    "PLUGIN_DATA_EXECUTION_FAILED", e);
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            throw new PluginDataException(PluginDataException.Code.EXECUTION_FAILED,
+                    "PLUGIN_DATA_IDEMPOTENCY_FAILED", e);
         }
-        return results;
     }
 
     public record BatchStatement(String queryId, String requestId, Map<String, Value> params) {}
 
     private Result executeOne(PluginServiceIdentity identity, Resolved resolved,
-                              String queryId, String requestId, Map<String, Value> params) {
+                              String queryId, String requestId, Map<String, Value> params,
+                              Connection connection) {
         PluginManifest manifest = registry.manifest(identity.pluginKey(), resolved.version());
         PluginQueryDescriptor query = manifest.requireQuery(queryId);
         if (!identity.system() && query.scope() == PluginQueryDescriptor.Scope.SYSTEM) {
@@ -85,15 +146,14 @@ public class PluginDataExecutor {
                 : query.scope();
         PluginQueryCompiler.CompiledQuery compiled = compiler.compile(
                 manifest, query, safeParams, resolved.schema(), scope);
-        int timeout = query.timeoutMs() > 0 ? query.timeoutMs() : defaultTimeoutMs;
-        try (Connection connection = dataSource.getConnection()) {
-            configureSession(connection, resolved, timeout);
+        try {
             long total = 0;
             if (compiled.countSql() != null) {
                 total = count(connection, compiled);
             }
             long started = System.nanoTime();
-            List<Map<String, Object>> rows = run(connection, compiled);
+            int rowLimit = query.bulk() ? Math.max(1, maxExportRows) : Math.max(1, maxRows);
+            List<Map<String, Object>> rows = run(connection, compiled, rowLimit);
             long affected = query.mode() == PluginQueryDescriptor.Mode.WRITE ? rows.size() : 0;
             long durationMs = (System.nanoTime() - started) / 1_000_000;
             LOG.debugf("plugin-data %s %s tenant=%s query=%s rows=%d total=%d durationMs=%d requestId=%s",
@@ -131,11 +191,11 @@ public class PluginDataExecutor {
         }
     }
 
-    private List<Map<String, Object>> run(Connection connection, PluginQueryCompiler.CompiledQuery compiled)
-            throws SQLException {
+    private List<Map<String, Object>> run(Connection connection, PluginQueryCompiler.CompiledQuery compiled,
+                                          int rowLimit) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(compiled.sql())) {
             bind(statement, compiled.params());
-            statement.setMaxRows(Math.max(1, maxRows) + 1);
+            statement.setMaxRows(rowLimit + 1);
             boolean hasRows = statement.execute();
             if (!hasRows) {
                 return List.of();
@@ -145,7 +205,7 @@ public class PluginDataExecutor {
                 ResultSetMetaData meta = resultSet.getMetaData();
                 int columns = meta.getColumnCount();
                 while (resultSet.next()) {
-                    if (rows.size() >= Math.max(1, maxRows)) {
+                    if (rows.size() >= rowLimit) {
                         throw new PluginDataException(PluginDataException.Code.EXECUTION_FAILED,
                                 "PLUGIN_DATA_ROW_LIMIT_EXCEEDED");
                     }
@@ -166,6 +226,9 @@ public class PluginDataExecutor {
             int jdbc = index + 1;
             if (value == null) {
                 statement.setNull(jdbc, java.sql.Types.NULL);
+            } else if (value instanceof PluginQueryCompiler.ArrayValue array) {
+                statement.setArray(jdbc, statement.getConnection().createArrayOf(
+                        array.sqlType(), array.values().toArray()));
             } else if (value instanceof UUID uuid) {
                 statement.setObject(jdbc, uuid);
             } else if (value instanceof List<?> list) {
@@ -177,8 +240,127 @@ public class PluginDataExecutor {
         }
     }
 
-    private Object plain(Object value) throws SQLException {
-        if (value == null) {
+    private record Idempotency(boolean active, String replay, String pluginKey, UUID tenantId, String key) {}
+
+    private Idempotency beginIdempotency(Connection connection, PluginServiceIdentity identity,
+                                         PluginQueryDescriptor query, String key, String hash)
+            throws SQLException {
+        if (query.mode() != PluginQueryDescriptor.Mode.WRITE || key == null || key.isBlank()) {
+            return new Idempotency(false, null, null, null, null);
+        }
+        return beginIdempotency(connection, identity, key, hash);
+    }
+
+    private Idempotency beginBatchIdempotency(Connection connection, PluginServiceIdentity identity,
+                                              String key, String hash) throws SQLException {
+        if (key == null || key.isBlank()) {
+            return new Idempotency(false, null, null, null, null);
+        }
+        return beginIdempotency(connection, identity, key, hash);
+    }
+
+    private Idempotency beginIdempotency(Connection connection, PluginServiceIdentity identity,
+                                         String key, String hash) throws SQLException {
+        if (key.length() > 128) {
+            throw new PluginDataException(PluginDataException.Code.PARAM_INVALID,
+                    "PLUGIN_DATA_IDEMPOTENCY_KEY_INVALID");
+        }
+        try (PreparedStatement insert = connection.prepareStatement(
+                "INSERT INTO plugin_data_idempotency"
+                        + " (plugin_key, tenant_id, idem_key, request_hash)"
+                        + " VALUES (?, ?, ?, ?) ON CONFLICT DO NOTHING")) {
+            insert.setString(1, identity.pluginKey());
+            insert.setObject(2, identity.tenantId());
+            insert.setString(3, key);
+            insert.setString(4, hash);
+            if (insert.executeUpdate() == 1) {
+                return new Idempotency(true, null, identity.pluginKey(), identity.tenantId(), key);
+            }
+        }
+        try (PreparedStatement select = connection.prepareStatement(
+                "SELECT request_hash, response_json FROM plugin_data_idempotency"
+                        + " WHERE plugin_key = ? AND tenant_id = ? AND idem_key = ?")) {
+            select.setString(1, identity.pluginKey());
+            select.setObject(2, identity.tenantId());
+            select.setString(3, key);
+            try (ResultSet result = select.executeQuery()) {
+                if (!result.next()) {
+                    throw new PluginDataException(PluginDataException.Code.IDEMPOTENCY_IN_PROGRESS,
+                            "PLUGIN_DATA_IDEMPOTENCY_IN_PROGRESS");
+                }
+                if (!hash.equals(result.getString("request_hash"))) {
+                    throw new PluginDataException(PluginDataException.Code.IDEMPOTENCY_CONFLICT,
+                            "PLUGIN_DATA_IDEMPOTENCY_CONFLICT");
+                }
+                String replay = result.getString("response_json");
+                if (replay == null) {
+                    throw new PluginDataException(PluginDataException.Code.IDEMPOTENCY_IN_PROGRESS,
+                            "PLUGIN_DATA_IDEMPOTENCY_IN_PROGRESS");
+                }
+                return new Idempotency(false, replay, identity.pluginKey(), identity.tenantId(), key);
+            }
+        }
+    }
+
+    private void finishIdempotency(Connection connection, Idempotency idempotency, Result result)
+            throws SQLException, com.fasterxml.jackson.core.JsonProcessingException {
+        if (idempotency.active()) {
+            storeIdempotency(connection, idempotency, objectMapper.writeValueAsString(result));
+        }
+    }
+
+    private void finishBatchIdempotency(Connection connection, Idempotency idempotency,
+                                        List<Result> results)
+            throws SQLException, com.fasterxml.jackson.core.JsonProcessingException {
+        if (idempotency.active()) {
+            storeIdempotency(connection, idempotency, objectMapper.writeValueAsString(results));
+        }
+    }
+
+    private void storeIdempotency(Connection connection, Idempotency idempotency, String json)
+            throws SQLException {
+        // The row key is written by beginIdempotency; only the response is updated here.
+        try (PreparedStatement update = connection.prepareStatement(
+                "UPDATE plugin_data_idempotency SET response_json = CAST(? AS jsonb)"
+                        + " WHERE plugin_key = ? AND tenant_id = ? AND idem_key = ?")) {
+            update.setString(1, json);
+            update.setString(2, idempotency.pluginKey());
+            update.setObject(3, idempotency.tenantId());
+            update.setString(4, idempotency.key());
+            update.executeUpdate();
+        }
+    }
+
+    private static String hash(String queryId, Map<String, Value> params) {
+        Map<String, String> sorted = new TreeMap<>();
+        if (params != null) {
+            params.forEach((key, value) -> sorted.put(key, String.valueOf(value)));
+        }
+        return sha256(queryId + "|" + sorted);
+    }
+
+    private static String hash(String queryId, List<BatchStatement> statements) {
+        StringBuilder value = new StringBuilder(queryId);
+        for (BatchStatement statement : statements) {
+            value.append('|').append(statement.queryId()).append('=');
+            if (statement.params() != null) {
+                new TreeMap<>(statement.params()).forEach((key, param) ->
+                        value.append(key).append(':').append(String.valueOf(param)).append(','));
+            }
+        }
+        return sha256(value.toString());
+    }
+
+    private static String sha256(String value) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return HexFormat.of().formatHex(digest.digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private Object plain(Object value) throws SQLException {        if (value == null) {
             return null;
         }
         if (value instanceof java.sql.Array array) {

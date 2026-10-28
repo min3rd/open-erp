@@ -17,12 +17,12 @@ import com.vn9melody.openerp.plugins.catalog.dto.CatalogItemDtos.EdgeCreateReque
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogItemDtos.ItemCreateRequest;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogItemDtos.ItemResponse;
 import com.vn9melody.openerp.plugins.catalog.dto.CatalogItemDtos.ItemUpdateRequest;
+import com.vn9melody.openerp.plugins.catalog.gateway.CatalogGateway;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogItem;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogItemEdge;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogType;
 import com.vn9melody.openerp.plugins.catalog.repository.CatalogItemEdgeRepository;
 import com.vn9melody.openerp.plugins.catalog.repository.CatalogItemRepository;
-import com.vn9melody.openerp.plugins.catalog.repository.CatalogTypeRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
@@ -93,7 +93,7 @@ public class CatalogImportExportService {
     CatalogItemEdgeRepository edgeRepository;
 
     @Inject
-    CatalogTypeRepository typeRepository;
+    CatalogGateway gateway;
 
     @Inject
     CatalogPermissionGuard guard;
@@ -356,7 +356,7 @@ public class CatalogImportExportService {
         UUID parentId = CatalogSupport.parseUuid(parentIdText, "parent_id");
         List<CatalogType> types = new ArrayList<>();
         if (all) {
-            for (CatalogType type : typeRepository.listVisible(tenantId)) {
+            for (CatalogType type : gateway.visibleTypes(tenantId)) {
                 if (guard.hasTypeAccess(tenantId, type, CatalogPermissionGuard.Access.READ)) {
                     types.add(type);
                 }
@@ -371,8 +371,7 @@ public class CatalogImportExportService {
 
         StringBuilder csv = new StringBuilder(EXPORT_HEADER);
         for (CatalogType type : types) {
-            List<CatalogItem> items = itemRepository.findItemsForExport(tenantId, type.id, asOf, q, status,
-                parentId, relationType);
+            List<CatalogItem> items = gateway.exportItems(tenantId, type.id, asOf, q, status, parentId, relationType);
             Map<UUID, String> parentCodes = parentCodesByChild(tenantId, items, asOf);
             for (CatalogItem item : items) {
                 appendExportRow(csv, type.code, item, parentCodes.get(item.id));
@@ -387,7 +386,7 @@ public class CatalogImportExportService {
         }
         Map<UUID, UUID> parentByChild = new HashMap<>();
         List<UUID> childIds = items.stream().map(item -> item.id).toList();
-        for (CatalogItemEdge edge : edgeRepository.listActiveByChildIds(childIds, tenantId, asOf)) {
+        for (CatalogItemEdge edge : gateway.exportEdgesByChildren(tenantId, childIds, asOf)) {
             if (edge.relationType == CatalogRelationType.HIERARCHY) {
                 parentByChild.putIfAbsent(edge.childItemId, edge.parentItemId);
             }
@@ -396,7 +395,7 @@ public class CatalogImportExportService {
             return Map.of();
         }
         Map<UUID, String> codeByParentId = new HashMap<>();
-        for (CatalogItem parent : itemRepository.listVisibleByIds(tenantId,
+        for (CatalogItem parent : gateway.exportItemsByIds(tenantId,
                 new LinkedHashSet<>(parentByChild.values()))) {
             codeByParentId.put(parent.id, parent.code);
         }

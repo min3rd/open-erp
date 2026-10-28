@@ -21,7 +21,6 @@ import com.vn9melody.openerp.plugins.catalog.gateway.CatalogGateway;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogItem;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogItemEdge;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogType;
-import com.vn9melody.openerp.plugins.catalog.repository.CatalogItemRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -47,9 +46,6 @@ import java.util.UUID;
 public class CatalogLookupService {
 
     private static final int MAX_PATH_DEPTH = 32;
-
-    @Inject
-    CatalogItemRepository itemRepository;
 
     @Inject
     CatalogGateway gateway;
@@ -98,7 +94,7 @@ public class CatalogLookupService {
 
     private PagedData<OptionResponse> loadOptions(UUID tenantId, CatalogType type, String q, String parentIdText,
                                                   String asOfText, int page, int size) {
-        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MINUTES));
+        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now());
         UUID parentId = CatalogSupport.parseUuid(parentIdText, "parent_id");
         CatalogGateway.Page<CatalogItem> merged = gateway.mergedOptions(tenantId, type.id, asOf, q, parentId,
                 page, size);
@@ -124,7 +120,7 @@ public class CatalogLookupService {
         String key = "lookup:resolve:" + CatalogCache.hash(typeCode, sorted, asOfText);
         return cache.getOrLoad(tenantId, key, new TypeReference<List<OptionResponse>>() {},
                 () -> {
-                    Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MINUTES));
+                    Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now());
                     List<CatalogItem> items = gateway.itemsByIds(tenantId, sorted);
                     List<CatalogItem> filtered = items.stream()
                             .filter(item -> type.id.equals(item.typeId))
@@ -146,7 +142,7 @@ public class CatalogLookupService {
     }
 
     private List<OptionResponse> loadPath(UUID tenantId, CatalogType type, UUID itemId, String asOfText) {
-        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MINUTES));
+        Instant asOf = CatalogSupport.parseInstant(asOfText, "as_of", Instant.now());
         CatalogItem item = requireVisibleItem(tenantId, itemId);
         CatalogType itemType = gateway.typeById(tenantId, item.typeId);
         if (itemType == null || !itemType.code.equals(type.code)) {
@@ -196,7 +192,7 @@ public class CatalogLookupService {
         if (code == null) {
             code = deriveCode(name);
         }
-        if (itemRepository.findVisibleCurrentByTypeCode(typeCode, tenantId, code, name) != null) {
+        if (gateway.visibleCurrentByCodeOrName(tenantId, type.id, code, name) != null) {
             throw CatalogSupport.conflict(CatalogErrorCode.CATALOG_LOOKUP_INLINE_DUPLICATE,
                 Map.of(ResponseKey.CODE.getKey(), code, ResponseKey.NAME.getKey(), name));
         }
@@ -215,11 +211,11 @@ public class CatalogLookupService {
         item.validFrom = Instant.now();
         item.createdAt = item.validFrom;
         item.updatedAt = item.validFrom;
-        item.persist();
+        CatalogItem saved = gateway.insertItem(tenantId, item, tenantId == null);
 
-        auditTrail.recordSuccess(tenantId, PlatformAction.CATALOG_ITEM_CREATE, "CATALOG_ITEM", item.id,
-            Map.of(ResponseKey.CODE.getKey(), item.code));
-        return enrich(List.of(item), type, tenantId, Instant.now()).get(0);
+        auditTrail.recordSuccess(tenantId, PlatformAction.CATALOG_ITEM_CREATE, "CATALOG_ITEM", saved.id,
+            Map.of(ResponseKey.CODE.getKey(), saved.code));
+        return enrich(List.of(saved), type, tenantId, Instant.now()).get(0);
     }
 
     // ------------------------------------------------------------------

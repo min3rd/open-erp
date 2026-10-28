@@ -24,7 +24,7 @@ public final class PluginQueryCompiler {
 
     private static final Set<String> FILTER_OPS = Set.of(
             "EQ", "NE", "GT", "GTE", "LT", "LTE", "IN", "ILIKE", "LIKE",
-            "BETWEEN", "IS_NULL", "IS_NOT_NULL", "EFFECTIVE_AT");
+            "BETWEEN", "IS_NULL", "IS_NOT_NULL", "EFFECTIVE_AT", "LOWER_EQ");
 
     public record CompiledQuery(String sql, List<Object> params,
                                 String countSql, List<Object> countParams) {}
@@ -39,7 +39,75 @@ public final class PluginQueryCompiler {
             case UPDATE -> update(manifest, query, params, schema, scope);
             case DELETE -> delete(manifest, query, params, schema, scope);
             case MERGED_LIST -> mergedList(manifest, query, params, schema, scope);
+            case TREE -> tree(manifest, query, params, schema, scope);
         };
+    }
+
+    private CompiledQuery tree(PluginManifest manifest, PluginQueryDescriptor query,
+                               Map<String, Value> params, String schema,
+                               PluginQueryDescriptor.Scope scope) {
+        PluginManifest.Entity entity = manifest.requireEntity(query.entity());
+        PluginQueryDescriptor.Tree tree = query.tree();
+        if (tree == null || tree.edgeEntity() == null) {
+            throw invalid(query, "TREE requires an edge_entity");
+        }
+        PluginManifest.Entity edge = manifest.entities().get(tree.edgeEntity());
+        if (edge == null) {
+            throw invalid(query, "unknown tree edge entity " + tree.edgeEntity());
+        }
+        Value root = params.get(tree.rootParam());
+        if (root == null || root.hasNullValue()) {
+            throw missing(query, tree.rootParam());
+        }
+        Integer depth = intParamValue(params, tree.depthParam());
+        int maxDepth = Math.min(tree.maxDepth() <= 0 ? 1000 : tree.maxDepth(),
+                depth == null ? tree.defaultDepth() : depth);
+        maxDepth = Math.max(1, maxDepth);
+
+        List<Object> values = new ArrayList<>();
+        values.add(toJava(root));
+        String valid = "";
+        Object asOf = null;
+        if (tree.effectiveParam() != null) {
+            Value asOfValue = params.get(tree.effectiveParam());
+            if (asOfValue == null || asOfValue.hasNullValue()) {
+                throw missing(query, tree.effectiveParam());
+            }
+            asOf = toJava(asOfValue);
+            values.add(asOf);
+            values.add(asOf);
+            valid = " AND e." + quote("valid_from") + " <= ?"
+                    + " AND (e." + quote("valid_to") + " IS NULL OR e." + quote("valid_to") + " > ?)";
+        }
+        if (asOf == null) {
+            throw invalid(query, "TREE requires effective_param");
+        }
+        String status = tree.status() == null ? ""
+                : " AND e." + quote("status") + " = " + literal(tree.status());
+        String tenant = scope == PluginQueryDescriptor.Scope.SYSTEM
+                ? "" : " AND " + tenantPredicate("e", scope);
+
+        String inner = "SELECT e." + quote(tree.childField()) + " AS id, 1 AS depth"
+                + " FROM " + qualified(schema, edge.table()) + " e"
+                + " WHERE e." + quote(tree.parentField()) + " = ?" + valid + status + tenant;
+        String recursive = " UNION ALL SELECT e." + quote(tree.childField()) + ", s.depth + 1"
+                + " FROM " + qualified(schema, edge.table()) + " e"
+                + " JOIN subtree s ON e." + quote(tree.parentField()) + " = s.id"
+                + " WHERE e." + quote("valid_from") + " <= ?"
+                + " AND (e." + quote("valid_to") + " IS NULL OR e." + quote("valid_to") + " > ?)"
+                + status + tenant + " AND s.depth < ?";
+        values.add(asOf);
+        values.add(asOf);
+        values.add(maxDepth);
+
+        String outerTenant = scope == PluginQueryDescriptor.Scope.SYSTEM
+                ? "" : " WHERE " + tenantPredicate("t", scope);
+        String sql = "WITH RECURSIVE subtree AS (" + inner + recursive + ")"
+                + " SELECT " + selectList(entity, query)
+                + " FROM " + qualified(schema, entity.table()) + " t"
+                + " JOIN subtree s ON s.id = t." + quote(primaryKey(entity))
+                + outerTenant + " ORDER BY t." + quote(primaryKey(entity)) + " ASC";
+        return new CompiledQuery(sql, values, null, List.of());
     }
 
     private CompiledQuery mergedList(PluginManifest manifest, PluginQueryDescriptor query,
@@ -158,11 +226,18 @@ public final class PluginQueryCompiler {
         List<String> columns = new ArrayList<>();
         List<String> placeholders = new ArrayList<>();
         List<Object> values = new ArrayList<>();
-        for (Map.Entry<String, String> entry : query.values().entrySet()) {
+        for (Map.Entry<String, PluginQueryDescriptor.ValueSpec> entry : query.values().entrySet()) {
             requireField(entity, query, entry.getKey());
+            WriteValue bound = writeValue(query, entry.getValue(), params);
+            if (bound.skip()) {
+                continue;
+            }
             columns.add(quote(entry.getKey()));
-            placeholders.add("?");
-            values.add(required(params, query, entry.getValue()));
+            placeholders.add(bound.placeholder());
+            values.add(bound.value());
+        }
+        if (columns.isEmpty()) {
+            throw invalid(query, "INSERT descriptor has no bound values");
         }
         if (entity.fields().contains("tenant_id")) {
             columns.add(quote("tenant_id"));
@@ -197,10 +272,17 @@ public final class PluginQueryCompiler {
         Source source = source(manifest, query, entity, schema, scope, params, true);
         List<String> assignments = new ArrayList<>();
         List<Object> values = new ArrayList<>();
-        for (Map.Entry<String, String> entry : query.values().entrySet()) {
+        for (Map.Entry<String, PluginQueryDescriptor.ValueSpec> entry : query.values().entrySet()) {
             requireField(entity, query, entry.getKey());
-            assignments.add(quote(entry.getKey()) + " = ?");
-            values.add(required(params, query, entry.getValue()));
+            WriteValue bound = writeValue(query, entry.getValue(), params);
+            if (bound.skip()) {
+                continue;
+            }
+            assignments.add(quote(entry.getKey()) + " = " + bound.placeholder());
+            values.add(bound.value());
+        }
+        if (assignments.isEmpty()) {
+            throw invalid(query, "UPDATE descriptor has no bound values");
         }
         values.addAll(source.params);
         String where = source.where.isEmpty() ? "" : " WHERE " + String.join(" AND ", source.where);
@@ -227,6 +309,50 @@ public final class PluginQueryCompiler {
     private record Source(String from, List<String> where, List<Object> params) {}
 
     private record PageSlice(int size, int offset) {}
+
+    private record WriteValue(String placeholder, Object value, boolean skip) {
+        static WriteValue skipped() {
+            return new WriteValue(null, null, true);
+        }
+    }
+
+    /** Parameter that must be bound with a PostgreSQL array type. */
+    public record ArrayValue(String sqlType, List<?> values) {}
+
+    private WriteValue writeValue(PluginQueryDescriptor query, PluginQueryDescriptor.ValueSpec spec,
+                                  Map<String, Value> params) {
+        Value value = params.get(spec.param());
+        if (value == null || value.getKindCase() == Value.KindCase.KIND_NOT_SET) {
+            if (spec.optional()) {
+                return WriteValue.skipped();
+            }
+            throw missing(query, spec.param());
+        }
+        if (value.hasNullValue()) {
+            if (spec.allowNull()) {
+                return new WriteValue(placeholder(spec), null, false);
+            }
+            if (spec.optional()) {
+                return WriteValue.skipped();
+            }
+            throw missing(query, spec.param());
+        }
+        Object bound = toJava(value);
+        String type = spec.type();
+        if (type != null && type.endsWith("[]")) {
+            String elementType = type.substring(0, type.length() - 2);
+            List<?> items = bound instanceof List<?> list ? list : List.of(bound);
+            return new WriteValue(placeholder(spec), new ArrayValue(elementType, items), false);
+        }
+        return new WriteValue(placeholder(spec), bound, false);
+    }
+
+    private static String placeholder(PluginQueryDescriptor.ValueSpec spec) {
+        if (spec.type() == null || spec.type().isBlank()) {
+            return "?";
+        }
+        return "CAST(? AS " + spec.type() + ")";
+    }
 
     private PageSlice pageSlice(PluginQueryDescriptor query, Map<String, Value> params) {
         PluginQueryDescriptor.Page page = query.page();
@@ -355,6 +481,10 @@ public final class PluginQueryCompiler {
                 }
                 case "EQ" -> {
                     where.add(column + " = ?");
+                    values.add(toJava(value));
+                }
+                case "LOWER_EQ" -> {
+                    where.add("LOWER(" + column + ") = LOWER(?)");
                     values.add(toJava(value));
                 }
                 case "NE" -> {
@@ -518,9 +648,6 @@ public final class PluginQueryCompiler {
         List<String> quoted = new ArrayList<>();
         for (String field : fields) {
             requireField(entity, query, field);
-            if ("tenant_id".equals(field)) {
-                continue;
-            }
             quoted.add(quote(field));
         }
         if (quoted.isEmpty()) {
@@ -564,6 +691,24 @@ public final class PluginQueryCompiler {
             return defaultValue;
         }
         return (int) value.getNumberValue();
+    }
+
+    private Integer intParamValue(Map<String, Value> params, String param) {
+        Value value = params.get(param);
+        if (value == null || value.hasNullValue()) {
+            return null;
+        }
+        if (value.hasNumberValue()) {
+            return (int) value.getNumberValue();
+        }
+        if (value.hasStringValue()) {
+            try {
+                return Integer.parseInt(value.getStringValue());
+            } catch (NumberFormatException ignored) {
+                return null;
+            }
+        }
+        return null;
     }
 
     static Object toJava(Value value) {
