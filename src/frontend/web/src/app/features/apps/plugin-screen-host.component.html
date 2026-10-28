@@ -1,18 +1,20 @@
 <div class="flex h-[calc(100vh-4.5rem)] min-h-[28rem] flex-col bg-surface text-xs text-ink" [attr.data-screen-id]="screenId()">
-  <header class="flex h-10 shrink-0 items-center justify-between gap-2 border-b border-default px-2">
-    <div class="flex min-w-0 items-center gap-2">
-      <h1 class="truncate text-sm font-semibold">
-        {{ screen()?.title_key ? ((screen()?.title_key || '') | translate) : pluginKey() }}
-      </h1>
-      <span class="truncate font-mono text-[10px] text-muted">{{ pluginKey() }}</span>
-    </div>
-    <a
-      routerLink="/settings/plugins"
-      class="inline-flex min-h-8 items-center rounded-control px-2.5 py-1 text-xs font-semibold text-muted transition-colors hover:bg-surface-muted hover:text-ink"
-    >
-      {{ 'PLUGIN_APP_BACK_TO_MARKETPLACE' | translate }}
-    </a>
-  </header>
+  @if (screen()?.render_mode !== renderMode.IFRAME) {
+    <header class="flex h-10 shrink-0 items-center justify-between gap-2 border-b border-default px-2">
+      <div class="flex min-w-0 items-center gap-2">
+        <h1 class="truncate text-sm font-semibold">
+          {{ screen()?.title_key ? ((screen()?.title_key || '') | translate) : pluginKey() }}
+        </h1>
+        <span class="truncate font-mono text-[10px] text-muted">{{ pluginKey() }}</span>
+      </div>
+      <a
+        routerLink="/settings/plugins"
+        class="inline-flex min-h-8 items-center rounded-control px-2.5 py-1 text-xs font-semibold text-muted transition-colors hover:bg-surface-muted hover:text-ink"
+      >
+        {{ 'PLUGIN_APP_BACK_TO_MARKETPLACE' | translate }}
+      </a>
+    </header>
+  }
 
   <div class="min-h-0 flex-1">
     @if (loading()) {

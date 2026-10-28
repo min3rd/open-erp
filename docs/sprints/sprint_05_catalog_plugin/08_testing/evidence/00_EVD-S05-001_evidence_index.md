@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | EVD-S05-001 / Evidence index / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | Draft — thêm evidence zero-DB/mTLS + mobile plugin host / 0.6 / 2026-10-28 |
+| Trạng thái / phiên bản / cập nhật | Draft — thêm evidence zero-DB/mTLS + mobile plugin host + merge override/enable readiness / 0.7 / 2026-10-28 |
 | Owner / reviewer | QA/QC Agent / PM + Architect |
 | Đầu vào | [TP-S05-001](../01_TP-S05-001_sprint_05_test_plan.md) (25 TC), [UG-S05-001](../../../../06_user_guides/sprint_05_catalog_plugin_user_guide.md) |
 
@@ -37,6 +37,14 @@
 | Zero DB | `docker inspect` plugin không có `QUARKUS_DATASOURCE_*`/`QUARKUS_FLYWAY_*`; `public` không còn `catalog_*`; legacy `/api/v1/catalog/**` → 404 | ✅ Docker/SQL/HTTP |
 | Core migration | `PluginSchemaBootstrap` apply `V1.0.0` cho 4 schema, log `Plugin migrations: catalog@1.0.0 applied 1 migration(s)` | ✅ Backend log |
 | Fan-out | 2 tenant `SYNCED`: `types=5, items=3355, edges=3321, skipped=0` | ✅ Platform API |
+
+## 0.3. BUG-149/150 — merge override + enable readiness (2026-10-28)
+
+| Ảnh / bằng chứng | Nội dung | Trạng thái |
+| :--- | :--- | :--- |
+| `desktop-catalog-merged-override-10003.png` | COMMUNE lọc `10003`: chỉ 1 dòng `Xã Tây Phương (tenant)` + badge `GHI ĐÈ`; header/sidebar/pagination cố định | ✅ Browser tenant `e2e-tenant` |
+| Merge API | `q=10003` → 1 item `overridden=true`, `is_system=false`; không còn dòng system cùng mã | ✅ HTTP |
+| Enable readiness | disable 2s → INACTIVE; enable 23s → ACTIVE chờ `/q/health/ready`; request runtime ngay sau enable 200 | ✅ HTTP + Docker |
 
 ## 1. Desktop (≥1280px)
 

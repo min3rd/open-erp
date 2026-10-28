@@ -2,9 +2,24 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-28 — BUG-151: bỏ header host lặp cho iframe
+
+- `PluginScreenHostComponent`: ẩn header host khi `render_mode = IFRAME`, `frameOffsetPx` 112 → 72 để iframe lấp đúng vùng nội dung; plugin web-component/module-federation vẫn giữ header.
+- Catalog: tiêu đề `DANH MỤC` thêm `mx-2 mt-2`, không còn dính mép khung.
+
+## 2026-10-28 — BUG-150: enable chờ runtime ready
+
+- Docker health của `ProcessPluginRuntimeDeployer` poll `docker exec <container> wget /q/health/ready` tới khi `UP` (tối đa 90s), thay vì chỉ `.State.Running`.
+- Disable 2s → INACTIVE; enable 23s (plugin boot) → ACTIVE; request runtime ngay sau enable trả `200 CATALOG_TYPE_FETCH_SUCCESS`.
+
+## 2026-10-28 — BUG-149: merge tenant override in admin list
+
+- `catalog.items.admin` chuyển `MERGED_LIST` + `merge_key=code`, migration `V5.3.1`; tenant row thắng system row nên danh sách chỉ còn một dòng.
+- Browser COMMUNE `q=10003`: 1 dòng `Xã Tây Phương (tenant)`, badge `Ghi đè`.
+
 ## 2026-10-28 — BUG-146/147/148: sort, page size, fixed layout
 
-- **BUG-146**: descriptor `sort_param/direction_param/sort_fields` (allowlist), migration `V5.3.0`; API `sort/direction`; table header click + mũi tên; URL `name-asc`; test gateway 18 PASS.
+- **BUG-146**: descriptor `sort_param/direction_param/sort_fields` (allowlist), migration `V5.3.0`; API `sort/direction`; table header click + mũi tên; URL `name-asc`; fix desc bằng cách đưa sort vào cache key; test gateway 18 PASS.
 - **BUG-147**: select 10/20/50/100, reset trang 1; QA 50 → 34 dòng.
 - **BUG-148**: layout `h-screen flex`: header/sidebar/table header/footer cố định, chỉ vùng bảng cuộn; bỏ gap 56px do drawer host; trang 100 dòng không vỡ.
 - Còn FEAT-32 (clone/sync system type).

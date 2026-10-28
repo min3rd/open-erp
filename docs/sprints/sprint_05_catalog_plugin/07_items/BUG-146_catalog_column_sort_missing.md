@@ -39,4 +39,5 @@ Bảng bản ghi danh mục không có sort: bấm vào tiêu đề cột (`Mã`
 | Phiên bản | Ngày | Thay đổi | Nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-28 | Tạo bug từ yêu cầu chủ dự án | Chủ dự án |
-| 0.2 | 2026-10-28 | Gateway sort động (allowlist), API `sort/direction`, header click + mũi tên, URL `name-asc`; QA PASS | Developer/QA |
+| 0.2 | 2026-10-28 | Gateway sort động (allowlist), API `sort/direction`, header click + mũi tên, URL `name-asc`; QA PASS |
+| 0.3 | 2026-10-28 | Fix desc: thêm sort vào cache key `loadItemsIfNeeded`; test asc/desc | Developer/QA | Developer/QA |

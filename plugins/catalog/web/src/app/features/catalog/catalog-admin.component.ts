@@ -494,7 +494,8 @@ export class CatalogAdminComponent implements OnInit {
     if (!type) {
       return;
     }
-    const key = [type.code, this.page(), this.size(), this.q(), this.statusFilter(), this.asOf(), this.relationFilter()].join('|');
+    const key = [type.code, this.page(), this.size(), this.q(), this.statusFilter(), this.asOf(),
+      this.relationFilter(), this.sortField(), this.sortDirection()].join('|');
     if (key === this.loadedListKey) {
       return;
     }

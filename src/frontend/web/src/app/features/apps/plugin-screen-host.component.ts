@@ -54,7 +54,7 @@ export class PluginScreenHostComponent implements OnInit {
   private lastSyncedUrl = '';
 
   readonly renderMode = PluginRenderMode;
-  readonly frameOffsetPx = 112;
+  readonly frameOffsetPx = 72;
 
   ngOnInit(): void {
     this.lastSyncedUrl = this.router.url;

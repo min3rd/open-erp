@@ -35,6 +35,8 @@ public class CatalogQueryDescriptorManifestTest {
         assertEquals(1, items.search().size());
 
         PluginQueryDescriptor admin = manifest.requireQuery("catalog.items.admin");
+        assertEquals(PluginQueryDescriptor.Operation.MERGED_LIST, admin.operation());
+        assertEquals("code", admin.mergeKey());
         assertEquals(2, admin.exists().size());
         assertEquals(2, admin.sort().size());
 

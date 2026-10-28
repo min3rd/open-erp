@@ -158,10 +158,33 @@ public class ProcessPluginRuntimeDeployer {
             int ready = parseReadyReplicas(output);
             return new DeploymentHealth(ready >= 1, "ready_replicas=" + ready);
         }
-        String output = runCommand(List.of(binary, "inspect", "--format", "{{.State.Running}}",
-                ref.deployment()), true);
-        boolean running = output != null && output.trim().equalsIgnoreCase("true");
-        return new DeploymentHealth(running, running ? "running" : "not running");
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(timeoutSeconds);
+        while (true) {
+            String output = runCommand(List.of(binary, "inspect", "--format", "{{.State.Running}}",
+                    ref.deployment()), true);
+            if (output == null || !output.trim().equalsIgnoreCase("true")) {
+                return new DeploymentHealth(false, "not running");
+            }
+            if (isServing(ref.deployment())) {
+                return new DeploymentHealth(true, "ready");
+            }
+            if (System.nanoTime() >= deadline) {
+                return new DeploymentHealth(false, "readiness timeout");
+            }
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return new DeploymentHealth(false, "readiness check interrupted");
+            }
+        }
+    }
+
+    /** Container is up but Quarkus may still be booting; only report healthy once it serves. */
+    private boolean isServing(String container) {
+        String output = runCommand(List.of(binary, "exec", container, "wget", "-qO-", "--timeout=2",
+                "http://127.0.0.1:8080/q/health/ready"), true);
+        return output != null && output.contains("\"status\": \"UP\"");
     }
 
     public void rollback(DeploymentRef ref, DeployRequest previous) {

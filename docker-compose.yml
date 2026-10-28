@@ -218,7 +218,7 @@ services:
     container_name: openerp-plugin-certs
     profiles: ["dev"]
     volumes:
-      - ./docker/certs:/certs
+      - plugin_certs:/certs
       - ./docker/certs/generate.sh:/gen.sh:ro
     entrypoint: ["sh", "-c", "apk add --no-cache openssl >/dev/null && sh /gen.sh"]
     networks:
@@ -249,12 +249,14 @@ services:
       QUARKUS_GRPC_SERVER_SSL_TRUST_STORE_PASSWORD: changeit
       QUARKUS_GRPC_SERVER_SSL_CLIENT_AUTH: REQUIRED
       OPENERP_PLUGIN_RUNTIME_GATEWAY_URL: https://backend-dev:9090
+      OPENERP_PLUGIN_RUNTIME_TLS_DIR: /deploy/certs
+      OPENERP_PLUGIN_DEPLOYER_TLS_HOST_DIR: openerp_plugin_certs
     ports:
       - "8088:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./plugins/catalog/migrations:/deploy/plugin-migrations/catalog:ro
-      - ./docker/certs:/deploy/certs:ro
+      - plugin_certs:/deploy/certs:ro
     # The socket is root:root 0660 on Docker Desktop; grant the dev user the
     # socket group so the deployer can spawn per-tenant plugin containers.
     group_add:
@@ -295,7 +297,7 @@ services:
     ports:
       - "18082:8080"
     volumes:
-      - ./docker/certs:/deploy/certs:ro
+      - plugin_certs:/deploy/certs:ro
     depends_on:
       redis:
         condition: service_healthy
@@ -327,7 +329,7 @@ services:
     ports:
       - "18083:8080"
     volumes:
-      - ./docker/certs:/deploy/certs:ro
+      - plugin_certs:/deploy/certs:ro
     depends_on:
       redis:
         condition: service_healthy
@@ -359,7 +361,7 @@ services:
     ports:
       - "18084:8080"
     volumes:
-      - ./docker/certs:/deploy/certs:ro
+      - plugin_certs:/deploy/certs:ro
     depends_on:
       redis:
         condition: service_healthy
@@ -455,3 +457,5 @@ volumes:
   web_angular_cache:
   mobile_node_modules:
   mobile_angular_cache:
+  plugin_certs:
+    name: openerp_plugin_certs

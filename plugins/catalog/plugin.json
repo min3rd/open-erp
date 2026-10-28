@@ -1235,7 +1235,7 @@
     {
       "id": "catalog.items.admin",
       "mode": "READ",
-      "operation": "LIST",
+      "operation": "MERGED_LIST",
       "entity": "CatalogItem",
       "tenant_scope": "TENANT_OR_SYSTEM",
       "select": [
@@ -1336,7 +1336,8 @@
         "valid_from",
         "version",
         "created_at"
-      ]
+      ],
+      "merge_key": "code"
     },
     {
       "id": "catalog.items.merged.options",

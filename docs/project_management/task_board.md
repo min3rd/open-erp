@@ -14,6 +14,12 @@ Sprint đang theo dõi: [Sprint 05 — Plugin Danh mục](../sprints/sprint_05_c
 
 2026-10-27 (P4.1): thêm [TASK-399](../sprints/sprint_05_catalog_plugin/07_items/TASK-399_plugin_ui_registry_dynamic_host.md) — menu lấy từ `/api/v1/plugins/ui-manifest`, host cố định `/apps/:pluginKey`, bỏ import/native route catalog khỏi core; [TASK-400](../sprints/sprint_05_catalog_plugin/07_items/TASK-400_docker_only_local_environment.md) — web/backend/plugin/UI build chạy 100% Docker. Browser xác nhận menu + iframe; tắt plugin ⇒ menu mất, bật lại ⇒ trở lại. QA/closure vẫn chờ TASK-398.
 
+2026-10-28 (BUG-149): [BUG-149](../sprints/sprint_05_catalog_plugin/07_items/BUG-149_catalog_admin_duplicate_override.md) Resolved — admin list dùng `MERGED_LIST` theo code, chỉ hiện bản tenant khi có ghi đè; migration V5.3.1. Browser COMMUNE `q=10003` → 1 dòng tenant, badge Ghi đè.
+
+2026-10-28 (BUG-150): [BUG-150](../sprints/sprint_05_catalog_plugin/07_items/BUG-150_plugin_enable_runtime_not_ready.md) Resolved — Docker health poll `/q/health/ready`; disable 2s, enable 23s rồi runtime trả 200 ngay, không còn 503.
+
+2026-10-28 (BUG-151): [BUG-151](../sprints/sprint_05_catalog_plugin/07_items/BUG-151_plugin_host_duplicate_header.md) Resolved — ẩn header host khi plugin dùng iframe (hết lặp tiêu đề), iframe lấp đúng chiều cao; tiêu đề plugin có margin.
+
 2026-10-28 (UI fixes): [BUG-146](../sprints/sprint_05_catalog_plugin/07_items/BUG-146_catalog_column_sort_missing.md) Resolved — sort động allowlist, header click + URL; [BUG-147](../sprints/sprint_05_catalog_plugin/07_items/BUG-147_catalog_page_size_missing.md) Resolved; [BUG-148](../sprints/sprint_05_catalog_plugin/07_items/BUG-148_catalog_fixed_header_footer.md) Resolved — flex layout cố định header/sidebar/footer, chỉ bảng cuộn.
 
 2026-10-28 (FEAT-32 decisions): chốt clone khi Lưu, clone **toàn bộ cụm quan hệ** + metadata/item/edge, sync tất cả kèm preview xung đột (`OVERRIDE/SKIP/MERGE`), sync item/edge mới ngoài fan-out, platform sync hộ tenant có audit. Chưa code; cần design DB/API/UI.
