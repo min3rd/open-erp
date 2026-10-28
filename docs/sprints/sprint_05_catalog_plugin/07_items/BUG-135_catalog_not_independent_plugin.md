@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | BUG-135 / Bug kiến trúc / Sprint 05 |
-| Mức độ / trạng thái | **High — chặn đóng Sprint 05** / **In Progress** (2026-10-28): backend/runtime/web xong; mobile UI còn [TASK-403](TASK-403_mobile_plugin_screen_host.md) |
+| Mức độ / trạng thái | **High — chặn đóng Sprint 05** / **Resolved (dev+QA)** 2026-10-28 — mobile host [TASK-403](TASK-403_mobile_plugin_screen_host.md) PASS |
 | Phát hiện bởi / ngày | Chủ dự án (re-check) + Agent rà soát / 2026-10-27 |
 | Owner / reviewer | Solution Architect (thiết kế lại) → Developer (di trú) / PM + QA |
 | Liên quan | [SOL-S05-001](../05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) D1, [FEAT-30](FEAT-30_catalog_core_plugin.md), [TASK-375](TASK-375_migration_v4_catalog_schema.md), [TASK-376](TASK-376_plugin_registration_entity_registry.md), Sprint 03 [CONF-01](../../sprint_03_plugin_manager/04_confirmation/CONF-01_sprint_03_scope.md) |
@@ -89,6 +89,7 @@ Giữ mã trong core, nhưng: thêm version/manifest vào `plugin_versions`, gat
 | 0.1 | 2026-10-27 | Tạo bug sau re-check của chủ dự án; ghi 10 sai lệch + 3 phương án | Agent rà soát; đối chiếu SOL-S05-001, Sprint 03 CONF-01, mã nguồn hiện tại |
 | 0.2 | 2026-10-27 | Chốt hướng B; system catalog do plugin sở hữu + fan-out tenant schema (ADR-S05-001 0.2) | Chủ dự án chỉ đạo trực tiếp |
 | 0.3 | 2026-10-28 | QA P5: backend/runtime/web đạt; mobile còn native UI | Agent; xem §8 |
+| 0.4 | 2026-10-28 | **Resolved (dev+QA)**: mobile plugin host + read-only + touch 40px PASS; 9/9 tiêu chí §6 đạt | Developer/QA |
 
 ## 8. Trạng thái khắc phục (2026-10-28)
 
@@ -101,5 +102,5 @@ Giữ mã trong core, nhưng: thêm version/manifest vào `plugin_versions`, gat
 | 5 | Tắt/gỡ plugin ⇒ UI/API không truy cập | ✅ (dev) | `PluginLifecycleApiTest` + gateway ledger check; UI manifest bỏ screen |
 | 6 | Uninstall plugin locked | ✅ | `PluginLifecycleApiTest` 403 `PLUGIN_LOCKED_DEFAULT` PASS |
 | 7 | Web không còn route native; UI từ manifest | ✅ | `/settings/apps/catalog` host iframe; 20 rows, overflow 0, 0 console error |
-| 8 | Mobile không còn route native; UI từ manifest | ❌ | Mobile vẫn `CatalogBrowsePage` native; theo dõi [TASK-403](TASK-403_mobile_plugin_screen_host.md) |
-| 9 | Test backend + QA dual-mode + TR mới | ⚠️ | Backend **266 PASS / 0 fail / 1 skip**; web PASS; mobile plugin UI chờ TASK-403 |
+| 8 | Mobile không còn route native; UI từ manifest | ✅ | Mobile host iframe + `readonly=1`; 390×844: 20 rows, overflow 0, touch ≥40px, 0 console error |
+| 9 | Test backend + QA dual-mode + TR mới | ✅ | Backend **266 PASS / 0 fail / 1 skip**; web + mobile plugin UI PASS; [TR-S05-002](../08_testing/03_TR-S05-002_plugin_architecture_test_report.md) |

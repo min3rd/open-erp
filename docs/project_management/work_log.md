@@ -2,6 +2,13 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-28 — TASK-403 mobile plugin host + read-only
+
+- Mobile `/settings/catalog` chuyển từ page native sang iframe plugin (`PluginRuntimeSession` + refresh token, fallback logout).
+- Plugin UI nhận `readonly=1`: ẩn import/export, thêm/sửa/đóng, grants, menu hành động; CSS touch target ≥40px, row 44px.
+- QA 390×844: 20 rows, overflow 0, min touch 40px, 0 menu/write button, 0 console error; token hết hạn tự refresh và reload.
+- BUG-135 Resolved (dev+QA); TASK-398 còn ảnh evidence/User Guide + PM DoD.
+
 ## 2026-10-28 — QA lại kiến trúc plugin (TR-S05-002)
 
 - Backend: **266 PASS / 0 fail / 1 skip** trên PostgreSQL + Redis thật; lifecycle/locked/gateway/fan-out/migration PASS.

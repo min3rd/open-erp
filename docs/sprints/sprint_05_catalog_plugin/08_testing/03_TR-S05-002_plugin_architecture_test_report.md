@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TR-S05-002 / Test Report / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | **In Progress** — backend/runtime/web PASS; mobile plugin UI blocked by [TASK-403](../07_items/TASK-403_mobile_plugin_screen_host.md) / 0.1 / 2026-10-28 |
+| Trạng thái / phiên bản / cập nhật | **QA PASS** — backend/runtime/web/mobile; còn EVD ảnh + PM DoD / 0.2 / 2026-10-28 |
 | Owner / reviewer | QA/QC Agent / PM + Architect |
 | Baseline mã nguồn | `13452fe` (P5 zero-DB + mTLS) + commit QA mobile/i18n kế tiếp |
 | Đầu vào | [TP-S05-001](01_TP-S05-001_sprint_05_test_plan.md), [TASK-402](../07_items/TASK-402_plugin_data_gateway_grpc.md), [BUG-135](../07_items/BUG-135_catalog_not_independent_plugin.md) |
@@ -23,7 +23,7 @@
 | mTLS | PASS — plaintext bị từ chối; tenant cert OK; tenant cert + SYSTEM scope → `PLUGIN_DATA_MTLS_IDENTITY_MISMATCH`; system cert + SYSTEM scope → rows |
 | BUG-136 locked uninstall | PASS — `PluginLifecycleApiTest` 403 `PLUGIN_LOCKED_DEFAULT`; plugin không locked vẫn uninstall |
 | Web plugin host | PASS — `/settings/apps/catalog`, 20 rows, overflow 0, 0 console error; token hết hạn tự refresh (BUG-143) |
-| Mobile plugin host | **CHƯA ĐẠT** — vẫn page native; tách [TASK-403](../07_items/TASK-403_mobile_plugin_screen_host.md) |
+| Mobile plugin host | PASS — iframe + `readonly=1`; 390×844: 20 rows, overflow 0, touch min 40px, 0 console error; token refresh PASS |
 | Docs check | PASS — 0 lỗi link/ID |
 
 ## 2. Bằng chứng chính
@@ -38,11 +38,10 @@
 
 ## 3. Chưa đạt / rủi ro
 
-1. **Mobile UI native**: trái AC "UI từ manifest plugin". Cần TASK-403 (iframe + read-only + touch target 40px + token refresh).
-2. **Read-only mobile**: plugin UI hiện chưa nhận cờ `read_only` từ manifest; phải bổ sung trước khi bật mobile iframe.
-3. **Ảnh evidence mới**: web cần ảnh chụp màn plugin iframe (sáng/tối) trước khi PM ký; mobile chờ TASK-403.
+1. **Ảnh evidence mới**: cần lưu ảnh web sáng/tối + mobile 390×844 vào `08_testing/evidence/` trước PM ký.
+2. **PM DoD + khách hàng nghiệm thu** chưa thực hiện.
 
 ## 4. Kết luận
 
-- Kiến trúc plugin độc lập **đạt** ở backend/runtime/web; BUG-135 chỉ còn hạng mục mobile UI nên giữ **In Progress**.
-- Sprint 05 **chưa thể đóng**: còn [TASK-403](../07_items/TASK-403_mobile_plugin_screen_host.md) (High) và ảnh evidence/PM DoD.
+- Kiến trúc plugin độc lập đạt trên backend/runtime/web/mobile; BUG-135 **Resolved (dev+QA)**, BUG-136 PASS.
+- Sprint 05 sẵn sàng cho PM DoD sau khi bổ sung ảnh evidence và khách hàng nghiệm thu.

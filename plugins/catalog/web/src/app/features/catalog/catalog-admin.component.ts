@@ -36,6 +36,7 @@ import {
   CatalogVersionDto
 } from '../../core/services/catalog-admin.service';
 import { PathListState, PathListStateService } from '@shared';
+import { CATALOG_READ_ONLY } from '../../core/catalog-read-only';
 import { CatalogTypeDrawerComponent } from './catalog-type-drawer.component';
 import { CatalogItemDrawerComponent } from './catalog-item-drawer.component';
 import { CatalogItemDetailDrawerComponent } from './catalog-item-detail-drawer.component';
@@ -117,6 +118,8 @@ export class CatalogAdminComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private listState = inject(PathListStateService);
   private contextMenu = inject(ContextMenuService);
+  /** Mobile/read-only host: no write actions even when the user has the grants. */
+  readonly readOnly = inject(CATALOG_READ_ONLY, { optional: true }) ?? false;
 
   /** `tenant` (settings) or `system` (platform portal, TASK-392). */
   readonly scope = signal<CatalogScope>(
@@ -194,16 +197,16 @@ export class CatalogAdminComponent implements OnInit {
     { key: 'actions', labelKey: 'COMMON_ACTIONS', align: 'right', width: '4rem' }
   ];
 
-  readonly canManageItems = computed(() =>
+  readonly canManageItems = computed(() => !this.readOnly && (
     this.scope() === CatalogScope.SYSTEM
       ? this.permissionChecker('catalog:system:manage')
       : this.permissionChecker('catalog:item:manage')
-  );
-  readonly canManageTypes = computed(() =>
+  ));
+  readonly canManageTypes = computed(() => !this.readOnly && (
     this.scope() === CatalogScope.SYSTEM
       ? this.permissionChecker('catalog:system:manage')
       : this.permissionChecker('catalog:type:manage')
-  );
+  ));
   readonly itemPermission = computed(() =>
     this.scope() === CatalogScope.SYSTEM ? 'catalog:system:manage' : 'catalog:item:manage'
   );
@@ -637,6 +640,8 @@ export class CatalogAdminComponent implements OnInit {
         id: 'type-create-item',
         labelKey: 'CATALOG_ITEM_ADD',
         icon: IconName.PLUS,
+        disabled: this.readOnly,
+        disabledReasonKey: this.readOnly ? 'CATALOG_SYSTEM_READONLY' : undefined,
         action: () => {
           this.selectType(type);
           this.openCreateItem();
@@ -648,6 +653,9 @@ export class CatalogAdminComponent implements OnInit {
   openTypeMenuAt(event: MouseEvent, type: CatalogTypeDto): void {
     event.preventDefault();
     event.stopPropagation();
+    if (this.readOnly) {
+      return;
+    }
     const target = event.currentTarget as HTMLElement | null;
     const rect = target?.getBoundingClientRect();
     this.contextMenu.open({
@@ -660,6 +668,9 @@ export class CatalogAdminComponent implements OnInit {
   openItemMenuAt(event: MouseEvent, item: CatalogItemDto): void {
     event.preventDefault();
     event.stopPropagation();
+    if (this.readOnly) {
+      return;
+    }
     const target = event.currentTarget as HTMLElement | null;
     const rect = target?.getBoundingClientRect();
     this.contextMenu.open({

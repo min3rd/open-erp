@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | EVD-S05-001 / Evidence index / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | Draft — thêm xác nhận host động/menu manifest / 0.5 / 2026-10-27 |
+| Trạng thái / phiên bản / cập nhật | Draft — thêm evidence zero-DB/mTLS + mobile plugin host / 0.6 / 2026-10-28 |
 | Owner / reviewer | QA/QC Agent / PM + Architect |
 | Đầu vào | [TP-S05-001](../01_TP-S05-001_sprint_05_test_plan.md) (25 TC), [UG-S05-001](../../../../06_user_guides/sprint_05_catalog_plugin_user_guide.md) |
 
@@ -26,6 +26,17 @@
 | Route-state | Click `Quận/Huyện` → core URL `/settings/apps/catalog/DISTRICT/-/20/1/-/list?view=list`; iframe hash khớp; reload giữ đúng loại | ✅ Browser |
 | Context menu | Nút `⋮` và chuột phải trên loại/bản ghi mở menu `Sửa/Quyền/Bản ghi/Thêm bản ghi` | ✅ Browser |
 | Core không import UI plugin | `grep @catalog-plugin` trong `src/frontend/web` = 0; `npm run web:build` PASS | ✅ Build |
+
+## 0.2. P5 — Zero-DB, mTLS, mobile plugin host (2026-10-28)
+
+| Ảnh / bằng chứng | Nội dung | Trạng thái |
+| :--- | :--- | :--- |
+| `desktop-plugin-catalog.png` | Web `/settings/apps/catalog`: menu từ manifest, iframe plugin, 20 dòng, nút `Nhập/Xuất`, `Thêm loại`, `Thêm bản ghi`; overflow 0; 0 console error | ✅ Browser tenant `e2e-tenant` |
+| `mobile-plugin-390x844.png` | Mobile 390×844 qua iframe: plugin UI read-only, type list + bản ghi, không nút ghi/menu hành động, touch ≥ 40px, overflow 0, 0 console error | ✅ Browser (QA frame 390×844) |
+| gRPC mTLS | `grpcurl -plaintext` fail; tenant cert OK; tenant cert + SYSTEM scope → `PLUGIN_DATA_MTLS_IDENTITY_MISMATCH`; system cert + SYSTEM scope → rows | ✅ Terminal |
+| Zero DB | `docker inspect` plugin không có `QUARKUS_DATASOURCE_*`/`QUARKUS_FLYWAY_*`; `public` không còn `catalog_*`; legacy `/api/v1/catalog/**` → 404 | ✅ Docker/SQL/HTTP |
+| Core migration | `PluginSchemaBootstrap` apply `V1.0.0` cho 4 schema, log `Plugin migrations: catalog@1.0.0 applied 1 migration(s)` | ✅ Backend log |
+| Fan-out | 2 tenant `SYNCED`: `types=5, items=3355, edges=3321, skipped=0` | ✅ Platform API |
 
 ## 1. Desktop (≥1280px)
 

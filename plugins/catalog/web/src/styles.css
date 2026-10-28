@@ -3,3 +3,16 @@
 /* Plugin-owned Tailwind entry: scan this plugin's sources only. Shared UI is
    scanned by the imported core entry; the core never scans plugin paths. */
 @source './';
+
+/* Mobile/read-only host: keep interactive controls at touch size (>= 40px). */
+body.catalog-readonly button,
+body.catalog-readonly [role='button'],
+body.catalog-readonly a,
+body.catalog-readonly select,
+body.catalog-readonly input {
+  min-height: 2.5rem;
+}
+
+body.catalog-readonly table tbody tr {
+  height: 2.75rem;
+}

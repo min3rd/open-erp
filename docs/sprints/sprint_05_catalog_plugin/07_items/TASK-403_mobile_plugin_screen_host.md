@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-403 / Task / Sprint 05 |
-| Severity / trạng thái | High / **To Do** — chặn BUG-135/TASK-398 |
+| Severity / trạng thái | High / **Done (dev+QA)** 2026-10-28 — mobile plugin host + read-only PASS |
 | Owner / reviewer | Developer (mobile) / QA + Architect |
 | depends_on / blocks | TASK-397, TASK-399 / TASK-398, đóng Sprint 05 |
 | Write scope | `src/frontend/mobile/src/app/pages/settings/catalog/**`, `src/frontend/mobile/src/app/app.routes.ts`, `plugins/catalog/web/**` |
@@ -23,12 +23,12 @@ Mobile mở màn catalog bằng **plugin UI từ manifest** (IFRAME, `read_only`
 
 ## 3. Việc phải làm
 
-- [ ] Mobile host page nhận `pluginKey` + `render_mode=IFRAME` (từ manifest hoặc route config), lấy runtime token qua `/api/v1/plugins/session-token` với `environment.apiBaseUrl`.
-- [ ] Truyền `readonly=1` khi screen `read_only`; plugin UI ẩn toàn bộ hành động ghi (import/export, thêm/sửa/đóng, grant, menu chuột phải) và chỉ giữ browse/filter/detail.
-- [ ] Bắt `session-expired`, refresh token một lần rồi reload giữ route; thất bại → `AuthService.clearSession()`.
-- [ ] Đảm bảo iframe full viewport dưới header Ionic, safe-area, 0 overflow ngang.
-- [ ] Kiểm tra touch target ≥ 40px cho control còn lại; nếu plugin UI chưa đạt, bổ sung CSS mobile trong plugin bundle.
-- [ ] QA 390×844: 0 console error, ảnh evidence; cập nhật TR-S05-001 và BUG-135.
+- [x] Mobile host page nhận `pluginKey` + `render_mode=IFRAME` (từ manifest hoặc route config), lấy runtime token qua `/api/v1/plugins/session-token` với `environment.apiBaseUrl`.
+- [x] Truyền `readonly=1` khi screen `read_only`; plugin UI ẩn toàn bộ hành động ghi (import/export, thêm/sửa/đóng, grant, menu chuột phải) và chỉ giữ browse/filter/detail.
+- [x] Bắt `session-expired`, refresh token một lần rồi reload giữ route; thất bại → `AuthService.clearSession()`.
+- [x] Đảm bảo iframe full viewport dưới header Ionic, safe-area, 0 overflow ngang.
+- [x] Kiểm tra touch target ≥ 40px cho control còn lại; bổ sung CSS mobile trong plugin bundle.
+- [x] QA 390×844: 0 console error, ảnh evidence; cập nhật TR-S05-001 và BUG-135.
 
 ## 4. Tiêu chí nghiệm thu
 
@@ -42,3 +42,4 @@ Mobile mở màn catalog bằng **plugin UI từ manifest** (IFRAME, `read_only`
 | Phiên bản | Ngày | Thay đổi | Nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-28 | Tạo task sau QA P5: mobile vẫn native, chưa đạt AC UI manifest/read-only | QA/Developer |
+| 0.2 | 2026-10-28 | Done (dev+QA): mobile iframe host + token refresh; plugin `readonly=1` ẩn write actions; CSS touch ≥40px; QA 390×844 PASS | Developer/QA |

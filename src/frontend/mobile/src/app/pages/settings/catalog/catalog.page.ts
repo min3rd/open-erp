@@ -1,5 +1,15 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import {
   IonHeader,
   IonToolbar,
@@ -9,194 +19,102 @@ import {
   IonBackButton,
   IonMenuButton,
 } from '@ionic/angular/standalone';
-import {
-  BadgeComponent,
-  CatalogHierarchyMode,
-  CatalogItemDetail,
-  CatalogLookupType,
-  CatalogOptionItem,
-  CatalogService,
-  ColorVariant,
-  I18nService,
-  IconComponent,
-  SelectOption,
-  SharpButtonComponent,
-  SharpInputComponent,
-  SharpSelectComponent,
-  SkeletonComponent,
-  TranslateDirective,
-  TranslatePipe,
-  apiMessage
-} from '@shared';
-import { PagedList } from '../../../core/paged-list';
+import { TranslatePipe } from '@shared';
+import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../core/auth.service';
 
-const PAGE_SIZE = 20;
-const SEARCH_DEBOUNCE_MS = 250;
+interface RuntimeSession {
+  token: string;
+  entry: string;
+}
 
 /**
- * Mobile read-only catalogue browser (TASK-387, DES-UI-S05-001 §4): type
- * selector, debounced search, lazy paging and an inline detail panel — no
- * modal, no create/edit/delete (those stay on the Web admin screen).
+ * Mobile plugin host (ADR-S05-001 A10): the catalog screen is the plugin UI
+ * bundle with the manifest `read_only` flag, not a native mobile page.
  */
 @Component({
   selector: 'app-catalog-browse',
   standalone: true,
-  imports: [
-    CommonModule,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonContent,
-    IonButtons,
-    IonBackButton,
-    IonMenuButton,
-    BadgeComponent,
-    SharpButtonComponent,
-    SharpInputComponent,
-    SharpSelectComponent,
-    SkeletonComponent,
-    IconComponent,
-    TranslateDirective,
-    TranslatePipe
-  ],
+  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonBackButton, IonMenuButton, TranslatePipe],
   templateUrl: './catalog.page.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CatalogBrowsePage implements OnInit {
-  private catalog = inject(CatalogService);
-  private i18n = inject(I18nService);
+export class CatalogBrowsePage implements OnInit, OnDestroy {
+  private http = inject(HttpClient);
+  private sanitizer = inject(DomSanitizer);
+  private auth = inject(AuthService);
+  private frame = viewChild<ElementRef<HTMLIFrameElement>>('frame');
 
-  readonly badgeInfo = ColorVariant.INFO;
-  readonly badgeDefault = ColorVariant.DEFAULT;
-  readonly buttonSecondary = ColorVariant.SECONDARY;
+  readonly loading = signal(true);
+  readonly failed = signal(false);
+  readonly src = signal<SafeResourceUrl>(this.sanitizer.bypassSecurityTrustResourceUrl('about:blank'));
+  private lastRefreshAt = 0;
 
-  readonly types = signal<CatalogLookupType[]>([]);
-  readonly typesLoading = signal(true);
-  readonly typesError = signal<string | null>(null);
-  readonly selectedType = signal('');
+  private readonly bridge = (event: MessageEvent): void => {
+    const frame = this.frame()?.nativeElement;
+    if (!frame || event.source !== frame.contentWindow) {
+      return;
+    }
+    const data = event.data as { source?: string; type?: string };
+    if (data?.source === 'open-erp-plugin' && data.type === 'session-expired') {
+      this.renew();
+    }
+  };
 
-  readonly search = signal('');
-  readonly optionsError = signal<string | null>(null);
-  readonly selectedItemId = signal<string | null>(null);
-  readonly detail = signal<CatalogItemDetail | null>(null);
-  readonly detailLoading = signal(false);
-  readonly detailError = signal<string | null>(null);
-
-  readonly options = new PagedList<CatalogOptionItem>(
-    (page) =>
-      this.catalog.getOptions(this.selectedType(), {
-        q: this.search().trim() || undefined,
-        page: page - 1,
-        size: PAGE_SIZE
-      }),
-    (err) => this.optionsError.set(apiMessage(this.i18n, err))
-  );
-
-  readonly typeOptions = computed<SelectOption[]>(() =>
-    this.types().map((type) => ({ value: type.code, labelKey: type.name_key }))
-  );
-  readonly selectedTypeMeta = computed(
-    () => this.types().find((type) => type.code === this.selectedType()) ?? null
-  );
-  readonly hierarchical = computed(() => {
-    const mode = this.selectedTypeMeta()?.hierarchy_mode;
-    return mode === CatalogHierarchyMode.TREE || mode === CatalogHierarchyMode.DAG;
-  });
-
-  ngOnInit() {
-    this.loadTypes();
+  ngOnInit(): void {
+    window.addEventListener('message', this.bridge);
+    void this.load(false);
   }
 
-  loadTypes() {
-    this.typesLoading.set(true);
-    this.typesError.set(null);
-    this.catalog.getTypes().subscribe({
-      next: (res) => {
-        const items = res.data?.items || [];
-        this.types.set(items);
-        this.typesLoading.set(false);
-        const first = items[0]?.code ?? '';
-        this.selectedType.set(first);
-        if (first) {
-          this.options.load(true);
-        }
-      },
-      error: (err) => {
-        this.typesLoading.set(false);
-        this.typesError.set(apiMessage(this.i18n, err));
+  ngOnDestroy(): void {
+    window.removeEventListener('message', this.bridge);
+  }
+
+  onLoad(): void {
+    this.loading.set(false);
+  }
+
+  private async load(force: boolean): Promise<void> {
+    if (force && Date.now() - this.lastRefreshAt < 5_000) {
+      this.auth.clearSession();
+      return;
+    }
+    this.lastRefreshAt = force ? Date.now() : this.lastRefreshAt;
+    try {
+      const session = await this.requestSession();
+      if (!session?.token) {
+        throw new Error('no session');
       }
+      const base = session.entry || '/api/v1/plugins/runtime/catalog';
+      const basePath = base.endsWith('/') ? base : `${base}/`;
+      const url = `${environment.apiBaseUrl}${basePath}?plugin_token=${encodeURIComponent(session.token)}`
+        + `&readonly=1&_v=${Date.now()}`;
+      this.src.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));
+      this.loading.set(true);
+      this.failed.set(false);
+    } catch {
+      this.failed.set(true);
+      this.loading.set(false);
+      if (force) {
+        this.auth.clearSession();
+      }
+    }
+  }
+
+  private requestSession(): Promise<RuntimeSession | null> {
+    return new Promise((resolve) => {
+      this.http
+        .post<{ data?: RuntimeSession }>(`${environment.apiBaseUrl}/api/v1/plugins/session-token`, {
+          plugin_key: 'catalog',
+        })
+        .subscribe({
+          next: (response) => resolve(response?.data ?? null),
+          error: () => resolve(null),
+        });
     });
   }
 
-  onTypeChange(code: string) {
-    if (code === this.selectedType()) {
-      return;
-    }
-    this.selectedType.set(code);
-    this.search.set('');
-    this.optionsError.set(null);
-    this.closeDetail();
-    this.options.load(true);
-  }
-
-  onSearchChange(value: string) {
-    this.search.set(value);
-    this.options.debounce(() => this.options.load(true), SEARCH_DEBOUNCE_MS);
-  }
-
-  retryOptions() {
-    this.optionsError.set(null);
-    this.options.load(true);
-  }
-
-  toggleItem(item: CatalogOptionItem) {
-    if (this.selectedItemId() === item.id) {
-      this.closeDetail();
-      return;
-    }
-    this.selectedItemId.set(item.id);
-    this.loadDetail(item.id);
-  }
-
-  loadDetail(id: string) {
-    this.detail.set(null);
-    this.detailError.set(null);
-    this.detailLoading.set(true);
-    this.catalog.getItem(id).subscribe({
-      next: (res) => {
-        this.detail.set(res.data ?? null);
-        this.detailLoading.set(false);
-      },
-      error: (err) => {
-        this.detailLoading.set(false);
-        this.detailError.set(apiMessage(this.i18n, err));
-      }
-    });
-  }
-
-  retryDetail() {
-    const id = this.selectedItemId();
-    if (id) {
-      this.loadDetail(id);
-    }
-  }
-
-  closeDetail() {
-    this.selectedItemId.set(null);
-    this.detail.set(null);
-    this.detailError.set(null);
-    this.detailLoading.set(false);
-  }
-
-  isSelected(id: string): boolean {
-    return this.selectedItemId() === id;
-  }
-
-  statusVariant(status?: string | null): ColorVariant {
-    return status === 'INACTIVE' ? ColorVariant.DEFAULT : ColorVariant.SUCCESS;
-  }
-
-  relationKey(relationType?: string | null): string | null {
-    return relationType ? `CATALOG_RELATION_${relationType}` : null;
+  private renew(): void {
+    void this.load(true);
   }
 }

@@ -7,6 +7,7 @@ import { catchError, throwError } from 'rxjs';
 import { CatalogPluginShellComponent } from './app/catalog-plugin-shell.component';
 import { CatalogAdminComponent } from './app/features/catalog/catalog-admin.component';
 import { CatalogScope } from './app/core/services/catalog-admin.service';
+import { CATALOG_READ_ONLY } from './app/core/catalog-read-only';
 import { authHeaderInterceptor, PLUGIN_PERMISSION_CHECKER, API_BASE_URL } from '@shared';
 import { pluginPermissionChecker } from './app/core/plugin-permission-checker';
 
@@ -36,6 +37,10 @@ const sessionExpiredInterceptor: HttpInterceptorFn = (req, next) =>
 const scope = new URLSearchParams(window.location.search).get('scope') === 'system'
   ? CatalogScope.SYSTEM
   : CatalogScope.TENANT;
+const readOnly = new URLSearchParams(window.location.search).get('readonly') === '1';
+if (readOnly) {
+  document.body.classList.add('catalog-readonly');
+}
 
 bootstrapApplication(CatalogPluginShellComponent, {
   providers: [
@@ -61,6 +66,10 @@ bootstrapApplication(CatalogPluginShellComponent, {
     {
       provide: API_BASE_URL,
       useValue: ''
+    },
+    {
+      provide: CATALOG_READ_ONLY,
+      useValue: readOnly
     },
     {
       provide: PLUGIN_PERMISSION_CHECKER,

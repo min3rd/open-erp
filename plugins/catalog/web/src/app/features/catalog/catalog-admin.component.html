@@ -10,31 +10,33 @@
       }
     </div>
     <div class="flex flex-wrap items-center gap-1">
-      <button
-        type="button"
-        class="px-2 py-1 text-[11px] border border-default hover:bg-surface-muted disabled:opacity-40 disabled:cursor-not-allowed"
-        [disabled]="!selectedType() && !items().length"
-        (click)="openImportExport()"
-      >
-        {{ 'CATALOG_IMPORT_EXPORT_TITLE' | translate }}
-      </button>
-      <button
-        type="button"
-        *appRequirePermission="typePermission()"
-        class="px-2 py-1 text-[11px] border border-default hover:bg-surface-muted"
-        (click)="openTypeCreate()"
-      >
-        + {{ 'CATALOG_TYPE_ADD' | translate }}
-      </button>
-      <button
-        type="button"
-        *appRequirePermission="itemPermission()"
-        class="px-2 py-1 text-[11px] bg-accent text-accent-contrast border border-transparent hover:bg-accent/90 disabled:opacity-40 disabled:cursor-not-allowed"
-        [disabled]="!selectedType()"
-        (click)="openCreateItem()"
-      >
-        + {{ 'CATALOG_ITEM_ADD' | translate }}
-      </button>
+      @if (!readOnly) {
+        <button
+          type="button"
+          class="px-2 py-1 text-[11px] border border-default hover:bg-surface-muted disabled:opacity-40 disabled:cursor-not-allowed"
+          [disabled]="!selectedType() && !items().length"
+          (click)="openImportExport()"
+        >
+          {{ 'CATALOG_IMPORT_EXPORT_TITLE' | translate }}
+        </button>
+        <button
+          type="button"
+          *appRequirePermission="typePermission()"
+          class="px-2 py-1 text-[11px] border border-default hover:bg-surface-muted"
+          (click)="openTypeCreate()"
+        >
+          + {{ 'CATALOG_TYPE_ADD' | translate }}
+        </button>
+        <button
+          type="button"
+          *appRequirePermission="itemPermission()"
+          class="px-2 py-1 text-[11px] bg-accent text-accent-contrast border border-transparent hover:bg-accent/90 disabled:opacity-40 disabled:cursor-not-allowed"
+          [disabled]="!selectedType()"
+          (click)="openCreateItem()"
+        >
+          + {{ 'CATALOG_ITEM_ADD' | translate }}
+        </button>
+      }
     </div>
   </div>
 
@@ -116,14 +118,16 @@
                   <span class="text-xs font-medium truncate">{{ type.name_key | translate }}</span>
                   <span class="flex items-center gap-1 shrink-0">
                     <span class="text-[10px] text-muted font-mono">{{ type.code }}</span>
-                    <button
-                      type="button"
-                      class="p-0.5 text-muted hover:text-ink"
-                      [attr.aria-label]="'COMMON_MORE_ACTIONS' | translate"
-                      (click)="openTypeMenuAt($event, type)"
-                    >
-                      <app-icon name="more-vertical" size="xs" />
-                    </button>
+                    @if (!readOnly) {
+                      <button
+                        type="button"
+                        class="p-0.5 text-muted hover:text-ink"
+                        [attr.aria-label]="'COMMON_MORE_ACTIONS' | translate"
+                        (click)="openTypeMenuAt($event, type)"
+                      >
+                        <app-icon name="more-vertical" size="xs" />
+                      </button>
+                    }
                   </span>
                 </span>
                 <span class="flex flex-wrap items-center gap-1 mt-0.5">
@@ -266,14 +270,16 @@
                 @if (isSystemItem(r)) {
                   <app-icon name="lock" [labelKey]="'CATALOG_SYSTEM_READONLY'" />
                 }
-                <button
-                  type="button"
-                  class="p-0.5 text-muted hover:text-ink"
-                  [attr.aria-label]="'COMMON_MORE_ACTIONS' | translate"
-                  (click)="openItemMenuAt($event, r)"
-                >
-                  <app-icon name="more-vertical" size="xs" />
-                </button>
+                @if (!readOnly) {
+                  <button
+                    type="button"
+                    class="p-0.5 text-muted hover:text-ink"
+                    [attr.aria-label]="'COMMON_MORE_ACTIONS' | translate"
+                    (click)="openItemMenuAt($event, r)"
+                  >
+                    <app-icon name="more-vertical" size="xs" />
+                  </button>
+                }
               </td>
             </tr>
           </ng-template>

@@ -160,18 +160,19 @@ Super admin vào **Platform → Danh mục hệ thống**: cùng bố cục 3 c�
 
 ## 11. Mobile (Ionic)
 
-- **Tra cứu danh mục** (read-only): chọn loại, tìm kiếm, xem cây/breadcrumb, xem chi tiết — **không có nút sửa/xoá** (quản trị làm trên bản Web).
+- **Tra cứu danh mục** (read-only): màn hình là **UI plugin** (iframe) theo manifest; hiển thị loại + bản ghi, tìm kiếm, xem chi tiết — **không có nút nhập/xuất, thêm/sửa/xoá, menu hành động** (quản trị làm trên bản Web).
 - **Ô chọn danh mục trong form** hoạt động trên mobile: danh sách dạng panel trong trang (không modal), vùng chạm ≥ 40px, không tràn ngang ở 390×844.
+- Plugin runtime token hết hạn: màn hình tự xin token mới và tải lại; nếu phiên core hết hạn thì về trang đăng nhập.
 
-![Mobile — tra cứu danh mục](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/mobile-catalog-browse.png)
+![Mobile — plugin UI read-only 390×844](../sprints/sprint_05_catalog_plugin/08_testing/evidence/mobile-plugin-390x844.png)
 
-![Mobile — chi tiết](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/mobile-catalog-detail.png)
+*Ảnh: màn tra cứu plugin trên Mobile 390×844 — chỉ đọc, touch ≥ 40px, không tràn ngang.*
 
-*Ảnh: trang tra cứu read-only trên Mobile — breadcrumb theo tỉnh, badge hệ thống/ghi đè, không nút sửa.*
+![Mobile — tra cứu danh mục (lịch sử)](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/mobile-catalog-browse.png)
 
-![Mobile 390x844 — không tràn ngang](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/mobile-390x844.png)
+![Mobile — chi tiết (lịch sử)](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/mobile-catalog-detail.png)
 
-*Ảnh: đo ở viewport thật **390×844** — không tràn ngang (scrollWidth = 390), 23/23 vùng chạm ≥ 40px.*
+*Ảnh lịch sử của page native trước TASK-403; UI hiện tại là plugin iframe như ảnh đầu mục.*
 
 ## 12. Dữ liệu địa giới có sẵn
 
