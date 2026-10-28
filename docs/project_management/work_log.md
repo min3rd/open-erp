@@ -2,6 +2,11 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-28 — TASK-404: UX workspace quan hệ trong item drawer
+
+- Tạo task từ luồng ví dụ: `PROVINCE` → `Hà Nội` → thêm loại `COMMUNE` là con → tab `Xã/Phường` → thêm `Hoàn Kiếm` làm con.
+- Phạm vi: tab theo relation, tách vùng Là cha/Là con, bảng con theo loại + tìm kiếm/phân trang, thêm nhanh loại con/bản ghi con, không modal, mobile read-only. High, Sprint 06.
+
 ## 2026-10-28 — QA FEAT-31/32 (TR-S05-003)
 
 - **PASS**: quan hệ loại (4 relation system, cycle 409, type drawer, edge child drawer); clone mới 3 type/3.355 item/3.319 edge/3 relation (~23s), preview 0 conflict; sync TYPE/ITEM OVERRIDE qua UI; platform sync 200 + audit `CATALOG_TENANT_SYNC` target tenant; tenant gọi platform 403, PUT system type 403.
