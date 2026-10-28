@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | EVD-S05-001 / Evidence index / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | Draft — thêm evidence zero-DB/mTLS + mobile plugin host + merge override/enable readiness + FEAT-31/32 / 0.8 / 2026-10-28 |
+| Trạng thái / phiên bản / cập nhật | Draft — thêm evidence zero-DB/mTLS + mobile plugin host + merge override/enable readiness + FEAT-31/32 + TASK-404/406 / 0.9 / 2026-10-29 |
 | Owner / reviewer | QA/QC Agent / PM + Architect |
 | Đầu vào | [TP-S05-001](../01_TP-S05-001_sprint_05_test_plan.md) (25 TC), [UG-S05-001](../../../../06_user_guides/sprint_05_catalog_plugin_user_guide.md) |
 
@@ -58,6 +58,18 @@
 | `mobile-feat32-readonly.png` | Mobile `:8100/settings/catalog`: không nút ghi/sync/clone, 20 dòng, overflow 0 | ✅ Mobile |
 | API/DB | Clone 3 type/3.355 item/3.319 edge; preview 0; sync OVERRIDE; platform sync + audit target tenant; cycle 409; 403 system write/platform | ✅ Terminal/PostgreSQL |
 | Backend suite | `mvn clean test` | ✅ 268 PASS/0 fail/1 skip |
+
+## 0.5. TASK-404/406 — QA workspace quan hệ + shared runtime (2026-10-29)
+
+| Ảnh / bằng chứng | Nội dung | Trạng thái |
+| :--- | :--- | :--- |
+| `desktop-task406-catalog.jpg` | Web `/settings/apps/catalog` 1446×894: plugin load qua shared container `openerp-plugin-catalog-1-0-0`, type list + 3.321 bản ghi, 0 console error | ✅ Web |
+| `desktop-task404-relations.jpg` | Drawer sửa Hà Nội → tab `Phân cấp`: vùng CHA/CON, nhóm `Phân cấp · COMMUNE (127)` sau tạo nhanh QA406T, phân trang 1/13, nút `+ Tạo nhanh` | ✅ Web |
+| `mobile-task404-catalog-390x844.png` | Mobile 390×844 (Playwright, `isMobile`+`hasTouch`): plugin `readonly=1`, không nút ghi, overflow 0, 0 console error | ✅ Mobile |
+| Shared runtime | 2 tenant cùng `catalog@1.0.0` dùng cùng container ID `47197af871a0`; runtime 200 cả hai; disable/enable tenant này không ảnh hưởng tenant kia | ✅ Docker + HTTP |
+| Bootstrap | Plugin log `10 types`, `34 provinces`, `3321 communes`; dữ liệu tenant đúng | ✅ Backend/plugin log |
+| Compose dev | Không còn `catalog-dev`/`catalog-e2e-dev`; chỉ `backend-dev`, `web-dev`, `mobile-dev`, `catalog-system-dev` | ✅ Docker Compose |
+| Backend suite | `mvn test` trên commit `a51d2abe` | ✅ 268 PASS/0 fail/1 skip |
 
 ## 1. Desktop (≥1280px)
 

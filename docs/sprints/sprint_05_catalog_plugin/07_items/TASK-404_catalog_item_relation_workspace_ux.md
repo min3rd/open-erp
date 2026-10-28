@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-404 / Task UX / Sprint 05 (change request) |
-| Mức độ / trạng thái | **High** / **Done (dev)** 2026-10-28 — luồng tạo mới: tab quan hệ hiện disabled + hint, Lưu xong tự mở tab quan hệ; QA pending |
+| Mức độ / trạng thái | **High** / **Done (QA)** 2026-10-29 — QA pass desktop/mobile, i18n 13 locale, 0 console error |
 | Owner / reviewer | Solution Architect (UI) → Developer / QA + chủ dự án |
 | Liên quan | [FEAT-31](FEAT-31_catalog_type_relations_child_picker.md) (Done), [FEAT-32](FEAT-32_catalog_tenant_system_type_clone_sync.md) (Done), [TASK-385](TASK-385_catalog_admin_ui.md), [BUG-151](BUG-151_plugin_host_duplicate_header.md) |
 
@@ -54,8 +54,8 @@ Màn **Thêm/Sửa bản ghi danh mục** phải là nơi khai báo quan hệ ng
 - [x] Tạo loại / tạo nhanh con xong cập nhật tại chỗ, không đóng drawer.
 - [x] Thêm/bớt cha cho bản ghi; cycle/loại không được phép bị chặn với mã lỗi rõ ràng.
 - [x] Nhiều relation + nhiều loại con: header nhóm `Quan hệ · Loại con` + badge, filter loại con trong tab, không lẫn loại; phân trang/tìm kiếm hoạt động.
-- [ ] Không mất dữ liệu form khi thêm con; 0 console error; i18n 13 locale; mobile read-only/overflow 0.
-- [ ] Test backend: edge/type-relation qua API thật PostgreSQL; browser desktop + mobile; cập nhật user guide + TR.
+- [x] Không mất dữ liệu form khi thêm con; 0 console error; i18n 13 locale; mobile read-only/overflow 0.
+- [x] Test backend: edge/type-relation qua API thật PostgreSQL; browser desktop + mobile; cập nhật user guide + TR.
 
 ## 4. Quyết định đã chốt (2026-10-28)
 
@@ -83,3 +83,4 @@ Màn **Thêm/Sửa bản ghi danh mục** phải là nơi khai báo quan hệ ng
 | 0.4 | 2026-10-28 | UX theo phản hồi: tab hiện disabled khi tạo mới + hint; sau Lưu tự mở tab quan hệ; form tạo loại con luôn hiện (mã + tên) | Developer |
 | 0.5 | 2026-10-28 | Sửa tab Thông tin không bị disable khi tạo mới; xác nhận flow tạo mới QA404C → Lưu tự mở Phân cấp; full backend 268 PASS | Developer |
 | 0.6 | 2026-10-28 | Theo phản hồi: form tạo loại cha/con lên đầu vùng; mỗi nhóm con có collapse, tạo nhanh bản ghi con, phân trang 10/nhóm | Developer |
+| 0.7 | 2026-10-29 | QA PASS: drawer CHA/CON, nhóm COMMUNE 126→127, giữ form khi tạo nhanh, i18n 13 locale, desktop/mobile 390×844 không console error/overflow; cập nhật user guide + TR-S05-004 | QA/QC |

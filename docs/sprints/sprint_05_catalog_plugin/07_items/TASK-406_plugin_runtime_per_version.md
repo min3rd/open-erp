@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-406 / Refactor hạ tầng / Sprint 05 |
-| Mức độ / trạng thái | **High** / **In Progress (dev, tested — chờ QA)** 2026-10-28 |
+| Mức độ / trạng thái | **High** / **Done (QA)** 2026-10-29 |
 | Owner / reviewer | Developer / Architect + QA |
 | Liên quan | [TASK-402](TASK-402_plugin_data_gateway_grpc.md), [TASK-400](TASK-400_docker_only_local_environment.md), [BUG-150](BUG-150_plugin_enable_runtime_not_ready.md) |
 
@@ -57,7 +57,7 @@ Vì plugin đã zero-DB và mọi dữ liệu đi qua data gateway theo tenant c
 - [x] Seed dữ liệu tenant đúng sau bootstrap: types/grants/admin units; tenant isolation giữ nguyên.
 - [x] Không còn container `catalog-dev`/`catalog-e2e-dev` trong profile dev; tài nguyên Docker giảm.
 - [x] Backend test PASS: `mvn test` 268 run / 0 fail / 1 skip (2026-10-28).
-- [ ] QA browser desktop/mobile PASS (UI không đổi; API runtime đã kiểm 200, chờ QA xác nhận).
+- [x] QA browser desktop/mobile PASS: desktop 1446×894 + mobile 390×844, 0 console error; runtime API 200 cả hai tenant (TR-S05-004).
 
 ### 3.1. Bằng chứng dev (2026-10-28)
 
@@ -78,3 +78,4 @@ Vì plugin đã zero-DB và mọi dữ liệu đi qua data gateway theo tenant c
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-28 | Tạo task theo yêu cầu dùng chung container theo version | Chủ dự án |
 | 0.2 | 2026-10-28 | Triển khai deployer theo version, token theo request, bootstrap sau commit; sửa tên container hostname hợp lệ và ref-count theo scope; kiểm chứng dev | Developer |
+| 0.3 | 2026-10-29 | QA PASS: 2 tenant dùng chung 1 container, disable/enable/uninstall isolation, bootstrap seed, compose dev sạch, backend 268 PASS; TR-S05-004 | QA/QC |

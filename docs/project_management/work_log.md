@@ -2,6 +2,13 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-29 — QA TASK-404 + TASK-406
+
+- TASK-404: drawer sửa Hà Nội → tab `Phân cấp`, vùng CHA/CON, nhóm `COMMUNE (126)` + `DISTRICT (0)`, phân trang 1/13; tạo nhanh `QA406T` → 127, drawer không đóng, tên form `Hà Nội QA406` còn nguyên; gỡ quan hệ + đóng item QA sau test.
+- TASK-406: 2 tenant cùng `catalog@1.0.0` dùng chung container `openerp-plugin-catalog-1-0-0`; disable tenant này không ảnh hưởng tenant kia; enable lại dùng cùng container; uninstall khi còn tenant → container còn; bootstrap 10 types/34 provinces/3321 communes.
+- i18n 13/13 locale 100%; desktop 1446×894 và mobile 390×844 (`isMobile`+`hasTouch`, plugin `readonly=1`, 0 nút ghi, overflow 0) **0 console error**.
+- Backend suite trên commit `a51d2abe`: **268 run / 0 fail / 1 skip**. Không lỗi mới. Kết luận **PASS (QA)** — [TR-S05-004](sprints/sprint_05_catalog_plugin/08_testing/05_TR-S05-004_task404_task406_test_report.md); cập nhật User Guide + evidence index.
+
 - **Implement core TASK-404**: item links trả `type_code`; item drawer tab quan hệ, vùng Cha/Con nhóm theo loại, thêm/gỡ edge, tạo nhanh con, tạo loại con inline; lưu xong giữ drawer. Test Hà Nội: 126 con COMMUNE + nhóm DISTRICT; tạo/gỡ QA404; tạo QA404TYPE; tạo mới QA404NEW → lưu vẫn mở tab quan hệ.
 
 ## 2026-10-28 — TASK-406: runtime plugin dùng chung theo version

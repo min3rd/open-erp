@@ -46,6 +46,8 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | 08.01 | TP-S05-001 | [Test plan Sprint 05](08_testing/01_TP-S05-001_sprint_05_test_plan.md) | **25 TC** theo AC + ma trận lấy mẫu | QA |
 | 08.02 | TR-S05-001 | [Test report Sprint 05](08_testing/02_TR-S05-001_sprint_05_test_report.md) | Baseline cũ **21 PASS / 4 PARTIAL** — **withdrawn**, phải chạy lại sau khi đổi kiến trúc | QA |
 | 08.03 | EVD-S05-001 | [Evidence index](08_testing/evidence/00_EVD-S05-001_evidence_index.md) | **12 ảnh minh chứng** (baseline cũ; dùng lại sau khi UI chuyển sang plugin) | QA |
+| 08.04 | TR-S05-003 | [Test report FEAT-31/32](08_testing/04_TR-S05-003_feat31_32_test_report.md) | Quan hệ loại, clone/xoá clone/sync/platform sync — **Pass (QA)** | QA |
+| 08.05 | TR-S05-004 | [Test report TASK-404/406](08_testing/05_TR-S05-004_task404_task406_test_report.md) | Workspace quan hệ cha/con + shared runtime 1 container/version — **Pass (QA)** | QA |
 | 09.01 | REV-S05-001 | Chưa tạo | DoD/backlog/closure | PM |
 
 > Bảng đọc là snapshot danh mục. Khi thêm artifact phải cập nhật index này trước khi giao việc.
@@ -56,7 +58,7 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | :--- | :--- | :--- | :--- |
 | Scope approval (CONF-S05-001) | ✅ **APPROVED 2026-10-06** — 22 AC + 19 task được duyệt | Khách hàng (chủ dự án) | CONF 1.0; chỉ đạo trực tiếp "ok chốt scope và lập trình đi nhé" |
 | Design ready (SOL/DES) | ❌ **REJECTED 2026-10-27** — D1 (in-process) trái mô hình plugin Sprint 03; cần ADR/SOL mới | Architect/Reviewer | BUG-135; SOL 0.1 chưa từng được review kỹ thuật |
-| QA sign-off | ❌ **WITHDRAWN** — kết quả cũ không còn hiệu lực sau khi đổi kiến trúc | QA | TR-S05-001 0.1; phải chạy lại trên baseline mới |
+| QA sign-off | ✅ **PASS phạm vi FEAT-31/32 + TASK-404/406** — TR-S05-003/004 (2026-10-29); Sprint DoD chờ PM | QA |
 | PM đánh giá DoD | Pending — **đang bị chặn bởi BUG-135/BUG-136** | PM | Chưa có |
 | Customer acceptance | Pending | Khách hàng | Chưa có |
 | Closure | Pending — **không được đóng khi còn BUG-135 (High)** | PM sau nghiệm thu | Chưa có |

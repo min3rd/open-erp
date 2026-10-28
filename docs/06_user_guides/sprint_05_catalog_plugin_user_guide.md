@@ -4,7 +4,7 @@
 | :--- | :--- |
 | ID | UG-S05-001 |
 | Trạng thái | Draft — đã có 10 ảnh minh chứng từ QA (TASK-389); 3 ảnh còn lại chờ QA bổ sung (xem TR-S05-001 §4) |
-| Phiên bản / cập nhật | 0.1 / 2026-10-06 |
+| Phiên bản / cập nhật | 0.2 / 2026-10-29 |
 | Phạm vi | Quản trị danh mục (loại, bản ghi, quan hệ đa cha, phiên bản, quyền theo loại), nhập tự do, import/export, danh mục hệ thống & ghi đè, tra cứu trên Mobile |
 | Đầu vào | [CONF-S05-001](../sprints/sprint_05_catalog_plugin/04_confirmation/01_CONF-S05-001_sprint_05_scope.md), [DES-UI-S05-001](../sprints/sprint_05_catalog_plugin/06_designs/ui/01_DES-UI-S05-001_catalog_admin_ui.md), [DES-API-S05-001](../sprints/sprint_05_catalog_plugin/06_designs/api/01_DES-API-S05-001_catalog_api.md) |
 
@@ -106,6 +106,21 @@ Nhấn **Thêm loại** (hoặc chọn loại rồi **Sửa**) để mở drawer
 ![Picker chọn cha](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/desktop-picker-dropdown.png)
 
 *Ảnh: drawer "Thêm quan hệ cha" và ô tra cứu cha (lazy, hiện tên + mã).*
+
+### 5.1. Quản lý cha/con ngay trong drawer sửa bản ghi
+
+Mở bản ghi → **Sửa** → tab **Phân cấp**:
+
+1. Vùng **CHA** liệt kê cha hiện tại; nút **Thêm cha** mở picker lọc theo loại cha được phép. Nút **+ Thêm loại cha** mở form tạo loại mới và gán sẵn quan hệ đang xem.
+2. Vùng **CON** nhóm theo `Quan hệ · Loại con` (ví dụ `Phân cấp · COMMUNE`) kèm số lượng. Mỗi nhóm có nút đóng/mở, **+ Tạo nhanh** (chỉ cần mã/tên), bảng phân trang 10 dòng và nút **Gỡ quan hệ** (đóng hiệu lực, không xoá bản ghi).
+3. Nút **+ Thêm loại con** tạo loại mới với quan hệ cha trỏ về loại hiện tại; lưu xong nhóm mới xuất hiện tại chỗ.
+4. Thêm/gỡ con hoặc tạo nhanh **không đóng drawer** và **không làm mất dữ liệu form** đang nhập.
+5. Bản ghi **mới chưa lưu**: tab Phân cấp hiện nhưng bị khoá kèm hint “Lưu bản ghi trước…”; sau khi Lưu, drawer giữ nguyên và tự mở tab quan hệ đầu tiên.
+6. Lỗi chu trình/loại không được phép hiển thị inline theo mã i18n. Trên **Mobile**, tab quan hệ chỉ đọc: ẩn toàn bộ nút thêm/sửa/gỡ.
+
+![Quan hệ cha/con trong drawer sửa bản ghi](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/desktop-task404-relations.jpg)
+
+*Ảnh: tab Phân cấp của bản ghi Hà Nội — vùng CHA, vùng CON nhóm `Phân cấp · COMMUNE (126)` có tạo nhanh và phân trang.*
 
 ## 6. Quyền theo từng loại danh mục
 
