@@ -2,7 +2,7 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / loại / sprint | TASK-405 / Task UI / Sprint 06 (change request) |
+| ID / loại / sprint | TASK-405 / Task UI / Sprint 05 (change request) |
 | Mức độ / trạng thái | **Low** / **Done (QA)** 2026-10-28 — kiểm chứng DOM: chỉ còn nút `⋮`, menu có Sửa/Quyền/Sync |
 | Owner / reviewer | Developer / QA + chủ dự án |
 | Liên quan | [TASK-385](TASK-385_catalog_admin_ui.md), [TASK-404](TASK-404_catalog_item_relation_workspace_ux.md) |

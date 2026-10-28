@@ -2,7 +2,7 @@
   [isOpen]="isOpen()"
   [title]="titleKey() | translate"
   [subtitle]="type()?.name_key ? (type()!.name_key | translate) : ''"
-  [width]="'w-screen max-w-2xl'"
+  [width]="'w-screen max-w-3xl'"
   [zIndex]="60"
   [shiftLeft]="true"
   (close)="close.emit()"
@@ -19,72 +19,274 @@
       </div>
     }
 
-    <div class="grid grid-cols-2 gap-2">
-      <app-sharp-input
-        [label]="'CATALOG_ITEM_FIELD_CODE' | translate"
-        [value]="code()"
-        [disabled]="isEdit()"
-        [required]="true"
-        (valueChange)="code.set($event)"
-      />
-      <app-sharp-input
-        [label]="'CATALOG_ITEM_FIELD_NAME' | translate"
-        [value]="name()"
-        [required]="true"
-        (valueChange)="name.set($event)"
-      />
-      <app-sharp-input
-        [label]="'CATALOG_ITEM_FIELD_NAME_EN' | translate"
-        [value]="nameEn()"
-        (valueChange)="nameEn.set($event)"
-      />
-      <app-sharp-input
-        [label]="'CATALOG_ITEM_FIELD_SORT_ORDER' | translate"
-        type="number"
-        [value]="sortOrder()"
-        (valueChange)="sortOrder.set($event)"
-      />
-      <app-sharp-select
-        [label]="'CATALOG_ITEM_FIELD_STATUS' | translate"
-        [options]="statusOptions"
-        [value]="status()"
-        (valueChange)="status.set($any($event))"
-      />
-    </div>
-
-    <app-sharp-textarea
-      [label]="'CATALOG_ITEM_FIELD_DESCRIPTION' | translate"
-      [rows]="3"
-      [value]="description()"
-      (valueChange)="description.set($event)"
-    />
-
-    @if (fields().length) {
-      <div class="space-y-2 border-t border-default pt-2">
-        <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_ITEM_ATTRIBUTES_TITLE' | translate }}</h3>
-        <div class="grid grid-cols-2 gap-2">
-          @for (field of fields(); track field.key) {
-            @if (field.type === 'BOOLEAN') {
-              <label class="flex items-center gap-1.5 px-1.5 py-1 border border-default text-[11px]">
-                <app-sharp-toggle
-                  [checked]="attrBoolean(field.key)"
-                  [ariaLabel]="field.label_key | translate"
-                  (checkedChange)="setAttrBoolean(field.key, $event)"
-                />
-                {{ field.label_key | translate }}
-              </label>
-            } @else {
-              <app-sharp-input
-                [label]="field.label_key | translate"
-                [type]="field.type === 'NUMBER' ? 'number' : field.type === 'DATE' ? 'date' : 'text'"
-                [required]="!!field.required"
-                [value]="attrText(field.key)"
-                (valueChange)="setAttr(field, $event)"
-              />
-            }
-          }
-        </div>
+    @if (relationTabs().length) {
+      <div class="flex flex-wrap gap-1 border-b border-default pb-1" role="tablist">
+        <button
+          type="button"
+          class="border border-default px-2 py-0.5 text-[11px] hover:bg-surface-muted"
+          [class.bg-accent]="activeTab() === 'info'"
+          [class.text-accent-contrast]="activeTab() === 'info'"
+          (click)="activeTab.set('info')"
+        >
+          {{ 'CATALOG_DETAIL_INFO' | translate }}
+        </button>
+        @for (relation of relationTabs(); track relation) {
+          <button
+            type="button"
+            class="border border-default px-2 py-0.5 text-[11px] hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
+            [disabled]="!isEdit()"
+            [class.bg-accent]="activeTab() === relation"
+            [class.text-accent-contrast]="activeTab() === relation"
+            (click)="activeTab.set(relation)"
+          >
+            {{ ('CATALOG_RELATION_' + relation) | translate }}
+          </button>
+        }
       </div>
+      @if (!isEdit()) {
+        <p class="text-[11px] text-amber-600">{{ 'CATALOG_ITEM_REL_SAVE_FIRST' | translate }}</p>
+      }
+    }
+
+    @if (activeTab() === 'info') {
+      <div class="grid grid-cols-2 gap-2">
+        <app-sharp-input
+          [label]="'CATALOG_ITEM_FIELD_CODE' | translate"
+          [value]="code()"
+          [disabled]="isEdit()"
+          [required]="true"
+          (valueChange)="code.set($event)"
+        />
+        <app-sharp-input
+          [label]="'CATALOG_ITEM_FIELD_NAME' | translate"
+          [value]="name()"
+          [required]="true"
+          (valueChange)="name.set($event)"
+        />
+        <app-sharp-input
+          [label]="'CATALOG_ITEM_FIELD_NAME_EN' | translate"
+          [value]="nameEn()"
+          (valueChange)="nameEn.set($event)"
+        />
+        <app-sharp-input
+          [label]="'CATALOG_ITEM_FIELD_SORT_ORDER' | translate"
+          type="number"
+          [value]="sortOrder()"
+          (valueChange)="sortOrder.set($event)"
+        />
+        <app-sharp-select
+          [label]="'CATALOG_ITEM_FIELD_STATUS' | translate"
+          [options]="statusOptions"
+          [value]="status()"
+          (valueChange)="status.set($any($event))"
+        />
+      </div>
+
+      <app-sharp-textarea
+        [label]="'CATALOG_ITEM_FIELD_DESCRIPTION' | translate"
+        [rows]="3"
+        [value]="description()"
+        (valueChange)="description.set($event)"
+      />
+
+      @if (fields().length) {
+        <div class="space-y-2 border-t border-default pt-2">
+          <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_ITEM_ATTRIBUTES_TITLE' | translate }}</h3>
+          <div class="grid grid-cols-2 gap-2">
+            @for (field of fields(); track field.key) {
+              @if (field.type === 'BOOLEAN') {
+                <label class="flex items-center gap-1.5 px-1.5 py-1 border border-default text-[11px]">
+                  <app-sharp-toggle
+                    [checked]="attrBoolean(field.key)"
+                    [ariaLabel]="field.label_key | translate"
+                    (checkedChange)="setAttrBoolean(field.key, $event)"
+                  />
+                  {{ field.label_key | translate }}
+                </label>
+              } @else {
+                <app-sharp-input
+                  [label]="field.label_key | translate"
+                  [type]="field.type === 'NUMBER' ? 'number' : field.type === 'DATE' ? 'date' : 'text'"
+                  [required]="!!field.required"
+                  [value]="attrText(field.key)"
+                  (valueChange)="setAttr(field, $event)"
+                />
+              }
+            }
+          </div>
+        </div>
+      }
+    } @else if (activeRelation(); as relation) {
+      @if (relationError()) {
+        <div class="border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300" role="alert">
+          {{ relationError() }}
+        </div>
+      }
+
+      <section class="space-y-1 border border-default p-1.5">
+        <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_DETAIL_PARENTS' | translate }}</h3>
+        <div class="flex flex-wrap items-end gap-1 border-b border-default pb-1">
+          <app-sharp-input
+            [label]="'CATALOG_TYPE_ADD' | translate"
+            [value]="parentNewCode()"
+            (valueChange)="parentNewCode.set($event)"
+          />
+          <app-sharp-input
+            [label]="'CATALOG_ITEM_FIELD_NAME' | translate"
+            [value]="parentNewName()"
+            (valueChange)="parentNewName.set($event)"
+          />
+          <app-sharp-button size="sm" variant="secondary" [loading]="relationBusy()" (clicked)="requestParentType(relation)">
+            {{ 'CATALOG_TYPE_ADD_PARENT' | translate }}
+          </app-sharp-button>
+        </div>
+        @if (parentsFor(relation).length) {
+          <table class="w-full text-[11px]">
+            <tbody>
+              @for (parent of parentsFor(relation); track parent.edge_id) {
+                <tr class="border-t border-default">
+                  <td class="px-1 py-0.5 font-mono">{{ parent.code }}</td>
+                  <td class="px-1 py-0.5">{{ parent.name }}</td>
+                  <td class="px-1 py-0.5 text-end">
+                    <button type="button" class="text-[10px] underline text-rose-600" (click)="removeLink(parent)">
+                      {{ 'CATALOG_DETAIL_REMOVE_RELATION' | translate }}
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="text-[11px] text-muted">{{ 'CATALOG_DETAIL_NO_PARENTS' | translate }}</p>
+        }
+        <div class="flex flex-wrap items-end gap-1 pt-1">
+          @if (parentOptions(relation).length > 1) {
+            <app-sharp-select
+              [label]="'CATALOG_EDGE_FIELD_PARENT_TYPE' | translate"
+              [options]="parentOptions(relation)"
+              [value]="parentTypeOf(relation)"
+              (valueChange)="selectParentType(relation, $event)"
+            />
+          }
+          @if (parentTypeOf(relation)) {
+            <app-catalog-picker
+              [typeCode]="parentTypeOf(relation)"
+              [mode]="'single'"
+              [placeholderKey]="'CATALOG_EDGE_SELECT_PARENT'"
+              (selectionChange)="onParentPicked($event)"
+            />
+          }
+          <app-sharp-button size="sm" [loading]="relationBusy()" (clicked)="addParent(relation)">
+            {{ 'CATALOG_DETAIL_ADD_PARENT' | translate }}
+          </app-sharp-button>
+        </div>
+      </section>
+
+      <section class="space-y-1 border border-default p-1.5">
+        <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'CATALOG_DETAIL_CHILDREN' | translate }}</h3>
+        <div class="flex flex-wrap items-end gap-1 border-b border-default pb-1">
+          <app-sharp-input
+            [label]="'CATALOG_TYPE_ADD' | translate"
+            [value]="childNewCode()"
+            (valueChange)="childNewCode.set($event)"
+          />
+          <app-sharp-input
+            [label]="'CATALOG_ITEM_FIELD_NAME' | translate"
+            [value]="childNewName()"
+            (valueChange)="childNewName.set($event)"
+          />
+          <app-sharp-button size="sm" variant="secondary" [loading]="relationBusy()" (clicked)="requestChildType(relation)">
+            {{ 'CATALOG_TYPE_ADD_CHILD' | translate }}
+          </app-sharp-button>
+        </div>
+
+        @for (group of childGroups(relation); track group.typeCode) {
+          @let gkey = groupKey(relation, group.typeCode);
+          <div class="border border-default">
+            <div class="flex items-center justify-between bg-surface-muted px-1.5 py-0.5 text-[10px]">
+              <button type="button" class="flex items-center gap-1 text-start" (click)="toggleGroup(gkey)">
+                <span>{{ groupStateFor(gkey).collapsed ? '▸' : '▾' }}</span>
+                <span>{{ ('CATALOG_RELATION_' + relation) | translate }} · {{ group.typeCode }}</span>
+                <span class="text-muted">({{ group.links.length }})</span>
+              </button>
+              <button type="button" class="underline" (click)="toggleQuick(gkey)">
+                + {{ 'CATALOG_ITEM_QUICK_ADD' | translate }}
+              </button>
+            </div>
+            @if (quickOpen(gkey)) {
+              <div class="flex flex-wrap items-end gap-1 border-t border-default p-1">
+                <app-sharp-input
+                  [label]="'CATALOG_ITEM_FIELD_CODE' | translate"
+                  [value]="quickCode(gkey)"
+                  (valueChange)="setQuick(gkey, 'code', $event)"
+                />
+                <app-sharp-input
+                  [label]="'CATALOG_ITEM_FIELD_NAME' | translate"
+                  [value]="quickName(gkey)"
+                  (valueChange)="setQuick(gkey, 'name', $event)"
+                />
+                <app-sharp-button size="sm" variant="secondary" [loading]="relationBusy()"
+                  (clicked)="quickCreateGroupChild(relation, group.typeCode, gkey)">
+                  {{ 'CATALOG_ITEM_QUICK_ADD' | translate }}
+                </app-sharp-button>
+              </div>
+            }
+            @if (!groupStateFor(gkey).collapsed) {
+              @if (group.links.length) {
+                <table class="w-full text-[11px]">
+                  <tbody>
+                    @for (child of pagedGroupLinks(gkey, group.links); track child.edge_id) {
+                      <tr class="border-t border-default">
+                        <td class="px-1 py-0.5 font-mono">{{ child.code }}</td>
+                        <td class="px-1 py-0.5">{{ child.name }}</td>
+                        <td class="px-1 py-0.5 text-end">
+                          <button type="button" class="text-[10px] underline text-rose-600" (click)="removeLink(child)">
+                            {{ 'CATALOG_DETAIL_REMOVE_RELATION' | translate }}
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+                @if (groupPages(group.links) > 1) {
+                  <div class="flex items-center justify-end gap-2 border-t border-default px-1 py-0.5 text-[10px]">
+                    <button type="button" class="px-1 disabled:opacity-40" [disabled]="groupPage(gkey) <= 1"
+                      (click)="changeGroupPage(gkey, group.links, -1)">‹</button>
+                    <span>{{ groupPage(gkey) }}/{{ groupPages(group.links) }}</span>
+                    <button type="button" class="px-1 disabled:opacity-40"
+                      [disabled]="groupPage(gkey) >= groupPages(group.links)"
+                      (click)="changeGroupPage(gkey, group.links, 1)">›</button>
+                  </div>
+                }
+              } @else {
+                <p class="px-1.5 py-1 text-[11px] text-muted">{{ 'CATALOG_DETAIL_NO_CHILDREN' | translate }}</p>
+              }
+            }
+          </div>
+        }
+
+        <div class="flex flex-wrap items-end gap-1 pt-1">
+          @if (childOptions(relation).length > 1) {
+            <app-sharp-select
+              [label]="'CATALOG_EDGE_FIELD_CHILD_TYPE' | translate"
+              [options]="childOptions(relation)"
+              [value]="childTypeOf(relation)"
+              (valueChange)="selectChildType(relation, $event)"
+            />
+          }
+          @if (childTypeOf(relation)) {
+            <app-catalog-picker
+              [typeCode]="childTypeOf(relation)"
+              [mode]="'single'"
+              [placeholderKey]="'CATALOG_EDGE_SELECT_CHILD'"
+              (selectionChange)="onChildPicked($event)"
+            />
+          }
+          <app-sharp-button size="sm" [loading]="relationBusy()" (clicked)="addChild(relation)">
+            {{ 'CATALOG_EDGE_ADD_CHILD' | translate }}
+          </app-sharp-button>
+        </div>
+      </section>
     }
   </div>
 

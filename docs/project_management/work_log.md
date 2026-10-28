@@ -2,6 +2,8 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+- **Implement core TASK-404**: item links trả `type_code`; item drawer tab quan hệ, vùng Cha/Con nhóm theo loại, thêm/gỡ edge, tạo nhanh con, tạo loại con inline; lưu xong giữ drawer. Test Hà Nội: 126 con COMMUNE + nhóm DISTRICT; tạo/gỡ QA404; tạo QA404TYPE; tạo mới QA404NEW → lưu vẫn mở tab quan hệ.
+
 ## 2026-10-28 — TASK-405: bỏ action inline dưới loại
 
 - Xoá block `Sửa / Quyền theo loại / Sync` inline khi chọn loại; giữ menu ⋮ + context menu.
@@ -10,7 +12,7 @@ Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng c
 ## 2026-10-28 — TASK-404: UX workspace quan hệ trong item drawer
 
 - Tạo task từ luồng ví dụ: `PROVINCE` → `Hà Nội` → thêm loại `COMMUNE` là con → tab `Xã/Phường` → thêm `Hoàn Kiếm` làm con.
-- Phạm vi **Approved**: tab theo relation, tách vùng Là cha/Là con, bảng con nhóm theo loại + header `Quan hệ · Loại con` + filter, + tạo loại con, + tạo nhanh con, cập nhật tại chỗ, không modal, lỗi inline, mobile read-only, unsaved-item disabled. High, Sprint 06.
+- Phạm vi **Approved**: tab theo relation, tách vùng Là cha/Là con, bảng con nhóm theo loại + header `Quan hệ · Loại con` + filter, + tạo loại con, + tạo nhanh con, cập nhật tại chỗ, không modal, lỗi inline, mobile read-only, unsaved-item disabled. High, Sprint 05.
 
 ## 2026-10-28 — QA FEAT-31/32 (TR-S05-003)
 

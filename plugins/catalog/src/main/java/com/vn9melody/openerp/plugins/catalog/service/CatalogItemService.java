@@ -90,7 +90,7 @@ public class CatalogItemService {
                     continue;
                 }
                 parentsByItem.computeIfAbsent(edge.childItemId, key -> new ArrayList<>())
-                    .add(link(edge, parent));
+                    .add(link(tenantId, edge, parent));
             }
         }
         List<ItemResponse> items = result.items().stream()
@@ -324,8 +324,10 @@ public class CatalogItemService {
         return byId;
     }
 
-    private static ItemParentResponse link(CatalogItemEdge edge, CatalogItem related) {
+    private ItemParentResponse link(UUID tenantId, CatalogItemEdge edge, CatalogItem related) {
+        CatalogType type = related.typeId == null ? null : gateway.typeById(tenantId, related.typeId);
         return new ItemParentResponse(edge.id, related.id, related.code, related.name,
+            type == null ? null : type.id, type == null ? null : type.code,
             edge.relationType.name(), edge.sortOrder, edge.validFrom, edge.validTo,
             related.tenantId == null);
     }
@@ -348,7 +350,7 @@ public class CatalogItemService {
             if (related == null || !seen.add(id)) {
                 continue;
             }
-            result.add(link(edge, related));
+            result.add(link(tenantId, edge, related));
         }
         return result;
     }

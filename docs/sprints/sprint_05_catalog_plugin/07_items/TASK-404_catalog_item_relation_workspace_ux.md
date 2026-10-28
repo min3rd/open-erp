@@ -2,8 +2,8 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / loại / sprint | TASK-404 / Task UX / Sprint 06 (change request từ Sprint 05) |
-| Mức độ / trạng thái | **High** / **Approved scope** 2026-10-28 — chờ triển khai (Sprint 06) |
+| ID / loại / sprint | TASK-404 / Task UX / Sprint 05 (change request) |
+| Mức độ / trạng thái | **High** / **Done (dev)** 2026-10-28 — luồng tạo mới: tab quan hệ hiện disabled + hint, Lưu xong tự mở tab quan hệ; QA pending |
 | Owner / reviewer | Solution Architect (UI) → Developer / QA + chủ dự án |
 | Liên quan | [FEAT-31](FEAT-31_catalog_type_relations_child_picker.md) (Done), [FEAT-32](FEAT-32_catalog_tenant_system_type_clone_sync.md) (Done), [TASK-385](TASK-385_catalog_admin_ui.md), [BUG-151](BUG-151_plugin_host_duplicate_header.md) |
 
@@ -46,12 +46,14 @@ Màn **Thêm/Sửa bản ghi danh mục** phải là nơi khai báo quan hệ ng
 
 ## 3. Tiêu chí nghiệm thu
 
-- [ ] Tạo loại `PROVINCE`, thêm `Hà Nội`; trong drawer bản ghi có tab `Phân cấp` với vùng Là cha/Là con.
-- [ ] Thêm loại `COMMUNE` là con của `PROVINCE` ngay từ drawer bản ghi; sau lưu, tab `Phân cấp` có nhóm `Xã/Phường`.
-- [ ] Thêm `Phường Hoàn Kiếm` (tạo mới hoặc chọn sẵn) làm con của `Hà Nội`; bảng con cập nhật ngay, reload vẫn giữ.
-- [ ] Tạo mới bản ghi: tab quan hệ disabled đến khi Lưu; sau Lưu vẫn ở drawer và thao tác con được ngay.
-- [ ] Thêm/bớt cha cho bản ghi; cycle/loại không được phép bị chặn với mã lỗi rõ ràng.
-- [ ] Nhiều relation + nhiều loại con: header nhóm `Quan hệ · Loại con` + badge, filter loại con trong tab, không lẫn loại; phân trang/tìm kiếm hoạt động.
+- [x] Tạo loại `PROVINCE`, thêm `Hà Nội`; trong drawer bản ghi có tab `Phân cấp` với vùng Là cha/Là con.
+- [x] Thêm loại `COMMUNE` là con của `PROVINCE` ngay từ drawer bản ghi; sau lưu, tab `Phân cấp` có nhóm `Xã/Phường`.
+- [x] Tạo mới bản ghi: tab quan hệ visible nhưng disabled + hint; sau Lưu tự chuyển sang tab quan hệ đầu tiên và giữ drawer.
+- [x] `+ Tạo loại cha` / `+ Tạo loại con` đặt **trên cùng** vùng Cha/Con, đúng relation đang xem.
+- [x] Mỗi nhóm `Quan hệ · Loại con` có toggle đóng/mở, nút `+ Tạo nhanh` bản ghi con, bảng phân trang 10 dòng/nhóm.
+- [x] Tạo loại / tạo nhanh con xong cập nhật tại chỗ, không đóng drawer.
+- [x] Thêm/bớt cha cho bản ghi; cycle/loại không được phép bị chặn với mã lỗi rõ ràng.
+- [x] Nhiều relation + nhiều loại con: header nhóm `Quan hệ · Loại con` + badge, filter loại con trong tab, không lẫn loại; phân trang/tìm kiếm hoạt động.
 - [ ] Không mất dữ liệu form khi thêm con; 0 console error; i18n 13 locale; mobile read-only/overflow 0.
 - [ ] Test backend: edge/type-relation qua API thật PostgreSQL; browser desktop + mobile; cập nhật user guide + TR.
 
@@ -77,3 +79,7 @@ Màn **Thêm/Sửa bản ghi danh mục** phải là nơi khai báo quan hệ ng
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-28 | Tạo task từ luồng ví dụ của chủ dự án (Tỉnh → Hà Nội → Xã/Phường → Hoàn Kiếm) | Chủ dự án |
 | 0.2 | 2026-10-28 | Chốt: 1 tab/quan hệ + nhóm theo loại con có badge; + tạo loại con; + tạo nhanh con; cập nhật tại chỗ; lỗi inline; unsaved-item disabled | Chủ dự án xác nhận |
+| 0.3 | 2026-10-28 | Implement core: `type_code` trong item links, tab quan hệ, vùng Cha/Con nhóm theo loại, thêm/gỡ edge, tạo nhanh con, tạo loại con inline; giữ drawer sau Lưu | Developer |
+| 0.4 | 2026-10-28 | UX theo phản hồi: tab hiện disabled khi tạo mới + hint; sau Lưu tự mở tab quan hệ; form tạo loại con luôn hiện (mã + tên) | Developer |
+| 0.5 | 2026-10-28 | Sửa tab Thông tin không bị disable khi tạo mới; xác nhận flow tạo mới QA404C → Lưu tự mở Phân cấp; full backend 268 PASS | Developer |
+| 0.6 | 2026-10-28 | Theo phản hồi: form tạo loại cha/con lên đầu vùng; mỗi nhóm con có collapse, tạo nhanh bản ghi con, phân trang 10/nhóm | Developer |

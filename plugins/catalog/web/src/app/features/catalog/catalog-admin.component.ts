@@ -825,13 +825,15 @@ export class CatalogAdminComponent implements OnInit {
     this.syncState({ mode: CatalogDrawerMode.LIST });
   }
 
-  onItemSaved(code: string): void {
-    this.reselectCode = this.selectedItem()?.code ?? this.editingItem()?.code ?? null;
-    this.selectedItem.set(null);
-    this.versions.set([]);
-    this.pendingState = this.pendingState ? { ...this.pendingState, id: null, mode: CatalogDrawerMode.LIST } : null;
-    this.syncState({ id: null, mode: CatalogDrawerMode.LIST });
-    this.showSuccess(code);
+  onItemSaved(item: CatalogItemDto): void {
+    this.editingItem.set(item);
+    this.selectedItem.set(item);
+    this.reselectCode = item.code;
+    this.pendingState = this.pendingState
+      ? { ...this.pendingState, id: item.id, mode: CatalogDrawerMode.EDIT }
+      : null;
+    this.syncState({ id: item.id, mode: CatalogDrawerMode.EDIT });
+    this.showSuccess('CATALOG_ITEM_UPDATED_SUCCESS');
     this.refreshItems();
   }
 

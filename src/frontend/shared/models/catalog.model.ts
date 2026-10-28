@@ -89,6 +89,8 @@ export interface CatalogItemLink {
   item_id: string;
   code?: string | null;
   name?: string | null;
+  type_id?: string | null;
+  type_code?: string | null;
   relation_type: CatalogRelationType;
   sort_order?: number;
   valid_from?: string | null;

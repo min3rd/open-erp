@@ -44,6 +44,8 @@ public final class CatalogItemDtos {
         @JsonProperty(CatalogResponseKey.Json.ITEM_ID) UUID itemId,
         @JsonProperty(ResponseKey.Json.CODE) String code,
         @JsonProperty(ResponseKey.Json.NAME) String name,
+        @JsonProperty(CatalogResponseKey.Json.TYPE_ID) UUID typeId,
+        @JsonProperty(CatalogResponseKey.Json.TYPE_CODE) String typeCode,
         @JsonProperty(CatalogResponseKey.Json.RELATION_TYPE) String relationType,
         @JsonProperty(CatalogResponseKey.Json.SORT_ORDER) int sortOrder,
         @JsonProperty(CatalogResponseKey.Json.VALID_FROM) Instant validFrom,
