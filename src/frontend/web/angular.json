@@ -121,7 +121,13 @@
             "allowedCommonJsDependencies": [
               "qrcode"
             ],
-            "assets": [],
+            "assets": [
+              {
+                "glob": "**/*.json",
+                "input": "public/i18n",
+                "output": "i18n"
+              }
+            ],
             "styles": [
               "../../../plugins/catalog/web/src/styles.css"
             ],

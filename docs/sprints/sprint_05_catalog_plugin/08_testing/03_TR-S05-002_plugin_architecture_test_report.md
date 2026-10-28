@@ -1,0 +1,48 @@
+# [TR-S05-002] Báo Cáo Kiểm Thử Kiến Trúc Plugin Độc Lập (Sprint 05)
+
+| Trường | Giá trị |
+| :--- | :--- |
+| ID / loại / sprint | TR-S05-002 / Test Report / Sprint 05 |
+| Trạng thái / phiên bản / cập nhật | **In Progress** — backend/runtime/web PASS; mobile plugin UI blocked by [TASK-403](../07_items/TASK-403_mobile_plugin_screen_host.md) / 0.1 / 2026-10-28 |
+| Owner / reviewer | QA/QC Agent / PM + Architect |
+| Baseline mã nguồn | `13452fe` (P5 zero-DB + mTLS) + commit QA mobile/i18n kế tiếp |
+| Đầu vào | [TP-S05-001](01_TP-S05-001_sprint_05_test_plan.md), [TASK-402](../07_items/TASK-402_plugin_data_gateway_grpc.md), [BUG-135](../07_items/BUG-135_catalog_not_independent_plugin.md) |
+| Môi trường | Backend `:8088` (gRPC mTLS `:9090`), Web `:4200`, Mobile `:8100`; PostgreSQL 16 + Redis thật (không H2); tenant `e2e-tenant@example.com`, platform `e2e-platform@example.com` |
+
+> TR-S05-001 là baseline kiến trúc in-process đã bị thu hồi; báo cáo này thay thế cho nghiệm thu kiến trúc plugin độc lập.
+
+## 1. Tổng hợp
+
+| Hạng mục | Kết quả |
+| :--- | :--- |
+| Backend tự động (PostgreSQL thật) | **266 PASS, 0 fail, 1 skip** (60 test class) |
+| Gateway gRPC (read/write/batch/idempotency/TREE/import) | PASS — P3/P3.1/P4/P4.1 |
+| Zero DB plugin | PASS — không còn datasource/Flyway/Panache; `docker inspect` không có `QUARKUS_DATASOURCE_*` |
+| Core-owned migration | PASS — `PluginSchemaBootstrap` tạo schema + apply `V1.0.0` cho 4 ledger; `plugin_schema_history` ghi nhận |
+| Fan-out system catalog | PASS — 2 tenant `SYNCED`: `types=5, items=3355, edges=3321, skipped=0` |
+| mTLS | PASS — plaintext bị từ chối; tenant cert OK; tenant cert + SYSTEM scope → `PLUGIN_DATA_MTLS_IDENTITY_MISMATCH`; system cert + SYSTEM scope → rows |
+| BUG-136 locked uninstall | PASS — `PluginLifecycleApiTest` 403 `PLUGIN_LOCKED_DEFAULT`; plugin không locked vẫn uninstall |
+| Web plugin host | PASS — `/settings/apps/catalog`, 20 rows, overflow 0, 0 console error; token hết hạn tự refresh (BUG-143) |
+| Mobile plugin host | **CHƯA ĐẠT** — vẫn page native; tách [TASK-403](../07_items/TASK-403_mobile_plugin_screen_host.md) |
+| Docs check | PASS — 0 lỗi link/ID |
+
+## 2. Bằng chứng chính
+
+- `PluginLifecycleApiTest` (install/enable/disable/uninstall/upgrade/rollback/locked) — full suite PASS.
+- `PluginDataGatewayTest` 16 test (tenant isolation, system_row, idempotency, batch) PASS.
+- Migration log: `Plugin migrations: catalog@1.0.0 applied 1 migration(s) to tenant_<...>_catalog` cho 4 schema, gồm schema `tenant_cdba7d62_catalog` trước đó chưa có bảng.
+- `GET /api/v1/catalog/types` → **404**; gateway thiếu token → **401**; plugin runtime API → 200.
+- `information_schema.tables`: 0 bảng `catalog_*` trong `public`; đủ 5 bảng ở từng schema `tenant_*_catalog`.
+- gRPC: `grpcurl -plaintext` → handshake fail; `grpcurl` + tenant cert + `SYSTEM` scope → PermissionDenied; system cert → success.
+- Fan-out platform API: `PLUGIN_CATALOG_FANOUT_SUCCESS` với 2 tenant ACTIVE.
+
+## 3. Chưa đạt / rủi ro
+
+1. **Mobile UI native**: trái AC "UI từ manifest plugin". Cần TASK-403 (iframe + read-only + touch target 40px + token refresh).
+2. **Read-only mobile**: plugin UI hiện chưa nhận cờ `read_only` từ manifest; phải bổ sung trước khi bật mobile iframe.
+3. **Ảnh evidence mới**: web cần ảnh chụp màn plugin iframe (sáng/tối) trước khi PM ký; mobile chờ TASK-403.
+
+## 4. Kết luận
+
+- Kiến trúc plugin độc lập **đạt** ở backend/runtime/web; BUG-135 chỉ còn hạng mục mobile UI nên giữ **In Progress**.
+- Sprint 05 **chưa thể đóng**: còn [TASK-403](../07_items/TASK-403_mobile_plugin_screen_host.md) (High) và ảnh evidence/PM DoD.

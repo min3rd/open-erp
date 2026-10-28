@@ -2,6 +2,15 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-28 — QA lại kiến trúc plugin (TR-S05-002)
+
+- Backend: **266 PASS / 0 fail / 1 skip** trên PostgreSQL + Redis thật; lifecycle/locked/gateway/fan-out/migration PASS.
+- Zero-DB: không còn datasource/Flyway/Panache; `public` không còn bảng `catalog_*`; legacy `/api/v1/catalog/**` → 404.
+- mTLS: plaintext bị chặn; tenant/system cert đúng scope; mismatch bị từ chối.
+- Web: `/settings/apps/catalog` 20 rows, overflow 0, 0 console error; token hết hạn tự refresh.
+- Phát hiện mobile vẫn dùng page native, chưa đạt AC UI manifest/read-only → tạo [TASK-403](../sprints/sprint_05_catalog_plugin/07_items/TASK-403_mobile_plugin_screen_host.md) (High), TASK-398 chuyển In Progress.
+- Báo cáo: [TR-S05-002](../sprints/sprint_05_catalog_plugin/08_testing/03_TR-S05-002_plugin_architecture_test_report.md); BUG-135 In Progress, BUG-136 PASS.
+
 ## 2026-10-28 — TASK-402 P5: zero DB + mTLS + core-owned migrations
 
 - **Zero DB**: plugin bỏ JDBC/Hibernate/Flyway, xoá repository, model thành POJO; container không còn `QUARKUS_DATASOURCE_*`/`QUARKUS_FLYWAY_*` (đã kiểm tra `docker inspect`).

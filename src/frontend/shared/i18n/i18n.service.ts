@@ -66,7 +66,8 @@ export class I18nService {
     }
     const request = (async () => {
       try {
-        const response = await fetch(`/i18n/${lang}.json`);
+        // Relative to the document base: "/" for core web, "./" for the plugin iframe.
+        const response = await fetch(`i18n/${lang}.json`);
         if (response.ok) {
           this.dictionaries.set(lang, await response.json());
         }
