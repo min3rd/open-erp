@@ -65,7 +65,11 @@ public class PluginFanoutService {
                 "System tenant catalog plugin is not active");
         }
 
-        JsonNode snapshot = get(system, "/internal/system-catalog/snapshot");
+        JsonNode snapshot = get(system, "/internal/system-catalog/snapshot").path("data");
+        if (!snapshot.has("types")) {
+            throw new ApiException(502, PluginErrorCode.PLUGIN_RUNTIME_UNAVAILABLE,
+                "Catalog snapshot response has no data");
+        }
         List<TenantPlugin> targets = tenantPluginRepository.list("pluginKey = ?1 and status = ?2",
             "catalog", TenantPluginStatus.ACTIVE);
 

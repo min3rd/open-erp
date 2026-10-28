@@ -25,6 +25,7 @@ import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext;
 import io.grpc.stub.MetadataUtils;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ContextNotActiveException;
 import jakarta.inject.Inject;
 import java.io.File;
 import java.net.URI;
@@ -174,7 +175,7 @@ public class PluginDataClient {
             metadata.put(SERVICE_TOKEN, serviceToken.get());
             return metadata;
         }
-        UUID tenantId = tenantContext.tenantId();
+        UUID tenantId = currentTenant();
         if (tenantId == null && tenantIdConfig.isPresent() && !tenantIdConfig.get().isBlank()) {
             tenantId = UUID.fromString(tenantIdConfig.get().trim());
         }
@@ -186,6 +187,15 @@ public class PluginDataClient {
         metadata.put(TENANT_ID, tenantId.toString());
         metadata.put(SCOPE, "platform".equalsIgnoreCase(pluginScope) ? "SYSTEM" : "TENANT");
         return metadata;
+    }
+
+    /** TenantContext is request scoped; startup tasks only have the configured tenant. */
+    private UUID currentTenant() {
+        try {
+            return tenantContext.tenantId();
+        } catch (ContextNotActiveException e) {
+            return null;
+        }
     }
 
     private ManagedChannel channel() {

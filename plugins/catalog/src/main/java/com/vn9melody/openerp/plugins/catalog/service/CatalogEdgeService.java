@@ -18,7 +18,6 @@ import com.vn9melody.openerp.plugins.catalog.model.CatalogItemEdge;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
@@ -42,7 +41,6 @@ public class CatalogEdgeService {
     @Inject
     AuditTrail auditTrail;
 
-    @Transactional
     public EdgeResponse create(UUID tenantId, EdgeCreateRequest request) {
         UUID parentId = CatalogSupport.parseUuid(request.parentItemId(), "parent_item_id");
         UUID childId = CatalogSupport.parseUuid(request.childItemId(), "child_item_id");
@@ -111,7 +109,6 @@ public class CatalogEdgeService {
         return toResponse(saved);
     }
 
-    @Transactional
     public void close(UUID tenantId, UUID edgeId) {
         CatalogItemEdge edge = gateway.edgeById(tenantId, edgeId, tenantId == null);
         if (edge == null || edge.validTo != null) {

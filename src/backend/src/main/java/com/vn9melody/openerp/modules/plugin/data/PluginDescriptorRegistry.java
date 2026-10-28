@@ -85,6 +85,20 @@ public class PluginDescriptorRegistry {
                     && query.scope() == PluginQueryDescriptor.Scope.TENANT_OR_SYSTEM) {
                 fail(query, "write descriptor cannot use TENANT_OR_SYSTEM");
             }
+            if (query.systemRow()) {
+                if (query.mode() != PluginQueryDescriptor.Mode.WRITE) {
+                    fail(query, "system_row is only valid on WRITE descriptors");
+                }
+                if (query.scope() != PluginQueryDescriptor.Scope.TENANT) {
+                    fail(query, "system_row requires TENANT scope");
+                }
+                if (!entity.fields().contains("tenant_id")) {
+                    fail(query, "system_row requires a tenant-scoped entity");
+                }
+                if (!query.joins().isEmpty()) {
+                    fail(query, "system_row does not support joins");
+                }
+            }
             if (query.operation() == PluginQueryDescriptor.Operation.MERGED_LIST) {
                 if (query.mode() != PluginQueryDescriptor.Mode.READ) {
                     fail(query, "MERGED_LIST must be READ");

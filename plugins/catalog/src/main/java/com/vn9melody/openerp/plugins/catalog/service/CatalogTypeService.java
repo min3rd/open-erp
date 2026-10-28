@@ -21,7 +21,6 @@ import com.vn9melody.openerp.plugins.catalog.model.CatalogType;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogTypeGrant;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,7 +63,6 @@ public class CatalogTypeService {
             .map(CatalogTypeService::toResponse).toList();
     }
 
-    @Transactional
     public TypeResponse create(UUID tenantId, TypeCreateRequest request) {
         String code = CatalogSupport.normalizeCode(request.code());
         if (code == null) {
@@ -96,7 +94,6 @@ public class CatalogTypeService {
         return toResponse(type);
     }
 
-    @Transactional
     public TypeResponse update(UUID tenantId, UUID typeId, TypeUpdateRequest request) {
         CatalogType type = requireOwnedType(tenantId, typeId);
         applyUpdate(type, request);
@@ -115,7 +112,6 @@ public class CatalogTypeService {
             .toList();
     }
 
-    @Transactional
     public List<GrantResponse> replaceGrants(UUID tenantId, String code, GrantReplaceRequest request) {
         CatalogType type = requireTenantManagedType(tenantId, code);
         List<GrantItem> items = request != null && request.grants() != null ? request.grants() : List.of();

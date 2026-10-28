@@ -33,6 +33,8 @@ public record PluginQueryDescriptor(
         Page page,
         boolean distinct,
         boolean bulk,
+        /** Write a system row ({@code tenant_id IS NULL}) from a tenant-scope descriptor. */
+        boolean systemRow,
         int maxRows,
         int timeoutMs) {
 
@@ -192,9 +194,10 @@ public record PluginQueryDescriptor(
         int timeoutMs = node.path("timeoutMs").asInt(0);
         boolean distinct = node.path("distinct").asBoolean(false);
         boolean bulk = node.path("bulk").asBoolean(false);
+        boolean systemRow = node.path("system_row").asBoolean(false);
         return new PluginQueryDescriptor(id, mode, operation, entity, scope, select, filters, search,
                 exists, postFilters, mergeKey, tree, sort, values, returning, joins, page, distinct, bulk,
-                maxRows, timeoutMs);
+                systemRow, maxRows, timeoutMs);
     }
 
     private static String text(JsonNode node, String field, String defaultValue) {

@@ -18,7 +18,6 @@ import com.vn9melody.openerp.plugins.catalog.model.CatalogItemEdge;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -100,7 +99,6 @@ public class CatalogItemService {
         return new ItemPage(items, result.total());
     }
 
-    @Transactional
     public ItemResponse create(UUID tenantId, String typeCode, ItemCreateRequest request) {
         CatalogType type = guard.requireVisibleType(tenantId, typeCode);
         // System types stay read-only as types, but a tenant may create its own
@@ -142,7 +140,6 @@ public class CatalogItemService {
         return toResponse(saved, type.code, isOverridden(tenantId, saved, type, saved.validFrom));
     }
 
-    @Transactional
     public ItemResponse update(UUID tenantId, UUID itemId, ItemUpdateRequest request) {
         CatalogItem item = requireWritableItem(tenantId, itemId);
         CatalogType type = requireType(tenantId, item.typeId);
@@ -171,7 +168,6 @@ public class CatalogItemService {
         return toResponse(saved, type.code, isOverridden(tenantId, saved, type, now));
     }
 
-    @Transactional
     public void close(UUID tenantId, UUID itemId) {
         CatalogItem item = requireWritableItem(tenantId, itemId);
         CatalogType type = requireType(tenantId, item.typeId);

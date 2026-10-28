@@ -23,7 +23,6 @@ import com.vn9melody.openerp.plugins.catalog.model.CatalogItemEdge;
 import com.vn9melody.openerp.plugins.catalog.model.CatalogType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -176,7 +175,6 @@ public class CatalogLookupService {
     }
 
     /** Quick-create from free text; code/name duplicates are rejected with a dedicated code. */
-    @Transactional
     public OptionResponse inline(UUID tenantId, String typeCode, InlineCreateRequest request) {
         CatalogType type = guard.requireVisibleType(tenantId, typeCode);
         if (!type.allowFreeText) {

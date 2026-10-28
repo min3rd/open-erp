@@ -68,6 +68,51 @@ public class CatalogGateway {
                         .rows().stream().map(this::toType).toList());
     }
 
+    /** Uncached system types for startup seeding and snapshot export. */
+    public List<CatalogType> systemTypesFresh() {
+        return query("catalog.types.system", Map.of()).rows().stream().map(this::toType).toList();
+    }
+
+    public CatalogType systemTypeByCode(String code) {
+        return systemTypesFresh().stream()
+                .filter(type -> code.equals(type.code))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /** Current system items of one type, paged to stay under the gRPC message limit. */
+    public List<CatalogItem> systemItemsByType(UUID tenantId, UUID typeId, Instant asOf) {
+        return pageThrough("catalog.items.system.by.type",
+                Map.of("type_id", typeId, "as_of", asOf), 2000, this::toItem);
+    }
+
+    /** Lightweight index of current system items ({@code id,type_id,code}). */
+    public List<CatalogItem> systemItemIndex() {
+        return pageThrough("catalog.items.system.index", Map.of(), 2000, this::toItem);
+    }
+
+    /** Lightweight index of current system edges (no timestamps). */
+    public List<CatalogItemEdge> systemEdgeIndex() {
+        return pageThrough("catalog.edges.system.index", Map.of(), 2000, this::toEdge);
+    }
+
+    private <T> List<T> pageThrough(String queryId, Map<String, ?> base, int size,
+                                    java.util.function.Function<Map<String, Object>, T> mapper) {
+        List<T> all = new ArrayList<>();
+        int page = 1;
+        while (true) {
+            Map<String, Object> params = new java.util.LinkedHashMap<>(base);
+            params.put("page", page);
+            params.put("size", size);
+            List<Map<String, Object>> rows = query(queryId, params).rows();
+            rows.forEach(row -> all.add(mapper.apply(row)));
+            if (rows.size() < size) {
+                return all;
+            }
+            page++;
+        }
+    }
+
     /** System type id for a code, used for override badges under tenant type overrides. */
     public UUID systemTypeId(String code) {
         return systemTypes().stream()
@@ -527,7 +572,7 @@ public class CatalogGateway {
         return result.rows().isEmpty() ? null : toGrant(result.rows().get(0));
     }
 
-    private CatalogType toType(Map<String, Object> row) {
+    public CatalogType toType(Map<String, Object> row) {
         CatalogType type = new CatalogType();
         type.id = uuid(row, "id");
         type.tenantId = uuid(row, "tenant_id");

@@ -577,7 +577,7 @@
       "mode": "READ",
       "operation": "LIST",
       "entity": "CatalogItem",
-      "tenant_scope": "SYSTEM",
+      "tenant_scope": "TENANT_OR_SYSTEM",
       "select": [
         "id",
         "tenant_id",
@@ -600,6 +600,10 @@
         "updated_by"
       ],
       "filters": [
+        {
+          "field": "tenant_id",
+          "op": "IS_NULL"
+        },
         {
           "field": "type_id",
           "op": "EQ",
@@ -631,10 +635,11 @@
       "page": {
         "pageParam": "page",
         "sizeParam": "size",
-        "maxSize": 500,
-        "defaultSize": 500
+        "maxSize": 2000,
+        "defaultSize": 2000
       },
-      "maxRows": 500
+      "maxRows": 2000,
+      "bulk": true
     },
     {
       "id": "catalog.items.by.id",
@@ -2222,7 +2227,7 @@
       "mode": "READ",
       "operation": "LIST",
       "entity": "CatalogItem",
-      "tenant_scope": "SYSTEM",
+      "tenant_scope": "TENANT_OR_SYSTEM",
       "select": [
         "id",
         "tenant_id",
@@ -2245,6 +2250,10 @@
         "updated_by"
       ],
       "filters": [
+        {
+          "field": "tenant_id",
+          "op": "IS_NULL"
+        },
         {
           "field": "type_id",
           "op": "EQ",
@@ -2968,6 +2977,512 @@
       },
       "maxRows": 20000,
       "bulk": true
+    },
+    {
+      "id": "catalog.items.system.index",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "CatalogItem",
+      "tenant_scope": "TENANT_OR_SYSTEM",
+      "select": [
+        "id",
+        "type_id",
+        "code"
+      ],
+      "filters": [
+        {
+          "field": "tenant_id",
+          "op": "IS_NULL"
+        },
+        {
+          "field": "valid_to",
+          "op": "IS_NULL"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 20000,
+        "defaultSize": 20000
+      },
+      "maxRows": 20000,
+      "bulk": true
+    },
+    {
+      "id": "catalog.edges.system.index",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "CatalogItemEdge",
+      "tenant_scope": "TENANT_OR_SYSTEM",
+      "select": [
+        "id",
+        "parent_item_id",
+        "child_item_id",
+        "relation_type",
+        "sort_order",
+        "status"
+      ],
+      "filters": [
+        {
+          "field": "tenant_id",
+          "op": "IS_NULL"
+        },
+        {
+          "field": "valid_to",
+          "op": "IS_NULL"
+        },
+        {
+          "field": "relation_type",
+          "op": "EQ",
+          "param": "relation_type"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 20000,
+        "defaultSize": 20000
+      },
+      "maxRows": 20000,
+      "bulk": true
+    },
+    {
+      "id": "catalog.type.insert.mirror",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "CatalogType",
+      "tenant_scope": "TENANT",
+      "values": {
+        "code": {
+          "param": "code"
+        },
+        "name_key": {
+          "param": "name_key"
+        },
+        "description_key": {
+          "param": "description_key",
+          "optional": true,
+          "allow_null": true
+        },
+        "hierarchy_mode": {
+          "param": "hierarchy_mode",
+          "optional": true
+        },
+        "allowed_relations": {
+          "param": "allowed_relations",
+          "type": "varchar[]",
+          "optional": true
+        },
+        "allowed_parent_types": {
+          "param": "allowed_parent_types",
+          "type": "varchar[]",
+          "optional": true,
+          "allow_null": true
+        },
+        "max_depth": {
+          "param": "max_depth",
+          "optional": true,
+          "allow_null": true
+        },
+        "min_parents": {
+          "param": "min_parents",
+          "optional": true
+        },
+        "allow_free_text": {
+          "param": "allow_free_text",
+          "optional": true
+        },
+        "versioned": {
+          "param": "versioned",
+          "optional": true
+        },
+        "effective_dated": {
+          "param": "effective_dated",
+          "optional": true
+        },
+        "attributes_schema": {
+          "param": "attributes_schema",
+          "type": "jsonb",
+          "optional": true,
+          "allow_null": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        },
+        "updated_at": {
+          "param": "updated_at",
+          "optional": true
+        }
+      },
+      "returning": [
+        "id",
+        "tenant_id",
+        "code",
+        "name_key",
+        "description_key",
+        "hierarchy_mode",
+        "allowed_relations",
+        "allowed_parent_types",
+        "max_depth",
+        "min_parents",
+        "allow_free_text",
+        "versioned",
+        "effective_dated",
+        "status",
+        "created_at",
+        "updated_at",
+        "attributes_schema"
+      ],
+      "system_row": true
+    },
+    {
+      "id": "catalog.type.update.mirror",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "CatalogType",
+      "tenant_scope": "TENANT",
+      "values": {
+        "code": {
+          "param": "code"
+        },
+        "name_key": {
+          "param": "name_key"
+        },
+        "description_key": {
+          "param": "description_key",
+          "optional": true,
+          "allow_null": true
+        },
+        "hierarchy_mode": {
+          "param": "hierarchy_mode",
+          "optional": true
+        },
+        "allowed_relations": {
+          "param": "allowed_relations",
+          "type": "varchar[]",
+          "optional": true
+        },
+        "allowed_parent_types": {
+          "param": "allowed_parent_types",
+          "type": "varchar[]",
+          "optional": true,
+          "allow_null": true
+        },
+        "max_depth": {
+          "param": "max_depth",
+          "optional": true,
+          "allow_null": true
+        },
+        "min_parents": {
+          "param": "min_parents",
+          "optional": true
+        },
+        "allow_free_text": {
+          "param": "allow_free_text",
+          "optional": true
+        },
+        "versioned": {
+          "param": "versioned",
+          "optional": true
+        },
+        "effective_dated": {
+          "param": "effective_dated",
+          "optional": true
+        },
+        "attributes_schema": {
+          "param": "attributes_schema",
+          "type": "jsonb",
+          "optional": true,
+          "allow_null": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        },
+        "updated_at": {
+          "param": "updated_at",
+          "optional": true
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "tenant_id",
+        "code",
+        "name_key",
+        "description_key",
+        "hierarchy_mode",
+        "allowed_relations",
+        "allowed_parent_types",
+        "max_depth",
+        "min_parents",
+        "allow_free_text",
+        "versioned",
+        "effective_dated",
+        "status",
+        "created_at",
+        "updated_at",
+        "attributes_schema"
+      ],
+      "system_row": true
+    },
+    {
+      "id": "catalog.item.insert.mirror",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "CatalogItem",
+      "tenant_scope": "TENANT",
+      "values": {
+        "type_id": {
+          "param": "type_id"
+        },
+        "version_group_id": {
+          "param": "version_group_id"
+        },
+        "version": {
+          "param": "version"
+        },
+        "code": {
+          "param": "code"
+        },
+        "name": {
+          "param": "name"
+        },
+        "name_en": {
+          "param": "name_en",
+          "optional": true,
+          "allow_null": true
+        },
+        "description": {
+          "param": "description",
+          "optional": true,
+          "allow_null": true
+        },
+        "attributes": {
+          "param": "attributes",
+          "type": "jsonb",
+          "optional": true,
+          "allow_null": true
+        },
+        "sort_order": {
+          "param": "sort_order"
+        },
+        "status": {
+          "param": "status"
+        },
+        "valid_from": {
+          "param": "valid_from"
+        },
+        "valid_to": {
+          "param": "valid_to",
+          "optional": true,
+          "allow_null": true
+        },
+        "supersedes_item_id": {
+          "param": "supersedes_item_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "created_by": {
+          "param": "created_by",
+          "optional": true,
+          "allow_null": true
+        },
+        "created_at": {
+          "param": "created_at"
+        },
+        "updated_by": {
+          "param": "updated_by",
+          "optional": true,
+          "allow_null": true
+        },
+        "updated_at": {
+          "param": "updated_at"
+        }
+      },
+      "returning": [
+        "id",
+        "tenant_id",
+        "type_id",
+        "version_group_id",
+        "version",
+        "code",
+        "name",
+        "name_en",
+        "description",
+        "sort_order",
+        "status",
+        "valid_from",
+        "valid_to",
+        "supersedes_item_id",
+        "created_at",
+        "updated_at",
+        "attributes",
+        "created_by",
+        "updated_by"
+      ],
+      "system_row": true
+    },
+    {
+      "id": "catalog.edge.insert.mirror",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "CatalogItemEdge",
+      "tenant_scope": "TENANT",
+      "values": {
+        "parent_item_id": {
+          "param": "parent_item_id"
+        },
+        "child_item_id": {
+          "param": "child_item_id"
+        },
+        "relation_type": {
+          "param": "relation_type"
+        },
+        "sort_order": {
+          "param": "sort_order"
+        },
+        "status": {
+          "param": "status"
+        },
+        "valid_from": {
+          "param": "valid_from"
+        },
+        "created_by": {
+          "param": "created_by",
+          "optional": true,
+          "allow_null": true
+        },
+        "created_at": {
+          "param": "created_at"
+        }
+      },
+      "returning": [
+        "id",
+        "tenant_id",
+        "parent_item_id",
+        "child_item_id",
+        "relation_type",
+        "sort_order",
+        "status",
+        "valid_from",
+        "valid_to",
+        "created_at",
+        "created_by"
+      ],
+      "system_row": true
+    },
+    {
+      "id": "catalog.item.update.mirror",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "CatalogItem",
+      "tenant_scope": "TENANT",
+      "system_row": true,
+      "values": {
+        "name": {
+          "param": "name"
+        },
+        "name_en": {
+          "param": "name_en",
+          "optional": true,
+          "allow_null": true
+        },
+        "description": {
+          "param": "description",
+          "optional": true,
+          "allow_null": true
+        },
+        "attributes": {
+          "param": "attributes",
+          "type": "jsonb",
+          "optional": true,
+          "allow_null": true
+        },
+        "sort_order": {
+          "param": "sort_order"
+        },
+        "status": {
+          "param": "status"
+        },
+        "updated_at": {
+          "param": "updated_at"
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "tenant_id",
+        "type_id",
+        "version_group_id",
+        "version",
+        "code",
+        "name",
+        "name_en",
+        "description",
+        "sort_order",
+        "status",
+        "valid_from",
+        "valid_to",
+        "supersedes_item_id",
+        "created_at",
+        "updated_at",
+        "attributes",
+        "created_by",
+        "updated_by"
+      ]
+    },
+    {
+      "id": "catalog.edge.update.mirror",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "CatalogItemEdge",
+      "tenant_scope": "TENANT",
+      "system_row": true,
+      "values": {
+        "sort_order": {
+          "param": "sort_order"
+        },
+        "status": {
+          "param": "status"
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "tenant_id",
+        "parent_item_id",
+        "child_item_id",
+        "relation_type",
+        "sort_order",
+        "status",
+        "valid_from",
+        "valid_to",
+        "created_at",
+        "created_by"
+      ]
     }
   ]
 }

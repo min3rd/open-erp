@@ -22,7 +22,7 @@ public class CatalogQueryDescriptorManifestTest {
     void seededCatalogDescriptorsAreValid() {
         PluginManifest manifest = registry.manifest("catalog", "1.0.0");
 
-        assertEquals(49, manifest.queries().size());
+        assertEquals(57, manifest.queries().size());
         assertTrue(manifest.entities().get("CatalogType").fields().contains("attributes_schema"));
         assertTrue(manifest.entities().get("CatalogItem").fields().contains("attributes"));
 
@@ -50,7 +50,11 @@ public class CatalogQueryDescriptorManifestTest {
         assertEquals(PluginQueryDescriptor.Scope.TENANT_OR_SYSTEM, systemCodes.scope());
 
         PluginQueryDescriptor systemItems = manifest.requireQuery("catalog.items.system.by.type");
-        assertEquals(PluginQueryDescriptor.Scope.SYSTEM, systemItems.scope());
+        assertEquals(PluginQueryDescriptor.Scope.TENANT_OR_SYSTEM, systemItems.scope());
+
+        PluginQueryDescriptor mirrorInsert = manifest.requireQuery("catalog.item.insert.mirror");
+        assertEquals(PluginQueryDescriptor.Mode.WRITE, mirrorInsert.mode());
+        assertTrue(mirrorInsert.systemRow());
 
         PluginQueryDescriptor insert = manifest.requireQuery("catalog.item.insert");
         assertEquals(PluginQueryDescriptor.Mode.WRITE, insert.mode());

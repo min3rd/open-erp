@@ -43,7 +43,7 @@ open-erp-sales/
 
 > **DB/security do core quản trị**: core deployer cấp `QUARKUS_DATASOURCE_*`, schema và Flyway runtime qua env. Plugin **không** khai báo URL/user/password trong `application.properties`. `plugin.json` khai báo `entities[].storage_scope` (`TENANT`/`CORE`), `relations` (core/plugin khác), `repositories`, `apis`, `websockets`. Migration DDL vẫn nằm trong plugin (`db/plugin-migration`) và chạy trong schema riêng của tenant; không tạo bảng trong `public`.
 > **Quyền**: đăng ký mã `domain:resource:action` trong `plugin.json`; khi cài, TENANT_OWNER nhận quyền tự động.
-> **Read/write path P3–P4 (2026-10-28)**: plugin đọc/ghi qua `PluginDataClient` bằng `queries` descriptor trong `plugin.json` (không gửi SQL); cache Redis do **plugin tự quản lý** với namespace riêng, TTL ngắn và generation invalidation sau write. Write dùng idempotency key + `ExecuteBatch`; import/system sync/seeders còn P4.1/P5. Xem [TASK-402](../sprints/sprint_05_catalog_plugin/07_items/TASK-402_plugin_data_gateway_grpc.md).
+> **Read/write path P3–P4.1 (2026-10-28)**: plugin đọc/ghi qua `PluginDataClient` bằng `queries` descriptor trong `plugin.json` (không gửi SQL); cache Redis do **plugin tự quản lý** với namespace riêng, TTL ngắn và generation invalidation sau write. Write dùng idempotency key + `ExecuteBatch`; import, seeder và system fan-out cũng đã qua gateway. Descriptor WRITE scope `TENANT` có thể khai báo `"system_row": true` để ghi/đọc đúng các row `tenant_id IS NULL` trong schema của chính plugin (dùng cho seeding/fan-out system data; core từ chối nếu có join hoặc scope khác TENANT). Xem [TASK-402](../sprints/sprint_05_catalog_plugin/07_items/TASK-402_plugin_data_gateway_grpc.md).
 
 ---
 

@@ -241,7 +241,7 @@ public final class PluginQueryCompiler {
         }
         if (entity.fields().contains("tenant_id")) {
             columns.add(quote("tenant_id"));
-            placeholders.add(scope == PluginQueryDescriptor.Scope.TENANT
+            placeholders.add(scope == PluginQueryDescriptor.Scope.TENANT && !query.systemRow()
                     ? "current_setting('app.tenant_id')::uuid"
                     : "NULL");
         }
@@ -376,7 +376,9 @@ public final class PluginQueryCompiler {
             if (!entity.fields().contains("tenant_id")) {
                 throw invalid(query, "tenant-scoped entity has no tenant_id");
             }
-            where.add(tenantPredicate("t", scope));
+            where.add(query.systemRow()
+                    ? "t." + quote("tenant_id") + " IS NULL"
+                    : tenantPredicate("t", scope));
         }
 
         int joinIndex = 0;

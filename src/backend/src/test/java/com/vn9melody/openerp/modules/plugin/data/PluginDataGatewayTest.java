@@ -111,6 +111,15 @@ public class PluginDataGatewayTest {
                        "tags":{"param":"tags","optional":true,"type":"text[]"}
                      },
                      "returning":["id","code","name","status","note","tags"]},
+                    {"id":"test.things.insert.mirror","mode":"WRITE","operation":"INSERT","entity":"Thing",
+                     "tenant_scope":"TENANT","system_row":true,
+                     "values":{"code":{"param":"code"},"name":{"param":"name"},"status":{"param":"status"}},
+                     "returning":["id","tenant_id","code","name"]},
+                    {"id":"test.things.update.mirror","mode":"WRITE","operation":"UPDATE","entity":"Thing",
+                     "tenant_scope":"TENANT","system_row":true,
+                     "values":{"name":{"param":"name"}},
+                     "filters":[{"field":"id","op":"EQ","param":"id","required":true}],
+                     "returning":["id","tenant_id","code","name"]},
                     {"id":"test.things.update","mode":"WRITE","operation":"UPDATE","entity":"Thing",
                      "values":{"name":{"param":"name"}},
                      "filters":[{"field":"id","op":"EQ","param":"id","required":true}],
@@ -275,6 +284,33 @@ public class PluginDataGatewayTest {
         PluginDataExecutor.Result delete = executor.execute(identity(), "test.things.delete", "req-7",
                 Map.ofEntries(named("id", ownId)));
         assertEquals(1, delete.affectedRows());
+    }
+
+    @Test
+    @Transactional
+    void systemRowWritesOnlyTouchNullTenantRows() {
+        PluginDataExecutor.Result inserted = executor.execute(identity(), "test.things.insert.mirror", "mirror-1",
+                Map.ofEntries(named("code", "M"), named("name", "Mirror"), named("status", "ACTIVE")));
+        assertEquals(1, inserted.affectedRows());
+        assertNull(inserted.rows().get(0).get("tenant_id"));
+
+        Object tenantIdOfRow = em.createNativeQuery(
+                        "SELECT tenant_id FROM " + schema + ".things WHERE code = 'M'")
+                .getSingleResult();
+        assertNull(tenantIdOfRow);
+
+        String tenantRowId = String.valueOf(em.createNativeQuery(
+                        "SELECT id FROM " + schema + ".things WHERE code = 'A'").getSingleResult());
+        PluginDataExecutor.Result foreign = executor.execute(identity(), "test.things.update.mirror", "mirror-2",
+                Map.ofEntries(named("id", tenantRowId), named("name", "Hacked")));
+        assertEquals(0, foreign.affectedRows());
+
+        String systemRowId = String.valueOf(em.createNativeQuery(
+                        "SELECT id FROM " + schema + ".things WHERE code = 'M'").getSingleResult());
+        PluginDataExecutor.Result updated = executor.execute(identity(), "test.things.update.mirror", "mirror-3",
+                Map.ofEntries(named("id", systemRowId), named("name", "Mirror 2")));
+        assertEquals(1, updated.affectedRows());
+        assertEquals("Mirror 2", updated.rows().get(0).get("name"));
     }
 
     @Test

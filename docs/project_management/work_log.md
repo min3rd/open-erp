@@ -2,6 +2,15 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-28 — TASK-402 P4.1 system: seeders + fan-out qua gateway
+
+- **DSL**: `system_row` write descriptor (TENANT scope) ghi `tenant_id NULL`, update/delete chỉ chạm row system; validate WRITE + không join.
+- **Descriptors**: 57, thêm 6 mirror writes + 2 index reads; bulk cho `catalog.items.system.by.type`; migration `V5.1.3`.
+- **Seeders**: admin units đọc index + batch 500 (retry khi gateway chưa lên); tenant types/grants idempotent qua gateway. Không còn `EntityManager`/repository trong service.
+- **Sync**: snapshot/apply qua gateway, chỉ update khi dữ liệu đổi.
+- **BUG-144**: fan-out gửi cả envelope nên sync 0; bóc `data` + fail-fast; e2e fan-out `types=5, items=3355, edges=3321`.
+- **Kiểm chứng**: xoá 600 commune+edge ở tenant e2e → restart seed lại đủ `3321/3321`; sửa type/item system ở tenant → sync phục hồi; full backend test PASS.
+
 ## 2026-10-28 — TASK-402 P4.1 import + BUG-143 token hết hạn
 
 - **Import**: `CatalogImportExportService` dùng `gateway.currentItemByCode`, `gateway.activeEdge`, `gateway.wouldCreateCycle`; bỏ 2 repository khỏi service.
