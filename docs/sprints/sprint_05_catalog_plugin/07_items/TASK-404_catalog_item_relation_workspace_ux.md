@@ -38,6 +38,7 @@ Màn **Thêm/Sửa bản ghi danh mục** phải là nơi khai báo quan hệ ng
 
 ### 2.3. Điều hướng & trạng thái
 
+- **Bản ghi mới chưa lưu**: tab quan hệ hiển thị nhưng disabled kèm hint "Lưu bản ghi trước để thêm quan hệ"; sau khi Lưu thành công, giữ nguyên drawer ở chế độ sửa và bật tab (không đóng/không mất ngữ cảnh). Không tự động lưu ngầm form đang nhập.
 - Giữ URL/drawer state khi thêm con (không reload mất form đang nhập); refresh chỉ vùng bảng con.
 - Không dùng modal; ưu tiên split-view/drawer xếp tầng.
 - Hiển thị tổng số con/cha, empty state hướng dẫn, lỗi cycle/type-not-allowed inline theo mã i18n.
@@ -48,6 +49,7 @@ Màn **Thêm/Sửa bản ghi danh mục** phải là nơi khai báo quan hệ ng
 - [ ] Tạo loại `PROVINCE`, thêm `Hà Nội`; trong drawer bản ghi có tab `Phân cấp` với vùng Là cha/Là con.
 - [ ] Thêm loại `COMMUNE` là con của `PROVINCE` ngay từ drawer bản ghi; sau lưu, tab `Phân cấp` có nhóm `Xã/Phường`.
 - [ ] Thêm `Phường Hoàn Kiếm` (tạo mới hoặc chọn sẵn) làm con của `Hà Nội`; bảng con cập nhật ngay, reload vẫn giữ.
+- [ ] Tạo mới bản ghi: tab quan hệ disabled đến khi Lưu; sau Lưu vẫn ở drawer và thao tác con được ngay.
 - [ ] Thêm/bớt cha cho bản ghi; cycle/loại không được phép bị chặn với mã lỗi rõ ràng.
 - [ ] Nhiều relation + nhiều loại con: tab/nhóm đúng, không lẫn loại; phân trang/tìm kiếm hoạt động.
 - [ ] Không mất dữ liệu form khi thêm con; 0 console error; i18n 13 locale; mobile read-only/overflow 0.
