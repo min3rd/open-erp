@@ -95,9 +95,9 @@ public class ProcessPluginRuntimeDeployer {
         List<String> command = new ArrayList<>(List.of(binary, "run", "-d", "--name", name,
                 "--network", network,
                 "--label", "app=open-erp-plugin",
-                "--label", "tenant_id=" + request.tenantId(),
                 "--label", "plugin_key=" + request.pluginKey(),
                 "--label", "plugin_version=" + request.version(),
+                "--label", "plugin_scope=" + (isSystem(request) ? "platform" : "tenant"),
                 "--memory", defaultMemoryMb + "m",
                 "--cpus", defaultCpus));
         String tlsMount = tlsHostDir.orElse("").trim();
@@ -230,6 +230,7 @@ public class ProcessPluginRuntimeDeployer {
                           secret:
                             secretName: %s
                 """.formatted(secret);
+        String scope = isSystem(request) ? "platform" : "tenant";
         return """
                 apiVersion: apps/v1
                 kind: Deployment
@@ -237,22 +238,22 @@ public class ProcessPluginRuntimeDeployer {
                   name: %s
                   labels:
                     app: open-erp-plugin
-                    tenant_id: "%s"
                     plugin_key: %s
+                    plugin_scope: "%s"
                 spec:
                   replicas: 1
                   selector:
                     matchLabels:
                       app: open-erp-plugin
-                      tenant_id: "%s"
                       plugin_key: %s
+                      plugin_scope: "%s"
                   template:
                     metadata:
                       labels:
                         app: open-erp-plugin
-                        tenant_id: "%s"
                         plugin_key: %s
                         plugin_version: %s
+                        plugin_scope: "%s"
                         managed-by: plugin-manager
                     spec:
                       containers:
@@ -286,17 +287,17 @@ public class ProcessPluginRuntimeDeployer {
                 spec:
                   selector:
                     app: open-erp-plugin
-                    tenant_id: "%s"
                     plugin_key: %s
+                    plugin_scope: "%s"
                   ports:
                     - port: 8080
                       targetPort: 8080
-                """.formatted(name, request.tenantId(), request.pluginKey(),
-                request.tenantId(), request.pluginKey(),
-                request.tenantId(), request.pluginKey(), request.version(),
+                """.formatted(name, request.pluginKey(), scope,
+                request.pluginKey(), scope,
+                request.pluginKey(), request.version(), scope,
                 request.imageRef(), env.toString().isBlank() ? "            []\n" : env.toString(),
                 volumeMounts, defaultCpus, defaultMemoryMb, volumes,
-                name, request.pluginKey(), request.tenantId(), request.pluginKey());
+                name, request.pluginKey(), request.pluginKey(), scope);
     }
 
     private int parseReadyReplicas(String output) {
@@ -314,10 +315,14 @@ public class ProcessPluginRuntimeDeployer {
         String key = request.pluginKey().toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9-]", "-");
         String version = request.version() == null ? "latest"
                 : request.version().toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9-]", "-");
-        boolean system = request.env() != null
-                && "platform".equalsIgnoreCase(request.env().get("PLUGIN_SCOPE"));
+        boolean system = isSystem(request);
         String name = "openerp-plugin-" + key + "-" + version + (system ? "-system" : "");
         return name.length() > 63 ? name.substring(0, 63) : name;
+    }
+
+    private boolean isSystem(DeployRequest request) {
+        return request.env() != null
+                && "platform".equalsIgnoreCase(request.env().get("PLUGIN_SCOPE"));
     }
 
     private boolean isRunning(String name) {

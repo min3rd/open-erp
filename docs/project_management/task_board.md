@@ -4,7 +4,7 @@ Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy t
 
 ## Trạng thái điều hướng — cập nhật 2026-10-06
 
-Sprint đang theo dõi: [Sprint 05 — Plugin Danh mục](../sprints/sprint_05_catalog_plugin/00_READING_GUIDE.md) — ✅ GATE APPROVED 2026-10-06. Tình trạng 2026-10-28: BUG-135/136 **Resolved (dev+QA)**; plugin độc lập backend/runtime/web/mobile PASS. Còn ảnh EVD/User Guide + PM DoD ([TASK-398](../sprints/sprint_05_catalog_plugin/07_items/TASK-398_catalog_retest_qa_docs_closure.md)).
+Sprint đang theo dõi: [Sprint 05 — Plugin Danh mục](../sprints/sprint_05_catalog_plugin/00_READING_GUIDE.md) — ✅ GATE APPROVED 2026-10-06. Tình trạng 2026-10-29: **Ready for PM review** — 0 Critical/High mở; QA TASK-404/406 PASS; docs/REV-S05-001 sẵn sàng; còn PM DoD + khách hàng nghiệm thu ([REV-S05-001](../sprints/sprint_05_catalog_plugin/09_review/01_REV-S05-001_sprint_05_dod_review.md)).
 
 [TASK-349](../sprints/sprint_03_plugin_manager/07_items/TASK-349_standardize_sdlc_and_developer_documentation.md) — chuẩn hóa phối hợp agent, đánh số/viết docs và onboarding dev; trạng thái xem tại item. [REV-S03-004](../sprints/sprint_03_plugin_manager/09_review/04_REV-S03-004_sdlc_workflow_review.md) chứa review/kiểm chứng của thay đổi tài liệu, không là QA sản phẩm.
 
@@ -17,6 +17,8 @@ Sprint đang theo dõi: [Sprint 05 — Plugin Danh mục](../sprints/sprint_05_c
 2026-10-28 (BUG-149): [BUG-149](../sprints/sprint_05_catalog_plugin/07_items/BUG-149_catalog_admin_duplicate_override.md) Resolved — admin list dùng `MERGED_LIST` theo code, chỉ hiện bản tenant khi có ghi đè; migration V5.3.1. Browser COMMUNE `q=10003` → 1 dòng tenant, badge Ghi đè.
 
 2026-10-28 (BUG-150): [BUG-150](../sprints/sprint_05_catalog_plugin/07_items/BUG-150_plugin_enable_runtime_not_ready.md) Resolved — Docker health poll `/q/health/ready`; disable 2s, enable 23s rồi runtime trả 200 ngay, không còn 503.
+
+2026-10-29 (CLOSURE PREP): chốt [TASK-394](../sprints/sprint_05_catalog_plugin/07_items/TASK-394_scaffold_catalog_plugin_package.md)/[TASK-395](../sprints/sprint_05_catalog_plugin/07_items/TASK-395_catalog_schema_tenant_system_migration.md) **Done (QA)**; [FEAT-30](../sprints/sprint_05_catalog_plugin/07_items/FEAT-30_catalog_core_plugin.md) **Done (QA)**; TASK-375…393 đánh dấu superseded; tạo [REV-S05-001](../sprints/sprint_05_catalog_plugin/09_review/01_REV-S05-001_sprint_05_dod_review.md) (Ready for PM/customer). Cập nhật deployment/developer guides + e2e script shared runtime; tạo [TASK-407](../sprints/sprint_05_catalog_plugin/07_items/TASK-407_cli_scaffold_zero_db.md) (Medium backlog: CLI scaffold zero-DB).
 
 2026-10-28 (TASK-406): [TASK-406](../sprints/sprint_05_catalog_plugin/07_items/TASK-406_plugin_runtime_per_version.md) **Done (QA)** 2026-10-29 — runtime dùng chung **1 container/version** thay vì mỗi tenant; deployer idempotent, gateway mint service token theo request, bootstrap tenant sau commit, disable không undeploy, uninstall/upgrade dọn theo ref-count cùng scope. Dừng `catalog-dev`/`catalog-e2e-dev` (chuyển profile test). Backend 268 test PASS; QA desktop/mobile PASS (TR-S05-004).
 

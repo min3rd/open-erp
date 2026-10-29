@@ -62,17 +62,18 @@ Bucket khác (khung): `plugin-snapshots` (snapshot DB), `tenant-files` (dùng ch
 
 ## 3. Deployer Docker (Local)
 
-- Plugin chạy **một container cho mỗi (tenant, plugin)**, cùng network `openerp-net` với backend.
+- Plugin chạy **một container cho mỗi (plugin, version, scope)** — nhiều tenant cùng version dùng chung container, cùng network `openerp-net` với backend; system scope có hậu tố `-system`. Tên `openerp-plugin-<key>-<version>` (dấu chấm trong version đổi thành `-`, ví dụ `1-0-0`).
 - Yêu cầu: Docker daemon sẵn sàng; user chạy backend có quyền `docker run/rm/inspect`.
 - Kiểm tra nhanh: `docker ps --filter label=app=open-erp-plugin`.
-- Gỡ plugin = `docker rm -f` (không xóa schema/dữ liệu).
+- Deploy idempotent: container đang chạy → tái sử dụng. **Disable tenant không dừng container**. Uninstall/upgrade chỉ `docker rm -f` khi không còn tenant **cùng scope** dùng version (ref-count); system và tenant tách container.
+- Sau khi container healthy, core gọi `POST /internal/tenant/bootstrap` với `X-Tenant-Id` + service token ngắn hạn để seed dữ liệu tenant (types/grants/admin units). Lỗi bootstrap được log, không làm fail thao tác đã commit.
 
 ## 4. Deployer Kubernetes (Staging/Production)
 
 - Backend gọi `kubectl apply/delete/get` (không dùng SDK) → cần ServiceAccount gắn với backend:
   - `create/delete/get/list` trên `deployments`, `services`, `jobs` trong namespace plugin (ví dụ `openerp-plugins`).
   - Khuyến nghị thêm NetworkPolicy: plugin chỉ egress tới PostgreSQL/Redis nội bộ, cấm Internet.
-- Manifest được sinh tự động: Deployment + Service (labels `tenant_id`, `plugin_key`, `plugin_version`), probes `/q/health/ready` + `/q/health/live`, resource limits.
+- Manifest được sinh tự động: Deployment + Service theo `(plugin, version, scope)` (labels `plugin_key`, `plugin_version`, `plugin_scope`), probes `/q/health/ready` + `/q/health/live`, resource limits. `kubectl apply` idempotent; system scope dùng tên `-system`.
 - Kaniko (build image từ bundle): Job dùng `--context=tar:///workspace/contexts/<key>-<version>.tar.gz`; thư mục `openerp.plugin.builder.kaniko-context-dir` phải là volume chia sẻ giữa backend và cluster (hostPath/PVC). Với môi trường nhiều node, dùng PVC RWX.
 - Readiness: `readyReplicas >= 1`; fail → saga trả `PLUGIN_SERVICE_UNHEALTHY` và bù trừ.
 
@@ -135,5 +136,5 @@ openerp.plugin.migrations.dir=/deploy/plugin-migrations
 
 **Plugin**
 
-- Env do core inject: `PLUGIN_DATA_GATEWAY_URL=https://...`, `PLUGIN_SERVICE_TOKEN`, `PLUGIN_DATA_TLS_CA/CERT/KEY`, `PLUGIN_SCOPE`, `TENANT_ID`.
+- Env do core inject: `PLUGIN_DATA_GATEWAY_URL=https://...`, `PLUGIN_DATA_TLS_CA/CERT/KEY`, `PLUGIN_SCOPE`; **không** inject `TENANT_ID`/`PLUGIN_SERVICE_TOKEN` cố định. Service token được gateway mint theo từng request và gửi qua header `X-Plugin-Service-Token`; system scope dùng token `SYSTEM` + cert `system-client`.
 - Schema do core tạo + migrate lúc khởi động/install từ `plugins/catalog/migrations` hoặc artifact bundle; plugin chỉ khai báo `migrations` (file + SHA-256) trong `plugin.json`.

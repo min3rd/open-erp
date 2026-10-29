@@ -2,7 +2,7 @@
 /**
  * TASK-344 E2E — CLI bundle channel on the local dev environment:
  *   create plugin (@open-erp/cli) → package (uber-jar + bundle.zip) → register
- *   catalog/version → publish → entitlement → install (container-per-tenant)
+ *   catalog/version → publish → entitlement → install (shared container per version)
  *   → verify Docker container + tenant schema + ACTIVE ledger.
  *
  * Dev-only helpers: registers real accounts through the public API and upserts
@@ -358,10 +358,15 @@ function tenantShort(tenantId) {
   return tenantId.replaceAll('-', '').substring(0, 8);
 }
 
+function runtimeContainerName() {
+  const version = PLUGIN_VERSION.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+  return `openerp-plugin-${PLUGIN_KEY}-${version}`;
+}
+
 async function verifyRuntime(tenantId) {
   step('Verify container, schema và dữ liệu tenant...');
   const short = tenantShort(tenantId);
-  const container = `openerp-plugin-${PLUGIN_KEY}-${short}`;
+  const container = runtimeContainerName();
   const schema = `tenant_${short}_${PLUGIN_KEY.replaceAll('-', '_')}`;
 
   const running = docker(['inspect', '--format', '{{.State.Running}}', container]);

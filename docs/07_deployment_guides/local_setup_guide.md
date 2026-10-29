@@ -83,7 +83,7 @@ npm run dev
 ```
 Lệnh này **build và chạy toàn bộ môi trường dev trong Docker** (không chạy Java/Angular dev server trên host):
 1. `predev` sinh khóa JWT dev nếu chưa có.
-2. Docker Compose profile `dev` build + chạy: PostgreSQL Primary, Redis, core backend (`backend-dev`, :8088), web Angular (`web-dev`, :4200), mobile Ionic (`mobile-dev`, :8100), catalog plugin (`catalog-plugin-dev`) và các fixture tenant/system/e2e.
+2. Docker Compose profile `dev` build + chạy: PostgreSQL Primary, Redis, core backend (`backend-dev`, :8088), web Angular (`web-dev`, :4200), mobile Ionic (`mobile-dev`, :8100), `catalog-system-dev` (platform catalog tĩnh); catalog tenant dùng container shared theo version do backend deploy. Fixture/test containers nằm ở profile `test`.
 3. Plugin UI bundle được build **trong image** plugin (Node stage), không phụ thuộc `ng build` trên host.
 4. Web container dùng `proxy.docker.conf.json` để gọi backend qua `http://backend-dev:8080`.
 
@@ -173,7 +173,7 @@ Script `scripts/e2e/plugin-cli-e2e.mjs` sẽ:
 2. Đăng ký tenant + platform admin (seed dev-only) qua API thật.
 3. Dùng `@open-erp/cli` tạo plugin `e2e-sample` (packaging=bundle) và build `dist/plugin-backend.jar` + `dist/bundle.zip`.
 4. Kênh JAR bundle: tạo catalog → upload artifact → đăng ký version → publish → cấp entitlement.
-5. Tenant cài plugin → backend build image **ngoài transaction** → deploy container-per-tenant.
+5. Tenant cài plugin → backend build image **ngoài transaction** → deploy/tái sử dụng **container dùng chung theo (plugin, version, scope)**; gọi bootstrap tenant qua endpoint nội bộ.
 6. Verify: container `Running` + log `Listening on`, schema `tenant_<short>_e2e_sample` + bảng `plg_sample_items`, ledger `ACTIVE|1.0.0`.
 7. Uninstall (giữ schema/dữ liệu) trừ khi dùng `--keep`.
 

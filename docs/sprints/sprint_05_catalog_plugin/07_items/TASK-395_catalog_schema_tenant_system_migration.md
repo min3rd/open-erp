@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-395 / Task / Sprint 05 |
-| Severity / trạng thái | High / **In Progress (dev)** — V5 migration + system tenant + plugin version + core removal done; plugin baseline/API verified; deployment roles + fan-out ở P3 |
+| Severity / trạng thái | High / **Done (QA)** 2026-10-29 — V5 migration + system tenant + plugin schema + core-owned migrations + DB roles; TR-S05-002/003/004 PASS |
 | Owner / reviewer | Developer / Architect |
 | depends_on / blocks | TASK-394 / TASK-396…398 |
 | Write scope | `plugins/catalog/src/main/resources/db/plugin-migration/**`, `src/backend/src/main/resources/db/migration/V5.0.0__*.sql`, `V5.0.1__*.sql` |
@@ -14,13 +14,13 @@ Chuyển 4 bảng catalog khỏi schema `public` sang mô hình: plugin sở h�
 
 ## 2. Việc phải làm
 
-- [ ] Plugin migration `V1.0.0__initial_schema.up.sql`: 4 bảng không `tenant_id`; `catalog_type_grants.role_code`; `catalog_audit`; EXCLUDE/index/constraint; `down.sql`.
-- [ ] Seed 5 loại tenant + grant mặc định trong plugin migration (idempotent).
-- [ ] Copy CSV địa giới vào plugin `src/main/resources/seed/`; seeder đọc resource, không gọi mạng.
-- [ ] Core migration `V5.0.0`: seed **system tenant ẩn** + `tenant_plugins` ACTIVE; tạo schema system tenant + copy `public.catalog_*` có `tenant_id IS NULL`; tạo schema từng tenant + copy dữ liệu tenant; verify row count; drop 4 bảng public.
-- [ ] Core migration `V5.0.1`: cập nhật `plugin_catalog`/`plugin_versions` cho `catalog` (published, distribution image).
-- [ ] Không tạo `modules/catalogsystem`; không có bảng catalog trong core.
-- [ ] Test migration trên DB dev có dữ liệu 60 tenant; rollback/backup trước khi drop.
+- [x] Plugin migration `V1.0.0__initial_schema.up.sql`: 4 bảng không `tenant_id`; `catalog_type_grants.role_code`; `catalog_audit`; EXCLUDE/index/constraint; `down.sql`.
+- [x] Seed 5 loại tenant + grant mặc định trong plugin migration (idempotent).
+- [x] Copy CSV địa giới vào plugin `src/main/resources/seed/`; seeder đọc resource, không gọi mạng.
+- [x] Core migration `V5.0.0`: seed **system tenant ẩn** + `tenant_plugins` ACTIVE; tạo schema system tenant + copy `public.catalog_*` có `tenant_id IS NULL`; tạo schema từng tenant + copy dữ liệu tenant; verify row count; drop 4 bảng public.
+- [x] Core migration `V5.0.1`: cập nhật `plugin_catalog`/`plugin_versions` cho `catalog` (published, distribution image).
+- [x] Không tạo `modules/catalogsystem`; không có bảng catalog trong core.
+- [x] Test migration trên DB dev có dữ liệu 60 tenant; rollback/backup trước khi drop.
 
 ## 3. Tiêu chí nghiệm thu
 
@@ -36,3 +36,4 @@ Chuyển 4 bảng catalog khỏi schema `public` sang mô hình: plugin sở h�
 | 0.1 | 2026-10-27 | Tạo task; chốt A5/A6/A12 | Agent; ADR-S05-001 |
 | 0.2 | 2026-10-27 | **V5 applied (dev)**: system tenant ẩn + 4 schema catalog; public catalog tables = 0; plugin_versions 1.0.0 PUBLISHED; ledger ACTIVE có `storage_schema`; plugin start trên schema V5 với Flyway baseline 1.0.0; API `/types` trả 10 loại. Chưa tạo DB role (P3 deploy). | Developer Agent; PostgreSQL dev |
 | 0.3 | 2026-10-27 | **V5.0.1**: catalog `default_install=TRUE`, `locked=FALSE`; tenant mới nhận entitlement, tự bật trong quản lý plugin | Chủ dự án chỉ đạo trực tiếp |
+| 0.4 | 2026-10-29 | **Done (QA)**: DB role/schema do `TenantDatasourceService`; migrations core-owned (`PluginMigrationExecutor` + checksum); fan-out system catalog PASS; TR-S05-002/003/004 | QA/Developer |

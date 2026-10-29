@@ -28,6 +28,8 @@ public class PluginDeployerManifestTest {
         List<Object> documents = new ArrayList<>();
         new Yaml().loadAll(manifest).forEach(documents::add);
         assertTrue(documents.size() >= 2);
+        assertFalse(manifest.contains("tenant_id"), "shared runtime manifest must not be tenant-scoped");
+        assertTrue(manifest.contains("plugin_scope"));
         Map<?, ?> deployment = (Map<?, ?>) documents.get(0);
         Map<?, ?> podSpec = (Map<?, ?>) ((Map<?, ?>) ((Map<?, ?>) deployment.get("spec"))
                 .get("template")).get("spec");

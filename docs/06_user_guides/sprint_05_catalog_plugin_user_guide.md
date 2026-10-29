@@ -3,12 +3,12 @@
 | Thuộc tính | Giá trị |
 | :--- | :--- |
 | ID | UG-S05-001 |
-| Trạng thái | Draft — đã có 10 ảnh minh chứng từ QA (TASK-389); 3 ảnh còn lại chờ QA bổ sung (xem TR-S05-001 §4) |
-| Phiên bản / cập nhật | 0.2 / 2026-10-29 |
+| Trạng thái | **Final (QA PASS — chờ khách hàng nghiệm thu)** — có ảnh minh chứng desktop/mobile cho TASK-404/406 |
+| Phiên bản / cập nhật | 0.3 / 2026-10-29 |
 | Phạm vi | Quản trị danh mục (loại, bản ghi, quan hệ đa cha, phiên bản, quyền theo loại), nhập tự do, import/export, danh mục hệ thống & ghi đè, tra cứu trên Mobile |
 | Đầu vào | [CONF-S05-001](../sprints/sprint_05_catalog_plugin/04_confirmation/01_CONF-S05-001_sprint_05_scope.md), [DES-UI-S05-001](../sprints/sprint_05_catalog_plugin/06_designs/ui/01_DES-UI-S05-001_catalog_admin_ui.md), [DES-API-S05-001](../sprints/sprint_05_catalog_plugin/06_designs/api/01_DES-API-S05-001_catalog_api.md) |
 
-> **Ảnh minh hoạ**: các vị trí đánh dấu `📷` sẽ được chụp bổ sung trong QA (TASK-389) và lưu tại `assets/sprint_05/`.
+> **Ảnh minh hoạ**: các ảnh desktop/mobile được lưu tại [08_testing/evidence/screenshots](../sprints/sprint_05_catalog_plugin/08_testing/evidence/00_EVD-S05-001_evidence_index.md).
 
 ## 1. Danh mục là gì và ai dùng?
 

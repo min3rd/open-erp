@@ -1,5 +1,7 @@
 # [TASK-390] Import/Export CSV danh mục (khách chốt Q7 — trong phạm vi Sprint 5)
 
+> **Trạng thái lịch sử:** task baseline của kiến trúc in-process (TR-S05-001 đã withdrawn). Đã được thay thế bởi TASK-394…406 (plugin độc lập). Không dùng làm bằng chứng QA/DoD.
+
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-390 / Task / Sprint 05 |

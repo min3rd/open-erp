@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TR-S05-002 / Test Report / Sprint 05 |
-| Trạng thái / phiên bản / cập nhật | **QA PASS** — backend/runtime/web/mobile; còn EVD ảnh + PM DoD / 0.2 / 2026-10-28 |
+| Trạng thái / phiên bản / cập nhật | **QA PASS — ready for PM review** / 0.3 / 2026-10-29 |
 | Owner / reviewer | QA/QC Agent / PM + Architect |
 | Baseline mã nguồn | `13452fe` (P5 zero-DB + mTLS) + commit QA mobile/i18n kế tiếp |
 | Đầu vào | [TP-S05-001](01_TP-S05-001_sprint_05_test_plan.md), [TASK-402](../07_items/TASK-402_plugin_data_gateway_grpc.md), [BUG-135](../07_items/BUG-135_catalog_not_independent_plugin.md) |
@@ -15,7 +15,7 @@
 
 | Hạng mục | Kết quả |
 | :--- | :--- |
-| Backend tự động (PostgreSQL thật) | **266 PASS, 0 fail, 1 skip** (60 test class) |
+| Backend tự động (PostgreSQL thật) | **268 PASS, 0 fail, 1 skip** (commit `a51d2abe`; 60 test class) |
 | Gateway gRPC (read/write/batch/idempotency/TREE/import) | PASS — P3/P3.1/P4/P4.1 |
 | Zero DB plugin | PASS — không còn datasource/Flyway/Panache; `docker inspect` không có `QUARKUS_DATASOURCE_*` |
 | Core-owned migration | PASS — `PluginSchemaBootstrap` tạo schema + apply `V1.0.0` cho 4 ledger; `plugin_schema_history` ghi nhận |
@@ -39,10 +39,11 @@
 
 ## 3. Chưa đạt / rủi ro
 
-1. **Ảnh evidence mới**: cần lưu ảnh web sáng/tối + mobile 390×844 vào `08_testing/evidence/` trước PM ký.
-2. **PM DoD + khách hàng nghiệm thu** chưa thực hiện.
+1. **PM DoD + khách hàng nghiệm thu** chưa thực hiện — đã có REV-S05-001 để review.
+2. **TASK-407 (Medium)**: CLI generator vẫn scaffold Panache/Flyway/datasource/TENANT_ID; runtime plugin catalog đã sạch, nhưng plugin mới sinh từ template cần được cập nhật (backlog sau Sprint 05).
+3. **Upgrade/rollback 2 version + K8s staging** chưa chạy E2E với shared runtime (Docker dev đã PASS install/enable/disable/uninstall).
 
 ## 4. Kết luận
 
 - Kiến trúc plugin độc lập đạt trên backend/runtime/web/mobile; BUG-135 **Resolved (dev+QA)**, BUG-136 PASS.
-- Sprint 05 sẵn sàng cho PM DoD sau khi bổ sung ảnh evidence và khách hàng nghiệm thu.
+- Sprint 05 sẵn sàng cho PM DoD; còn nghiệm thu khách hàng và các rủi ro kỹ thuật ghi ở §3 (không mức High/Critical).

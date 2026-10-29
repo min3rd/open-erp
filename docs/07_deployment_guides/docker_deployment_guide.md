@@ -30,8 +30,8 @@ npm run dev:docker:down   # dừng
 ```
 
 - `backend-dev`: core Quarkus tại `http://localhost:8088`, mount `/var/run/docker.sock` để deployer tạo container plugin.
-- `catalog-plugin-dev`: plugin catalog tĩnh cho tenant `minhvv` (dev shortcut; production dùng deployer).
-- `catalog-dev-bootstrap`: gắn `tenant_plugins.deploy_ref` của tenant dev vào container plugin.
+- `catalog-plugin-dev`: plugin catalog tĩnh chỉ dùng cho test (`--profile test`); dev thường không chạy.
+- `catalog-dev-bootstrap`: dev-only, gắn `tenant_plugins.deploy_ref` của **system tenant** vào container platform; tenant thường do deployer quản lý theo version.
 - Redis/PostgreSQL dùng chung `npm run infra`.
 
 ---

@@ -22,7 +22,7 @@ Vì plugin đã zero-DB và mọi dữ liệu đi qua data gateway theo tenant c
 
 - Tên container `openerp-plugin-<key>-<version>` (system scope thêm `-system`); bỏ `<tenantShort>`.
 - `deploy` idempotent: container đang chạy → tái sử dụng; chỉ tạo mới khi chưa có/không chạy.
-- Kubernetes: Deployment/Service theo version; `kubectl apply` idempotent.
+- Kubernetes: Deployment/Service theo version + scope (`plugin_scope`), `kubectl apply` idempotent; không dùng `tenant_id` trong selector vì container dùng chung.
 - Env container bỏ `TENANT_ID`, `PLUGIN_SERVICE_TOKEN` (không còn tenant cố định).
 
 ### 2.2. Gateway & SDK
@@ -79,3 +79,4 @@ Vì plugin đã zero-DB và mọi dữ liệu đi qua data gateway theo tenant c
 | 0.1 | 2026-10-28 | Tạo task theo yêu cầu dùng chung container theo version | Chủ dự án |
 | 0.2 | 2026-10-28 | Triển khai deployer theo version, token theo request, bootstrap sau commit; sửa tên container hostname hợp lệ và ref-count theo scope; kiểm chứng dev | Developer |
 | 0.3 | 2026-10-29 | QA PASS: 2 tenant dùng chung 1 container, disable/enable/uninstall isolation, bootstrap seed, compose dev sạch, backend 268 PASS; TR-S05-004 | QA/QC |
+| 0.4 | 2026-10-29 | Dọn legacy: bỏ `repositories`/`apis` khỏi `plugin.json`; Docker/K8s labels chuyển `tenant_id` → `plugin_scope`; K8s selector không còn tenant | QA/Architect |

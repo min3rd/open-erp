@@ -40,15 +40,15 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | 06.01 | DES-DB-S05-001 | [Thiết kế CSDL](06_designs/db/01_DES-DB-S05-001_catalog_schema.md) | DDL 4 bảng, EXCLUDE, index, seed/backfill, truy vấn mẫu | Architect |
 | 06.02 | DES-API-S05-001 | [Thiết kế API](06_designs/api/01_DES-API-S05-001_catalog_api.md) | 3 nhóm API + contract + mã lỗi | Architect |
 | 06.03 | DES-UI-S05-001 | [Thiết kế UI](06_designs/ui/01_DES-UI-S05-001_catalog_admin_ui.md) | Màn 3 cột + component picker + ma trận Desktop/Mobile | Architect |
-| 07.01 | FEAT-30 | [Plugin Danh mục](07_items/FEAT-30_catalog_core_plugin.md) | Feature + **19 task con** — **Blocked bởi BUG-135** | Developer |
-| 07.02 | TASK-375…393 | [07_items/](07_items/) | Baseline code lịch sử (19/19 code) — **không còn hiệu lực kiến trúc**; phải làm lại theo plugin độc lập | Developer |
-| 07.03 | TASK-394…402 | [07_items/](07_items/) | Kế hoạch tái triển khai: package plugin → schema/migration → lifecycle/gateway → UI host động → Docker-only dev → gom shared runtime → gRPC data gateway → QA | Developer/QA |
+| 07.01 | FEAT-30 | [Plugin Danh mục](07_items/FEAT-30_catalog_core_plugin.md) | Feature + 19 task baseline lịch sử; **Done (QA)** theo plugin độc lập TASK-394…406 | Developer/QA |
+| 07.02 | TASK-375…393 | [07_items/](07_items/) | Baseline code lịch sử (19/19) — **superseded** bởi TASK-394…406, không dùng nghiệm thu | Developer |
+| 07.03 | TASK-394…407 | [07_items/](07_items/) | Tái triển khai plugin độc lập, data gateway, shared runtime, QA; TASK-407 Medium backlog | Developer/QA |
 | 08.01 | TP-S05-001 | [Test plan Sprint 05](08_testing/01_TP-S05-001_sprint_05_test_plan.md) | **25 TC** theo AC + ma trận lấy mẫu | QA |
 | 08.02 | TR-S05-001 | [Test report Sprint 05](08_testing/02_TR-S05-001_sprint_05_test_report.md) | Baseline cũ **21 PASS / 4 PARTIAL** — **withdrawn**, phải chạy lại sau khi đổi kiến trúc | QA |
 | 08.03 | EVD-S05-001 | [Evidence index](08_testing/evidence/00_EVD-S05-001_evidence_index.md) | **12 ảnh minh chứng** (baseline cũ; dùng lại sau khi UI chuyển sang plugin) | QA |
 | 08.04 | TR-S05-003 | [Test report FEAT-31/32](08_testing/04_TR-S05-003_feat31_32_test_report.md) | Quan hệ loại, clone/xoá clone/sync/platform sync — **Pass (QA)** | QA |
 | 08.05 | TR-S05-004 | [Test report TASK-404/406](08_testing/05_TR-S05-004_task404_task406_test_report.md) | Workspace quan hệ cha/con + shared runtime 1 container/version — **Pass (QA)** | QA |
-| 09.01 | REV-S05-001 | Chưa tạo | DoD/backlog/closure | PM |
+| 09.01 | REV-S05-001 | [Nghiệm thu & đóng Sprint 05](09_review/01_REV-S05-001_sprint_05_dod_review.md) | Trace 22 AC, DoD, release notes, gate review — **Ready for PM/customer** | PM + Khách hàng |
 
 > Bảng đọc là snapshot danh mục. Khi thêm artifact phải cập nhật index này trước khi giao việc.
 
@@ -59,9 +59,9 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | Scope approval (CONF-S05-001) | ✅ **APPROVED 2026-10-06** — 22 AC + 19 task được duyệt | Khách hàng (chủ dự án) | CONF 1.0; chỉ đạo trực tiếp "ok chốt scope và lập trình đi nhé" |
 | Design ready (SOL/DES) | ❌ **REJECTED 2026-10-27** — D1 (in-process) trái mô hình plugin Sprint 03; cần ADR/SOL mới | Architect/Reviewer | BUG-135; SOL 0.1 chưa từng được review kỹ thuật |
 | QA sign-off | ✅ **PASS phạm vi FEAT-31/32 + TASK-404/406** — TR-S05-003/004 (2026-10-29); Sprint DoD chờ PM | QA |
-| PM đánh giá DoD | Pending — **đang bị chặn bởi BUG-135/BUG-136** | PM | Chưa có |
-| Customer acceptance | Pending | Khách hàng | Chưa có |
-| Closure | Pending — **không được đóng khi còn BUG-135 (High)** | PM sau nghiệm thu | Chưa có |
+| PM đánh giá DoD | ⏳ **Ready for review** — REV-S05-001 (2026-10-29); 0 Critical/High mở | PM | REV-S05-001 0.1 |
+| Customer acceptance | ⏳ Pending — chờ PM DoD | Khách hàng | REV-S05-001 §5 |
+| Closure | ⏳ Pending — sau PM DoD + nghiệm thu | PM | REV-S05-001 §5 |
 
 ## 4. Danh mục ID và việc chuyển tiếp
 
@@ -75,16 +75,17 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | SOL-S05-001 | [05_solutions/](05_solutions/) | Architect | Used |
 | DES-DB/API/UI-S05-001 | [06_designs/](06_designs/) | Architect | Used |
 | FEAT-30 | [07_items/FEAT-30](07_items/FEAT-30_catalog_core_plugin.md) | Developer | Used (Planned) |
-| TASK-375…389 | [07_items/](07_items/) | Developer | Used (gate APPROVED; 375/376/377/386 xong code+test, còn 378–383/385/387–389) |
-| TASK-390…391 | [07_items/](07_items/) | Developer | Used (gate APPROVED; import/export + ghi đè hệ thống — chờ API) |
-| TASK-392…393 | [07_items/](07_items/) | Developer | Used (gate APPROVED; 393 phần dữ liệu+seeder xong, 392 chờ UI/API) |
-| BUG-135 | [BUG-135](07_items/BUG-135_catalog_not_independent_plugin.md) | Architect → Developer | Used — **Open (High)**; chặn DoD |
-| BUG-136 | [BUG-136](07_items/BUG-136_locked_plugin_uninstall_not_blocked.md) | Developer | Used — **Open (High)**; chặn DoD |
-| BUG-137…142 | [07_items/](07_items/) | Developer/QA | Used — **Resolved (dev)**: plugin host/CSS/context menu/route-state, mobile auth + drawer |
-| TASK-394…402 | [07_items/](07_items/) | Developer/QA | Used — **In Progress/Done (dev)**; 394→398 theo ADR-S05-001, 399 UI Manifest + host động, 400 Docker-only dev, 401 shared runtime, 402 gRPC data gateway (To Do) |
-| TP-S05-001 | [08_testing/](08_testing/) | QA | Used (Draft) |
+| TASK-375…389 | [07_items/](07_items/) | Developer | Used — **superseded** (baseline lịch sử; xem banner từng file) |
+| TASK-390…391 | [07_items/](07_items/) | Developer | Used — **superseded** (import/export + ghi đè đã chuyển sang plugin độc lập) |
+| TASK-392…393 | [07_items/](07_items/) | Developer | Used — **superseded** (platform UI + seed nằm trong plugin độc lập) |
+| BUG-135 | [BUG-135](07_items/BUG-135_catalog_not_independent_plugin.md) | Architect → Developer | Used — **Resolved (dev+QA)** |
+| BUG-136 | [BUG-136](07_items/BUG-136_locked_plugin_uninstall_not_blocked.md) | Developer | Used — **Resolved (dev+QA)** |
+| BUG-137…153 | [07_items/](07_items/) | Developer/QA | Used — **Resolved** (plugin host/CSS/context menu/mobile, pagination, sync, clone) |
+| TASK-394…406 | [07_items/](07_items/) | Developer/QA | Used — **Done (QA)** (trừ TASK-398 closure: Ready for PM review) |
+| TASK-407 | [TASK-407](07_items/TASK-407_cli_scaffold_zero_db.md) | Developer | Used — **Open (Medium)** backlog: CLI scaffold zero-DB |
+| TP-S05-001 | [08_testing/](08_testing/) | QA | Used (Executed — thay bởi TR-S05-002/003/004) |
 | TR-S05-001 | [08_testing/](08_testing/) | QA | Used (baseline cũ — withdrawn) |
-| REV-S05-001 | Chưa tạo | PM | Reserved |
+| REV-S05-001 | [09_review/](09_review/) | PM + Khách hàng | Used (Ready for review) |
 | ADR-S05-* | Chưa tạo | Architect | Reserved |
 
 ## 5. Việc chuyển tiếp từ Sprint 04

@@ -1,5 +1,7 @@
 # [TASK-379] CRUD bản ghi danh mục + version + hiệu lực thời gian
 
+> **Trạng thái lịch sử:** task baseline của kiến trúc in-process (TR-S05-001 đã withdrawn). Đã được thay thế bởi TASK-394…406 (plugin độc lập). Không dùng làm bằng chứng QA/DoD.
+
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-379 / Task / Sprint 05 |

@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | FEAT-30 / Feature / Sprint 05 |
-| Severity / trạng thái | High / **BLOCKED — BUG-135 (kiến trúc in-process không phải plugin độc lập)**. Kết quả 19/19 task cũ chỉ là baseline lịch sử, không phải Done kiến trúc |
+| Severity / trạng thái | High / **Done (QA)** 2026-10-29 — plugin độc lập `plugins/catalog` (TASK-394…406); baseline 375–393 là lịch sử, không dùng làm nghiệm thu |
 | Owner/agent / reviewer | Developer (agent) / Architect + QA |
 | Cập nhật / input version | 2026-10-06 / [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) (Pending), [SOL-S05-001](../05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) |
 | depends_on / blocks / parent | Sprint 03 (plugin manager), Sprint 01/02 (RBAC, tổ chức) / các plugin nghiệp vụ sau / — |
@@ -70,4 +70,5 @@ Nguồn: [RAW-S05-001](../01_raw_notes/01_RAW-S05-001_catalog_plugin_requirement
 | 0.5 | 2026-10-27 | **BLOCKED — BUG-135**: catalog đang là module core in-process, trái mô hình plugin độc lập Sprint 03; D1 bị bác; phải thiết kế lại + di trú | Agent rà soát; chỉ đạo chủ dự án |
 | 0.6 | 2026-10-27 | **P2**: đã bỏ `modules/catalog` khỏi core; V5 di trú dữ liệu sang schema tenant + system tenant; publish plugin version 1.0.0; BUG-136 fixed. Còn P3/P4 (gateway/fan-out/UI iframe) | Developer Agent; PostgreSQL dev |
 | 0.7 | 2026-10-27 | **Catalog = default_install, unlocked**: V5.0.1 bỏ locked; tenant mới nhận entitlement và bật trong quản lý plugin; AC-13/14 cập nhật | Chủ dự án chỉ đạo trực tiếp |
+| 0.8 | 2026-10-29 | **Done (QA)**: kiến trúc plugin độc lập hoàn tất (TASK-394…406); zero-DB + data gateway + shared runtime; TR-S05-002/003/004 PASS; BUG-135/136 Resolved | QA/PM review |
 | 0.3 | 2026-10-06 | **Triển khai**: migration V4.0.0 apply sạch (60/60 tenant backfill, 600 grant), 4 entity vào registry, recursive CTE + options gộp tenant thắng, seeder địa giới (34 tỉnh/3.321 xã), `catalog-picker` dùng chung — 49 test + build web/mobile PASS; đang làm API + UI | Developer Agent; nguồn: test + build log |

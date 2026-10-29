@@ -1,5 +1,7 @@
 # [TASK-391] Ghi đè/ẩn danh mục hệ thống theo tenant (khách chốt Q1/Q2)
 
+> **Trạng thái lịch sử:** task baseline của kiến trúc in-process (TR-S05-001 đã withdrawn). Đã được thay thế bởi TASK-394…406 (plugin độc lập). Không dùng làm bằng chứng QA/DoD.
+
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-391 / Task / Sprint 05 |

@@ -1,5 +1,7 @@
 # [TASK-375] Migration V4.0.0: schema danh mục + seed plugin core + backfill
 
+> **Trạng thái lịch sử:** task baseline của kiến trúc in-process (TR-S05-001 đã withdrawn). Đã được thay thế bởi TASK-394…406 (plugin độc lập). Không dùng làm bằng chứng QA/DoD.
+
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-375 / Task / Sprint 05 |

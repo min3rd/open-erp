@@ -1,5 +1,7 @@
 # [TASK-387] Tích hợp picker vào form thật + màn tra cứu danh mục trên Mobile
 
+> **Trạng thái lịch sử:** task baseline của kiến trúc in-process (TR-S05-001 đã withdrawn). Đã được thay thế bởi TASK-394…406 (plugin độc lập). Không dùng làm bằng chứng QA/DoD.
+
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-387 / Task / Sprint 05 |

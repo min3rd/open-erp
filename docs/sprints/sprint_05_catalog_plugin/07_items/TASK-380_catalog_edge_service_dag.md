@@ -1,5 +1,7 @@
 # [TASK-380] Quan hệ đa cha (DAG): thêm/gỡ cạnh, chống chu trình, hiệu lực quan hệ
 
+> **Trạng thái lịch sử:** task baseline của kiến trúc in-process (TR-S05-001 đã withdrawn). Đã được thay thế bởi TASK-394…406 (plugin độc lập). Không dùng làm bằng chứng QA/DoD.
+
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-380 / Task / Sprint 05 |
