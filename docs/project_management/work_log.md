@@ -2,6 +2,13 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-10-29 — SPRINT 05 CLOSED
+
+- Chủ dự án nghiệm thu trực tiếp: “ok chốt xong sprint 5”.
+- [REV-S05-001](../sprints/sprint_05_catalog_plugin/09_review/01_REV-S05-001_sprint_05_dod_review.md) 1.0: PM DoD PASS, Customer acceptance APPROVED, Closure CLOSED.
+- 0 bug Critical/High mở; backend 268 PASS/0 fail/1 skip; QA desktop/mobile + i18n PASS.
+- Backlog Medium chuyển tiếp: [TASK-407](../sprints/sprint_05_catalog_plugin/07_items/TASK-407_cli_scaffold_zero_db.md) + rủi ro REV §6.
+
 ## 2026-10-29 — Đóng gói Sprint 05 (ready for review)
 
 - Chốt TASK-394/395 **Done (QA)**; FEAT-30 **Done (QA)**; TASK-375…393 đánh dấu baseline **superseded**.

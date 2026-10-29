@@ -3,7 +3,7 @@
 | Thuộc tính | Giá trị |
 | :--- | :--- |
 | ID | UG-S05-001 |
-| Trạng thái | **Final (QA PASS — chờ khách hàng nghiệm thu)** — có ảnh minh chứng desktop/mobile cho TASK-404/406 |
+| Trạng thái | **Final — Sprint 05 CLOSED 2026-10-29** (QA PASS + khách hàng nghiệm thu) — có ảnh minh chứng desktop/mobile cho TASK-404/406 |
 | Phiên bản / cập nhật | 0.3 / 2026-10-29 |
 | Phạm vi | Quản trị danh mục (loại, bản ghi, quan hệ đa cha, phiên bản, quyền theo loại), nhập tự do, import/export, danh mục hệ thống & ghi đè, tra cứu trên Mobile |
 | Đầu vào | [CONF-S05-001](../sprints/sprint_05_catalog_plugin/04_confirmation/01_CONF-S05-001_sprint_05_scope.md), [DES-UI-S05-001](../sprints/sprint_05_catalog_plugin/06_designs/ui/01_DES-UI-S05-001_catalog_admin_ui.md), [DES-API-S05-001](../sprints/sprint_05_catalog_plugin/06_designs/api/01_DES-API-S05-001_catalog_api.md) |

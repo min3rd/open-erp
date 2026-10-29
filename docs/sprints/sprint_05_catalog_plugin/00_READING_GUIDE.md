@@ -2,12 +2,12 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / phiên bản / cập nhật | READ-S05-001 / 0.2 / 2026-10-27 |
-| Trạng thái tài liệu / sprint | Draft / **BLOCKED — kiến trúc plugin chưa đạt (BUG-135)**; không thể đóng sprint |
-| Owner / reviewer | PM Agent / Chưa review |
-| Đầu vào / đọc trước / đọc tiếp | [RAW-S05-001](01_raw_notes/01_RAW-S05-001_catalog_plugin_requirements.md) — chỉ đạo trực tiếp của chủ dự án / [Sprint 04](../sprint_04_ui_ux_experience/00_READING_GUIDE.md) (đã đóng) / [RAW-S05-001](01_raw_notes/01_RAW-S05-001_catalog_plugin_requirements.md) |
+| ID / phiên bản / cập nhật | READ-S05-001 / 1.0 / 2026-10-29 |
+| Trạng thái tài liệu / sprint | **CLOSED — APPROVED 2026-10-29** (PM DoD + khách hàng nghiệm thu) |
+| Owner / reviewer | PM Agent / Chủ dự án + Architect + QA |
+| Đầu vào / đọc trước / đọc tiếp | [RAW-S05-001](01_raw_notes/01_RAW-S05-001_catalog_plugin_requirements.md) — chỉ đạo trực tiếp của chủ dự án / [Sprint 04](../sprint_04_ui_ux_experience/00_READING_GUIDE.md) (đã đóng) / [REV-S05-001](09_review/01_REV-S05-001_sprint_05_dod_review.md) |
 
-> **⚠️ 2026-10-27 — RE-CHECK KIẾN TRÚC (BUG-135, BUG-136):** Sprint 05 hiện triển khai `catalog` như **module core in-process** (`modules/catalog`, migration core, UI native), không phải plugin độc lập theo mô hình Sprint 03 (artifact/container riêng, schema tenant riêng, API qua gateway, UI qua manifest). D1 của SOL-S05-001 bị bác; Design ready gate chưa đạt. Các kết quả code/QA bên dưới chỉ là **baseline lịch sử**, không phải nghiệm thu kiến trúc. Xem [BUG-135](07_items/BUG-135_catalog_not_independent_plugin.md) và [BUG-136](07_items/BUG-136_locked_plugin_uninstall_not_blocked.md).
+> **✅ 2026-10-29 — SPRINT 05 ĐÃ ĐÓNG:** catalog là plugin độc lập (zero-DB, data gateway, shared runtime theo version); 0 bug Critical/High mở; QA PASS cho FEAT-30/31/32 + TASK-394…406. Biên bản/DoD tại [REV-S05-001](09_review/01_REV-S05-001_sprint_05_dod_review.md). Backlog Medium chuyển tiếp: [TASK-407](07_items/TASK-407_cli_scaffold_zero_db.md) + các rủi ro ghi ở REV §6.
 
 ## 1. Đọc để hiểu gì?
 
@@ -48,7 +48,7 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | 08.03 | EVD-S05-001 | [Evidence index](08_testing/evidence/00_EVD-S05-001_evidence_index.md) | **12 ảnh minh chứng** (baseline cũ; dùng lại sau khi UI chuyển sang plugin) | QA |
 | 08.04 | TR-S05-003 | [Test report FEAT-31/32](08_testing/04_TR-S05-003_feat31_32_test_report.md) | Quan hệ loại, clone/xoá clone/sync/platform sync — **Pass (QA)** | QA |
 | 08.05 | TR-S05-004 | [Test report TASK-404/406](08_testing/05_TR-S05-004_task404_task406_test_report.md) | Workspace quan hệ cha/con + shared runtime 1 container/version — **Pass (QA)** | QA |
-| 09.01 | REV-S05-001 | [Nghiệm thu & đóng Sprint 05](09_review/01_REV-S05-001_sprint_05_dod_review.md) | Trace 22 AC, DoD, release notes, gate review — **Ready for PM/customer** | PM + Khách hàng |
+| 09.01 | REV-S05-001 | [Nghiệm thu & đóng Sprint 05](09_review/01_REV-S05-001_sprint_05_dod_review.md) | Trace 22 AC, DoD, release notes, gate review — **CLOSED 2026-10-29** | PM + Khách hàng |
 
 > Bảng đọc là snapshot danh mục. Khi thêm artifact phải cập nhật index này trước khi giao việc.
 
@@ -57,11 +57,11 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | Gate | Trạng thái | Người quyết định | Nguồn/phiên bản/ngày |
 | :--- | :--- | :--- | :--- |
 | Scope approval (CONF-S05-001) | ✅ **APPROVED 2026-10-06** — 22 AC + 19 task được duyệt | Khách hàng (chủ dự án) | CONF 1.0; chỉ đạo trực tiếp "ok chốt scope và lập trình đi nhé" |
-| Design ready (SOL/DES) | ❌ **REJECTED 2026-10-27** — D1 (in-process) trái mô hình plugin Sprint 03; cần ADR/SOL mới | Architect/Reviewer | BUG-135; SOL 0.1 chưa từng được review kỹ thuật |
-| QA sign-off | ✅ **PASS phạm vi FEAT-31/32 + TASK-404/406** — TR-S05-003/004 (2026-10-29); Sprint DoD chờ PM | QA |
-| PM đánh giá DoD | ⏳ **Ready for review** — REV-S05-001 (2026-10-29); 0 Critical/High mở | PM | REV-S05-001 0.1 |
-| Customer acceptance | ⏳ Pending — chờ PM DoD | Khách hàng | REV-S05-001 §5 |
-| Closure | ⏳ Pending — sau PM DoD + nghiệm thu | PM | REV-S05-001 §5 |
+| Design ready (SOL/DES) | ✅ **APPROVED sau re-architecture** — ADR-S05-001 (plugin độc lập), data gateway SOL-S05-002; TR-S05-002 PASS | Architect/Reviewer | ADR/SOL + TR-S05-002 |
+| QA sign-off | ✅ **PASS toàn sprint** — FEAT-30/31/32 + TASK-394…406; TR-S05-002/003/004 | QA | 2026-10-29 |
+| PM đánh giá DoD | ✅ **PASS 2026-10-29** — 0 Critical/High mở; 22 AC trace; REV-S05-001 | PM | REV-S05-001 1.0 |
+| Customer acceptance | ✅ **APPROVED 2026-10-29** — chủ dự án chỉ đạo "ok chốt xong sprint 5" | Khách hàng | REV-S05-001 §5 |
+| Closure | ✅ **CLOSED 2026-10-29** | PM | REV-S05-001 §5 |
 
 ## 4. Danh mục ID và việc chuyển tiếp
 
@@ -71,7 +71,7 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | RAW-S05-001 | [01_raw_notes/](01_raw_notes/) | BA | Used |
 | ANL-S05-001…002 | [02_analysis/](02_analysis/) | BA | Used |
 | BENCH-S05-001 | [03_benchmarks/](03_benchmarks/) | BA | Used |
-| CONF-S05-001 | [04_confirmation/](04_confirmation/) | BA + Khách hàng | Used (Pending) |
+| CONF-S05-001 | [04_confirmation/](04_confirmation/) | BA + Khách hàng | Used (APPROVED 2026-10-06) |
 | SOL-S05-001 | [05_solutions/](05_solutions/) | Architect | Used |
 | DES-DB/API/UI-S05-001 | [06_designs/](06_designs/) | Architect | Used |
 | FEAT-30 | [07_items/FEAT-30](07_items/FEAT-30_catalog_core_plugin.md) | Developer | Used (Planned) |
@@ -81,11 +81,11 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | BUG-135 | [BUG-135](07_items/BUG-135_catalog_not_independent_plugin.md) | Architect → Developer | Used — **Resolved (dev+QA)** |
 | BUG-136 | [BUG-136](07_items/BUG-136_locked_plugin_uninstall_not_blocked.md) | Developer | Used — **Resolved (dev+QA)** |
 | BUG-137…153 | [07_items/](07_items/) | Developer/QA | Used — **Resolved** (plugin host/CSS/context menu/mobile, pagination, sync, clone) |
-| TASK-394…406 | [07_items/](07_items/) | Developer/QA | Used — **Done (QA)** (trừ TASK-398 closure: Ready for PM review) |
+| TASK-394…406 | [07_items/](07_items/) | Developer/QA | Used — **Done (QA/PM)**, gồm TASK-398 closure |
 | TASK-407 | [TASK-407](07_items/TASK-407_cli_scaffold_zero_db.md) | Developer | Used — **Open (Medium)** backlog: CLI scaffold zero-DB |
 | TP-S05-001 | [08_testing/](08_testing/) | QA | Used (Executed — thay bởi TR-S05-002/003/004) |
 | TR-S05-001 | [08_testing/](08_testing/) | QA | Used (baseline cũ — withdrawn) |
-| REV-S05-001 | [09_review/](09_review/) | PM + Khách hàng | Used (Ready for review) |
+| REV-S05-001 | [09_review/](09_review/) | PM + Khách hàng | Used (CLOSED 2026-10-29) |
 | ADR-S05-* | Chưa tạo | Architect | Reserved |
 
 ## 5. Việc chuyển tiếp từ Sprint 04
@@ -98,16 +98,16 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 
 > Trạng thái sản phẩm lấy ở artifact gốc trong `07_items/` và review, không lấy từ bảng này khi chưa có bằng chứng.
 
-## 6. Điểm còn phân vân / cần kiểm chứng (2026-10-06)
+## 6. Điểm đã phân vân / xử lý (cập nhật 2026-10-29)
 
 | # | Điểm | Loại | Đề xuất / trạng thái |
 | :--- | :--- | :--- | :--- |
-| 1 | **Duyệt scope** (Q18 = "chưa duyệt" ×3) | Cổng — **chặn code** | Cần một câu xác nhận; có thể duyệt **toàn bộ** hoặc **theo giai đoạn** (lõi TASK-375…389 trước) |
-| 2 | **Design ready gate**: SOL/DES chưa review kỹ thuật, đặc biệt **D1** (plugin core chạy in-process thay vì đóng gói JAR như Sprint 03) | Nội bộ — **BLOCKER** | ❌ **D1 bị bác 2026-10-27 (BUG-135)**. Phải thiết kế lại theo mô hình plugin độc lập: artifact/container riêng, schema tenant, gateway, UI manifest. Không code tiếp trên nền D1 |
+| 1 | **Duyệt scope** (Q18) | Cổng — trước đây chặn code | ✅ **APPROVED 2026-10-06** — 22 AC + 19 task |
+| 2 | **Design ready gate**: D1 in-process | Nội bộ | ✅ **RESOLVED 2026-10-27→29** — ADR-S05-001 + plugin độc lập; TR-S05-002 PASS |
 | 3 | ~~**Giấy phép dữ liệu địa giới** (`provinces.open-api.vn`)~~ | Kỹ thuật/pháp lý | ✅ **Đã xử lý 2026-10-06**: tệp `provinces-communes.csv` sinh một lần (34 tỉnh / 3.321 xã-phường, dữ liệu sau sáp nhập 2025), header ghi **nguồn + ngày + số dòng**; runtime không gọi mạng; cập nhật bằng `node scripts/gen-admin-units.mjs` + kiểm tra `node scripts/check-admin-units.mjs` |
 | 4 | **Extension PostgreSQL** `btree_gist`, `pg_trgm` có sẵn trên dev/staging/prod? | Kỹ thuật | ✅ **Dev đã kiểm chứng 2026-10-06**: `btree_gist` 1.7 + `pg_trgm` 1.6 cài đặt thành công trên `openerp-postgres-primary` (PostgreSQL 16, cả hai là trusted extension từ PG 13+); migration `CREATE EXTENSION IF NOT EXISTS` là no-op an toàn. Staging/prod chạy cùng migration |
-| 5 | **Mobile**: cần màn **tra cứu danh mục** read-only hay chỉ cần `catalog-picker` trong form? | Scope nhỏ | TASK-387 đang gồm màn browse; cắt được để giảm phạm vi nếu bạn muốn |
-| 6 | **`name_en`**: chỉ hiển thị ở form quản trị (không tự đổi theo ngôn ngữ UI)? | Scope nhỏ | Mặc định như vậy; đa ngôn ngữ tên danh mục để sprint sau (Q9) |
+| 5 | **Mobile**: màn tra cứu read-only | Scope nhỏ | ✅ Đã làm TASK-387 + TASK-403 (iframe read-only 390×844 PASS) |
+| 6 | **`name_en`**: chỉ hiển thị ở form quản trị | Scope nhỏ | Mặc định như vậy; đa ngôn ngữ tên danh mục để sprint sau (Q9) |
 
 **Ba điểm Architect đã tự chốt theo hướng an toàn hơn (ghi để review biết)**:
 1. `allowed_parent_types` **NULL = chỉ cùng loại** (trước đó ghi "mọi loại" — nay đổi để tránh cấu trúc sai).

@@ -6,12 +6,12 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
 
 ## [Unreleased]
 
-### Sprint 05 — Catalog plugin (Ready for PM review, 2026-10-29)
+### Sprint 05 — ĐÃ ĐÓNG (2026-10-29): Catalog plugin
 
 - Plugin catalog độc lập `plugins/catalog`: zero-DB + gRPC data gateway/mTLS, core-owned migrations, UI iframe desktop/mobile, shared runtime **1 container/version/scope** ([TASK-406](../sprints/sprint_05_catalog_plugin/07_items/TASK-406_plugin_runtime_per_version.md)).
 - Quan hệ loại + workspace cha/con trong item drawer; clone/sync system type; bỏ action inline ở type list ([FEAT-31](../sprints/sprint_05_catalog_plugin/07_items/FEAT-31_catalog_type_relations_child_picker.md), [FEAT-32](../sprints/sprint_05_catalog_plugin/07_items/FEAT-32_catalog_tenant_system_type_clone_sync.md), [TASK-404](../sprints/sprint_05_catalog_plugin/07_items/TASK-404_catalog_item_relation_workspace_ux.md), [TASK-405](../sprints/sprint_05_catalog_plugin/07_items/TASK-405_catalog_type_list_remove_inline_actions.md)).
 - QA: [TR-S05-002](../sprints/sprint_05_catalog_plugin/08_testing/03_TR-S05-002_plugin_architecture_test_report.md) PASS kiến trúc; [TR-S05-003](../sprints/sprint_05_catalog_plugin/08_testing/04_TR-S05-003_feat31_32_test_report.md) PASS FEAT-31/32; [TR-S05-004](../sprints/sprint_05_catalog_plugin/08_testing/05_TR-S05-004_task404_task406_test_report.md) PASS TASK-404/406. Backend 268 PASS/0 fail/1 skip; i18n 13/13; desktop + mobile 390×844 0 console error.
-- Đóng gói: [REV-S05-001](../sprints/sprint_05_catalog_plugin/09_review/01_REV-S05-001_sprint_05_dod_review.md) — 0 Critical/High mở; còn PM DoD + khách hàng nghiệm thu. Backlog Medium: [TASK-407](../sprints/sprint_05_catalog_plugin/07_items/TASK-407_cli_scaffold_zero_db.md) (CLI scaffold zero-DB).
+- Đóng gói: [REV-S05-001](../sprints/sprint_05_catalog_plugin/09_review/01_REV-S05-001_sprint_05_dod_review.md) — PM DoD PASS + khách hàng nghiệm thu, **Sprint 05 CLOSED 2026-10-29**; 0 Critical/High mở. Backlog Medium: [TASK-407](../sprints/sprint_05_catalog_plugin/07_items/TASK-407_cli_scaffold_zero_db.md) (CLI scaffold zero-DB).
 
 ### Sprint 03 — ĐÃ ĐÓNG (2026-10-05)
 

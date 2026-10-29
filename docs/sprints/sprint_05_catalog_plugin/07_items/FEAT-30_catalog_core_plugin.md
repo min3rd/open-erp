@@ -5,7 +5,7 @@
 | ID / loại / sprint | FEAT-30 / Feature / Sprint 05 |
 | Severity / trạng thái | High / **Done (QA)** 2026-10-29 — plugin độc lập `plugins/catalog` (TASK-394…406); baseline 375–393 là lịch sử, không dùng làm nghiệm thu |
 | Owner/agent / reviewer | Developer (agent) / Architect + QA |
-| Cập nhật / input version | 2026-10-06 / [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) (Pending), [SOL-S05-001](../05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) |
+| Cập nhật / input version | 2026-10-29 / [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) (APPROVED 2026-10-06), [SOL-S05-001](../05_solutions/01_SOL-S05-001_catalog_plugin_architecture.md) |
 | depends_on / blocks / parent | Sprint 03 (plugin manager), Sprint 01/02 (RBAC, tổ chức) / các plugin nghiệp vụ sau / — |
 | Write scope / baseline | `modules/catalog/**`, `shared/components/catalog-picker/**`, `web/features/settings/catalog/**`, `mobile/pages/settings/catalog/**`, migration `V4.0.0` |
 

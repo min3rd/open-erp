@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-398 / Task / Sprint 05 |
-| Severity / trạng thái | High / **Ready for PM review** 2026-10-29 — QA/Dev PASS; chờ PM DoD + khách hàng nghiệm thu |
+| Severity / trạng thái | High / **Done (PM+QA)** 2026-10-29 — Sprint 05 đã đóng theo nghiệm thu khách hàng |
 | Owner / reviewer | QA + Developer / PM |
 | depends_on / blocks | TASK-394…400 / đóng Sprint 05 |
 | Write scope | `plugins/catalog/src/test/**`, `docs/sprints/sprint_05_catalog_plugin/08_testing/**`, `09_review/**`, guides |
@@ -22,7 +22,7 @@ Chạy lại toàn bộ kiểm thử trên kiến trúc plugin độc lập; c�
 - [x] Cập nhật TR-S05-001/TR-S05-002, EVD, User Guide, Developer Guide, deployment guide.
 - [x] Bổ sung ảnh evidence (web desktop, mobile 390×844) trước PM DoD.
 - [x] Đóng BUG-135/136 khi test PASS.
-- [ ] PM review DoD + khách hàng nghiệm thu (đang chờ — REV-S05-001).
+- [x] PM review DoD + khách hàng nghiệm thu — ✅ PASS/APPROVED 2026-10-29 ("ok chốt xong sprint 5").
 - [x] `check-docs` 0 lỗi.
 
 ## 3. Tiêu chí nghiệm thu
@@ -40,3 +40,4 @@ Chạy lại toàn bộ kiểm thử trên kiến trúc plugin độc lập; c�
 | 0.2 | 2026-10-28 | QA P5: backend 266 PASS/0 fail/1 skip; migration/core schema PASS; fan-out PASS; mTLS PASS; web PASS (20 rows, 0 console error). Phát hiện mobile vẫn native UI → tách [TASK-403](TASK-403_mobile_plugin_screen_host.md) | QA/Developer Agent |
 | 0.3 | 2026-10-28 | [TASK-403](TASK-403_mobile_plugin_screen_host.md) Done: mobile iframe + read-only; QA 390×844 PASS; BUG-135 Resolved. Còn EVD/User Guide images + PM DoD | QA/Developer Agent |
 | 0.4 | 2026-10-29 | QA TASK-404/406 PASS; cập nhật deployment/developer guides + e2e shared runtime; tạo REV-S05-001; sẵn sàng PM review | QA/Developer/PM |
+| 0.5 | 2026-10-29 | PM DoD PASS + khách hàng nghiệm thu; **Sprint 05 CLOSED** | PM + Chủ dự án |

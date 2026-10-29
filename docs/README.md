@@ -9,7 +9,7 @@
 | AI agent | [Master Index](../.agents/rules/sdlc_process.md) → [Core SDLC](../.agents/rules/core_sdlc.md) → [Phối hợp](../.agents/rules/agent_collaboration.md) → [Chuẩn tài liệu](../.agents/rules/documentation_standards.md) → role rules → item | Nhận input/version, write scope/dependency, bàn giao đúng người |
 | Tra lịch sử | [Sprint 01](sprints/sprint_01_core_iam/00_READING_GUIDE.md) → [Sprint 02](sprints/sprint_02_superadmin_rbac/00_READING_GUIDE.md) → [Sprint 03](sprints/sprint_03_plugin_manager/00_READING_GUIDE.md) → [Sprint 04](sprints/sprint_04_ui_ux_experience/00_READING_GUIDE.md) → [Sprint 05](sprints/sprint_05_catalog_plugin/00_READING_GUIDE.md) | Đọc mỗi pack 00–09; đối chiếu scope/design/QA/closure riêng |
 
-Trạng thái sản phẩm lấy ở artifact gốc, không từ cây thư mục mô tả bên dưới. Sprint 01 đã đóng; Sprint 02 DoD PASS nhưng **chữ ký nghiệm thu khách hàng còn PENDING** (không có nguồn); Sprint 03 **đã đóng 2026-10-05** (QA-03 xác nhận, theo chỉ đạo chủ dự án); Sprint 04 **đã đóng 2026-10-06** (18/18 TC PASS, theo chỉ đạo chủ dự án); Sprint 05 **đang ở Discovery** — scope/AC đề xuất, chờ khách trả lời Q1–Q16. Đây là đọc hồ sơ, không phải kiểm thử mới. Quyết định từng gate dẫn tại index sprint.
+Trạng thái sản phẩm lấy ở artifact gốc, không từ cây thư mục mô tả bên dưới. Sprint 01 đã đóng; Sprint 02 DoD PASS nhưng **chữ ký nghiệm thu khách hàng còn PENDING** (không có nguồn); Sprint 03 **đã đóng 2026-10-05** (QA-03 xác nhận, theo chỉ đạo chủ dự án); Sprint 04 **đã đóng 2026-10-06** (18/18 TC PASS, theo chỉ đạo chủ dự án); Sprint 05 **đã đóng 2026-10-29** (REV-S05-001: PM DoD PASS + khách hàng nghiệm thu, 0 Critical/High). Đây là đọc hồ sơ, không phải kiểm thử mới. Quyết định từng gate dẫn tại index sprint.
 
 ## 0.1. Cách đọc mã và tìm bản hiện hành
 
@@ -38,7 +38,7 @@ docs/
 │   │   └── 09_review/               # Bước 9: Biên bản nghiệm thu đóng Sprint (PM Agent)
 │   ├── sprint_03_plugin_manager/    # Gói Sprint 03 - Plugin Manager, Plugin CLI & Phân phối plugin (ĐÃ ĐÓNG 2026-10-05)
 │   ├── sprint_04_ui_ux_experience/  # Gói Sprint 04 - Theme, Animation, Icon, Context Menu, Loading/Skeleton & Đa ngôn ngữ (ĐÃ ĐÓNG 2026-10-06)
-│   ├── sprint_05_catalog_plugin/    # Gói Sprint 05 - Plugin core Danh mục & quản trị danh mục (DISCOVERY — chờ xác nhận scope/AC)
+│   ├── sprint_05_catalog_plugin/    # Gói Sprint 05 - Plugin Danh mục (CLOSED 2026-10-29 — plugin độc lập, zero-DB)
 │   └── sprint_XX_.../               # Các Sprint tiếp theo độc lập tương tự
 ├── system/                          # Tài liệu kiến trúc toàn cục dùng chung toàn hệ thống
 │   ├── architecture/                # Kiến trúc tổng thể, SYSTEM_BLUEPRINT.md, Sequence Diagrams

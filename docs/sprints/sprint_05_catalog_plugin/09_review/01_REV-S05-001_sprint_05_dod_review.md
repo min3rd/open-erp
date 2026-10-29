@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | REV-S05-001 / Sprint review & DoD / Sprint 05 |
-| Trạng thái / phiên bản / ngày | **Draft — Ready for PM/customer review** / 0.1 / 2026-10-29 |
+| Trạng thái / phiên bản / ngày | **CLOSED — APPROVED** / 1.0 / 2026-10-29 |
 | Owner / reviewer | PM / Khách hàng (Product Owner) + Architect + QA |
 | Phạm vi | 22 AC của [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md); plugin catalog độc lập, TASK-394…406 |
 | Baseline | `c94211f4` (QA TASK-404/406) + commit đóng gói tài liệu/shared-runtime cleanup trên `develop` |
@@ -11,11 +11,12 @@
 
 ## 1. Tóm tắt điều hành
 
+- **Sprint 05 CLOSED 2026-10-29** theo chỉ đạo trực tiếp của chủ dự án (“ok chốt xong sprint 5”), sau PM DoD PASS.
 - Catalog đã là **plugin độc lập** (zero-DB, gRPC data gateway, shared runtime theo version); core không còn module/bảng catalog.
 - **0 bug Critical/High mở**. Toàn bộ BUG-135…153 đã Resolved.
 - Backend **268 PASS / 0 fail / 1 skip**; i18n **13/13 locale 100%**; desktop + mobile 390×844 **0 console error**, overflow 0.
-- QA sign-off đạt cho phạm vi FEAT-31/32 + TASK-404/406; còn **PM DoD** và **khách hàng nghiệm thu**.
-- 1 việc Medium chuyển backlog: [TASK-407](../07_items/TASK-407_cli_scaffold_zero_db.md) (CLI generator còn template Panache/Flyway/datasource).
+- QA sign-off đạt cho toàn sprint (FEAT-30/31/32 + TASK-394…406).
+- 1 việc Medium chuyển backlog Sprint sau: [TASK-407](../07_items/TASK-407_cli_scaffold_zero_db.md) (CLI generator còn template Panache/Flyway/datasource).
 
 ## 2. Trace 22 AC
 
@@ -39,16 +40,16 @@
 
 | Điều kiện | Trạng thái | Ghi chú |
 | :--- | :--- | :--- |
-| Không còn Critical/High mở | ✅ | 0 bug mở; TASK-398 (closure) chỉ còn gate PM/khách hàng |
-| 22 AC có bằng chứng | ✅ (19/22 QA mới; 3 AC cần smoke test) | AC-18/19/22 ghi residual risk |
+| Không còn Critical/High mở | ✅ | 0 bug mở; TASK-398 closure đã Done (PM+QA) |
+| 22 AC có bằng chứng | ✅ (19/22 QA mới; 3 AC smoke backlog) | AC-18/19/22 ghi residual risk, chủ dự án chấp nhận khi đóng |
 | Backend/Regression | ✅ | 268 PASS / 0 fail / 1 skip |
 | Browser desktop + mobile | ✅ | TR-S05-004; 0 console error; mobile 390×844 |
-| Tài liệu người dùng | ✅ | UG-S05-001 0.3 final (chờ nghiệm thu) |
+| Tài liệu người dùng | ✅ | UG-S05-001 0.3 final |
 | Tài liệu triển khai/dev | ✅ | Deployment/developer guides cập nhật shared runtime + zero-DB |
 | Tài liệu sprint đóng gói | ✅ | Sprint-Pack 00…09; REV này |
-| PM DoD | ⏳ Chờ review | Mục 5 |
-| Khách hàng nghiệm thu | ⏳ Chờ review | Mục 5 |
-| Closure | ⏳ Chờ 2 gate trên | — |
+| PM DoD | ✅ PASS 2026-10-29 | Mục 5 |
+| Khách hàng nghiệm thu | ✅ APPROVED 2026-10-29 | Mục 5 |
+| Closure | ✅ CLOSED 2026-10-29 | — |
 
 ## 4. Release notes
 
@@ -64,9 +65,9 @@
 | Gate | Trạng thái | Người quyết định | Ngày / ghi chú |
 | :--- | :--- | :--- | :--- |
 | QA sign-off | ✅ PASS (FEAT-31/32, TASK-404/406) | QA | 2026-10-29 |
-| PM DoD | ⏳ Pending | PM | Review REV này |
-| Customer acceptance | ⏳ Pending | Chủ dự án | Ký sau PM DoD |
-| Sprint closure | ⏳ Pending | PM | Sau 2 gate trên |
+| PM DoD | ✅ **PASS 2026-10-29** | PM | Review REV-S05-001 1.0 |
+| Customer acceptance | ✅ **APPROVED 2026-10-29** — “ok chốt xong sprint 5” | Chủ dự án | Chỉ đạo trực tiếp |
+| Sprint closure | ✅ **CLOSED 2026-10-29** | PM | Sau PM DoD + nghiệm thu |
 
 ## 6. Rủi ro tồn đọng / backlog
 
@@ -78,8 +79,11 @@
 | 4 | Low | Chưa deploy thử K8s staging cho shared runtime | Staging smoke |
 | 5 | Low | System catalog vẫn dùng static `catalog-system-dev` | Migrate sang container `-system` sau |
 
+> Chủ dự án đã nghiệm thu Sprint 05 ngày 2026-10-29 và chấp nhận các rủi ro trên làm backlog Sprint sau; không có mục Critical/High.
+
 ## 7. Lịch sử
 
 | Phiên bản | Ngày | Thay đổi | Nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-29 | Tạo bộ hồ sơ đóng Sprint 05; trace AC, DoD, release notes, gate review | PM/QA/Developer |
+| 1.0 | 2026-10-29 | PM DoD PASS; khách hàng nghiệm thu; **Sprint 05 CLOSED** | PM + Chủ dự án |

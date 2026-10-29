@@ -5,7 +5,7 @@
 | ID / loại / sprint | TP-S05-001 / Test plan / Sprint 05 |
 | Trạng thái / phiên bản / cập nhật | **Executed — superseded by TR-S05-002/003/004** / 0.2 / 2026-10-29 |
 | Owner / reviewer | QA Agent / Chưa review |
-| Đầu vào | [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) (Pending), [DES-DB-S05-001](../06_designs/db/01_DES-DB-S05-001_catalog_schema.md), [DES-API-S05-001](../06_designs/api/01_DES-API-S05-001_catalog_api.md), [DES-UI-S05-001](../06_designs/ui/01_DES-UI-S05-001_catalog_admin_ui.md) |
+| Đầu vào | [CONF-S05-001](../04_confirmation/01_CONF-S05-001_sprint_05_scope.md) (APPROVED 2026-10-06), [DES-DB-S05-001](../06_designs/db/01_DES-DB-S05-001_catalog_schema.md), [DES-API-S05-001](../06_designs/api/01_DES-API-S05-001_catalog_api.md), [DES-UI-S05-001](../06_designs/ui/01_DES-UI-S05-001_catalog_admin_ui.md) |
 | Đọc trước / đọc tiếp | [00_READING_GUIDE](../00_READING_GUIDE.md) / TR-S05-001 (chưa tạo) |
 
 ## 1. Phạm Vi & Môi Trường
