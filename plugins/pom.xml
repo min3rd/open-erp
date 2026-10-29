@@ -13,6 +13,7 @@
     <modules>
         <module>sdk</module>
         <module>catalog</module>
+        <module>in-app-notification</module>
     </modules>
 
     <properties>

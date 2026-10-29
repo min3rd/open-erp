@@ -1,7 +1,7 @@
 # [MÃ_TÍNH_NĂNG] Phân Tích Yêu Cầu Nghiệp Vụ
 
 - **Tính năng**: [Tên tính năng]
-- **Tài liệu nguồn**: [Link đến raw_notes](../raw_notes/)
+- **Tài liệu nguồn**: [Link đến raw_notes](../01_raw_notes/)
 - **Phụ trách**: BA Agent
 - **Trạng thái**: Draft / Under Review / Approved
 

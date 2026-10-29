@@ -1,0 +1,51 @@
+<section class="space-y-2">
+  <header>
+    <h1 class="text-sm font-semibold text-ink">{{ 'PLATFORM_NOTIFICATION_SETTINGS_TITLE' | translate }}</h1>
+    <p class="text-[11px] text-muted">{{ 'PLATFORM_NOTIFICATION_SETTINGS_HINT' | translate }}</p>
+  </header>
+
+  @if (loading()) {
+    <div class="h-24 animate-pulse border border-default bg-surface-muted"></div>
+  } @else {
+    <div class="grid gap-2 lg:grid-cols-2">
+      <app-sharp-input
+        [label]="'PLUGIN_IN_APP_NOTIFICATION_DISPLAY_NAME' | translate"
+        [value]="displayName()"
+        (valueChange)="displayName.set($event)"
+      />
+      <app-sharp-input
+        type="email"
+        [label]="'PLUGIN_IN_APP_NOTIFICATION_SUPPORT_EMAIL' | translate"
+        [value]="supportEmail()"
+        (valueChange)="supportEmail.set($event)"
+      />
+      <label class="flex min-h-10 items-center justify-between gap-2 border border-default px-2">
+        <span class="text-xs text-ink">{{ 'PLUGIN_IN_APP_NOTIFICATION_CHANNEL_IN_APP' | translate }}</span>
+        <app-sharp-toggle [checked]="channelInApp()" (checkedChange)="channelInApp.set($event)" [ariaLabel]="'PLUGIN_IN_APP_NOTIFICATION_CHANNEL_IN_APP' | translate" />
+      </label>
+      <label class="flex min-h-10 items-center justify-between gap-2 border border-default px-2">
+        <span class="text-xs text-ink">{{ 'PLUGIN_IN_APP_NOTIFICATION_CHANNEL_EMAIL' | translate }}</span>
+        <app-sharp-toggle [checked]="channelEmail()" (checkedChange)="channelEmail.set($event)" [ariaLabel]="'PLUGIN_IN_APP_NOTIFICATION_CHANNEL_EMAIL' | translate" />
+      </label>
+    </div>
+
+    <app-sharp-select
+      [label]="'PLUGIN_IN_APP_NOTIFICATION_LEVEL_MIN' | translate"
+      [options]="levels"
+      [value]="levelMin()"
+      (valueChange)="levelMin.set($event)"
+    />
+
+    @if (error(); as code) {
+      <p class="border border-rose-300 bg-rose-50 p-2 text-[11px] text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
+        {{ code | translate }}
+      </p>
+    }
+
+    <div class="flex justify-end">
+      <app-sharp-button variant="primary" size="sm" shape="sharp" [loading]="saving()" (clicked)="save()">
+        {{ 'COMMON_SAVE' | translate }}
+      </app-sharp-button>
+    </div>
+  }
+</section>

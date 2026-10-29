@@ -70,5 +70,5 @@ Trước khi đóng Sprint, PM Agent và QA Agent bắt buộc phải xác nhậ
 ## 5. Bàn Giao Sprint 01
 - **Sản phẩm**: Core IAM hoàn chỉnh (Đăng ký cá nhân/doanh nghiệp, Đăng nhập & chọn Workspace, Quên mật khẩu, 2FA TOTP, Quản lý tài khoản) trên Web (Angular 22) + Mobile (Ionic 8), hỗ trợ theme Sáng/Tối/Hệ thống và responsive điện thoại.
 - **Kiểm thử**: `mvn test` 30/30 PASS (PostgreSQL + Redis thật); browser/mobile automation PASS; hướng dẫn QA tại `08_testing/manual_test_guide.md`.
-- **Tài liệu**: [UG-01 User Guide](../../06_user_guides/sprint_01_core_iam_user_guide.md) (25 ảnh), [TR-01 Test Report](../08_testing/test_reports/test_report_sprint_01.md), [Entity Registry](../../system/entity_registry/CORE_IAM_REGISTRY.md).
+- **Tài liệu**: [UG-01 User Guide](../../../06_user_guides/sprint_01_core_iam_user_guide.md) (25 ảnh), [TR-01 Test Report](../08_testing/test_reports/test_report_sprint_01.md), [Entity Registry](../../../system/entity_registry/CORE_IAM_REGISTRY.md).
 - **Xác nhận khách hàng**: Đồng ý đóng Sprint 01 ngày 2026-09-18.

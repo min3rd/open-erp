@@ -11,7 +11,6 @@ import {
   PluginCatalogStatus,
   PluginMarketplaceItem,
   OperationProgressComponent,
-  PluginNotification,
   PluginOperationStatus,
   PluginHostService,
   PluginVersionItem,
@@ -102,11 +101,6 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
   uninstallOpen = signal(false);
   uninstallItem = signal<PluginMarketplaceItem | null>(null);
 
-  notificationsOpen = signal(false);
-  notifications = signal<PluginNotification[]>([]);
-  notificationsLoading = signal(false);
-  notificationsError = signal(false);
-
   registerOpen = signal(false);
   manageKey = signal<string | null>(null);
 
@@ -115,7 +109,6 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.refresh();
-    this.loadNotifications();
     this.listState.bind('/settings/plugins', (state) => this.applyState(state));
   }
 
@@ -151,7 +144,6 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
     if (drawer === 'uninstall') {
       this.uninstallItem.set(item);
     }
-    this.notificationsOpen.set(drawer === 'notifications');
     this.registerOpen.set(drawer === 'register' || drawer === 'manage');
     this.manageKey.set(drawer === 'manage' ? plugin : null);
 
@@ -187,26 +179,6 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
         this.listError.set(true);
       },
     });
-  }
-
-  loadNotifications(): void {
-    this.notificationsLoading.set(true);
-    this.notificationsError.set(false);
-    this.pluginService.notifications().subscribe({
-      next: (response) => {
-        this.notifications.set(response.data?.items ?? []);
-        this.notificationsLoading.set(false);
-      },
-      error: () => {
-        this.notifications.set([]);
-        this.notificationsLoading.set(false);
-        this.notificationsError.set(true);
-      },
-    });
-  }
-
-  unreadCount(): number {
-    return this.notifications().filter((item) => !item.read_at).length;
   }
 
   blockedItems(): PluginMarketplaceItem[] {
@@ -429,18 +401,6 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
     this.runLifecycle(item.plugin_key, () => this.pluginService.uninstall(item.plugin_key));
   }
 
-  openNotifications(): void {
-    this.loadNotifications();
-    this.updateState({ mode: 'notifications' });
-  }
-
-  markAllRead(): void {
-    this.pluginService.markAllNotificationsRead().subscribe({
-      next: () => this.loadNotifications(),
-      error: (error: ApiErrorResponse) => this.errorText.set(apiMessage(this.i18n, error)),
-    });
-  }
-
   closeDetail(): void {
     this.stopPolling();
     this.updateState({ id: null, mode: 'list' });
@@ -513,7 +473,6 @@ export class PluginMarketplaceComponent implements OnInit, OnDestroy {
           }
         }
         this.refresh();
-        this.loadNotifications();
         void this.pluginHost.loadManifest(true);
       },
       error: (error: ApiErrorResponse) => {

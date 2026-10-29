@@ -4,7 +4,7 @@
 - **Phụ Trách**: BA Agent
 - **Ngày Thực Hiện**: 2026-09-17
 - **Thuộc Sprint**: Sprint 01
-- **Tài Liệu Nguồn**: [RAW-01_sprint_01_core_identity.md](../raw_notes/RAW-01_sprint_01_core_identity.md)
+- **Tài Liệu Nguồn**: [RAW-01_sprint_01_core_identity.md](../01_raw_notes/RAW-01_sprint_01_core_identity.md)
 
 ---
 

@@ -59,33 +59,22 @@ export async function devCommand(flags) {
 
 function composeFile(manifest, coreUrl) {
   return `services:
-  postgres-dev:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: openerp
-      POSTGRES_PASSWORD: openerp_dev_password
-      POSTGRES_DB: openerp_plugin_dev
-    ports:
-      - "5433:5432"
-    deploy:
-      resources:
-        limits:
-          memory: 384M
   plugin-${manifest.id}:
     build: .
     environment:
-      DB_URL: jdbc:postgresql://postgres-dev:5432/openerp_plugin_dev
-      DB_USER: openerp
-      DB_PASSWORD: openerp_dev_password
-      DB_SCHEMA: tenant_dev_${manifest.id.replaceAll('-', '_')}
-      TENANT_ID: "00000000-0000-4000-a000-000000000001"
       PLUGIN_KEY: ${manifest.id}
+      PLUGIN_SCOPE: tenant
       PLUGIN_VERSION: ${manifest.version}
+      PLUGIN_DATA_GATEWAY_URL: \${PLUGIN_DATA_GATEWAY_URL:-https://host.docker.internal:9090}
+      PLUGIN_DATA_TLS_CA: /deploy/certs/ca.crt
+      PLUGIN_DATA_TLS_CERT: /deploy/certs/tenant-client.crt
+      PLUGIN_DATA_TLS_KEY: /deploy/certs/tenant-client.key
+      QUARKUS_REDIS_HOSTS: \${QUARKUS_REDIS_HOSTS:-redis://host.docker.internal:6379}
       CORE_DEV_URL: ${coreUrl}
     ports:
       - "8081:8080"
-    depends_on:
-      - postgres-dev
+    volumes:
+      - ./docker/certs:/deploy/certs:ro
     deploy:
       resources:
         limits:

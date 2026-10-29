@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
 import { buildQuery } from '@shared';
 import { ApiService } from '@shared';
+import { CatalogRuntimeService } from '../catalog-runtime.service';
 import {
   ApiErrorResponse,
   ApiFieldError,
@@ -292,6 +293,7 @@ export interface CatalogImportReport {
 @Injectable({ providedIn: 'root' })
 export class CatalogAdminService {
   private api = inject(ApiService);
+  private runtime = inject(CatalogRuntimeService);
   private http = inject(HttpClient);
 
   // ---------------------------------------------------------------------
@@ -475,7 +477,8 @@ export class CatalogAdminService {
   // ---------------------------------------------------------------------
 
   private base(scope: CatalogScope): string {
-    return scope === CatalogScope.SYSTEM ? `${CATALOG_API}${SYSTEM_SEGMENT}` : CATALOG_API;
+    const base = `${this.runtime.apiBaseUrl()}${CATALOG_API}`;
+    return scope === CatalogScope.SYSTEM ? `${base}${SYSTEM_SEGMENT}` : base;
   }
 
   private typeBody(payload: CatalogTypePayload): Record<string, unknown> {

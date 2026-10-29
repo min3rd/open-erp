@@ -5,14 +5,14 @@
 @source './';
 
 /* Mobile/read-only host: keep interactive controls at touch size (>= 40px). */
-body.catalog-readonly button,
-body.catalog-readonly [role='button'],
-body.catalog-readonly a,
-body.catalog-readonly select,
-body.catalog-readonly input {
+.catalog-readonly button,
+.catalog-readonly [role='button'],
+.catalog-readonly a,
+.catalog-readonly select,
+.catalog-readonly input {
   min-height: 2.5rem;
 }
 
-body.catalog-readonly table tbody tr {
+.catalog-readonly table tbody tr {
   height: 2.75rem;
 }

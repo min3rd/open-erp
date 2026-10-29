@@ -44,7 +44,7 @@ export async function packageCommand(flags) {
   }
   if (backendJar) {
     const bundle = join(dist, 'bundle.zip');
-    writeFileSync(bundle, createBundle(backendJar, webDist));
+    writeFileSync(bundle, createBundle(backendJar, webDist, join(dir, 'migrations')));
     artifacts.push(bundle);
   }
   const checksumLines = [];
@@ -112,11 +112,21 @@ function findWebDist(webDir) {
  * web assets travel under `static/**` (copied into /app/static by the
  * platform Dockerfile).
  */
-function createBundle(backendJar, webDist) {
+function createBundle(backendJar, webDist, migrationsDir) {
   const entries = [{ name: 'app.jar', data: readFileSync(backendJar) }];
   if (webDist) {
     for (const file of listFiles(webDist)) {
       entries.push({ name: `static/${file}`, data: readFileSync(join(webDist, file)) });
+    }
+  }
+  // The platform migration executor reads declared migrations from the bundle
+  // root, so ship them beside app.jar instead of under migrations/.
+  if (existsSync(migrationsDir)) {
+    for (const file of readdirSync(migrationsDir)) {
+      const full = join(migrationsDir, file);
+      if (statSync(full).isFile()) {
+        entries.push({ name: file, data: readFileSync(full) });
+      }
     }
   }
   return createZip(entries);

@@ -1,15 +1,13 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { PluginService } from '../../core/services/plugin.service';
+import { PluginContextService } from '../../core/services/plugin-context.service';
 import {
   DrawerComponent,
   IconComponent,
   IconName,
   IconNameValue,
   LayoutId,
-  NotificationBannerComponent,
-  PluginNotification,
   PluginHostService,
   SectionNavComponent,
   SectionNavVariant,
@@ -37,7 +35,6 @@ interface SettingsMenuNode {
     RouterOutlet,
     TopbarComponent,
     SectionNavComponent,
-    NotificationBannerComponent,
     DrawerComponent,
     IconComponent,
     TranslatePipe
@@ -47,7 +44,7 @@ interface SettingsMenuNode {
 export class SettingsLayoutComponent implements OnInit {
   auth = inject(AuthService);
   theme = inject(ThemeService);
-  private pluginService = inject(PluginService);
+  pluginContext = inject(PluginContextService);
   private pluginHost = inject(PluginHostService);
   private router = inject(Router);
 
@@ -70,47 +67,8 @@ export class SettingsLayoutComponent implements OnInit {
   /** Rail width: full labels or the icon-only strip. */
   readonly railWidth = computed(() => this.railCollapsed() ? 'lg:w-12' : 'lg:w-64');
 
-  readonly notifications = signal<PluginNotification[]>([]);
-
-  readonly notificationUnreadCount = computed(() =>
-    this.notifications().filter(item => !item.read_at).length
-  );
-
-  readonly notificationDetailPath = computed(() =>
-    this.auth.hasPermission('core:plugin:read') !== false ? '/settings/plugins' : null
-  );
-
   ngOnInit(): void {
     void this.pluginHost.loadManifest(true);
-    this.loadNotifications();
-  }
-
-  loadNotifications(): void {
-    this.pluginService.notifications().subscribe({
-      next: response => this.notifications.set(response.data?.items ?? []),
-      error: () => this.notifications.set([]),
-    });
-  }
-
-  onMarkNotificationRead(id: string): void {
-    this.pluginService.markNotificationRead(id).subscribe({
-      next: () => this.loadNotifications(),
-      error: () => {},
-    });
-  }
-
-  onMarkAllNotificationsRead(): void {
-    this.pluginService.markAllNotificationsRead().subscribe({
-      next: () => this.loadNotifications(),
-      error: () => {},
-    });
-  }
-
-  onOpenNotificationDetail(): void {
-    const path = this.notificationDetailPath();
-    if (path) {
-      this.router.navigateByUrl(path);
-    }
   }
 
   /**
@@ -140,6 +98,7 @@ export class SettingsLayoutComponent implements OnInit {
       labelKey: 'SETTINGS_GROUP_SYSTEM',
       icon: IconName.PACKAGE,
       children: [
+        { path: '/settings/system', labelKey: 'SETTINGS_SYSTEM_TITLE', icon: IconName.SETTINGS, permission: 'core:tenant:settings-manage' },
         { path: '/settings/plugins', labelKey: 'PLUGIN_MARKETPLACE_TITLE', icon: IconName.PACKAGE, permission: 'core:plugin:read' },
         { path: '/settings/plugin-credentials', labelKey: 'PLUGIN_TENANT_CREDENTIALS_TITLE', icon: IconName.KEY, permission: 'core:plugin:credential:manage' }
       ]

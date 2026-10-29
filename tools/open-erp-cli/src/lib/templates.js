@@ -1,50 +1,104 @@
-export function pluginManifest(options) {
+import { sha256Text } from './checksum.js';
+
+export function pluginManifest(options, migration) {
+  const id = options.id;
+  const titleKey = `PLUGIN_${id.toUpperCase().replaceAll('-', '_')}_MENU`;
+  const headerKey = `PLUGIN_${id.toUpperCase().replaceAll('-', '_')}_HEADER`;
+  const entry = `/plugins-runtime/${id}/main.js`;
   return {
-    id: options.id,
+    schema_version: '2.0',
+    id,
     name: options.name,
     description: options.description || options.name,
     version: '1.0.0',
+    template_version: '2.0.0',
     author: 'Open-ERP Plugin Team',
     core_version_compatibility: options.coreVersion || '>=1.0.0 <2.0.0',
     migration_policy: 'COMPATIBLE',
     rollback_strategy: 'SNAPSHOT_RESTORE',
-    template_version: '0.1.0',
     dependencies: [],
     platforms: {
-      desktop: { supported: true, features: ['sample_list', 'sample_create'] },
+      desktop: { supported: true, features: ['sample_list'] },
       mobile: { supported: options.platforms.includes('mobile'), features: options.platforms.includes('mobile') ? ['sample_list'] : [] },
     },
     permissions: [
-      { code: `${options.id}:item:read`, name: `${options.name} - read` },
-      { code: `${options.id}:item:create`, name: `${options.name} - create` },
+      { code: `${id}:item:read`, name: `${options.name} - read` },
+      { code: `${id}:item:manage`, name: `${options.name} - manage` },
     ],
     entities: [
       {
         name: 'SampleItem',
-        storage: options.db === 'mongodb' ? 'mongodb' : 'postgres',
-        table: 'plg_sample_items',
-        public_fields: ['id', 'code', 'name', 'status', 'created_at'],
+        table: `plg_${id.replaceAll('-', '_')}_sample_items`,
+        storage_scope: 'TENANT',
+        fields: [
+          { name: 'code', type: 'string', required: true, unique: true, max_length: 64 },
+          { name: 'name', type: 'string', required: true, max_length: 255 },
+          { name: 'status', type: 'enum', enum_values: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE' },
+        ],
+        validators: [
+          { field: 'code', rule: 'max_length', value: 64 },
+          { field: 'name', rule: 'max_length', value: 255 },
+        ],
       },
     ],
+    relations: [],
+    queries: [
+      {
+        id: 'sample.list',
+        mode: 'READ',
+        operation: 'LIST',
+        entity: 'SampleItem',
+        tenant_scope: 'TENANT',
+        select: ['id', 'code', 'name', 'status', 'created_at'],
+        sort: [{ field: 'created_at', direction: 'DESC' }],
+        maxRows: 100,
+      },
+    ],
+    migrations: migration
+      ? [{
+          version: '1.0.0',
+          file: migration.file,
+          checksum: `sha256:${migration.sha256}`,
+          description: `${options.name} initial schema`,
+        }]
+      : [],
     kafka_events: { publishes: [], subscribes: [] },
     ui_manifest: {
       contract_version: '1.0',
       screens: [
         {
-          route: `/apps/${options.id}`,
-          title_key: `PLUGIN_${options.id.toUpperCase().replaceAll('-', '_')}_MENU`,
-          permission: `${options.id}:item:read`,
-          render_mode: 'MODULE_FEDERATION',
+          route: `/apps/${id}`,
+          title_key: titleKey,
+          permission: `${id}:item:read`,
+          render_mode: 'WEB_COMPONENT',
+          entry,
+          tag_name: `op-${id}-app`,
           order: 100,
+          platforms: ['desktop', 'mobile'],
         },
       ],
-      contributions: [],
+      contributions: [
+        {
+          id: 'header-action',
+          slot: 'core.layout.header.actions',
+          title_key: headerKey,
+          render_mode: 'WEB_COMPONENT',
+          entry,
+          tag_name: `op-${id}-header`,
+          permission: `${id}:item:read`,
+          order: 10,
+          contract_version: '1.0',
+          platforms: ['desktop', 'mobile'],
+          isolation: 'light',
+        },
+      ],
       slots: [],
+      crud: [],
     },
     distribution: {
       type: options.packaging === 'bundle' ? 'JAR_BUNDLE' : 'IMAGE_REGISTRY',
       registry_url: 'registry.local',
-      repository: `open-erp/plugin-${options.id}`,
+      repository: `open-erp/plugin-${id}`,
       tag: '1.0.0',
     },
   };
@@ -57,21 +111,27 @@ export function packageName(id) {
 export function projectFiles(options) {
   const pkg = packageName(options.id);
   const pkgPath = pkg.replaceAll('.', '/');
+  const migrationName = 'V1.0.0__initial_schema.sql';
+  const migrationFile = `migrations/${migrationName}`;
+  const migration = migrationUp(options);
+  const manifest = pluginManifest(options, {
+    file: migrationName,
+    sha256: sha256Text(migration),
+  });
   const files = {};
-  files['plugin.json'] = `${JSON.stringify(pluginManifest(options), null, 2)}\n`;
+  files['plugin.json'] = `${JSON.stringify(manifest, null, 2)}\n`;
   files['.gitignore'] = ['target/', 'dist/', 'node_modules/', '.angular/', '*.log', '.env', '*.pem', ''].join('\n');
   files['.mvn/jvm.config'] = '-Dnet.bytebuddy.experimental=true\n';
   files['README.md'] = readme(options);
   files['pom.xml'] = pomXml(options, pkg);
-  files['src/main/resources/application.properties'] = applicationProperties();
+  files['src/main/resources/application.properties'] = applicationProperties(options);
   files[`src/main/java/${pkgPath}/SampleItem.java`] = entity(options, pkg);
-  files[`src/main/java/${pkgPath}/SampleItemRepository.java`] = repository(pkg);
+  files[`src/main/java/${pkgPath}/SampleItemDto.java`] = dto(pkg);
   files[`src/main/java/${pkgPath}/SampleItemService.java`] = service(pkg);
-  files[`src/main/java/${pkgPath}/SampleItemResource.java`] = resource(pkg);
-  files['src/main/resources/db/plugin-migration/V1.0.0__initial_schema.up.sql'] = migrationUp(options);
-  files['src/main/resources/db/plugin-migration-down/V1.0.0__initial_schema.down.sql'] = migrationDown();
+  files[`src/main/java/${pkgPath}/SampleItemResource.java`] = resource(options, pkg);
+  files[migrationFile] = migration;
   files[`src/test/java/${pkgPath}/SampleItemResourceTest.java`] = resourceTest(pkg);
-  files['deploy/Dockerfile'] = dockerfile(options);
+  files['deploy/Dockerfile'] = dockerfile();
   files['deploy/k8s.yaml'] = k8s(options);
   files['ci/github-actions.yml'] = workflow(options);
   if (options.withWeb) {
@@ -85,39 +145,56 @@ export function projectFiles(options) {
 function readme(options) {
   return `# ${options.name}
 
-Plugin ID: \`${options.id}\` — scaffolded with \`@open-erp/cli\`.
+Plugin ID: \`${options.id}\` — scaffolded with \`@open-erp/cli\` (template 2.0, zero-DB).
 
 ## Commands
 
 \`\`\`bash
 npx @open-erp/cli validate
 npx @open-erp/cli generate entity --name Invoice --fields "code:string,total:decimal"
-npx @open-erp/cli generate menu --title-key PLUGIN_${options.id.toUpperCase().replaceAll('-', '_')}_MENU --route /apps/${options.id}
-npx @open-erp/cli generate ui-contribution --slot core.dashboard.widgets --render-mode web-component
+npx @open-erp/cli generate crud --entity Invoice --interactive
 npx @open-erp/cli package
 npx @open-erp/cli dev
 \`\`\`
 
 ## Structure
 
-- \`plugin.json\`: manifest (entities, permissions, UI manifest, distribution).
-- \`src/main/java\`: Quarkus plugin backend (self-migrating against the tenant schema).
-- \`src/main/resources/db/plugin-migration\`: per-tenant Flyway migrations (\`up\`).
-- \`src/main/resources/db/plugin-migration-down\`: rollback scripts (not scanned by Flyway).
-- \`web/\`: Angular 22 UI using shared components on the Core shell.
+- \`plugin.json\`: manifest 2.0 (entities, fields, relations, queries, migrations, UI manifest).
+- \`src/main/java\`: Quarkus plugin backend; DB access through \`PluginDataClient\` (zero DB).
+- \`migrations/\`: SQL executed by core, checksum in manifest.
+- \`web/\`: Angular 22 Web Component screen + contribution entry.
 - \`deploy/\`: Dockerfile + Kubernetes manifests.
+
+## Database
+
+The platform owns the tenant schema. Declare DDL in \`migrations/\` and keep the
+SHA-256 in \`plugin.json.migrations[]\`. Do not add datasource/Flyway/Panache or
+\`tenant_id\` columns.
 `;
 }
 
 function pomXml(options, pkg) {
+  const parent = options.monorepo
+    ? `  <parent>
+    <groupId>com.vn9melody.openerp.plugins</groupId>
+    <artifactId>plugins-parent</artifactId>
+    <version>1.0.0</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+`
+    : '';
+  const coordinates = options.monorepo
+    ? ''
+    : `  <groupId>${pkg}</groupId>
+  <version>1.0.0-SNAPSHOT</version>
+`;
+  const sdkVersion = options.monorepo ? '${project.version}' : '1.0.0';
   return `<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>${pkg}</groupId>
-  <artifactId>plugin-${options.id}</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+${parent}${coordinates}  <artifactId>plugin-${options.id}</artifactId>
   <properties>
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -136,20 +213,13 @@ function pomXml(options, pkg) {
   </dependencyManagement>
   <dependencies>
     <dependency>
+      <groupId>com.vn9melody.openerp.plugins</groupId>
+      <artifactId>plugin-sdk</artifactId>
+      <version>${sdkVersion}</version>
+    </dependency>
+    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-rest-jackson</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-hibernate-orm-panache</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-jdbc-postgresql</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-flyway</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -189,72 +259,72 @@ function pomXml(options, pkg) {
 `;
 }
 
-function applicationProperties() {
+function applicationProperties(options) {
   return `quarkus.http.port=8080
-quarkus.datasource.db-kind=postgresql
-quarkus.datasource.jdbc.url=\${DB_URL:jdbc:postgresql://localhost:5432/openerp_dev}
-quarkus.datasource.username=\${DB_USER:openerp}
-quarkus.datasource.password=\${DB_PASSWORD:openerp_dev_password}
-quarkus.hibernate-orm.database.default-schema=\${DB_SCHEMA:public}
-quarkus.flyway.migrate-at-start=true
-quarkus.flyway.locations=classpath:db/plugin-migration
-quarkus.flyway.schemas=\${DB_SCHEMA:public}
-quarkus.hibernate-orm.database.generation=none
+quarkus.smallrye-health.root-path=/q/health
+plugin.key=${options.id}
+plugin.scope=\${PLUGIN_SCOPE:tenant}
+plugin.data.gateway-url=\${PLUGIN_DATA_GATEWAY_URL:}
+plugin.data.service-token=\${PLUGIN_SERVICE_TOKEN:}
+plugin.data.tls-ca=\${PLUGIN_DATA_TLS_CA:}
+plugin.data.tls-cert=\${PLUGIN_DATA_TLS_CERT:}
+plugin.data.tls-key=\${PLUGIN_DATA_TLS_KEY:}
+plugin.data.deadline-ms=\${PLUGIN_DATA_DEADLINE_MS:15000}
+quarkus.redis.hosts=\${QUARKUS_REDIS_HOSTS:redis://localhost:6379}
 `;
 }
 
 function entity(options, pkg) {
   return `package ${pkg};
 
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
-@Entity
-@Table(name = "plg_sample_items")
-public class SampleItem extends PanacheEntityBase {
+/** Sample entity (POJO; persistence is owned by the core data gateway). */
+public class SampleItem {
 
-    @Id
-    @GeneratedValue
-    @Column(name = "id", nullable = false)
     public UUID id;
-
-    @Column(name = "tenant_id", nullable = false)
-    public UUID tenantId;
-
-    @Column(name = "code", nullable = false, length = 64)
     public String code;
-
-    @Column(name = "name", nullable = false, length = 255)
     public String name;
+    public String status;
+    public Instant createdAt;
 
-    @Column(name = "status", nullable = false, length = 30)
-    public String status = "ACTIVE";
+    public static SampleItem from(Map<String, Object> row) {
+        SampleItem item = new SampleItem();
+        item.id = asUuid(row.get("id"));
+        item.code = asString(row.get("code"));
+        item.name = asString(row.get("name"));
+        item.status = asString(row.get("status"));
+        item.createdAt = asInstant(row.get("created_at"));
+        return item;
+    }
 
-    @Column(name = "created_at", nullable = false)
-    public Instant createdAt = Instant.now();
+    private static String asString(Object value) {
+        return value == null ? null : String.valueOf(value);
+    }
+
+    private static UUID asUuid(Object value) {
+        return value == null ? null : UUID.fromString(String.valueOf(value));
+    }
+
+    private static Instant asInstant(Object value) {
+        return value == null ? null : Instant.parse(String.valueOf(value));
+    }
 }
 `;
 }
 
-function repository(pkg) {
+function dto(pkg) {
   return `package ${pkg};
 
-import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
-import jakarta.enterprise.context.ApplicationScoped;
-import java.util.List;
+import java.time.Instant;
 import java.util.UUID;
 
-@ApplicationScoped
-public class SampleItemRepository implements PanacheRepositoryBase<SampleItem, UUID> {
+public record SampleItemDto(UUID id, String code, String name, String status, Instant createdAt) {
 
-    public List<SampleItem> listByTenant(UUID tenantId) {
-        return list("tenantId = ?1 order by createdAt desc", tenantId);
+    public static SampleItemDto from(SampleItem item) {
+        return new SampleItemDto(item.id, item.code, item.name, item.status, item.createdAt);
     }
 }
 `;
@@ -263,53 +333,40 @@ public class SampleItemRepository implements PanacheRepositoryBase<SampleItem, U
 function service(pkg) {
   return `package ${pkg};
 
+import com.vn9melody.openerp.plugin.sdk.data.PluginDataClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 @ApplicationScoped
 public class SampleItemService {
 
     @Inject
-    SampleItemRepository repository;
+    PluginDataClient client;
 
-    public List<SampleItem> list(UUID tenantId) {
-        return repository.listByTenant(tenantId);
-    }
-
-    @Transactional
-    public SampleItem create(UUID tenantId, String code, String name) {
-        SampleItem item = new SampleItem();
-        item.tenantId = tenantId;
-        item.code = code;
-        item.name = name;
-        item.createdAt = Instant.now();
-        repository.persist(item);
-        return item;
+    public List<SampleItemDto> list() {
+        return client.query("sample.list", Map.of()).rows().stream()
+                .map(SampleItem::from)
+                .map(SampleItemDto::from)
+                .toList();
     }
 }
 `;
 }
 
-function resource(pkg) {
+function resource(options, pkg) {
   return `package ${pkg};
 
+import com.vn9melody.openerp.plugin.sdk.api.ApiResponse;
+import com.vn9melody.openerp.plugin.sdk.api.ListData;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
-@Path("/api/v1/plugins/sample-items")
+@Path("/api/v1/${options.id}/sample-items")
 @Produces(MediaType.APPLICATION_JSON)
 public class SampleItemResource {
 
@@ -317,44 +374,29 @@ public class SampleItemResource {
     SampleItemService service;
 
     @GET
-    @Transactional
-    public List<SampleItem> list() {
-        String tenantHeader = System.getenv("TENANT_ID");
-        UUID tenantId = tenantHeader == null ? null : UUID.fromString(tenantHeader);
-        return service.list(tenantId);
-    }
-
-    @POST
-    @Transactional
-    public Response create(Map<String, String> body) {
-        String tenantHeader = System.getenv("TENANT_ID");
-        UUID tenantId = tenantHeader == null ? null : UUID.fromString(tenantHeader);
-        SampleItem item = service.create(tenantId, body.get("code"), body.get("name"));
-        return Response.status(Response.Status.CREATED)
-                .entity(Map.of("success", true, "code", "SAMPLE_ITEM_CREATED", "data", Map.of("id", item.id.toString())))
-                .build();
+    public ApiResponse<ListData<SampleItemDto>> list() {
+        return ApiResponse.successList(
+                "SAMPLE_ITEM_LIST_SUCCESS",
+                "Sample items retrieved.",
+                service.list());
     }
 }
 `;
 }
 
 function migrationUp(options) {
-  return `CREATE TABLE IF NOT EXISTS plg_sample_items (
+  const table = `plg_${options.id.replaceAll('-', '_')}_sample_items`;
+  return `CREATE TABLE IF NOT EXISTS ${table} (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id UUID NOT NULL,
     code VARCHAR(64) NOT NULL,
     name VARCHAR(255) NOT NULL,
     status VARCHAR(30) NOT NULL DEFAULT 'ACTIVE',
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    CONSTRAINT uq_${table}_code UNIQUE (code)
 );
 
-CREATE INDEX IF NOT EXISTS idx_plg_sample_items_tenant ON plg_sample_items (tenant_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_${table}_created ON ${table} (created_at DESC);
 -- Plugin ${options.id}: this migration runs inside the tenant schema only.
-`;
-}
-
-function migrationDown() {
-  return `DROP TABLE IF EXISTS plg_sample_items;
 `;
 }
 
@@ -365,22 +407,21 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.notNullValue;
 
 @QuarkusTest
 public class SampleItemResourceTest {
 
     @Test
-    public void listEndpointResponds() {
+    public void healthEndpointResponds() {
         given()
-            .when().get("/api/v1/plugins/sample-items")
+            .when().get("/q/health/ready")
             .then().statusCode(200);
     }
 }
 `;
 }
 
-function dockerfile(options) {
+function dockerfile() {
   return `FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /workspace
 COPY . .
@@ -476,12 +517,16 @@ jobs:
 }
 
 function webFiles(options) {
-  const titleKey = `PLUGIN_${options.id.toUpperCase().replaceAll('-', '_')}_MENU`;
-  const emptyKey = `PLUGIN_${options.id.toUpperCase().replaceAll('-', '_')}_EMPTY`;
-  const project = `plugin-${options.id}-web`;
+  const id = options.id;
+  const titleKey = `PLUGIN_${id.toUpperCase().replaceAll('-', '_')}_MENU`;
+  const headerKey = `PLUGIN_${id.toUpperCase().replaceAll('-', '_')}_HEADER`;
+  const emptyKey = `PLUGIN_${id.toUpperCase().replaceAll('-', '_')}_EMPTY`;
+  const project = `plugin-${id}-web`;
+  const appTag = `op-${id}-app`;
+  const headerTag = `op-${id}-header`;
   const dictionaries = {
-    vi: { [titleKey]: options.name, [emptyKey]: 'Chưa có dữ liệu.' },
-    en: { [titleKey]: options.name, [emptyKey]: 'No data yet.' },
+    vi: { [titleKey]: options.name, [headerKey]: options.name, [emptyKey]: 'Chưa có dữ liệu.' },
+    en: { [titleKey]: options.name, [headerKey]: options.name, [emptyKey]: 'No data yet.' },
   };
   return {
     'web/package.json': `{
@@ -495,6 +540,7 @@ function webFiles(options) {
     "@angular/common": "^22.0.0",
     "@angular/compiler": "^22.0.0",
     "@angular/core": "^22.0.0",
+    "@angular/elements": "^22.0.0",
     "@angular/forms": "^22.0.0",
     "@angular/platform-browser": "^22.0.0",
     "rxjs": "^7.8.1",
@@ -527,14 +573,18 @@ function webFiles(options) {
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "browser": "src/main.ts",
+            "browser": "src/plugin-main.ts",
             "index": "src/index.html",
             "tsConfig": "tsconfig.app.json",
-            "outputPath": "dist",
+            "outputPath": {
+              "base": "dist",
+              "browser": ""
+            },
             "assets": [
               {
-                "glob": "**/*",
-                "input": "public"
+                "glob": "**/*.json",
+                "input": "public/i18n",
+                "output": "i18n"
               }
             ],
             "styles": [
@@ -543,7 +593,7 @@ function webFiles(options) {
           },
           "configurations": {
             "production": {
-              "outputHashing": "all",
+              "outputHashing": "none",
               "budgets": [
                 {
                   "type": "initial",
@@ -554,7 +604,8 @@ function webFiles(options) {
             },
             "development": {
               "optimization": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "outputHashing": "none"
             }
           },
           "defaultConfiguration": "production"
@@ -632,17 +683,41 @@ function webFiles(options) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-  <app-plugin-screen></app-plugin-screen>
+  <${appTag}></${appTag}>
 </body>
 </html>
 `,
     'web/src/styles.css': `@import "tailwindcss";
+@source './';
 `,
-    'web/src/main.ts': `import { bootstrapApplication } from '@angular/platform-browser';
+    'web/src/plugin-main.ts': `import { provideBrowserGlobalErrorListeners } from '@angular/core';
+import { HttpInterceptorFn, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { createCustomElement } from '@angular/elements';
+import { createApplication } from '@angular/platform-browser';
 import { PluginScreenComponent } from './app/plugin-screen.component';
+import { HeaderActionComponent } from './app/header-action.component';
 
-bootstrapApplication(PluginScreenComponent)
-  .catch((err) => console.error(err));
+const authHeaderInterceptor: HttpInterceptorFn = (req, next) => {
+  const token = localStorage.getItem('openerp_token');
+  const sessionId = localStorage.getItem('openerp_session_id');
+  const headers: Record<string, string> = {};
+  if (token) headers['Authorization'] = \`Bearer \${token}\`;
+  if (sessionId) headers['X-Session-Id'] = sessionId;
+  return next(Object.keys(headers).length ? req.clone({ setHeaders: headers }) : req);
+};
+
+async function bootstrap(): Promise<void> {
+  const app = await createApplication({
+    providers: [
+      provideBrowserGlobalErrorListeners(),
+      provideHttpClient(withInterceptors([authHeaderInterceptor])),
+    ],
+  });
+  customElements.define('${appTag}', createCustomElement(PluginScreenComponent, { injector: app.injector }));
+  customElements.define('${headerTag}', createCustomElement(HeaderActionComponent, { injector: app.injector }));
+}
+
+void bootstrap();
 `,
     'web/src/app/translate.pipe.ts': `import { Pipe, PipeTransform } from '@angular/core';
 
@@ -665,12 +740,37 @@ import { TranslatePipe } from './translate.pipe';
   imports: [TranslatePipe],
   templateUrl: './plugin-screen.component.html',
 })
-export class PluginScreenComponent {}
+export class PluginScreenComponent {
+  readonly titleKey = '${titleKey}';
+  readonly emptyKey = '${emptyKey}';
+}
 `,
-    'web/src/app/plugin-screen.component.html': `<section class="p-2 text-sm">
-  <h1 class="text-xs font-semibold">{{ '${titleKey}' | translate }}</h1>
-  <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ '${emptyKey}' | translate }}</p>
+    'web/src/app/plugin-screen.component.html': `<section class="min-h-screen bg-surface text-ink p-2 text-sm">
+  <h1 class="text-xs font-semibold">{{ titleKey | translate }}</h1>
+  <p class="text-xs text-muted">{{ emptyKey | translate }}</p>
 </section>
+`,
+    'web/src/app/header-action.component.ts': `import { Component, Input } from '@angular/core';
+import { TranslatePipe } from './translate.pipe';
+
+@Component({
+  selector: 'app-header-action',
+  standalone: true,
+  imports: [TranslatePipe],
+  templateUrl: './header-action.component.html',
+})
+export class HeaderActionComponent {
+  @Input() context: unknown;
+  readonly titleKey = '${headerKey}';
+}
+`,
+    'web/src/app/header-action.component.html': `<button
+  type="button"
+  class="inline-flex min-h-8 min-w-8 items-center justify-center border border-topbar-border px-2 text-xs text-topbar-text hover:bg-topbar-text/10"
+  [attr.aria-label]="titleKey | translate"
+>
+  {{ titleKey | translate }}
+</button>
 `,
     'web/public/i18n/vi.json': `${JSON.stringify(dictionaries.vi, null, 2)}\n`,
     'web/public/i18n/en.json': `${JSON.stringify(dictionaries.en, null, 2)}\n`,

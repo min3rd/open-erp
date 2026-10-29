@@ -1,0 +1,110 @@
+<section class="space-y-2 bg-surface p-2 text-xs text-ink">
+  <header class="flex flex-wrap items-center justify-between gap-2">
+    <div>
+      <h1 class="text-sm font-semibold">{{ 'PLUGIN_IN_APP_NOTIFICATION_MENU' | translate }}</h1>
+      <p class="text-[11px] text-muted">
+        {{ 'PLUGIN_IN_APP_NOTIFICATION_UNREAD' | translate:{ count: unread() } }}
+      </p>
+    </div>
+    <div class="flex gap-1">
+      <app-sharp-button variant="outline" size="sm" shape="sharp" (clicked)="load()">
+        {{ 'COMMON_RETRY' | translate }}
+      </app-sharp-button>
+      <app-sharp-button
+        variant="primary"
+        size="sm"
+        shape="sharp"
+        [disabled]="unread() === 0"
+        (clicked)="markAllRead()"
+      >
+        {{ 'PLUGIN_IN_APP_NOTIFICATION_MARK_ALL_READ' | translate }}
+      </app-sharp-button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="h-32 animate-pulse border border-default bg-surface-muted"></div>
+  } @else if (error(); as code) {
+    <div class="border border-rose-300 bg-rose-50 p-2 text-[11px] text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
+      {{ code | translate }}
+    </div>
+  } @else if (notifications().length === 0) {
+    <div class="border border-default p-3 text-[11px] text-muted">
+      {{ 'PLUGIN_IN_APP_NOTIFICATION_EMPTY' | translate }}
+    </div>
+  } @else {
+    <div class="overflow-x-auto border border-default">
+      <table class="w-full min-w-[36rem] text-xs">
+        <thead class="bg-surface-muted text-start text-[10px] uppercase tracking-wide text-muted">
+          <tr>
+            <th class="p-1.5 text-start">{{ 'PLUGIN_IN_APP_NOTIFICATION_TITLE' | translate }}</th>
+            <th class="p-1.5 text-start">{{ 'PLUGIN_IN_APP_NOTIFICATION_LEVEL' | translate }}</th>
+            <th class="p-1.5 text-start">{{ 'PLUGIN_IN_APP_NOTIFICATION_CREATED_AT' | translate }}</th>
+            <th class="p-1.5 text-end">{{ 'COMMON_ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of notifications(); track item.id) {
+            <tr class="border-t border-default" [class.opacity-60]="item.read_at">
+              <td class="max-w-[24rem] p-1.5">
+                <button
+                  type="button"
+                  class="block max-w-full truncate text-start font-medium hover:underline"
+                  (click)="open(item)"
+                >
+                  {{ item.title }}
+                </button>
+                @if (item.body) {
+                  <div class="truncate text-[11px] text-muted">{{ item.body }}</div>
+                }
+              </td>
+              <td class="p-1.5">
+                <app-badge [variant]="badge(item.level)">{{ ('PLUGIN_IN_APP_NOTIFICATION_LEVEL_' + item.level) | translate }}</app-badge>
+              </td>
+              <td class="p-1.5 text-muted">{{ item.created_at | date:'short' }}</td>
+              <td class="p-1.5 text-end">
+                @if (!item.read_at) {
+                  <button
+                    type="button"
+                    class="min-h-8 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted"
+                    (click)="markRead(item)"
+                  >
+                    {{ 'PLUGIN_IN_APP_NOTIFICATION_MARK_READ' | translate }}
+                  </button>
+                } @else {
+                  <span class="text-[11px] text-muted">{{ 'PLUGIN_IN_APP_NOTIFICATION_READ' | translate }}</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (selected(); as item) {
+    <app-drawer [isOpen]="true" [title]="item.title" (close)="close()">
+      <div class="space-y-2 text-xs">
+        <div class="flex items-center gap-2">
+          <app-badge [variant]="badge(item.level)">
+            {{ ('PLUGIN_IN_APP_NOTIFICATION_LEVEL_' + item.level) | translate }}
+          </app-badge>
+          <span class="text-[11px] text-muted">{{ item.created_at | date:'short' }}</span>
+        </div>
+        @if (item.body) {
+          <p class="whitespace-pre-line border border-default p-2">{{ item.body }}</p>
+        }
+        <div class="flex justify-end gap-1">
+          <app-sharp-button variant="outline" size="sm" shape="sharp" (clicked)="close()">
+            {{ 'COMMON_CLOSE' | translate }}
+          </app-sharp-button>
+          @if (!item.read_at) {
+            <app-sharp-button variant="primary" size="sm" shape="sharp" (clicked)="markRead(item)">
+              {{ 'PLUGIN_IN_APP_NOTIFICATION_MARK_READ' | translate }}
+            </app-sharp-button>
+          }
+        </div>
+      </div>
+    </app-drawer>
+  }
+</section>

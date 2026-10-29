@@ -2,6 +2,7 @@ package com.vn9melody.openerp.modules.plugin;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -175,8 +176,8 @@ public class PluginLifecycleApiTest {
     }
 
     @Test
-    @DisplayName("TASK-314: khóa catalog cưỡng chế gỡ toàn bộ tenant + gửi thông báo")
-    public void testEmergencyBlockForcesUninstallAndNotifies() {
+    @DisplayName("TASK-314: khóa catalog cưỡng chế gỡ toàn bộ tenant + ghi audit")
+    public void testEmergencyBlockForcesUninstallAndAudits() {
         registerAndPublish(pluginKey, "1.0.0", "COMPATIBLE", false);
         given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON)
                 .body(Map.of("version", "1.0.0"))
@@ -192,8 +193,6 @@ public class PluginLifecycleApiTest {
 
         TenantPlugin ledger = tenantPluginRepository.findByTenantAndKey(tenantId, pluginKey).orElseThrow();
         assertEquals(TenantPluginStatus.UNINSTALLED, ledger.status);
-        long notifications = countNotifications();
-        assertTrue(notifications > 0, "affected tenant must receive a notification");
 
         given().header("Authorization", "Bearer " + token)
                 .get(TENANT_PLUGINS_PATH)
@@ -215,12 +214,93 @@ public class PluginLifecycleApiTest {
                 .get(UI_MANIFEST_PATH)
                 .then().statusCode(200)
                 .body("code", equalTo("PLUGIN_UI_MANIFEST_SUCCESS"))
+                .body("data.contract_version", equalTo("1.0"))
                 .body("data.screens", hasSize(1))
                 .body("data.screens[0].plugin_key", equalTo(pluginKey))
+                .body("data.screens[0].render_mode", equalTo("MODULE_FEDERATION"))
+                .body("data.screens[0].platforms", hasItem("desktop"))
                 .body("data.slots", hasSize(1))
                 .body("data.slots[0].slot_code", equalTo("core.dashboard.widgets"))
                 .body("data.slots[0].contributions", hasSize(1))
+                .body("data.slots[0].contributions[0].id", equalTo("widget"))
+                .body("data.slots[0].contributions[0].tag_name", equalTo("op-" + pluginKey + "-widget"))
+                .body("data.slots[0].contributions[0].platforms", hasItem("mobile"))
+                .body("data.slots[0].contributions[0].isolation", equalTo("shadow"))
                 .body("data.slots[0].host.type", equalTo("CORE"));
+    }
+
+    @Test
+    @DisplayName("TASK-416/AC-16: plugin khai báo slot riêng và plugin khác đóng góp qua host PLUGIN")
+    public void testPluginHostedSlot() {
+        String hostKey = pluginKey + "-host";
+        String contributorKey = pluginKey + "-contrib";
+        String slotCode = hostKey + ".widgets";
+
+        registerAndPublish(hostKey, "1.0.0", "COMPATIBLE", buildHostManifest(hostKey, "1.0.0"));
+        registerAndPublish(contributorKey, "1.0.0", "COMPATIBLE",
+                buildPluginSlotContributorManifest(contributorKey, "1.0.0", slotCode));
+
+        for (String key : List.of(hostKey, contributorKey)) {
+            given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON)
+                    .body(Map.of("version", "1.0.0"))
+                    .post(TENANT_PLUGINS_PATH + "/" + key + "/install")
+                    .then().statusCode(200).body("data.status", equalTo("ACTIVE"));
+        }
+
+        Number registered = (Number) em.createNativeQuery("""
+                SELECT COUNT(*) FROM plugin_ui_slots
+                WHERE host_type = 'PLUGIN' AND owner_plugin_key = ?1
+                  AND slot_code = ?2 AND status = 'ACTIVE'
+                """)
+                .setParameter(1, hostKey)
+                .setParameter(2, slotCode)
+                .getSingleResult();
+        assertEquals(1, registered.intValue());
+
+        given().header("Authorization", "Bearer " + token)
+                .get(UI_MANIFEST_PATH)
+                .then().statusCode(200)
+                .body("data.slots.find { it.slot_code == '" + slotCode + "' }.host.type", equalTo("PLUGIN"))
+                .body("data.slots.find { it.slot_code == '" + slotCode + "' }.host.plugin_key", equalTo(hostKey))
+                .body("data.slots.find { it.slot_code == '" + slotCode + "' }.contributions[0].plugin_key",
+                        equalTo(contributorKey));
+    }
+
+    @Test
+    @DisplayName("TASK-415: Core UI slot registry có 4 slot và không còn IFRAME")
+    public void testCoreUiSlotsSeeded() {
+        Number count = (Number) em.createNativeQuery("""
+                SELECT COUNT(*) FROM plugin_ui_slots
+                WHERE host_type = 'CORE'
+                  AND slot_code IN ('core.dashboard.widgets', 'core.settings.sections',
+                                    'core.layout.header.actions', 'core.settings.system.tabs')
+                """).getSingleResult();
+        assertEquals(4, count.intValue());
+
+        String modes = (String) em.createNativeQuery("""
+                SELECT allowed_render_modes::text FROM plugin_ui_slots
+                WHERE host_type = 'CORE' AND slot_code = 'core.layout.header.actions'
+                """).getSingleResult();
+        assertTrue(modes.contains("WEB_COMPONENT") && modes.contains("MODULE_FEDERATION"));
+        assertTrue(!modes.contains("IFRAME"), "slot must not allow IFRAME");
+    }
+
+    @Test
+    @DisplayName("TASK-414: CLI lookup endpoints trả slot registry + entity registry")
+    public void testCliLookupEndpoints() {
+        given().header("Authorization", "Bearer " + token)
+                .get("/api/v1/plugins/ui-slots?slot=core.layout.header.actions")
+                .then().statusCode(200)
+                .body("code", equalTo("PLUGIN_UI_SLOTS_SUCCESS"))
+                .body("data.items[0].slot_code", equalTo("core.layout.header.actions"))
+                .body("data.items[0].contract_version", equalTo("1.0"));
+
+        given().header("Authorization", "Bearer " + token)
+                .get("/api/v1/plugins/entity-registry?entity=core.user")
+                .then().statusCode(200)
+                .body("code", equalTo("PLUGIN_ENTITY_REGISTRY_SUCCESS"))
+                .body("data.entity_name", equalTo("User"))
+                .body("data.plugin_id", equalTo("core-iam"));
     }
 
     @Test
@@ -431,6 +511,10 @@ public class PluginLifecycleApiTest {
     }
 
     private void registerAndPublish(String key, String version, String migrationPolicy, boolean withUi) {
+        registerAndPublish(key, version, migrationPolicy, buildManifest(key, version, migrationPolicy, withUi));
+    }
+
+    private void registerAndPublish(String key, String version, String migrationPolicy, ObjectNode manifest) {
         QuarkusTransaction.requiringNew().run(() -> {
             if (!adminService.existsByKey(key)) {
                 PluginRequests.RegisterCatalog catalog = new PluginRequests.RegisterCatalog();
@@ -447,11 +531,45 @@ public class PluginLifecycleApiTest {
             request.tag = version;
             request.version = version;
             request.checksum = "sha256-" + key + "-" + version;
-            request.manifest = buildManifest(key, version, migrationPolicy, withUi);
+            request.manifest = manifest;
             adminService.registerVersion(key, request, userId);
             adminService.publishVersion(key, version, "TASK-314 fixture", userId);
         });
         QuarkusTransaction.requiringNew().run(() -> entitlementService.grant(tenantId, key));
+    }
+
+    private ObjectNode buildHostManifest(String key, String version) {
+        ObjectNode manifest = buildManifest(key, version, "COMPATIBLE", false);
+        ObjectNode ui = manifest.putObject("ui_manifest");
+        ui.put("contract_version", "1.0");
+        ui.putArray("screens");
+        ui.putArray("contributions");
+        ArrayNode slots = ui.putArray("slots");
+        ObjectNode slot = slots.addObject();
+        slot.put("slot_code", key + ".widgets");
+        slot.put("title_key", "PLUGIN_SLOT_" + key.toUpperCase().replace('-', '_') + "_WIDGETS");
+        slot.put("contract_version", "1.0");
+        slot.putArray("allowed_render_modes").add("WEB_COMPONENT");
+        return manifest;
+    }
+
+    private ObjectNode buildPluginSlotContributorManifest(String key, String version, String slotCode) {
+        ObjectNode manifest = buildManifest(key, version, "COMPATIBLE", false);
+        ObjectNode ui = manifest.putObject("ui_manifest");
+        ui.put("contract_version", "1.0");
+        ui.putArray("screens");
+        ArrayNode contributions = ui.putArray("contributions");
+        ObjectNode contribution = contributions.addObject();
+        contribution.put("id", "hosted-widget");
+        contribution.put("slot", slotCode);
+        contribution.put("title_key", "PLUGIN_" + key.toUpperCase().replace('-', '_') + "_WIDGET");
+        contribution.put("render_mode", "WEB_COMPONENT");
+        contribution.put("entry", "/plugins-runtime/" + key + "/widget.js");
+        contribution.put("tag_name", "op-" + key + "-widget");
+        contribution.putArray("platforms").add("desktop").add("mobile");
+        contribution.put("contract_version", "1.0");
+        ui.putArray("slots");
+        return manifest;
     }
 
     private void registerBundleAndPublish(String key, String version) {
@@ -490,18 +608,27 @@ public class PluginLifecycleApiTest {
         permissions.add("s3temp:item:read");
         if (withUi) {
             ObjectNode ui = manifest.putObject("ui_manifest");
+            ui.put("contract_version", "1.0");
             ArrayNode screens = ui.putArray("screens");
             ObjectNode screen = screens.addObject();
             screen.put("route", "/apps/" + key);
             screen.put("title_key", "PLUGIN_" + key.toUpperCase().replace('-', '_') + "_MENU");
             screen.put("permission", "core:plugin:read");
             screen.put("render_mode", "MODULE_FEDERATION");
+            screen.put("entry", "/plugins-runtime/" + key + "/remoteEntry.js");
+            screen.put("exposed_module", "./mount");
+            screen.putArray("platforms").add("desktop");
             ArrayNode contributions = ui.putArray("contributions");
             ObjectNode contribution = contributions.addObject();
+            contribution.put("id", "widget");
             contribution.put("slot", "core.dashboard.widgets");
             contribution.put("title_key", "PLUGIN_" + key.toUpperCase().replace('-', '_') + "_WIDGET");
             contribution.put("render_mode", "WEB_COMPONENT");
             contribution.put("entry", "/plugins-runtime/" + key + "/widget.js");
+            contribution.put("tag_name", "op-" + key + "-widget");
+            contribution.putArray("platforms").add("desktop").add("mobile");
+            contribution.put("isolation", "shadow");
+            contribution.put("icon", "bell");
             contribution.put("permission", "core:plugin:read");
         }
         return manifest;
@@ -533,13 +660,5 @@ public class PluginLifecycleApiTest {
     private String expectedSchema(String key) {
         String tenantShort = tenantId.toString().replace("-", "").substring(0, 8);
         return "tenant_" + tenantShort + "_" + key.toLowerCase().replaceAll("[^a-z0-9]", "_");
-    }
-
-    private long countNotifications() {
-        Number count = (Number) em.createNativeQuery(
-                "SELECT COUNT(*) FROM tenant_notifications WHERE tenant_id = ?1")
-                .setParameter(1, tenantId)
-                .getSingleResult();
-        return count == null ? 0 : count.longValue();
     }
 }

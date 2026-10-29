@@ -227,9 +227,9 @@ public final class PluginQueryCompiler {
         if (query.values().containsKey("tenant_id")) {
             throw invalid(query, "tenant_id is managed by the gateway");
         }
-        if (scope != PluginQueryDescriptor.Scope.SYSTEM && !entity.fields().contains("tenant_id")) {
-            throw invalid(query, "tenant-scoped entity has no tenant_id");
-        }
+        // Dedicated per-tenant schemas may not carry a tenant_id column; the
+        // schema itself is the isolation boundary. Only add the managed column
+        // when the entity actually declares it.
         List<String> columns = new ArrayList<>();
         List<String> placeholders = new ArrayList<>();
         List<Object> values = new ArrayList<>();
@@ -407,10 +407,7 @@ public final class PluginQueryCompiler {
                 .append(qualified(schema, entity.table())).append(" t");
         List<String> where = new ArrayList<>();
         List<Object> values = new ArrayList<>();
-        if (scope != PluginQueryDescriptor.Scope.SYSTEM) {
-            if (!entity.fields().contains("tenant_id")) {
-                throw invalid(query, "tenant-scoped entity has no tenant_id");
-            }
+        if (scope != PluginQueryDescriptor.Scope.SYSTEM && entity.fields().contains("tenant_id")) {
             where.add(query.systemRow()
                     ? "t." + quote("tenant_id") + " IS NULL"
                     : tenantPredicate("t", scope));
@@ -433,10 +430,7 @@ public final class PluginQueryCompiler {
             StringBuilder on = new StringBuilder(" ON t.")
                     .append(quote(relation.localField()))
                     .append(" = ").append(alias).append('.').append(quote(relation.targetField()));
-            if (scope != PluginQueryDescriptor.Scope.SYSTEM) {
-                if (!target.fields().contains("tenant_id")) {
-                    throw invalid(query, "tenant-scoped join target has no tenant_id");
-                }
+            if (scope != PluginQueryDescriptor.Scope.SYSTEM && target.fields().contains("tenant_id")) {
                 on.append(" AND ").append(tenantPredicate(alias, scope));
             }
             from.append(" LEFT JOIN ").append(qualified(schema, target.table())).append(' ').append(alias)

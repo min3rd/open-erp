@@ -15,6 +15,7 @@ export class PlatformLayoutComponent {
 
   private readonly allMenuItems: ReadonlyArray<SectionNavItem> = [
     { path: '/platform/tenants', labelKey: 'PLATFORM_TENANT_MANAGEMENT', icon: IconName.HOME },
+    { path: '/platform/notification-settings', labelKey: 'PLATFORM_NOTIFICATION_SETTINGS_TITLE', icon: IconName.BELL },
     { path: '/platform/plugins', labelKey: 'PLUGIN_PORTAL_TITLE', icon: IconName.PACKAGE },
     { path: '/platform/plugin-credentials', labelKey: 'PLUGIN_CREDENTIALS_TITLE', icon: IconName.KEY },
     { path: '/platform/tenant-private-plugins', labelKey: 'PLUGIN_TENANT_PRIVATE_TITLE', icon: IconName.LOCK },

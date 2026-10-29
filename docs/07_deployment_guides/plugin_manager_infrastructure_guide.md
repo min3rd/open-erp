@@ -3,6 +3,8 @@
 > Phạm vi: hạ tầng và cấu hình cần thiết để vận hành Plugin Manager ở Local, Docker và Kubernetes.
 > Liên quan: [DES-03-DB](../sprints/sprint_03_plugin_manager/06_designs/database/PLUGIN_MANAGER_DATABASE_SCHEMA.md), [DES-03-API](../sprints/sprint_03_plugin_manager/06_designs/api/PLUGIN_MANAGER_API_SPEC.md).
 
+> **Sprint 06:** plugin UI dùng Web Component/Module Federation, không còn iframe. Entry `/plugins-runtime/<key>/main.js` được proxy qua `/api/v1/plugins/runtime/<key>/...`; Core mount custom element theo `ui_manifest.screens/contributions`. Khi nâng version catalog phải build image mới (dev: `open-erp/catalog:1.0.9`) và cập nhật `plugin_versions.distribution.image_ref` trước khi upgrade tenant.
+
 ## 1. Cấu Hình Backend (`application.properties`)
 
 ```properties
@@ -80,6 +82,7 @@ Bucket khác (khung): `plugin-snapshots` (snapshot DB), `tenant-files` (dùng ch
 ## 5. Registry Allowlist & Credentials
 
 - Allowlist host registry qua cấu hình `openerp.plugin.registry-allowed-hosts` (CSV, rỗng = cho phép host công khai phổ biến); host ngoài allowlist → `PLUGIN_REGISTRY_NOT_ALLOWED`.
+- Local dev với registry nội bộ: compose đặt `OPENERP_PLUGIN_REGISTRY_ALLOWED_HOSTS=openerp-registry.local` và `OPENERP_PLUGIN_OCI_RESOLVE_DIGEST=false` (bỏ kiểm tra reachability/digest của registry local). Không dùng hai giá trị này cho staging/production.
 - Credential (Docker Hub/Registry riêng) quản lý tại `/platform/plugin-credentials` (platform) hoặc `/settings/plugin-credentials` (tenant). Secret mã hóa AES-GCM, không bao giờ trả về API.
 - Đổi `master-key` sẽ làm credential cũ không giải mã được → phải nhập lại.
 

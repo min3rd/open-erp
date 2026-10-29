@@ -1,10 +1,10 @@
 import { Component, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ColorVariant } from '../../enums';
-import { PluginNotification } from '../../models';
+import { PluginContext } from '../../plugin-host/plugin-host.model';
+import { PluginSlotComponent } from '../../plugin-host/plugin-slot/plugin-slot.component';
 import { BadgeComponent } from '../badge/badge.component';
 import { IconComponent } from '../icon/icon.component';
-import { NotificationBellComponent } from '../notification-bell/notification-bell.component';
 import { UserMenuComponent } from '../user-menu/user-menu.component';
 import { MobileNavDrawerComponent } from '../mobile-nav-drawer/mobile-nav-drawer.component';
 import { TranslatePipe } from '../../i18n/translate.pipe';
@@ -16,9 +16,9 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
     CommonModule,
     BadgeComponent,
     IconComponent,
-    NotificationBellComponent,
     UserMenuComponent,
     MobileNavDrawerComponent,
+    PluginSlotComponent,
     TranslatePipe
   ],
   templateUrl: './topbar.component.html'
@@ -30,15 +30,11 @@ export class TopbarComponent {
   userEmail = input<string>('');
   settingsPath = input<string | null>(null);
   platformPath = input<string | null>(null);
-  notifications = input<PluginNotification[]>([]);
-  notificationUnreadCount = input<number>(0);
-  notificationDetailPath = input<string | null>(null);
+  pluginContext = input<PluginContext | null>(null);
 
   openAccount = output<void>();
   logout = output<void>();
-  markNotificationRead = output<string>();
-  markAllNotificationsRead = output<void>();
-  openNotificationDetail = output<string>();
+  pluginNavigate = output<string>();
 
   readonly colorInfo = ColorVariant.INFO;
 

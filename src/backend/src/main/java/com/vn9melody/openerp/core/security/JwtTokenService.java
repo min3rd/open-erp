@@ -80,7 +80,7 @@ public class JwtTokenService {
     }
 
     /**
-     * Short-lived token for iframe plugin runtime sessions (TASK-343): scoped to
+     * Short-lived token for plugin runtime asset loading (TASK-343): scoped to
      * one (tenant, plugin) pair and unusable for core APIs because of its type.
      */
     public String generatePluginRuntimeToken(UUID userId, UUID tenantId, String pluginKey, long minutes) {

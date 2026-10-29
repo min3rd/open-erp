@@ -4,7 +4,7 @@
     <label class="flex items-center gap-1">
       <span>{{ 'COMMON_PAGE_SIZE' | translate }}</span>
       <select
-        class="min-h-7 border border-default bg-surface px-1 py-0.5 text-[11px]"
+        class="min-h-10 min-w-10 border border-default bg-surface px-1 py-0.5 text-[11px]"
         [value]="size()"
         [attr.aria-label]="'COMMON_PAGE_SIZE' | translate"
         (change)="changePageSize($event)"
@@ -18,7 +18,7 @@
   <div class="flex items-center gap-1">
     <button
       type="button"
-      class="px-2 py-0.5 border border-default rounded-inline disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-muted"
+      class="min-h-10 min-w-10 px-2 py-0.5 border border-default rounded-inline disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-muted"
       [disabled]="!canPrev()"
       (click)="prev()"
     >
@@ -27,7 +27,7 @@
     <span class="font-mono px-1">{{ 'COMMON_PAGE_OF' | translate:{ page: displayPage(), total_pages: totalPages() || 1 } }}</span>
     <button
       type="button"
-      class="px-2 py-0.5 border border-default rounded-inline disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-muted"
+      class="min-h-10 min-w-10 px-2 py-0.5 border border-default rounded-inline disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-muted"
       [disabled]="!canNext()"
       (click)="next()"
     >

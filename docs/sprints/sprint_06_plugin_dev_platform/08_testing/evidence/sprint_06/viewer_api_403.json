@@ -1,0 +1,4 @@
+{
+  "status": 403,
+  "body": "{\"success\":false,\"code\":\"IAM_PERMISSION_DENIED_FUNCTIONAL\",\"message\":\"Permission denied\",\"params\":{\"required_permission\":\"in-app-notification:notification:read\",\"permission\":\"in-app-notification:notification:read\"},\"errors\":[],\"timestamp\":\"2026-10-29T09:09:05.172957063Z\"}"
+}

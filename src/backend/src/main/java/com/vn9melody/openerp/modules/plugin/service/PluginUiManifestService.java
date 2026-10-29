@@ -34,6 +34,8 @@ import java.util.UUID;
 @ApplicationScoped
 public class PluginUiManifestService {
 
+    private static final String UI_CONTRACT_VERSION = "1.0";
+
     @Inject
     TenantPluginRepository tenantPluginRepository;
 
@@ -70,7 +72,7 @@ public class PluginUiManifestService {
             JsonNode screenNodes = uiManifest.path("screens");
             if (screenNodes.isArray()) {
                 for (JsonNode screen : screenNodes) {
-                    if (!permitted(context, screen.path("permission").asText(null))) {
+                    if (removedRenderMode(screen) || !permitted(context, screen.path("permission").asText(null))) {
                         continue;
                     }
                     PluginResponses.UiScreen item = new PluginResponses.UiScreen();
@@ -81,6 +83,11 @@ public class PluginUiManifestService {
                     item.order = screen.path("order").asInt(0);
                     item.renderMode = PluginRenderMode
                             .fromString(screen.path("render_mode").asText(null)).name();
+                    item.entry = screen.path("entry").asText(null);
+                    item.tagName = screen.path("tag_name").asText(null);
+                    item.exposedModule = screen.path("exposed_module").asText(null);
+                    item.platforms = stringList(screen.path("platforms"), "desktop");
+                    item.readOnly = screen.path("read_only").asBoolean(false) ? Boolean.TRUE : null;
                     screens.add(item);
                 }
             }
@@ -88,15 +95,22 @@ public class PluginUiManifestService {
             if (contributionNodes.isArray()) {
                 for (JsonNode contribution : contributionNodes) {
                     String slotCode = contribution.path("slot").asText(null);
-                    if (slotCode == null || !permitted(context, contribution.path("permission").asText(null))) {
+                    if (slotCode == null || removedRenderMode(contribution)
+                            || !permitted(context, contribution.path("permission").asText(null))) {
                         continue;
                     }
                     PluginResponses.UiContribution item = new PluginResponses.UiContribution();
+                    item.id = contribution.path("id").asText(null);
                     item.pluginKey = catalog.pluginKey;
                     item.titleKey = contribution.path("title_key").asText(null);
                     item.renderMode = PluginRenderMode
                             .fromString(contribution.path("render_mode").asText(null)).name();
                     item.entry = contribution.path("entry").asText(null);
+                    item.tagName = contribution.path("tag_name").asText(null);
+                    item.exposedModule = contribution.path("exposed_module").asText(null);
+                    item.platforms = stringList(contribution.path("platforms"), "desktop");
+                    item.isolation = contribution.path("isolation").asText(null);
+                    item.icon = contribution.path("icon").asText(null);
                     item.permission = contribution.path("permission").asText(null);
                     item.order = contribution.path("order").asInt(0);
                     item.contractVersion = contribution.path("contract_version").asText(
@@ -117,13 +131,35 @@ public class PluginUiManifestService {
             slots.add(slot);
         }
         PluginResponses.UiManifest manifest = new PluginResponses.UiManifest();
+        manifest.contractVersion = UI_CONTRACT_VERSION;
         manifest.screens = screens;
         manifest.slots = slots;
         return manifest;
     }
 
+    private List<String> stringList(JsonNode node, String fallback) {
+        if (node != null && node.isArray()) {
+            List<String> values = new ArrayList<>();
+            for (JsonNode item : node) {
+                String value = item.asText(null);
+                if (value != null && !value.isBlank()) {
+                    values.add(value);
+                }
+            }
+            if (!values.isEmpty()) {
+                return values;
+            }
+        }
+        return List.of(fallback);
+    }
+
     private boolean permitted(UserSecurityContext context, String permission) {
         return permission == null || permission.isBlank() || context.hasPermission(permission);
+    }
+
+    /** Older installed manifests may still declare iframe; never expose them. */
+    private boolean removedRenderMode(JsonNode item) {
+        return "IFRAME".equalsIgnoreCase(item.path("render_mode").asText(""));
     }
 
     private PluginResponses.UiHost resolveHost(String slotCode, UUID tenantId) {

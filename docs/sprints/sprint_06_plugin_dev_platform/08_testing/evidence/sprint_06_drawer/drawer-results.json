@@ -1,0 +1,100 @@
+{
+  "results": [
+    {
+      "name": "Drawer bell present",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Bell touch target >= 40px",
+      "status": "PASS",
+      "detail": "{\"x\":1203.828125,\"y\":3.5,\"width\":40,\"height\":40}"
+    },
+    {
+      "name": "Bell opens drawer",
+      "status": "PASS",
+      "detail": "http://localhost:4200/dashboard"
+    },
+    {
+      "name": "Bell stays on dashboard",
+      "status": "PASS",
+      "detail": "http://localhost:4200/dashboard"
+    },
+    {
+      "name": "Drawer lists recent notifications",
+      "status": "PASS",
+      "detail": "THÔNG BÁO\n\n3 chưa đọc\n\nĐơn hàng mới đã được tạo\nTHÔNG TIN\nĐơn hàng SO-2026-001 đang chờ xử lý.\n10/29/26, 8:43 PM\nTồn kho"
+    },
+    {
+      "name": "Desktop drawer covers viewport height",
+      "status": "PASS",
+      "detail": "{\"x\":992,\"y\":0,\"width\":448,\"height\":900}"
+    },
+    {
+      "name": "Desktop overflow 0",
+      "status": "PASS",
+      "detail": "0"
+    },
+    {
+      "name": "Escape closes drawer",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "View all navigates to full list",
+      "status": "PASS",
+      "detail": "http://localhost:4200/settings/apps/in-app-notification"
+    },
+    {
+      "name": "Full list rendered",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Mobile bell touch target >= 40px",
+      "status": "PASS",
+      "detail": "{\"x\":346,\"y\":4,\"width\":40,\"height\":40}"
+    },
+    {
+      "name": "Mobile bell opens drawer",
+      "status": "PASS",
+      "detail": "http://localhost:8100/dashboard"
+    },
+    {
+      "name": "Mobile stays on dashboard",
+      "status": "PASS",
+      "detail": "http://localhost:8100/dashboard"
+    },
+    {
+      "name": "Mobile overflow 0",
+      "status": "PASS",
+      "detail": "0"
+    },
+    {
+      "name": "Drawer fits 390px",
+      "status": "PASS",
+      "detail": "{\"x\":0,\"y\":0,\"width\":390,\"height\":844}"
+    },
+    {
+      "name": "Mobile drawer covers viewport height",
+      "status": "PASS",
+      "detail": "{\"x\":0,\"y\":0,\"width\":390,\"height\":844}"
+    },
+    {
+      "name": "Mobile drawer lists notifications",
+      "status": "PASS",
+      "detail": "THÔNG BÁO\n\n3 chưa đọc\n\nĐơn hàng mới đã được tạo\nTHÔNG TIN\nĐơn hàng SO-2026-001 đang chờ xử lý.\n10/29/26, 8:43 PM\nTồn kho"
+    },
+    {
+      "name": "Mobile view all navigates",
+      "status": "PASS",
+      "detail": "http://localhost:8100/settings/apps/in-app-notification"
+    },
+    {
+      "name": "Mobile full list overflow 0",
+      "status": "PASS",
+      "detail": "0"
+    }
+  ],
+  "errors": []
+}

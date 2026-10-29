@@ -496,6 +496,15 @@ app-register-business select {
   font-size: 13px;
 }
 
+/* Catalog Web Component keeps its own stylesheet; enforce touch targets here. */
+op-catalog-app.catalog-readonly button,
+op-catalog-app.catalog-readonly [role='button'],
+op-catalog-app.catalog-readonly a,
+op-catalog-app.catalog-readonly select,
+op-catalog-app.catalog-readonly input {
+  min-height: 40px;
+}
+
 app-sharp-button button {
   min-height: 40px;
 }

@@ -2,8 +2,8 @@
 | :--- | :--- |
 | ID | DEV-READ-001 |
 | Trạng thái | Reviewed |
-| Phiên bản | 1.0 |
-| Cập nhật | 2026-10-05 |
+| Phiên bản | 1.1 |
+| Cập nhật | 2026-10-29 |
 | Owner | Codex — Developer documentation |
 | Reviewer | Codex kiểm tra tích hợp; Singer review độc lập theo phạm vi TASK-349; không phải phê duyệt của khách hàng |
 | Phạm vi | Lộ trình đọc xuyên Sprint cho dev mới; không xác nhận QA hoặc đóng Sprint |
@@ -48,7 +48,7 @@ Nếu source khác thiết kế hoặc guide, ghi khác biệt vào item và th�
 | :--- | :--- |
 | Backend Core / RBAC / tổ chức | [Developer rules](../../.agents/rules/agent_developer.md) → thiết kế DB/API trong Sprint của item → [Core IAM Registry](../system/entity_registry/CORE_IAM_REGISTRY.md) / [Superadmin RBAC Registry](../system/entity_registry/SUPERADMIN_RBAC_REGISTRY.md) → source và test được dẫn trong walkthrough. |
 | Shared UI / Web / Mobile | [UI/UX rules](../../.agents/rules/ui_ux_standards.md) → [Shared UI guide](shared_ui_contribution_guide.md) → [shared/index.ts](../../src/frontend/shared/index.ts) → UI spec của Sprint → [QA dual-mode](../../.agents/rules/agent_qa.md). |
-| Plugin mới / Plugin Manager | [Plugin development guide](create_new_plugin_guide.md) → [CLI README local](../../tools/open-erp-cli/README.md) → [Sprint 03 reading guide](../sprints/sprint_03_plugin_manager/00_READING_GUIDE.md) → [Web packaging](plugin_web_packaging_guide.md) → [Plugin infrastructure](../07_deployment_guides/plugin_manager_infrastructure_guide.md). |
+| Plugin mới / Plugin Manager | [Plugin development guide](create_new_plugin_guide.md) → [CLI README local](../../tools/open-erp-cli/README.md) → [Sprint 06 reading guide](../sprints/sprint_06_plugin_dev_platform/00_READING_GUIDE.md) → [Web packaging](plugin_web_packaging_guide.md) → [Plugin infrastructure](../07_deployment_guides/plugin_manager_infrastructure_guide.md). |
 | Build / triển khai | [Local setup](../07_deployment_guides/local_setup_guide.md) → [Docker deployment](../07_deployment_guides/docker_deployment_guide.md) → [K8s production](../07_deployment_guides/k8s_production_guide.md) → [deployments](../../deployments/). Lệnh build không đồng nghĩa với triển khai hay nghiệm thu. |
 
 ## 4. Tra lịch sử các Sprint sau khi hiểu dự án
@@ -60,9 +60,11 @@ Trạng thái dưới đây là trạng thái **được tài liệu hiện có 
 | 01 — Core IAM | Đăng ký, xác thực, tài khoản, tenant onboarding; biên bản ghi đã đóng 2026-09-18. | [Index 01](../sprints/sprint_01_core_iam/00_READING_GUIDE.md) | [QA report](../sprints/sprint_01_core_iam/08_testing/test_reports/test_report_sprint_01.md), [re-test](../sprints/sprint_01_core_iam/09_review/QA_RETEST_SPRINT_01.md), [sprint review](../sprints/sprint_01_core_iam/09_review/sprint_review.md). |
 | 02 — Super Admin / RBAC | Quản trị nền tảng, tổ chức, quyền chức năng và data scopes; biên bản ghi đã đóng 2026-09-19, có TASK-293 Medium Deferred. | [Index 02](../sprints/sprint_02_superadmin_rbac/00_READING_GUIDE.md) | [QA report](../sprints/sprint_02_superadmin_rbac/08_testing/test_report.md), [sprint review](../sprints/sprint_02_superadmin_rbac/09_review/sprint_review.md). |
 | 03 — Plugin Manager | Đã qua confirmation; code/QA hoàn tất; **đã đóng 2026-10-05** (QA-03 8/8 PASS, theo chỉ đạo chủ dự án; biên bản mục 9 ghi xác nhận qua chỉ đạo). | [Index 03](../sprints/sprint_03_plugin_manager/00_READING_GUIDE.md) | [QA-03 xác nhận cuối](../sprints/sprint_03_plugin_manager/08_testing/QA-03_qa_verification_2026-10-05.md), [sprint review](../sprints/sprint_03_plugin_manager/09_review/sprint_review.md), [items](../sprints/sprint_03_plugin_manager/07_items/). |
-| 04 — UI/UX Experience | **Discovery (bước 1–6)**: theme đa giao diện, animation, icon Feather, context menu, loading/skeleton, đa ngôn ngữ; **scope chờ khách xác nhận (CONF-S04-001 Pending)**. | [Index 04](../sprints/sprint_04_ui_ux_experience/00_READING_GUIDE.md) | [CONF-S04-001](../sprints/sprint_04_ui_ux_experience/04_confirmation/01_CONF-S04-001_sprint_04_scope.md), [FEAT-24…29](../sprints/sprint_04_ui_ux_experience/07_items/). Chưa có QA. |
+| 04 — UI/UX Experience | Đã đóng 2026-10-06 (18/18 TC PASS, theo chỉ đạo chủ dự án): theme/design tokens, motion, icon, context menu, loading/skeleton, 13 locale. | [Index 04](../sprints/sprint_04_ui_ux_experience/00_READING_GUIDE.md) | [CONF-S04-001](../sprints/sprint_04_ui_ux_experience/04_confirmation/01_CONF-S04-001_sprint_04_scope.md), [FEAT-24…29](../sprints/sprint_04_ui_ux_experience/07_items/). |
+| 05 — Catalog plugin | Đã đóng 2026-10-29 (REV-S05-001: PM DoD PASS + khách hàng nghiệm thu): plugin catalog độc lập zero-DB, gRPC gateway, shared runtime. | [Index 05](../sprints/sprint_05_catalog_plugin/00_READING_GUIDE.md) | [REV-S05-001](../sprints/sprint_05_catalog_plugin/09_review/01_REV-S05-001_sprint_05_dod_review.md), [TR-S05-002…004](../sprints/sprint_05_catalog_plugin/08_testing/). |
+| 06 — Plugin dev platform | Đã đóng 2026-10-29 (REV-S06-001: PM DoD PASS + khách hàng nghiệm thu): template 2.0, CLI interact/CRUD/upgrade, slot runtime, bỏ iframe, notification 1.0.7, catalog WC 1.0.9. | [Index 06](../sprints/sprint_06_plugin_dev_platform/00_READING_GUIDE.md) | [REV-S06-001](../sprints/sprint_06_plugin_dev_platform/09_review/01_REV-S06-001_sprint_06_dod_review.md), [TR-S06-001](../sprints/sprint_06_plugin_dev_platform/08_testing/02_TR-S06-001_sprint_06_test_report.md). |
 
-Sprint 03 đã đóng 2026-10-05 (QA-03 xác nhận 8/8 item, theo chỉ đạo chủ dự án). Sprint 02 vẫn để **chữ ký nghiệm thu khách hàng PENDING**. Sprint 04 đang Discovery: `CONF-S04-001` **Pending**, các FEAT ở `To Do`, chưa có `SOL/DES` được duyệt và chưa có mã nguồn Sprint 04. `In Review`, `Resolved`, build PASS hoặc QA do agent chạy **không** tự thay thế chữ ký độc lập. Xem diễn giải và giới hạn bằng chứng trong [walkthrough](01_project_walkthrough.md#7-trạng-thái-sprint-và-giới-hạn-bằng-chứng-qa).
+Sprint 03 đã đóng 2026-10-05, Sprint 04 đã đóng 2026-10-06, Sprint 05 đã đóng 2026-10-29, Sprint 06 đã đóng 2026-10-29. Sprint 02 vẫn để **chữ ký nghiệm thu khách hàng PENDING**. `In Review`, `Resolved`, build PASS hoặc QA do agent chạy **không** tự thay thế chữ ký độc lập. Xem diễn giải và giới hạn bằng chứng trong [walkthrough](01_project_walkthrough.md#7-trạng-thái-sprint-và-giới-hạn-bằng-chứng-qa).
 
 ## 5. Checklist trước khi nhận việc đầu tiên
 

@@ -19,7 +19,6 @@ import {
   ColorVariant,
   I18nService,
   PluginMarketplaceItem,
-  PluginNotification,
   TranslatePipe,
   apiMessage
 } from '@shared';
@@ -54,7 +53,6 @@ export class MobilePluginsPage implements OnInit {
   readonly colorDanger = ColorVariant.DANGER;
 
   items = signal<PluginMarketplaceItem[]>([]);
-  notifications = signal<PluginNotification[]>([]);
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
 
@@ -74,10 +72,6 @@ export class MobilePluginsPage implements OnInit {
         this.loading.set(false);
         this.error.set(apiMessage(this.i18n, err));
       }
-    });
-    this.pluginService.notifications(true).subscribe({
-      next: res => this.notifications.set(res.data?.items || []),
-      error: () => this.notifications.set([])
     });
   }
 

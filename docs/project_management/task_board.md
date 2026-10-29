@@ -2,9 +2,9 @@
 
 Bảng này phản ánh tiến độ thực hiện các đầu việc theo quy trình SDLC 9 bước và mô hình Agile Sprint. Phụ trách quản lý: **PM Agent**.
 
-## Trạng thái điều hướng — cập nhật 2026-10-06
+## Trạng thái điều hướng — cập nhật 2026-10-29
 
-Sprint đang theo dõi: [Sprint 05 — Plugin Danh mục](../sprints/sprint_05_catalog_plugin/00_READING_GUIDE.md) — ✅ **CLOSED 2026-10-29**: PM DoD PASS + khách hàng nghiệm thu; 0 Critical/High; QA PASS ([REV-S05-001](../sprints/sprint_05_catalog_plugin/09_review/01_REV-S05-001_sprint_05_dod_review.md)). Backlog Medium chuyển tiếp: [TASK-407](../sprints/sprint_05_catalog_plugin/07_items/TASK-407_cli_scaffold_zero_db.md).
+Sprint gần nhất: [Sprint 06 — Nền tảng phát triển plugin & UI extension](../sprints/sprint_06_plugin_dev_platform/00_READING_GUIDE.md) — ✅ **CLOSED 2026-10-29** ([REV-S06-001](../sprints/sprint_06_plugin_dev_platform/09_review/01_REV-S06-001_sprint_06_dod_review.md)): PM DoD PASS + khách hàng nghiệm thu, **0 Critical/High mở**. [CONF-S06-001](../sprints/sprint_06_plugin_dev_platform/04_confirmation/01_CONF-S06-001_sprint_06_scope_and_questions.md) 1.2; **Done (QA): TASK-408…425**. **22/22 AC PASS**; **7 bug Resolved**: BUG-154/155/160 (High), BUG-156/158/159 (Medium), BUG-157 (Low). **Q19/Q20:** in-app-notification **1.0.7** là nguồn duy nhất; bell mở drawer, “Xem tất cả” mới sang trang; bỏ bell/banner Core + bảng `tenant_notifications`; platform defaults + tenant override. Backend 32/32, CLI 11/11, web/mobile build PASS, i18n parity 13 locale; desktop 1440 + mobile 390×844 0 console error/overflow 0/touch ≥40px. TR-S06-001 1.5 + ảnh `evidence/sprint_06_drawer/` (Q20 19/19 PASS). Sprint 05 đã đóng 2026-10-29; [TASK-407](../sprints/sprint_05_catalog_plugin/07_items/TASK-407_cli_scaffold_zero_db.md) (Medium backlog S05) đã Done (QA) trong S06.
 
 [TASK-349](../sprints/sprint_03_plugin_manager/07_items/TASK-349_standardize_sdlc_and_developer_documentation.md) — chuẩn hóa phối hợp agent, đánh số/viết docs và onboarding dev; trạng thái xem tại item. [REV-S03-004](../sprints/sprint_03_plugin_manager/09_review/04_REV-S03-004_sdlc_workflow_review.md) chứa review/kiểm chứng của thay đổi tài liệu, không là QA sản phẩm.
 
@@ -17,6 +17,14 @@ Sprint đang theo dõi: [Sprint 05 — Plugin Danh mục](../sprints/sprint_05_c
 2026-10-28 (BUG-149): [BUG-149](../sprints/sprint_05_catalog_plugin/07_items/BUG-149_catalog_admin_duplicate_override.md) Resolved — admin list dùng `MERGED_LIST` theo code, chỉ hiện bản tenant khi có ghi đè; migration V5.3.1. Browser COMMUNE `q=10003` → 1 dòng tenant, badge Ghi đè.
 
 2026-10-28 (BUG-150): [BUG-150](../sprints/sprint_05_catalog_plugin/07_items/BUG-150_plugin_enable_runtime_not_ready.md) Resolved — Docker health poll `/q/health/ready`; disable 2s, enable 23s rồi runtime trả 200 ngay, không còn 503.
+
+2026-10-29 (SPRINT 06 KICKOFF): khởi tạo Sprint-Pack 06 — [READ-S06-001](../sprints/sprint_06_plugin_dev_platform/00_READING_GUIDE.md), [RAW-S06-001](../sprints/sprint_06_plugin_dev_platform/01_raw_notes/01_RAW-S06-001_plugin_dev_platform_requirements.md), [ANL-S06-001](../sprints/sprint_06_plugin_dev_platform/02_analysis/01_ANL-S06-001_template_and_cli_interactive.md), [ANL-S06-002](../sprints/sprint_06_plugin_dev_platform/02_analysis/02_ANL-S06-002_core_rendered_ui_slots.md), [CONF-S06-001](../sprints/sprint_06_plugin_dev_platform/04_confirmation/01_CONF-S06-001_sprint_06_scope_and_questions.md). 3 luồng: template zero-DB, CLI interact, Core render slot/contribution. **Chờ chủ dự án trả lời Q1–Q16**; chưa cấp task/bug.
+
+2026-10-29 (QA SPRINT 06): [TR-S06-001](../sprints/sprint_06_plugin_dev_platform/08_testing/02_TR-S06-001_sprint_06_test_report.md) 1.3 — **QA PASSED/SIGN-OFF + final re-check 11/11**. Fix 7 bug BUG-154…160; AC-05/11/16 PASS. Backend 32/32, CLI 11/11, web/mobile build PASS, i18n 13 locale; desktop + mobile 0 console error/overflow 0. Ảnh `evidence/sprint_06_final/`; user guide UG-S06-001 1.2 (9 ảnh). Còn PM DoD/customer acceptance.
+
+2026-10-29 (POST-CLOSURE): [TASK-425](../sprints/sprint_06_plugin_dev_platform/07_items/TASK-425_remove_plugin_screen_host_header.md) **Done (QA)** — bỏ header Core “tên screen + pluginKey + Về danh sách plugin” khỏi mọi màn hình plugin; web build + browser PASS, 0 console error. Sprint 06 vẫn CLOSED.
+
+2026-10-29 (SPRINT 06 CLOSED): [REV-S06-001](../sprints/sprint_06_plugin_dev_platform/09_review/01_REV-S06-001_sprint_06_dod_review.md) **PM DoD PASS + khách hàng nghiệm thu** — Sprint 06 **CLOSED 2026-10-29**. 22/22 AC, 0 Critical/High; backend 32/32, CLI 11/11, web/mobile build PASS; Q20 bell drawer 19/19. Rà developer/deployment/CLI docs; bỏ bảng `tenant_notifications`; plugin `in-app-notification` 1.0.7, catalog 1.0.9.
 
 2026-10-29 (SPRINT CLOSED): [REV-S05-001](../sprints/sprint_05_catalog_plugin/09_review/01_REV-S05-001_sprint_05_dod_review.md) **PM DoD PASS + khách hàng nghiệm thu** — Sprint 05 **CLOSED**. Chủ dự án chỉ đạo trực tiếp “ok chốt xong sprint 5”. Backlog Medium: [TASK-407](../sprints/sprint_05_catalog_plugin/07_items/TASK-407_cli_scaffold_zero_db.md).
 

@@ -1,0 +1,665 @@
+{
+  "schema_version": "2.0",
+  "id": "in-app-notification",
+  "name": "In-app Notification",
+  "description": "Thông báo trong ứng dụng: header bell, tab cấu hình và danh sách thông báo.",
+  "version": "1.0.7",
+  "template_version": "2.0.0",
+  "author": "Open-ERP Plugin Team",
+  "core_version_compatibility": ">=1.0.0 <2.0.0",
+  "migration_policy": "COMPATIBLE",
+  "rollback_strategy": "SNAPSHOT_RESTORE",
+  "dependencies": [],
+  "platforms": {
+    "desktop": {
+      "supported": true,
+      "features": [
+        "notification:read",
+        "notification:manage",
+        "notification:settings"
+      ]
+    },
+    "mobile": {
+      "supported": true,
+      "features": [
+        "notification:read"
+      ]
+    }
+  },
+  "permissions": [
+    {
+      "code": "in-app-notification:notification:read",
+      "name": "Notification read"
+    },
+    {
+      "code": "in-app-notification:notification:manage",
+      "name": "Notification manage"
+    },
+    {
+      "code": "in-app-notification:settings:manage",
+      "name": "Notification settings"
+    }
+  ],
+  "entities": [
+    {
+      "name": "Notification",
+      "table": "plg_in_app_notification_notifications",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "recipient_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "recipient_text",
+          "type": "string",
+          "required": true,
+          "max_length": 255
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "required": true,
+          "max_length": 255
+        },
+        {
+          "name": "body",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "level",
+          "type": "enum",
+          "enum_values": [
+            "INFO",
+            "WARN",
+            "ERROR"
+          ],
+          "default": "INFO"
+        },
+        {
+          "name": "read_at",
+          "type": "datetime",
+          "required": false
+        }
+      ],
+      "validators": [
+        {
+          "field": "title",
+          "rule": "max_length",
+          "value": 255
+        },
+        {
+          "field": "level",
+          "rule": "enum",
+          "value": [
+            "INFO",
+            "WARN",
+            "ERROR"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "NotificationPreference",
+      "table": "plg_in_app_notification_preferences",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "required": false
+        },
+        {
+          "name": "scope",
+          "type": "enum",
+          "enum_values": [
+            "USER",
+            "TENANT"
+          ],
+          "default": "USER"
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "support_email",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "channel_email",
+          "type": "bool",
+          "required": true,
+          "default": false
+        },
+        {
+          "name": "channel_in_app",
+          "type": "bool",
+          "required": true,
+          "default": true
+        },
+        {
+          "name": "level_min",
+          "type": "enum",
+          "enum_values": [
+            "INFO",
+            "WARN",
+            "ERROR"
+          ],
+          "default": "INFO"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "required": true
+        }
+      ],
+      "validators": [
+        {
+          "field": "level_min",
+          "rule": "enum",
+          "value": [
+            "INFO",
+            "WARN",
+            "ERROR"
+          ]
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "name": "recipient",
+      "owner_entity": "Notification",
+      "type": "MANY_TO_ONE",
+      "target": "core.user",
+      "storage": "SOFT_REF",
+      "target_display_field": "full_name",
+      "required": true,
+      "on_delete": "RESTRICT"
+    },
+    {
+      "name": "user",
+      "owner_entity": "NotificationPreference",
+      "type": "MANY_TO_ONE",
+      "target": "core.user",
+      "storage": "SOFT_REF",
+      "target_display_field": "full_name",
+      "required": true,
+      "on_delete": "RESTRICT"
+    }
+  ],
+  "queries": [
+    {
+      "id": "notification.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "Notification",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "recipient_id",
+        "recipient_text",
+        "title",
+        "body",
+        "level",
+        "read_at",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "recipient_id",
+          "op": "EQ",
+          "param": "recipient_id",
+          "required": true
+        }
+      ],
+      "sort": [
+        {
+          "field": "created_at",
+          "direction": "DESC"
+        }
+      ],
+      "maxRows": 100
+    },
+    {
+      "id": "notification.create",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "Notification",
+      "tenant_scope": "TENANT",
+      "values": {
+        "recipient_id": {
+          "param": "recipient_id"
+        },
+        "recipient_text": {
+          "param": "recipient_text"
+        },
+        "title": {
+          "param": "title"
+        },
+        "body": {
+          "param": "body",
+          "optional": true,
+          "allow_null": true
+        },
+        "level": {
+          "param": "level",
+          "optional": true
+        },
+        "read_at": {
+          "param": "read_at",
+          "optional": true,
+          "allow_null": true
+        }
+      },
+      "returning": [
+        "id",
+        "recipient_id",
+        "title",
+        "level",
+        "read_at",
+        "created_at"
+      ]
+    },
+    {
+      "id": "notification.read",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "Notification",
+      "tenant_scope": "TENANT",
+      "values": {
+        "read_at": {
+          "param": "read_at"
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        },
+        {
+          "field": "recipient_id",
+          "op": "EQ",
+          "param": "recipient_id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "read_at"
+      ]
+    },
+    {
+      "id": "notification.read.all",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "Notification",
+      "tenant_scope": "TENANT",
+      "values": {
+        "read_at": {
+          "param": "read_at"
+        }
+      },
+      "filters": [
+        {
+          "field": "recipient_id",
+          "op": "EQ",
+          "param": "recipient_id",
+          "required": true
+        },
+        {
+          "field": "read_at",
+          "op": "IS_NULL"
+        }
+      ],
+      "returning": [
+        "id"
+      ]
+    },
+    {
+      "id": "preference.get",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "NotificationPreference",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "user_id",
+        "channel_email",
+        "channel_in_app",
+        "level_min",
+        "updated_at"
+      ],
+      "filters": [
+        {
+          "field": "user_id",
+          "op": "EQ",
+          "param": "user_id",
+          "required": true
+        }
+      ],
+      "maxRows": 1
+    },
+    {
+      "id": "preference.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "NotificationPreference",
+      "tenant_scope": "TENANT",
+      "values": {
+        "user_id": {
+          "param": "user_id"
+        },
+        "channel_email": {
+          "param": "channel_email"
+        },
+        "channel_in_app": {
+          "param": "channel_in_app"
+        },
+        "level_min": {
+          "param": "level_min"
+        },
+        "updated_at": {
+          "param": "updated_at"
+        }
+      },
+      "returning": [
+        "id",
+        "user_id",
+        "channel_email",
+        "channel_in_app",
+        "level_min",
+        "updated_at"
+      ]
+    },
+    {
+      "id": "preference.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "NotificationPreference",
+      "tenant_scope": "TENANT",
+      "values": {
+        "channel_email": {
+          "param": "channel_email"
+        },
+        "channel_in_app": {
+          "param": "channel_in_app"
+        },
+        "level_min": {
+          "param": "level_min"
+        },
+        "updated_at": {
+          "param": "updated_at"
+        }
+      },
+      "filters": [
+        {
+          "field": "user_id",
+          "op": "EQ",
+          "param": "user_id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "user_id",
+        "channel_email",
+        "channel_in_app",
+        "level_min",
+        "updated_at"
+      ]
+    },
+    {
+      "id": "settings.get",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "NotificationPreference",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "display_name",
+        "support_email",
+        "channel_email",
+        "channel_in_app",
+        "level_min",
+        "updated_at"
+      ],
+      "filters": [
+        {
+          "field": "scope",
+          "op": "EQ",
+          "param": "scope",
+          "required": true
+        }
+      ],
+      "maxRows": 1
+    },
+    {
+      "id": "settings.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "NotificationPreference",
+      "tenant_scope": "TENANT",
+      "values": {
+        "scope": {
+          "param": "scope"
+        },
+        "display_name": {
+          "param": "display_name",
+          "optional": true,
+          "allow_null": true
+        },
+        "support_email": {
+          "param": "support_email",
+          "optional": true,
+          "allow_null": true
+        },
+        "channel_email": {
+          "param": "channel_email",
+          "optional": true,
+          "allow_null": true
+        },
+        "channel_in_app": {
+          "param": "channel_in_app",
+          "optional": true,
+          "allow_null": true
+        },
+        "level_min": {
+          "param": "level_min",
+          "optional": true,
+          "allow_null": true
+        },
+        "updated_at": {
+          "param": "updated_at"
+        }
+      },
+      "returning": [
+        "id",
+        "display_name",
+        "support_email",
+        "channel_email",
+        "channel_in_app",
+        "level_min",
+        "updated_at"
+      ]
+    },
+    {
+      "id": "settings.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "NotificationPreference",
+      "tenant_scope": "TENANT",
+      "values": {
+        "display_name": {
+          "param": "display_name",
+          "optional": true,
+          "allow_null": true
+        },
+        "support_email": {
+          "param": "support_email",
+          "optional": true,
+          "allow_null": true
+        },
+        "channel_email": {
+          "param": "channel_email",
+          "optional": true,
+          "allow_null": true
+        },
+        "channel_in_app": {
+          "param": "channel_in_app",
+          "optional": true,
+          "allow_null": true
+        },
+        "level_min": {
+          "param": "level_min",
+          "optional": true,
+          "allow_null": true
+        },
+        "updated_at": {
+          "param": "updated_at"
+        }
+      },
+      "filters": [
+        {
+          "field": "scope",
+          "op": "EQ",
+          "param": "scope",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "display_name",
+        "support_email",
+        "channel_email",
+        "channel_in_app",
+        "level_min",
+        "updated_at"
+      ]
+    }
+  ],
+  "migrations": [
+    {
+      "version": "1.0.0",
+      "file": "V1.0.0__initial_schema.sql",
+      "checksum": "sha256:1f4015dc79bb46251f21863e75937d7f5e3fc095d4b512f8ec528625b0e3fcca",
+      "description": "in-app notification schema"
+    },
+    {
+      "version": "1.0.1",
+      "file": "V1.0.1__tenant_notification_settings.sql",
+      "checksum": "sha256:222656eae38ac5857bdb92424a964cfaebaec5392223aba5e3ee5f967b7a30d0",
+      "description": "tenant notification settings"
+    },
+    {
+      "version": "1.0.2",
+      "file": "V1.0.2__nullable_tenant_overrides.sql",
+      "checksum": "sha256:64f62f874b7b9c11850c678b22787b53c2a6c6ff11b0a1fdec44fdf7589f3869",
+      "description": "nullable tenant overrides"
+    }
+  ],
+  "kafka_events": {
+    "publishes": [],
+    "subscribes": []
+  },
+  "websockets": [],
+  "ui_manifest": {
+    "contract_version": "1.0",
+    "screens": [
+      {
+        "route": "/apps/in-app-notification",
+        "title_key": "PLUGIN_IN_APP_NOTIFICATION_MENU",
+        "permission": "in-app-notification:notification:read",
+        "render_mode": "WEB_COMPONENT",
+        "entry": "/plugins-runtime/in-app-notification/main.js",
+        "tag_name": "op-in-app-notification-app",
+        "order": 120,
+        "platforms": [
+          "desktop",
+          "mobile"
+        ]
+      }
+    ],
+    "contributions": [
+      {
+        "id": "notification-bell",
+        "slot": "core.layout.header.actions",
+        "title_key": "PLUGIN_IN_APP_NOTIFICATION_HEADER",
+        "render_mode": "WEB_COMPONENT",
+        "entry": "/plugins-runtime/in-app-notification/main.js",
+        "tag_name": "op-in-app-notification-bell",
+        "permission": "in-app-notification:notification:read",
+        "order": 10,
+        "contract_version": "1.0",
+        "platforms": [
+          "desktop",
+          "mobile"
+        ],
+        "isolation": "light",
+        "icon": "bell"
+      },
+      {
+        "id": "notification-settings",
+        "slot": "core.settings.system.tabs",
+        "title_key": "PLUGIN_IN_APP_NOTIFICATION_SETTINGS",
+        "render_mode": "WEB_COMPONENT",
+        "entry": "/plugins-runtime/in-app-notification/main.js",
+        "tag_name": "op-in-app-notification-settings",
+        "permission": "in-app-notification:settings:manage",
+        "order": 20,
+        "contract_version": "1.0",
+        "platforms": [
+          "desktop"
+        ],
+        "isolation": "light",
+        "icon": "settings"
+      }
+    ],
+    "slots": [],
+    "crud": [
+      {
+        "entity": "Notification",
+        "route": "/apps/in-app-notification",
+        "columns": [
+          "title",
+          "level",
+          "read_at",
+          "created_at"
+        ],
+        "filters": [
+          "level",
+          "read_at"
+        ],
+        "form_fields": [
+          "title",
+          "body",
+          "level"
+        ],
+        "layout": "drawer"
+      }
+    ]
+  },
+  "distribution": {
+    "type": "IMAGE_REGISTRY",
+    "registry_url": "",
+    "repository": "open-erp/in-app-notification",
+    "tag": "1.0.7"
+  }
+}

@@ -17,7 +17,7 @@ import java.util.UUID;
 
 /**
  * Emergency governance (TASK-308 / BUG-93): blocking a plugin forces every
- * affected tenant to be uninstalled (data retained) and notified. Only the
+ * affected tenant to be uninstalled (data retained) and audited. Only the
  * platform may trigger it; the catalog block itself is set by PluginAdminService.
  */
 @ApplicationScoped
@@ -28,9 +28,6 @@ public class PluginGovernanceService {
 
     @Inject
     ProcessPluginRuntimeDeployer deployer;
-
-    @Inject
-    PluginNotificationService notificationService;
 
     @Inject
     PluginAuditService auditService;
@@ -60,8 +57,6 @@ public class PluginGovernanceService {
             Map<String, Object> params = new HashMap<>();
             params.put("plugin_key", pluginKey);
             params.put("reason", reason);
-            notificationService.notifyTenant(ledger.tenantId, PluginNotificationService.TYPE_PLUGIN_FORCE_UNINSTALLED,
-                    "PLUGIN_NOTIFICATION_FORCE_UNINSTALLED", params, "CRITICAL");
             auditService.tenant(ledger.tenantId, PlatformAction.TENANT_PLUGIN_FORCE_UNINSTALLED, pluginKey, params);
             affected++;
         }

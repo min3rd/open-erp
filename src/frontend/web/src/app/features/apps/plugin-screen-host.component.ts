@@ -1,12 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, OnInit, inject, signal, viewChild } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router, RouterLink } from '@angular/router';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
 import {
   PluginHostScreen,
   PluginHostService,
-  PluginIframeLoaderComponent,
   PluginModuleFederationLoaderComponent,
   PluginRenderMode,
   PluginWebComponentLoaderComponent,
@@ -14,6 +13,7 @@ import {
   TranslatePipe,
 } from '@shared';
 import { AuthService } from '../../core/services/auth.service';
+import { PluginContextService } from '../../core/services/plugin-context.service';
 
 /**
  * Fixed host for plugin screens. The screen itself (route, title, permission,
@@ -25,11 +25,9 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     TranslatePipe,
     PluginWebComponentLoaderComponent,
     PluginModuleFederationLoaderComponent,
-    PluginIframeLoaderComponent,
   ],
   templateUrl: './plugin-screen-host.component.html',
 })
@@ -40,12 +38,12 @@ export class PluginScreenHostComponent implements OnInit {
   private hostService = inject(PluginHostService);
   private auth = inject(AuthService);
   private permissionChecker = inject(PLUGIN_PERMISSION_CHECKER);
-  private iframeLoader = viewChild(PluginIframeLoaderComponent);
+  readonly pluginContext = inject(PluginContextService);
 
   pluginKey = signal<string>('');
   screenId = signal<string>('');
   screen = signal<PluginHostScreen | null>(null);
-  /** Route handed to the iframe once, before it boots. */
+  /** Plugin-internal route kept in sync with the Core browser URL. */
   initialRoute = signal<string>('');
   loading = signal<boolean>(true);
   failed = signal<boolean>(false);
@@ -54,7 +52,6 @@ export class PluginScreenHostComponent implements OnInit {
   private lastSyncedUrl = '';
 
   readonly renderMode = PluginRenderMode;
-  readonly frameOffsetPx = 72;
 
   ngOnInit(): void {
     this.lastSyncedUrl = this.router.url;
@@ -66,21 +63,25 @@ export class PluginScreenHostComponent implements OnInit {
           return;
         }
         this.lastSyncedUrl = event.urlAfterRedirects;
-        this.iframeLoader()?.navigate(this.iframeRouteFrom(event.urlAfterRedirects));
+        this.initialRoute.set(this.routeFromUrl(event.urlAfterRedirects));
       });
 
     this.route.params.subscribe((params) => {
       const key = (params['pluginKey'] ?? '').toString();
       this.pluginKey.set(key);
-      this.initialRoute.set(this.iframeRouteFrom(this.router.url));
+      this.initialRoute.set(this.routeFromUrl(this.router.url));
       void this.resolveScreen(key);
     });
   }
 
   /** Mirror a plugin-internal route into the core browser URL. */
-  onIframeRoute(path: string): void {
+  onRouteChange(path: string): void {
     const normalized = path.startsWith('/') ? path : `/${path}`;
-    const target = `/settings/apps/${this.pluginKey()}${normalized}`;
+    // A plugin that boots from a bookmark may emit the path without the query
+    // it was mounted with; keep the Core query in that case.
+    const currentQuery = this.router.url.includes('?') ? this.router.url.slice(this.router.url.indexOf('?')) : '';
+    const query = normalized.includes('?') || !currentQuery ? '' : currentQuery;
+    const target = `/settings/apps/${this.pluginKey()}${normalized}${query}`;
     if (this.sameUrl(target, this.router.url)) {
       return;
     }
@@ -88,7 +89,7 @@ export class PluginScreenHostComponent implements OnInit {
     void this.router.navigateByUrl(target, { replaceUrl: true });
   }
 
-  private iframeRouteFrom(url: string): string {
+  private routeFromUrl(url: string): string {
     const base = `/settings/apps/${this.pluginKey()}`;
     const [path, query] = url.split('?');
     const subPath = path.startsWith(base) ? path.slice(base.length) : '';
@@ -107,7 +108,10 @@ export class PluginScreenHostComponent implements OnInit {
     const manifest = await this.hostService.loadManifest(true);
     const screens = manifest?.screens ?? [];
     const path = this.currentPath();
-    const match = screens.find((item) => this.matches(item, key, path))
+    const candidates = screens.filter((item) => this.matches(item, key, path));
+    const exact = candidates.find((item) => this.coreRoute(item) === path);
+    const match = exact
+      ?? candidates.sort((left, right) => (right.route?.length ?? 0) - (left.route?.length ?? 0))[0]
       ?? screens.find((item) => item.plugin_key === key)
       ?? null;
 
@@ -134,26 +138,31 @@ export class PluginScreenHostComponent implements OnInit {
     if (screen.plugin_key !== key || !screen.route) {
       return false;
     }
-    return path === screen.route || path.startsWith(`${screen.route}/`);
+    // Plugin manifests use app-relative routes (`/apps/<key>/...`), while the
+    // Core host mounts them under `/settings`. Accept both so multi-screen
+    // plugins can resolve the screen that matches the current sub-route.
+    const coreRoute = this.coreRoute(screen);
+    return path === coreRoute || path.startsWith(`${coreRoute}/`);
+  }
+
+  private coreRoute(screen: PluginHostScreen): string {
+    const route = screen.route ?? '';
+    return route.startsWith('/apps/') ? `/settings${route}` : route;
   }
 
   entryUrl(): string {
     const key = this.pluginKey();
     const screen = this.screen();
-    const convention = screen?.render_mode === this.renderMode.WEB_COMPONENT
-      ? `/plugins-runtime/${key}/entry.js`
-      : `/plugins-runtime/${key}/remote/entry.js`;
-    return this.hostService.runtimeEntryUrl(convention);
-  }
-
-  iframeEntry(): string {
-    return `/api/v1/plugins/runtime/${this.pluginKey()}/`;
+    const defined = screen?.entry
+      || (screen?.render_mode === this.renderMode.WEB_COMPONENT
+        ? `/plugins-runtime/${key}/main.js`
+        : `/plugins-runtime/${key}/remoteEntry.js`);
+    return this.hostService.runtimeEntryUrl(defined);
   }
 
   onFailed(code?: string): void {
-    // The plugin session could not be renewed; the core session is the only way
-    // to mint a new one, so ending it returns the user to login instead of a
-    // dead iframe.
+    // The plugin runtime rejected the Core session; ending it returns the user
+    // to login instead of leaving a dead screen mounted.
     if (code === 'PLUGIN_RUNTIME_TOKEN_INVALID') {
       this.auth.clearSession();
       return;

@@ -50,8 +50,6 @@ public final class PluginErrorCode {
     public static final String PLUGIN_CREDENTIAL_UPDATED = "PLUGIN_CREDENTIAL_UPDATED";
     public static final String PLUGIN_CREDENTIAL_DELETED = "PLUGIN_CREDENTIAL_DELETED";
     public static final String PLUGIN_CREDENTIAL_TEST_SUCCESS = "PLUGIN_CREDENTIAL_TEST_SUCCESS";
-    public static final String PLUGIN_NOTIFICATION_LIST_SUCCESS = "PLUGIN_NOTIFICATION_LIST_SUCCESS";
-    public static final String PLUGIN_NOTIFICATION_READ_SUCCESS = "PLUGIN_NOTIFICATION_READ_SUCCESS";
     public static final String PLUGIN_RUNTIME_SESSION_ISSUED = "PLUGIN_RUNTIME_SESSION_ISSUED";
 
     // Errors - artifact
@@ -70,6 +68,12 @@ public final class PluginErrorCode {
     public static final String PLUGIN_VERSION_IN_USE = "PLUGIN_VERSION_IN_USE";
     public static final String PLUGIN_CORE_VERSION_INCOMPATIBLE = "PLUGIN_CORE_VERSION_INCOMPATIBLE";
     public static final String PLUGIN_UI_SLOT_NOT_FOUND = "PLUGIN_UI_SLOT_NOT_FOUND";
+    public static final String PLUGIN_UI_RENDER_MODE_UNSUPPORTED = "PLUGIN_UI_RENDER_MODE_UNSUPPORTED";
+    public static final String PLUGIN_UI_CONTRIBUTION_INVALID = "PLUGIN_UI_CONTRIBUTION_INVALID";
+    public static final String PLUGIN_UI_SLOT_NAMESPACE_INVALID = "PLUGIN_UI_SLOT_NAMESPACE_INVALID";
+    public static final String PLUGIN_MANIFEST_SCHEMA_INVALID = "PLUGIN_MANIFEST_SCHEMA_INVALID";
+    public static final String PLUGIN_MIGRATION_CHECKSUM_MISMATCH = "PLUGIN_MIGRATION_CHECKSUM_MISMATCH";
+    public static final String PLUGIN_ENTITY_TARGET_NOT_FOUND = "PLUGIN_ENTITY_TARGET_NOT_FOUND";
     public static final String PLUGIN_NOT_FOUND = "PLUGIN_NOT_FOUND";
     public static final String PLUGIN_VERSION_NOT_VERIFIED = "PLUGIN_VERSION_NOT_VERIFIED";
 
@@ -103,10 +107,9 @@ public final class PluginErrorCode {
     public static final String PLUGIN_SNAPSHOT_MISSING = "PLUGIN_SNAPSHOT_MISSING";
     public static final String PLUGIN_RESTORE_SNAPSHOT_FAILED = "PLUGIN_RESTORE_SNAPSHOT_FAILED";
 
-    // Errors - credentials / notifications
+    // Errors - credentials
     public static final String PLUGIN_CREDENTIAL_NOT_FOUND = "PLUGIN_CREDENTIAL_NOT_FOUND";
     public static final String PLUGIN_CREDENTIAL_DUPLICATE_HOST = "PLUGIN_CREDENTIAL_DUPLICATE_HOST";
     public static final String PLUGIN_CREDENTIAL_IN_USE = "PLUGIN_CREDENTIAL_IN_USE";
     public static final String PLUGIN_CREDENTIAL_AUTH_FAILED = "PLUGIN_CREDENTIAL_AUTH_FAILED";
-    public static final String PLUGIN_NOTIFICATION_NOT_FOUND = "PLUGIN_NOTIFICATION_NOT_FOUND";
 }

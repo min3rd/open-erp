@@ -7,7 +7,7 @@
 | Owner / reviewer | PM Agent / Chủ dự án + Architect + QA |
 | Đầu vào / đọc trước / đọc tiếp | [RAW-S05-001](01_raw_notes/01_RAW-S05-001_catalog_plugin_requirements.md) — chỉ đạo trực tiếp của chủ dự án / [Sprint 04](../sprint_04_ui_ux_experience/00_READING_GUIDE.md) (đã đóng) / [REV-S05-001](09_review/01_REV-S05-001_sprint_05_dod_review.md) |
 
-> **✅ 2026-10-29 — SPRINT 05 ĐÃ ĐÓNG:** catalog là plugin độc lập (zero-DB, data gateway, shared runtime theo version); 0 bug Critical/High mở; QA PASS cho FEAT-30/31/32 + TASK-394…406. Biên bản/DoD tại [REV-S05-001](09_review/01_REV-S05-001_sprint_05_dod_review.md). Backlog Medium chuyển tiếp: [TASK-407](07_items/TASK-407_cli_scaffold_zero_db.md) + các rủi ro ghi ở REV §6.
+> **✅ 2026-10-29 — SPRINT 05 ĐÃ ĐÓNG:** catalog là plugin độc lập (zero-DB, data gateway, shared runtime theo version); 0 bug Critical/High mở; QA PASS cho FEAT-30/31/32 + TASK-394…406. Biên bản/DoD tại [REV-S05-001](09_review/01_REV-S05-001_sprint_05_dod_review.md). Backlog Medium [TASK-407](07_items/TASK-407_cli_scaffold_zero_db.md) đã **Done (QA) trong Sprint 06**; rủi ro khác ghi ở REV §6.
 
 ## 1. Đọc để hiểu gì?
 
@@ -42,7 +42,7 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | 06.03 | DES-UI-S05-001 | [Thiết kế UI](06_designs/ui/01_DES-UI-S05-001_catalog_admin_ui.md) | Màn 3 cột + component picker + ma trận Desktop/Mobile | Architect |
 | 07.01 | FEAT-30 | [Plugin Danh mục](07_items/FEAT-30_catalog_core_plugin.md) | Feature + 19 task baseline lịch sử; **Done (QA)** theo plugin độc lập TASK-394…406 | Developer/QA |
 | 07.02 | TASK-375…393 | [07_items/](07_items/) | Baseline code lịch sử (19/19) — **superseded** bởi TASK-394…406, không dùng nghiệm thu | Developer |
-| 07.03 | TASK-394…407 | [07_items/](07_items/) | Tái triển khai plugin độc lập, data gateway, shared runtime, QA; TASK-407 Medium backlog | Developer/QA |
+| 07.03 | TASK-394…407 | [07_items/](07_items/) | Tái triển khai plugin độc lập, data gateway, shared runtime, QA; TASK-407 Done trong S06 | Developer/QA |
 | 08.01 | TP-S05-001 | [Test plan Sprint 05](08_testing/01_TP-S05-001_sprint_05_test_plan.md) | **25 TC** theo AC + ma trận lấy mẫu | QA |
 | 08.02 | TR-S05-001 | [Test report Sprint 05](08_testing/02_TR-S05-001_sprint_05_test_report.md) | Baseline cũ **21 PASS / 4 PARTIAL** — **withdrawn**, phải chạy lại sau khi đổi kiến trúc | QA |
 | 08.03 | EVD-S05-001 | [Evidence index](08_testing/evidence/00_EVD-S05-001_evidence_index.md) | **12 ảnh minh chứng** (baseline cũ; dùng lại sau khi UI chuyển sang plugin) | QA |
@@ -82,7 +82,7 @@ Khách hàng đọc 01–04 và 08–09. Developer đọc CONF, SOL, DES, item, 
 | BUG-136 | [BUG-136](07_items/BUG-136_locked_plugin_uninstall_not_blocked.md) | Developer | Used — **Resolved (dev+QA)** |
 | BUG-137…153 | [07_items/](07_items/) | Developer/QA | Used — **Resolved** (plugin host/CSS/context menu/mobile, pagination, sync, clone) |
 | TASK-394…406 | [07_items/](07_items/) | Developer/QA | Used — **Done (QA/PM)**, gồm TASK-398 closure |
-| TASK-407 | [TASK-407](07_items/TASK-407_cli_scaffold_zero_db.md) | Developer | Used — **Open (Medium)** backlog: CLI scaffold zero-DB |
+| TASK-407 | [TASK-407](07_items/TASK-407_cli_scaffold_zero_db.md) | Developer | Used — **Done (QA)**: template 2.0 zero-DB + CLI (Sprint 06) |
 | TP-S05-001 | [08_testing/](08_testing/) | QA | Used (Executed — thay bởi TR-S05-002/003/004) |
 | TR-S05-001 | [08_testing/](08_testing/) | QA | Used (baseline cũ — withdrawn) |
 | REV-S05-001 | [09_review/](09_review/) | PM + Khách hàng | Used (CLOSED 2026-10-29) |

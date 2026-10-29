@@ -16,26 +16,28 @@ Yêu cầu: Node.js ≥ 20. CLI **zero-dependency**, không cần cài thêm gó
 
 ---
 
-## 2. Tạo dự án plugin (repo độc lập)
+## 2. Tạo dự án plugin (template 2.0)
 
 ```bash
+# Trong monorepo (khuyến nghị — dùng @shared)
 npx @open-erp/cli create --id open-erp-sales --name "Bán Hàng" \
-  --packaging image --db postgres --with-web --non-interactive
+  --packaging image --with-web --target plugins/open-erp-sales --non-interactive
+
+# Hoặc mở wizard tương tác
+npx @open-erp/cli
 ```
 
-CLI sinh repo riêng (mặc định `./open-erp-sales`) gồm:
+CLI sinh plugin zero-DB gồm:
 
 ```
-open-erp-sales/
-├── plugin.json                 # Manifest: id, version, compatibility, dependencies,
-│                               # platforms, permissions, entities, ui_manifest, distribution
-├── pom.xml                     # Quarkus (Java 21) backend
-├── src/main/java/...           # Entity mẫu + repository + service + resource
-├── src/main/resources/db/plugin-migration/
-│   ├── V1.0.0__initial_schema.up.sql
-│   └── V1.0.0__initial_schema.down.sql
+plugins/open-erp-sales/
+├── plugin.json                 # Manifest 2.0: schema_version, entities/fields,
+│                               # relations, queries, migrations, ui_manifest
+├── pom.xml                     # Quarkus + plugin-sdk; không JDBC/Panache/Flyway
+├── src/main/java/...           # POJO + DTO + service/resource dùng PluginDataClient
+├── migrations/V1.0.0__initial_schema.sql
 ├── src/test/java/...           # Test mẫu (JUnit 5 + RestAssured, PostgreSQL/Redis thật)
-├── web/                        # Angular 22 + i18n (nếu --with-web)
+├── web/                        # Angular 22 WC: screen + header contribution
 ├── deploy/Dockerfile + k8s.yaml
 ├── ci/github-actions.yml
 └── README.md
@@ -50,28 +52,39 @@ open-erp-sales/
 ## 3. Sinh mã trong dự án
 
 ```bash
-# Entity + migration + quyền + cập nhật manifest
-npx @open-erp/cli generate entity --name Invoice --fields "code:string,total:decimal,status:string"
+# Entity + migration + quyền + query descriptor + checksum
+npx @open-erp/cli generate entity --name Invoice --fields "code:string:required+unique,total:decimal,status:string"
 
-# Màn hình riêng (menu + route + i18n) — chế độ hiển thị đầy đủ (MF/WC/iframe)
+# Field / quan hệ (FK self hoặc soft-ref Core/plugin)
+npx @open-erp/cli generate field --entity Invoice --name status --type enum --enum-values ACTIVE,INACTIVE
+npx @open-erp/cli generate relation --entity Invoice --name customer --target core.user --storage SOFT_REF
+
+# CRUD Angular (list + drawer) + Java DTO/service/resource + queries + screen
+npx @open-erp/cli generate crud --entity Invoice
+
+# Màn hình riêng (menu + route + i18n) — WC/MF
 npx @open-erp/cli generate menu --route /apps/open-erp-sales --title-key PLUGIN_SALES_MENU
 
-# UI Contribution nhúng vào màn hình có sẵn của Core/plugin khác
-npx @open-erp/cli generate ui-contribution --slot core.dashboard.widgets --render-mode web-component
+# UI Contribution nhúng vào slot Core
+npx @open-erp/cli generate ui-contribution --slot core.layout.header.actions --render-mode web-component
 ```
 
 - Quy ước ID: lowercase kebab-case, 3–50 ký tự, không trùng `core`, `iam`, `platform`, `organization`, `plugins`.
 - `generate` merge an toàn vào `plugin.json`; file mã nguồn đã tồn tại cần `--force`.
-- `--render-mode` nhận `web-component`, `module-federation` hoặc `iframe` (mặc định iframe khi không hỗ trợ WC/MF).
-- Core **không hardcode menu plugin**: nó đọc `ui_manifest.screens` từ `/api/v1/plugins/ui-manifest`, map `route`/`title_key`/`permission` thành menu và mount qua host cố định `/apps/:pluginKey`. Screen chỉ xuất hiện khi tenant đang bật plugin (ACTIVE) và user có quyền. Đặt `route` theo quy ước `/apps/{pluginKey}` (hoặc sub-path) để host resolve đúng.
-- Plugin iframe gọi API qua `/api/v1/plugins/runtime/{pluginKey}/...`. Runtime token chỉ sống vài phút: khi nhận `401` + `code = PLUGIN_RUNTIME_TOKEN_INVALID`, UI plugin post `{source:'open-erp-plugin', type:'session-expired'}` để host xin token mới và reload iframe; nếu refresh thất bại host tự kết thúc phiên về `/login`. Xem mẫu ở `plugins/catalog/web/src/plugin-main.ts`.
+- `--render-mode` chỉ nhận `web-component` hoặc `module-federation`; **iframe không còn được hỗ trợ**.
+- Core **không hardcode menu plugin**: đọc `ui_manifest.screens`, map `route`/`title_key`/`permission` thành menu và mount qua host cố định `/settings/apps/:pluginKey`.
+- Contribution đọc context (`theme`, `language`, `tenant`, `user`, `permissions`) và phát event `op:navigate`/`op:notify`/`op:resize`; Core là bên render slot.
+- Entry/static asset tải qua gateway với `plugin_token` ngắn hạn; API calls dùng JWT Core.
 
 ---
 
 ## 4. Kiểm tra, đóng gói và chạy local
 
 ```bash
-npx @open-erp/cli validate            # kiểm tra manifest theo chuẩn nền tảng
+npx @open-erp/cli validate            # offline: manifest/field/relation/slot/checksum
+npx @open-erp/cli validate --core-url http://localhost:8088 --token "$OPENERP_TOKEN"
+npx @open-erp/cli upgrade --check     # MISSING/OUTDATED/CUSTOMIZED so với template 2.0
+npx @open-erp/cli upgrade --apply --yes  # backup .open-erp/upgrade-*; không ghi đè file custom
 npx @open-erp/cli package --with-web  # build + checksum SHA-256 + dist/release-manifest.json
 npx @open-erp/cli dev --core-url http://localhost:8088
 npx @open-erp/cli link --repo git@github.com:org/open-erp-sales.git --id open-erp-sales
@@ -88,42 +101,31 @@ npx @open-erp/cli link --repo git@github.com:org/open-erp-sales.git --id open-er
    - Docker Hub / Image Registry: nhập image ref + credentials.
    - JAR bundle: tải lên `dist/` (Core kiểm tra manifest + checksum, build image và deploy).
 2. Phiên bản vào trạng thái `DRAFT` → **Công bố** để tenant cài.
-3. Tenant cài từ Marketplace: hệ thống tạo container riêng cho tenant, plugin tự migrate trong schema riêng.
+3. Tenant cài từ Marketplace: Core tạo schema tenant, chạy migration bundle của plugin và deploy runtime tương ứng.
 
 ---
 
-## 6. Plugin **core in-process** (không đóng gói) — bản mẫu: plugin `catalog`
+## 6. Template 2.0 & plugin độc lập
 
-> **⚠️ 2026-10-27 — KHÔNG DÙNG LÀM MẪU:** Mô hình `CORE_IN_PROCESS` dưới đây đang bị bác theo [BUG-135](../../docs/sprints/sprint_05_catalog_plugin/07_items/BUG-135_catalog_not_independent_plugin.md). Plugin nghiệp vụ (kể cả `catalog`) phải là plugin độc lập theo mục 1–5 (artifact/container riêng, schema tenant riêng, API gateway, UI manifest). Mục này giữ làm lịch sử cho đến khi ADR-S05-001 ban hành.
+Sprint 06 đã bỏ mô hình plugin core in-process. Mọi plugin nghiệp vụ (kể cả `catalog`) là **plugin độc lập**:
+artifact/container riêng, schema tenant riêng, API qua gateway, UI manifest riêng. Template CLI 2.0 sinh đúng mô hình zero-DB.
 
-Plugin chạy ngay trong tiến trình core **không** đi qua CLI/registry: mã nằm trong `modules/<plugin>/` của backend, không có `plugin.json` ở gốc repo. Descriptor vẫn được khai báo theo **cùng định dạng** (để sau này tách ra đóng gói không phải sửa gì), đặt tại `src/backend/src/main/resources/plugins/<id>/plugin.json`, khác 2 điểm:
-
-| Khác biệt | Plugin đóng gói | Plugin core in-process |
-| :--- | :--- | :--- |
-| Vị trí manifest | gốc repo plugin | `src/backend/src/main/resources/plugins/<id>/plugin.json` |
-| `packaging` / `distribution.type` | theo cờ `--packaging` | `CORE_IN_PROCESS` (không chạy `npx @open-erp/cli validate` cho file này) |
-| Migration | `migrations/` + `plugin.json.migrations` (core chạy) | `db/migration/V*.sql` của core (chung Flyway) |
-| Cách xem descriptor | đọc file trong repo plugin | `GET /api/v1/catalog/plugin/manifest` (endpoint riêng của plugin) |
-
-**Bản mẫu tham chiếu — plugin `catalog` (Sprint 05):**
-
-| Phần | Vị trí |
+| Phần | Quy ước |
 | :--- | :--- |
-| Descriptor | `src/backend/src/main/resources/plugins/catalog/plugin.json` (`platforms.desktop/mobile.features`, `permissions`, `entities`, `ui_manifest`) |
-| Mã backend | `src/backend/src/main/java/com/vn9melody/openerp/modules/catalog/` (`model/`, `repository/`, `service/`, `resource/`, `dto/`, `api/`) |
-| Migration + seed | `db/migration/V4.0.0__catalog_core_plugin.sql`, `V4.0.1__drop_catalog_type_source.sql`; seeder địa giới `db/seed/provinces-communes.csv` (`npm run data:admin-units`) |
-| UI dùng chung | `src/frontend/shared/components/catalog-picker/`, `src/frontend/shared/services/catalog.service.ts`, `src/frontend/shared/models/catalog.model.ts` |
-| UI Desktop | `src/frontend/web/src/app/features/settings/catalog/` + `core/services/catalog-admin.service.ts` |
-| UI Mobile (read-only) | `src/frontend/mobile/src/app/features/settings/catalog/` + menu ở `shared/components/mobile-nav-drawer` |
-| Test chống lệch descriptor | `src/backend/src/test/java/com/vn9melody/openerp/modules/catalog/resource/CatalogPluginManifestTest.java` (5 quyền seed + 4 entity đã đăng ký + row `plugin_catalog`) |
+| Manifest | `plugin.json` tại gốc plugin; `schema_version: "2.0"`, `template_version: "2.0.0"` |
+| Backend | Quarkus + `plugin-sdk`; POJO/DTO/service/resource; DB qua `PluginDataClient` |
+| Migration | `migrations/` + SHA-256 trong `plugin.json.migrations[]`; core chạy trong schema tenant |
+| UI | Web Component (`main.js`) hoặc Module Federation; screen + contribution trong `ui_manifest` |
+| Nguồn dùng chung | `@shared` (monorepo) hoặc UI SDK publish (follow-up cho repo ngoài) |
 
-Quy ước bắt buộc khi thêm plugin core: descriptor là **nguồn khai báo duy nhất** cho ma trận Desktop/Mobile; khai báo phải có test đối chiếu với DB (như `CatalogPluginManifestTest`), entity phải `@RegisterEntity` (Entity Registry), và mỗi loại chức năng phải ghi rõ chạy được ở Desktop / Mobile / cả hai.
+**Bản mẫu tham chiếu:** `plugins/catalog/` (backend zero-DB, data gateway) và plugin `in-app-notification` (Sprint 06).
 
 ---
 
 ## 7. Tham chiếu kỹ thuật
 
-- Manifest & API: `docs/sprints/sprint_03_plugin_manager/06_designs/`.
-- Vòng đời & deploy: `docs/sprints/sprint_03_plugin_manager/05_solutions/SOL-02...`.
+- Manifest & UI slot API: `docs/sprints/sprint_06_plugin_dev_platform/06_designs/api/01_DES-API-S06-001_manifest_and_ui_manifest.md`.
+- Vòng đời & deploy: `docs/sprints/sprint_03_plugin_manager/05_solutions/SOL-02_plugin_distribution_runtime_and_isolation.md`.
+- CLI/codegen: `docs/sprints/sprint_06_plugin_dev_platform/06_designs/arch/02_DES-ARCH-S06-002_cli_interactive_and_codegen.md`.
 - Chuẩn UI/UX, shared components: `.agents/rules/ui_ux_standards.md`, `docs/08_developer_guides/shared_ui_contribution_guide.md`.
 - **Bắt buộc**: template `.html` tách riêng, 100% i18n, không unit test frontend, backend test trên PostgreSQL/Redis thật (không H2).

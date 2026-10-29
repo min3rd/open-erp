@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TASK-407 / Tooling refactor / Backlog sau Sprint 05 |
-| Mức độ / trạng thái | **Medium** / **Open** 2026-10-29 |
+| Mức độ / trạng thái | **Medium** / **Done (QA)** 2026-10-29 — xử lý trong Sprint 06 bởi TASK-408/409/410/411/413 |
 | Owner / reviewer | Developer / Architect |
 | Liên quan | [TASK-401](TASK-401_shared_runtime_and_plugin_styles.md), [TASK-402](TASK-402_plugin_data_gateway_grpc.md), [TASK-406](TASK-406_plugin_runtime_per_version.md), `docs/08_developer_guides/create_new_plugin_guide.md` |
 
@@ -40,3 +40,4 @@ Sinh plugin mới theo template này sẽ vi phạm invariant zero-DB và không
 | Phiên bản | Ngày | Thay đổi | Nguồn |
 | :--- | :--- | :--- | :--- |
 | 0.1 | 2026-10-29 | Tạo task sau khi rà soát zero-DB: runtime plugin sạch nhưng CLI template còn Panache/Flyway/datasource | QA/Architect |
+| 1.0 | 2026-10-29 | Done (QA): template 2.0 zero-DB + CLI wizard/generate/upgrade; xác nhận bởi TASK-408…413, TR-S06-001 1.5 | QA/Developer; REV-S06-001 |

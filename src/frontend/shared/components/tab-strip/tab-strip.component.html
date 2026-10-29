@@ -1,0 +1,21 @@
+<div
+  class="flex items-stretch gap-0.5 overflow-x-auto border-b border-default bg-surface"
+  role="tablist"
+>
+  @for (tab of tabs(); track tab.id; let index = $index) {
+    <button
+      type="button"
+      role="tab"
+      [id]="'tab-' + tab.id"
+      [attr.aria-selected]="tab.id === activeId()"
+      [attr.tabindex]="tab.id === activeId() ? 0 : -1"
+      (click)="select(tab.id)"
+      (keydown)="onKeydown($event, index)"
+      class="inline-flex min-h-9 shrink-0 items-center border-b-2 border-transparent px-2.5 text-xs font-semibold text-muted transition-colors hover:text-ink cursor-pointer"
+      [class.border-accent]="tab.id === activeId()"
+      [class.text-ink]="tab.id === activeId()"
+    >
+      {{ tab.labelKey | translate }}
+    </button>
+  }
+</div>

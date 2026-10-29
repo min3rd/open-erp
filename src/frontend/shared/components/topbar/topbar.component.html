@@ -16,17 +16,17 @@
     </div>
   </div>
 
-  <!-- Right section: account menu (>= lg) + mobile hamburger -->
-  <div class="flex items-center gap-2 lg:gap-3">
+  <!-- Right section: plugin header actions + account menu (>= lg) + mobile hamburger.
+       One slot instance only: desktop/mobile use responsive CSS, not two mounts. -->
+  <div class="flex items-center gap-1 lg:gap-3">
+    <app-plugin-slot
+      slot="core.layout.header.actions"
+      [context]="pluginContext()"
+      (routeChange)="pluginNavigate.emit($event)"
+      (navigate)="pluginNavigate.emit($event)"
+    />
+
     <div class="hidden lg:flex items-center gap-2">
-      <app-notification-bell
-        [items]="notifications()"
-        [unreadCount]="notificationUnreadCount()"
-        [detailPath]="notificationDetailPath()"
-        (markRead)="markNotificationRead.emit($event)"
-        (markAllRead)="markAllNotificationsRead.emit()"
-        (openDetail)="openNotificationDetail.emit($event)"
-      />
       <app-user-menu
         [userName]="userName()"
         [userEmail]="userEmail()"

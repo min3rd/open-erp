@@ -1,0 +1,38 @@
+@if (canRender()) {
+  @switch (contribution().render_mode) {
+    @case (renderMode.WEB_COMPONENT) {
+      @if (!errorCode()) {
+        <app-plugin-web-component-loader
+          [entry]="contribution().entry"
+          [pluginKey]="contribution().plugin_key"
+          [tagName]="contribution().tag_name || ''"
+          [context]="context()"
+          [isolation]="contribution().isolation || 'light'"
+          (failed)="onFailed($event)"
+          (routeChange)="routeChange.emit($event)"
+          (navigate)="navigate.emit($event)"
+          (notify)="notify.emit($event)"
+        />
+      }
+    }
+    @case (renderMode.MODULE_FEDERATION) {
+      @if (!errorCode()) {
+        <app-plugin-module-federation-loader
+          [entry]="contribution().entry"
+          [pluginKey]="contribution().plugin_key"
+          [exposedModule]="contribution().exposed_module || './mount'"
+          [context]="context()"
+          (failed)="onFailed($event)"
+          (routeChange)="routeChange.emit($event)"
+          (notify)="notify.emit($event)"
+        />
+      }
+    }
+  }
+
+  @if (errorCode()) {
+    <span class="inline-flex items-center gap-1 text-[11px] text-muted">
+      {{ 'PLUGIN_CONTRIBUTION_ERROR' | translate }}
+    </span>
+  }
+}

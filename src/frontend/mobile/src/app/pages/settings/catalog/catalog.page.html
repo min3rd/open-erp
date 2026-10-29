@@ -19,13 +19,5 @@
       {{ 'PLUGIN_HOST_LOADING' | translate }}
     </div>
   }
-  <iframe
-    #frame
-    class="block w-full border-0"
-    style="height: 100%"
-    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-    [src]="src()"
-    [title]="'PLUGIN_HOST_IFRAME_TITLE' | translate"
-    (load)="onLoad()"
-  ></iframe>
+  <div #host class="h-full"></div>
 </ion-content>

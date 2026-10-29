@@ -71,6 +71,10 @@ export class LoginComponent implements OnInit {
           this.router.navigateByUrl('/select-tenant');
         } else if (this.auth.mustChangePassword()) {
           this.router.navigateByUrl('/platform/change-password');
+        } else if (this.auth.isPlatformAdmin() && !this.auth.user()?.tenant_id) {
+          // Platform-only accounts have no tenant workspace; the tenant
+          // dashboard would call tenant-scoped APIs and end the session.
+          this.router.navigateByUrl('/platform/tenants');
         } else {
           this.router.navigateByUrl(this.returnUrl);
         }

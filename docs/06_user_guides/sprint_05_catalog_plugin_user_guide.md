@@ -175,7 +175,7 @@ Super admin vào **Platform → Danh mục hệ thống**: cùng bố cục 3 c�
 
 ## 11. Mobile (Ionic)
 
-- **Tra cứu danh mục** (read-only): màn hình là **UI plugin** (iframe) theo manifest; hiển thị loại + bản ghi, tìm kiếm, xem chi tiết — **không có nút nhập/xuất, thêm/sửa/xoá, menu hành động** (quản trị làm trên bản Web).
+- **Tra cứu danh mục** (read-only): màn hình là **UI plugin Web Component** (Sprint 06 bỏ iframe) theo manifest; hiển thị loại + bản ghi, tìm kiếm, xem chi tiết — **không có nút nhập/xuất, thêm/sửa/xoá, menu hành động** (quản trị làm trên bản Web).
 - **Ô chọn danh mục trong form** hoạt động trên mobile: danh sách dạng panel trong trang (không modal), vùng chạm ≥ 40px, không tràn ngang ở 390×844.
 - Plugin runtime token hết hạn: màn hình tự xin token mới và tải lại; nếu phiên core hết hạn thì về trang đăng nhập.
 
@@ -187,7 +187,7 @@ Super admin vào **Platform → Danh mục hệ thống**: cùng bố cục 3 c�
 
 ![Mobile — chi tiết (lịch sử)](../sprints/sprint_05_catalog_plugin/08_testing/evidence/screenshots/mobile-catalog-detail.png)
 
-*Ảnh lịch sử của page native trước TASK-403; UI hiện tại là plugin iframe như ảnh đầu mục.*
+*Ảnh lịch sử của page native trước TASK-403; UI hiện tại là Web Component (Sprint 06) như ảnh đầu mục.*
 
 ## 12. Dữ liệu địa giới có sẵn
 

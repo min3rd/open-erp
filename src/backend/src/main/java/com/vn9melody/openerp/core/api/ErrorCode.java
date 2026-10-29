@@ -3,6 +3,10 @@ package com.vn9melody.openerp.core.api;
 public final class ErrorCode {
     private ErrorCode() {}
 
+    // Notification settings
+    public static final String NOTIFICATION_SETTINGS_SUCCESS = "NOTIFICATION_SETTINGS_SUCCESS";
+    public static final String NOTIFICATION_SETTINGS_SAVED = "NOTIFICATION_SETTINGS_SAVED";
+
     // Auth Success
     public static final String AUTH_REGISTER_SUCCESS = "AUTH_REGISTER_SUCCESS";
     public static final String AUTH_EMAIL_VERIFIED_SUCCESS = "AUTH_EMAIL_VERIFIED_SUCCESS";

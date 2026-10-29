@@ -13,7 +13,7 @@
 
 BUG-108 (route-state cho màn Plugin Manager) được khách hàng mở rộng: **các màn dạng bảng của Sprint 01/02 cũng chưa lưu state vào Route**.
 
-> **Cập nhật 2026-09-21**: Khách hàng chốt chuẩn **path-segment** thay cho query-param: `/:filter/:sort/:pageSize/:page/:id/:mode` (canonical `all/-/20/1/-/list`), helper `PathListStateService` (`core/utils/path-list-state.ts`) + `listState()` trong `app.routes.ts`. Chuẩn ghi tại [coding_standards.md 2.4](../../../../08_developer_guides/coding_standards.md). **12 màn đã chuyển đổi** (5 Plugin Manager + 7 Sprint 01/02); helper cũ `route-list-state.service.ts` đã xoá.
+> **Cập nhật 2026-09-21**: Khách hàng chốt chuẩn **path-segment** thay cho query-param: `/:filter/:sort/:pageSize/:page/:id/:mode` (canonical `all/-/20/1/-/list`), helper `PathListStateService` (`core/utils/path-list-state.ts`) + `listState()` trong `app.routes.ts`. Chuẩn ghi tại [coding_standards.md 2.4](../../../08_developer_guides/coding_standards.md). **12 màn đã chuyển đổi** (5 Plugin Manager + 7 Sprint 01/02); helper cũ `route-list-state.service.ts` đã xoá.
 
 ## Đã hoàn thành (verified browser 9/9 PASS, 0 console error)
 

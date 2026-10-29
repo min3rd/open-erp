@@ -6,12 +6,21 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
 
 ## [Unreleased]
 
+### Sprint 06 — ĐÃ ĐÓNG (2026-10-29): Nền tảng phát triển plugin
+
+- Template 2.0 zero-DB + CLI tương tác: `create`, `generate entity|field|relation|crud|menu|ui-contribution`, `validate`, `upgrade`, `package`, `publish`, `dev`; CLI tests 11/11 ([FEAT-33](../sprints/sprint_06_plugin_dev_platform/07_items/FEAT-33_plugin_template_and_cli.md)).
+- Core render UI extension: slot/contribution runtime, WC/MF loaders, plugin-hosted slots, `/settings/system`; bỏ `PluginRenderMode.IFRAME` ([FEAT-34](../sprints/sprint_06_plugin_dev_platform/07_items/FEAT-34_core_rendered_ui_and_iframe_removal.md)).
+- Catalog migrate iframe → Web Component **1.0.9**, desktop + mobile read-only; `in-app-notification` **1.0.7** thay bell Core, bell drawer, platform defaults + tenant override; drop bảng `tenant_notifications` ([FEAT-35](../sprints/sprint_06_plugin_dev_platform/07_items/FEAT-35_in_app_notification_plugin.md), [TASK-424](../sprints/sprint_06_plugin_dev_platform/07_items/TASK-424_complete_in_app_notification.md)).
+- QA: [TR-S06-001](../sprints/sprint_06_plugin_dev_platform/08_testing/02_TR-S06-001_sprint_06_test_report.md) 1.5 — **22/22 AC PASS**, 7 bug Resolved (BUG-154…160), backend 32/32, CLI 11/11, web/mobile build PASS, i18n 13/13, desktop + mobile 0 console error/overflow 0.
+- Đóng gói: [REV-S06-001](../sprints/sprint_06_plugin_dev_platform/09_review/01_REV-S06-001_sprint_06_dod_review.md) — PM DoD PASS + khách hàng nghiệm thu, **Sprint 06 CLOSED 2026-10-29**; 0 Critical/High mở.
+- Docs: UG-S06-001 1.4 + 13 ảnh; create plugin/web packaging/shared UI/deployment/CLI guides đồng bộ; bỏ hướng dẫn iframe/CORE_IN_PROCESS.
+
 ### Sprint 05 — ĐÃ ĐÓNG (2026-10-29): Catalog plugin
 
 - Plugin catalog độc lập `plugins/catalog`: zero-DB + gRPC data gateway/mTLS, core-owned migrations, UI iframe desktop/mobile, shared runtime **1 container/version/scope** ([TASK-406](../sprints/sprint_05_catalog_plugin/07_items/TASK-406_plugin_runtime_per_version.md)).
 - Quan hệ loại + workspace cha/con trong item drawer; clone/sync system type; bỏ action inline ở type list ([FEAT-31](../sprints/sprint_05_catalog_plugin/07_items/FEAT-31_catalog_type_relations_child_picker.md), [FEAT-32](../sprints/sprint_05_catalog_plugin/07_items/FEAT-32_catalog_tenant_system_type_clone_sync.md), [TASK-404](../sprints/sprint_05_catalog_plugin/07_items/TASK-404_catalog_item_relation_workspace_ux.md), [TASK-405](../sprints/sprint_05_catalog_plugin/07_items/TASK-405_catalog_type_list_remove_inline_actions.md)).
 - QA: [TR-S05-002](../sprints/sprint_05_catalog_plugin/08_testing/03_TR-S05-002_plugin_architecture_test_report.md) PASS kiến trúc; [TR-S05-003](../sprints/sprint_05_catalog_plugin/08_testing/04_TR-S05-003_feat31_32_test_report.md) PASS FEAT-31/32; [TR-S05-004](../sprints/sprint_05_catalog_plugin/08_testing/05_TR-S05-004_task404_task406_test_report.md) PASS TASK-404/406. Backend 268 PASS/0 fail/1 skip; i18n 13/13; desktop + mobile 390×844 0 console error.
-- Đóng gói: [REV-S05-001](../sprints/sprint_05_catalog_plugin/09_review/01_REV-S05-001_sprint_05_dod_review.md) — PM DoD PASS + khách hàng nghiệm thu, **Sprint 05 CLOSED 2026-10-29**; 0 Critical/High mở. Backlog Medium: [TASK-407](../sprints/sprint_05_catalog_plugin/07_items/TASK-407_cli_scaffold_zero_db.md) (CLI scaffold zero-DB).
+- Đóng gói: [REV-S05-001](../sprints/sprint_05_catalog_plugin/09_review/01_REV-S05-001_sprint_05_dod_review.md) — PM DoD PASS + khách hàng nghiệm thu, **Sprint 05 CLOSED 2026-10-29**; 0 Critical/High mở. Backlog Medium: [TASK-407](../sprints/sprint_05_catalog_plugin/07_items/TASK-407_cli_scaffold_zero_db.md) (CLI scaffold zero-DB) — **Done (QA) trong Sprint 06**.
 
 ### Sprint 03 — ĐÃ ĐÓNG (2026-10-05)
 

@@ -180,7 +180,7 @@
 
 ## 8. Chữ Ký Phê Duyệt Nghiệm Thu Của Khách Hàng (Customer Acceptance Sign-Off)
 
-> **Trạng thái: PENDING — chưa có nguồn xác nhận nghiệm thu.** [TASK-353](../07_items/TASK-353_reconcile_legacy_sprint_records.md) đã đối soát hồ sơ Sprint 02 ngày 2026-10-05: [CONF-01](../../04_confirmation/CONF-01_sprint_02_scope.md) (2026-09-18) là xác nhận **phạm vi** (Confirmation Gate), **không** phải nghiệm thu đóng sprint. Không tìm thấy chữ ký/biên bản nghiệm thu khách hàng cho Sprint 02. Giữ nguyên ngày đóng lịch sử; **không tự ký, không hồi tố**.
+> **Trạng thái: PENDING — chưa có nguồn xác nhận nghiệm thu.** [TASK-353](../../sprint_03_plugin_manager/07_items/TASK-353_reconcile_legacy_sprint_records.md) đã đối soát hồ sơ Sprint 02 ngày 2026-10-05: [CONF-01](../04_confirmation/CONF-01_sprint_02_scope.md) (2026-09-18) là xác nhận **phạm vi** (Confirmation Gate), **không** phải nghiệm thu đóng sprint. Không tìm thấy chữ ký/biên bản nghiệm thu khách hàng cho Sprint 02. Giữ nguyên ngày đóng lịch sử; **không tự ký, không hồi tố**.
 >
 > Việc ký duyệt nghiệm thu (nếu thực hiện) phải do người thật thực hiện và ghi rõ nguồn/ngày; khi đó cập nhật lại dòng này từ PENDING sang ngày ký thực tế.
 

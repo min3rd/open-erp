@@ -1,14 +1,15 @@
 {
+  "schema_version": "2.0",
   "id": "catalog",
   "name": "Danh mục & quản trị danh mục",
   "description": "Plugin độc lập: hạ tầng danh mục dùng chung (quan hệ đa cha, phiên bản + hiệu lực, tra cứu cho form động, import/export, system catalog fan-out).",
-  "version": "1.0.0",
+  "version": "1.0.9",
   "author": "Open-ERP Core Team",
   "core_version_compatibility": ">=1.0.0 <2.0.0",
   "packaging": "image",
   "migration_policy": "COMPATIBLE",
   "rollback_strategy": "SNAPSHOT_RESTORE",
-  "template_version": "0.1.0",
+  "template_version": "2.0.0",
   "dependencies": [],
   "platforms": {
     "desktop": {
@@ -272,7 +273,9 @@
         "route": "/apps/catalog",
         "title_key": "CATALOG_SECTION_TITLE",
         "permission": "catalog:item:read",
-        "render_mode": "IFRAME",
+        "render_mode": "WEB_COMPONENT",
+        "entry": "/plugins-runtime/catalog/main.js",
+        "tag_name": "op-catalog-app",
         "order": 150,
         "platforms": [
           "desktop"
@@ -282,7 +285,9 @@
         "route": "/apps/catalog",
         "title_key": "CATALOG_SECTION_TITLE",
         "permission": "catalog:item:read",
-        "render_mode": "IFRAME",
+        "render_mode": "WEB_COMPONENT",
+        "entry": "/plugins-runtime/catalog/main.js",
+        "tag_name": "op-catalog-app",
         "order": 150,
         "platforms": [
           "mobile"
@@ -293,7 +298,9 @@
         "route": "/platform/apps/catalog",
         "title_key": "CATALOG_SECTION_TITLE",
         "permission": "catalog:system:manage",
-        "render_mode": "IFRAME",
+        "render_mode": "WEB_COMPONENT",
+        "entry": "/plugins-runtime/catalog/main.js",
+        "tag_name": "op-catalog-app",
         "order": 200,
         "platforms": [
           "desktop"
@@ -307,7 +314,7 @@
     "type": "IMAGE_REGISTRY",
     "registry_url": "",
     "repository": "open-erp/catalog",
-    "tag": "1.0.0"
+    "tag": "1.0.9"
   },
   "websockets": [],
   "queries": [

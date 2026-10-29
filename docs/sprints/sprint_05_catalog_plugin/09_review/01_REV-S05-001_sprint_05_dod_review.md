@@ -16,7 +16,7 @@
 - **0 bug Critical/High mở**. Toàn bộ BUG-135…153 đã Resolved.
 - Backend **268 PASS / 0 fail / 1 skip**; i18n **13/13 locale 100%**; desktop + mobile 390×844 **0 console error**, overflow 0.
 - QA sign-off đạt cho toàn sprint (FEAT-30/31/32 + TASK-394…406).
-- 1 việc Medium chuyển backlog Sprint sau: [TASK-407](../07_items/TASK-407_cli_scaffold_zero_db.md) (CLI generator còn template Panache/Flyway/datasource).
+- 1 việc Medium chuyển backlog Sprint sau: [TASK-407](../07_items/TASK-407_cli_scaffold_zero_db.md) (CLI generator còn template Panache/Flyway/datasource) — **đã Done (QA) trong Sprint 06**.
 
 ## 2. Trace 22 AC
 
@@ -73,7 +73,7 @@
 
 | # | Mức | Nội dung | Xử lý |
 | :--- | :--- | :--- | :--- |
-| 1 | Medium | [TASK-407](../07_items/TASK-407_cli_scaffold_zero_db.md): CLI scaffold còn Panache/Flyway/datasource/TENANT_ID | Backlog sau Sprint 05 |
+| 1 | Medium | [TASK-407](../07_items/TASK-407_cli_scaffold_zero_db.md): CLI scaffold còn Panache/Flyway/datasource/TENANT_ID — **Done (QA) trong Sprint 06** (TASK-408…413) | Backlog sau Sprint 05 → xử lý S06 |
 | 2 | Medium | Chưa E2E upgrade/rollback với **2 version** shared runtime | Test trước release tiếp theo |
 | 3 | Medium | AC-18/19/22 chưa smoke test lại UI sau iframe | QA smoke trước nghiệm thu khách hàng |
 | 4 | Low | Chưa deploy thử K8s staging cho shared runtime | Staging smoke |

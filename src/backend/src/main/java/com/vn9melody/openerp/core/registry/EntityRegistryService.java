@@ -1,5 +1,6 @@
 package com.vn9melody.openerp.core.registry;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.narayana.jta.QuarkusTransaction;
 import io.quarkus.runtime.StartupEvent;
@@ -8,6 +9,7 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import java.util.Map;
+import java.util.Optional;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.AnnotationValue;
@@ -50,6 +52,56 @@ public class EntityRegistryService {
             }
         });
     }
+
+    /**
+     * Resolves a CLI/plugin entity reference such as {@code core.user} or
+     * {@code plugin:catalog.CatalogItem}. Returns empty when the registry has
+     * no matching public entity.
+     */
+    public Optional<Lookup> lookup(String entityKey) {
+        if (entityKey == null || entityKey.isBlank()) {
+            return Optional.empty();
+        }
+        String pluginId = null;
+        String entityName = entityKey.trim();
+        if (entityName.startsWith("core.")) {
+            pluginId = "core-iam";
+            entityName = entityName.substring("core.".length());
+        } else if (entityName.startsWith("plugin:")) {
+            String value = entityName.substring("plugin:".length());
+            int dot = value.indexOf('.');
+            if (dot <= 0) {
+                return Optional.empty();
+            }
+            pluginId = value.substring(0, dot);
+            entityName = value.substring(dot + 1);
+        }
+        Object[] row = (Object[]) entityManager.createNativeQuery("""
+                SELECT plugin_id, entity_name, table_or_collection, storage_type, schema_definition::text
+                FROM sys_entity_registry
+                WHERE lower(entity_name) = lower(?1)
+                  AND (CAST(?2 AS text) IS NULL OR plugin_id = CAST(?2 AS text))
+                ORDER BY plugin_id
+                LIMIT 1
+                """)
+                .setParameter(1, entityName)
+                .setParameter(2, pluginId)
+                .getResultList().stream().findFirst().orElse(null);
+        if (row == null) {
+            return Optional.empty();
+        }
+        JsonNode schema = null;
+        try {
+            schema = objectMapper.readTree(String.valueOf(row[4]));
+        } catch (Exception ignored) {
+            // Keep the lookup useful even when legacy schema metadata is malformed.
+        }
+        return Optional.of(new Lookup(String.valueOf(row[0]), String.valueOf(row[1]),
+                String.valueOf(row[2]), String.valueOf(row[3]), schema));
+    }
+
+    public record Lookup(String pluginId, String entityName, String table,
+                         String storageType, JsonNode schemaDefinition) {}
 
     private void upsert(AnnotationInstance instance, ClassInfo classInfo) {
         AnnotationValue entityNameValue = instance.value("entityName");

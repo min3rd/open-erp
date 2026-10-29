@@ -24,6 +24,17 @@ Trước khi tạo mới, tìm trong [components/index.ts](../../src/frontend/sh
 
 ---
 
+### 1.1. Plugin UI host components (Sprint 06)
+
+| Component | Vai trò | Ghi chú |
+| :--- | :--- | :--- |
+| `PluginSlotComponent` | Core đọc slot từ UI manifest và render contribution | `slot`, `context`; tự bỏ qua sai permission/platform/contract |
+| `PluginContributionOutletComponent` | Render một contribution WC/MF + error boundary/timeout | Không import source plugin |
+| `TabStripComponent` | Tab dùng chung cho `/settings/system` | Plugin tab lấy từ slot `core.settings.system.tabs` |
+| WC/MF loaders | Nạp `main.js`/`remoteEntry.js`, gán context, forward event | Entry qua gateway + `plugin_token` ngắn hạn |
+
+Plugin **không** render layout Core; plugin chỉ khai báo `ui_manifest.screens/contributions/slots` và cung cấp custom element.
+
 ## 2. Tiêu Chuẩn Thiết Kế Component Trong `shared-ui-lib`
 
 1. **Công Nghệ**:

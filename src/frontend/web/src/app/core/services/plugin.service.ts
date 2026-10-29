@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@shared';
-import { buildQuery } from '@shared';
 import {
   ApiResponse,
   ListData,
@@ -10,7 +9,6 @@ import {
   PluginCredentialItem,
   PluginCredentialPayload,
   PluginMarketplaceItem,
-  PluginNotificationList,
   PluginOperationStatus,
   PluginRegisterVersionPayload,
   PluginVersionItem,
@@ -60,19 +58,6 @@ export class PluginService {
 
   operation(operationId: string): Observable<ApiResponse<PluginOperationStatus>> {
     return this.api.get<PluginOperationStatus>(`/api/v1/plugins/operations/${operationId}`);
-  }
-
-  notifications(unreadOnly: boolean = false): Observable<ApiResponse<PluginNotificationList>> {
-    const query = buildQuery({ [ResponseKey.UNREAD_ONLY]: unreadOnly || undefined });
-    return this.api.get<PluginNotificationList>(`/api/v1/tenant/notifications${query}`);
-  }
-
-  markNotificationRead(notificationId: string): Observable<ApiResponse<null>> {
-    return this.api.post<null>(`/api/v1/tenant/notifications/${notificationId}/read`, {});
-  }
-
-  markAllNotificationsRead(): Observable<ApiResponse<null>> {
-    return this.api.post<null>('/api/v1/tenant/notifications/read-all', {});
   }
 
   registerCustom(payload: {

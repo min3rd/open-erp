@@ -150,12 +150,70 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "none"
             },
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "outputHashing": "none"
+            }
+          },
+          "defaultConfiguration": "production"
+        }
+      }
+    },
+    "notification-plugin": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "../../../plugins/in-app-notification/web/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "../../../plugins/in-app-notification/web/src/plugin-main.ts",
+            "index": {
+              "input": "../../../plugins/in-app-notification/web/src/index.html",
+              "output": "index.html"
+            },
+            "tsConfig": "../../../plugins/in-app-notification/web/tsconfig.json",
+            "assets": [
+              {
+                "glob": "**/*.json",
+                "input": "public/i18n",
+                "output": "i18n"
+              }
+            ],
+            "styles": [
+              "../../../plugins/in-app-notification/web/src/styles.css"
+            ],
+            "outputPath": {
+              "base": "../../../plugins/in-app-notification/src/main/resources/META-INF/resources",
+              "browser": ""
+            }
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "none",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "900kB",
+                  "maximumError": "1.5MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "outputHashing": "none"
             }
           },
           "defaultConfiguration": "production"

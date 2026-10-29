@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import org.jboss.logging.Logger;
 
 /**
  * Syncs plugin-hosted UI slots from a version manifest on publish (TASK-309 /
@@ -19,6 +20,8 @@ import java.util.Set;
  */
 @ApplicationScoped
 public class PluginUiSlotSyncService {
+
+    private static final Logger LOG = Logger.getLogger(PluginUiSlotSyncService.class);
 
     @Inject
     PluginUiSlotRepository repository;
@@ -34,6 +37,10 @@ public class PluginUiSlotSyncService {
             for (JsonNode slot : slots) {
                 String code = slot.path("slot_code").asText(slot.path("code").asText(null));
                 if (code == null || code.isBlank()) {
+                    continue;
+                }
+                if (!code.startsWith(pluginKey + ".")) {
+                    LOG.warnf("Plugin %s declared slot %s outside its namespace; ignored", pluginKey, code);
                     continue;
                 }
                 String contractVersion = slot.path("contract_version").asText("1.0");

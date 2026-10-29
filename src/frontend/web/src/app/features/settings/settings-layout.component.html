@@ -6,14 +6,10 @@
     [userEmail]="auth.user()?.email || ''"
     [settingsPath]="auth.canAccessSettings() ? '/settings/roles' : null"
     [platformPath]="auth.isPlatformAdmin() ? '/platform/tenants' : null"
-    [notifications]="notifications()"
-    [notificationUnreadCount]="notificationUnreadCount()"
-    [notificationDetailPath]="notificationDetailPath()"
+    [pluginContext]="pluginContext.context()"
     (openAccount)="openAccount()"
     (logout)="logout()"
-    (markNotificationRead)="onMarkNotificationRead($event)"
-    (markAllNotificationsRead)="onMarkAllNotificationsRead()"
-    (openNotificationDetail)="onOpenNotificationDetail()"
+    (pluginNavigate)="pluginContext.navigate($event)"
   />
 
   <!-- Menu placement is a per-user preference (AUTO = the colour theme's own
@@ -59,10 +55,6 @@
     }
 
     <main class="flex-1 min-w-0 p-2 sm:p-3 space-y-2 overflow-y-auto">
-      <app-notification-banner
-        [items]="notifications()"
-        [detailPath]="notificationDetailPath()"
-      />
       <router-outlet />
     </main>
   </div>

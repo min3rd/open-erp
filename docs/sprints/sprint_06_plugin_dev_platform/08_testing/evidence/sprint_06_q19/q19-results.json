@@ -1,0 +1,35 @@
+{
+  "results": [
+    {
+      "name": "Platform admin defaults",
+      "status": "PASS",
+      "detail": "{\"display_name\":\"Open-ERP Default\",\"support_email\":\"defaults@9ms.io.vn\"}"
+    },
+    {
+      "name": "Old notification removed on Web",
+      "status": "PASS",
+      "detail": "{\"oldBell\":0,\"oldBanner\":0,\"newBell\":1}"
+    },
+    {
+      "name": "Tenant sees platform defaults",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Tenant inherit save",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Old notification removed on Mobile",
+      "status": "PASS",
+      "detail": "{\"mold\":0,\"mbanner\":0,\"mnew\":1}"
+    },
+    {
+      "name": "Mobile notification plugin screen",
+      "status": "PASS",
+      "detail": "http://localhost:8100/settings/apps/in-app-notification"
+    }
+  ],
+  "errors": []
+}

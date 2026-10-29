@@ -158,6 +158,13 @@ export const routes: Routes = [
         children: listState(() => import('./features/platform/plugins/platform-plugin-list.component').then(m => m.PlatformPluginListComponent))
       },
       {
+        path: 'notification-settings',
+        loadComponent: () =>
+          import('./features/platform/notification-settings/platform-notification-settings.component').then(
+            (m) => m.PlatformNotificationSettingsComponent
+          )
+      },
+      {
         path: 'plugin-credentials',
         children: listState(
           () => import('./features/settings/plugins/plugin-credentials.component').then(m => m.PluginCredentialsComponent),
@@ -226,6 +233,11 @@ export const routes: Routes = [
         path: 'sample-records',
         canActivate: [permissionGuard('core:sample-record:read')],
         children: listState(() => import('./features/settings/sample-records/sample-record-list.component').then(m => m.SampleRecordListComponent))
+      },
+      {
+        path: 'system',
+        canActivate: [permissionGuard('core:tenant:settings-manage')],
+        loadComponent: () => import('./features/settings/system/system-settings.component').then(m => m.SystemSettingsComponent)
       },
       {
         path: 'plugins',

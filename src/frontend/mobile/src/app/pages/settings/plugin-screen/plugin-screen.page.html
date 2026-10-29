@@ -1,0 +1,30 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title class="text-sm">{{ (screen()?.title_key || 'PLUGIN_MARKETPLACE_TITLE') | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content scrollY="false" class="plugin-content">
+  @if (loading()) {
+    <div class="absolute inset-0 flex items-center justify-center text-xs text-muted">
+      {{ 'PLUGIN_HOST_LOADING' | translate }}
+    </div>
+  } @else if (failed()) {
+    <div class="p-3 text-xs text-red-700 dark:text-red-300">
+      {{ 'PLUGIN_HOST_UNAVAILABLE' | translate }}
+      <button type="button" class="ms-2 underline" (click)="retry()">{{ 'COMMON_RETRY' | translate }}</button>
+    </div>
+  } @else if (screen(); as item) {
+    <app-plugin-web-component-loader
+      [entry]="item.entry || ''"
+      [pluginKey]="item.plugin_key"
+      [tagName]="item.tag_name || ''"
+      [context]="pluginContext.context()"
+      [route]="item.route"
+      (navigate)="onNavigate($event)"
+    />
+  }
+</ion-content>

@@ -202,12 +202,22 @@ public class PluginImageBuilder {
     }
 
     private String dockerfile(String pluginKey, String version) {
+        // Bundle web assets live beside app.jar. Repack them into the jar's
+        // META-INF/resources so Quarkus' default static handler serves
+        // /main.js and /styles.css without a host-specific static config.
         return """
-                FROM %s
-                LABEL plugin_key="%s" plugin_version="%s" managed-by="plugin-manager"
+                FROM eclipse-temurin:21-jdk-alpine AS pack
                 WORKDIR /app
                 COPY app.jar /app/app.jar
                 COPY static /app/static
+                RUN mkdir -p /tmp/ui/META-INF/resources \\
+                 && cp -R /app/static/. /tmp/ui/META-INF/resources/ \\
+                 && cd /tmp/ui && jar uf /app/app.jar META-INF/resources
+
+                FROM %s
+                LABEL plugin_key="%s" plugin_version="%s" managed-by="plugin-manager"
+                WORKDIR /app
+                COPY --from=pack /app/app.jar /app/app.jar
                 ENV QUARKUS_HTTP_PORT=8080
                 EXPOSE 8080
                 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

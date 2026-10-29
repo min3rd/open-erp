@@ -1,0 +1,102 @@
+{
+  "results": [
+    {
+      "name": "TC-06 header plugin bell + Core bell",
+      "status": "PASS",
+      "detail": "{\"pluginBell\":1,\"coreBell\":1,\"iframes\":0,\"mode\":\"light\"}"
+    },
+    {
+      "name": "TC-06 notification screen renders rows",
+      "status": "PASS",
+      "detail": "rows=2"
+    },
+    {
+      "name": "TC-06 settings system tabs",
+      "status": "PASS",
+      "detail": "Chung | Plugin | Cấu hình thông báo"
+    },
+    {
+      "name": "TC-06 notification settings tab + URL",
+      "status": "PASS",
+      "detail": "http://localhost:4200/settings/system?tab=notification-settings active=Cấu hình thông báo"
+    },
+    {
+      "name": "TC-06 settings tab survives reload",
+      "status": "PASS",
+      "detail": "Cấu hình thông báo"
+    },
+    {
+      "name": "TC-17 plugin manager notification ACTIVE",
+      "status": "PASS",
+      "detail": "PLUGIN_IN_APP_NOTIFICATION_NAME / in-app-notification /  / PLUGIN_IN_APP_NOTIFICATION_DESCRIPTION /  / ĐANG HOẠT ĐỘNG / Đã cài: 1.0.2 / Mới nhất: 1.0.2 / Tắt / Gỡ"
+    },
+    {
+      "name": "TC-07 catalog renders as Web Component (no iframe)",
+      "status": "PASS",
+      "detail": "{\"wc\":1,\"iframes\":0}"
+    },
+    {
+      "name": "TC-07 catalog tree view + reload keeps state",
+      "status": "PASS",
+      "detail": "http://localhost:4200/settings/apps/catalog/all/-/20/1/-/list?view=tree class=px-1.5 py-0.5 text-[10px] border bg-accent/10 border-accent/60 text-ink"
+    },
+    {
+      "name": "TC-12 dark theme applies",
+      "status": "PASS",
+      "detail": "data-mode=dark"
+    },
+    {
+      "name": "TC-10 English dashboard labels",
+      "status": "PASS",
+      "detail": "ERP / OPEN-ERP / / / E2E Plugin Demo / TENANT_ADMIN / E / E2E Tenant Admin / WELCOME BACK, E2E TENANT ADMIN /  / Workspace: E2E Plugin Demo (slug: e2e-plugin-de"
+    },
+    {
+      "name": "TC-10 English settings tabs",
+      "status": "PASS",
+      "detail": "General | Plugins | Notification settings"
+    },
+    {
+      "name": "TC-10 user without permission sees no plugin contribution",
+      "status": "PASS",
+      "detail": "{\"pluginBell\":0,\"coreBell\":1,\"role\":true}"
+    },
+    {
+      "name": "TC-10 API 403 for user without permission",
+      "status": "PASS",
+      "detail": "HTTP 403"
+    },
+    {
+      "name": "TC-09 mobile header contribution + zero overflow",
+      "status": "FAIL",
+      "detail": "{\"pluginBell\":0,\"overflow\":0,\"minTap\":40}"
+    },
+    {
+      "name": "TC-09 mobile catalog read-only + overflow 0",
+      "status": "PASS",
+      "detail": "{\"wc\":true,\"readOnly\":true,\"overflow\":0}"
+    },
+    {
+      "name": "TC-09 mobile catalog touch targets >= 40px",
+      "status": "FAIL",
+      "detail": "[{\"text\":\"API\",\"w\":29,\"h\":40},{\"text\":\"Cây\",\"w\":30,\"h\":40}]"
+    },
+    {
+      "name": "TC-10 mobile catalog i18n raw keys",
+      "status": "FAIL",
+      "detail": "COMMON_ACTIONS is not translated on mobile"
+    },
+    {
+      "name": "TC-09 disable plugin removes header contribution",
+      "status": "PASS",
+      "detail": "{\"pluginBell\":0,\"coreBell\":1}"
+    },
+    {
+      "name": "TC-09 enable plugin restores header contribution",
+      "status": "PASS",
+      "detail": "pluginBell=1"
+    }
+  ],
+  "consoleErrors": [
+    "viewer: Failed to load resource: the server responded with a status of 403 (Forbidden)"
+  ]
+}

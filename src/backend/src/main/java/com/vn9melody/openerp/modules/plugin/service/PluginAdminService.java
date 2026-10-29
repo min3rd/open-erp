@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -248,7 +249,8 @@ public class PluginAdminService {
             validateDependencies(dependencies);
         }
         JsonNode uiManifest = manifest.path("ui_manifest");
-        validateUiContributions(uiManifest);
+        validateManifest2(pluginKey, manifest);
+        validateUiContributions(pluginKey, uiManifest);
 
         artifactVerifier.verifyRegistry(request.source, request.imageRef, request.registryUrl);
         artifactVerifier.verifyBundleChecksum(request.artifactRef, request.checksum);
@@ -590,28 +592,99 @@ public class PluginAdminService {
         }
     }
 
-    private void validateUiContributions(JsonNode uiManifest) {
-        JsonNode contributions = uiManifest.path("contributions");
-        if (!contributions.isArray()) {
+    private void validateManifest2(String pluginKey, JsonNode manifest) {
+        String schemaVersion = manifest.path("schema_version").asText("");
+        if (!"2.0".equals(schemaVersion)) {
             return;
         }
-        List<String> missing = new ArrayList<>();
-        for (JsonNode contribution : contributions) {
-            String slot = contribution.path("slot").asText(null);
-            if (slot == null) {
-                throw new ApiException(400, PluginErrorCode.PLUGIN_UI_SLOT_NOT_FOUND, "Contribution slot is required");
+        Set<String> fieldTypes = Set.of("string", "text", "int", "long", "decimal", "bool",
+                "date", "datetime", "enum", "json", "uuid");
+        for (JsonNode entity : manifest.path("entities")) {
+            String entityName = entity.path("name").asText("");
+            if (entityName.isBlank() || entity.path("table").asText("").isBlank()) {
+                throw new ApiException(400, PluginErrorCode.PLUGIN_MANIFEST_SCHEMA_INVALID,
+                        "Every entity requires name and table");
             }
-            boolean exists = uiSlotRepository.findCoreSlot(slot).isPresent()
-                    || uiSlotRepository.count("slotCode = ?1 and hostType = 'PLUGIN'", slot) > 0;
-            if (!exists) {
-                missing.add(slot);
+            for (JsonNode field : entity.path("fields")) {
+                String fieldName = field.path("name").asText("");
+                String type = field.path("type").asText("string");
+                if (fieldName.isBlank() || !fieldTypes.contains(type)) {
+                    throw new ApiException(400, PluginErrorCode.PLUGIN_MANIFEST_SCHEMA_INVALID,
+                            "Invalid field on entity " + entityName + ": " + fieldName);
+                }
+                if ("enum".equals(type) && !field.path("enum_values").isArray()) {
+                    throw new ApiException(400, PluginErrorCode.PLUGIN_MANIFEST_SCHEMA_INVALID,
+                            "Enum field requires enum_values: " + entityName + "." + fieldName);
+                }
             }
         }
-        if (!missing.isEmpty()) {
-            Map<String, Object> params = new HashMap<>();
-            params.put(PluginResponseKey.SLOT_CODE.getKey(), missing);
-            throw new ApiException(409, PluginErrorCode.PLUGIN_UI_SLOT_NOT_FOUND,
-                    "Unknown UI slot(s): " + missing, params);
+        for (JsonNode relation : manifest.path("relations")) {
+            String target = relation.path("target").asText("");
+            String storage = relation.path("storage").asText("");
+            if (target.isBlank() || !(target.startsWith("self.")
+                    || target.startsWith("core.") || target.startsWith("plugin:"))) {
+                throw new ApiException(400, PluginErrorCode.PLUGIN_MANIFEST_SCHEMA_INVALID,
+                        "Invalid relation target: " + target);
+            }
+            if (!target.startsWith("self.") && !"SOFT_REF".equals(storage)) {
+                throw new ApiException(400, PluginErrorCode.PLUGIN_MANIFEST_SCHEMA_INVALID,
+                        "Cross-plugin relation must use SOFT_REF: " + relation.path("name").asText(""));
+            }
+        }
+        for (JsonNode migration : manifest.path("migrations")) {
+            String checksum = migration.path("checksum").asText("");
+            if (!checksum.matches("^sha256:[a-f0-9]{64}$")) {
+                throw new ApiException(400, PluginErrorCode.PLUGIN_MIGRATION_CHECKSUM_MISMATCH,
+                        "Migration checksum must be sha256:<64 hex>");
+            }
+        }
+        for (JsonNode slot : manifest.path("ui_manifest").path("slots")) {
+            String code = slot.path("slot_code").asText(slot.path("code").asText(""));
+            if (!code.startsWith(pluginKey + ".")) {
+                throw new ApiException(400, PluginErrorCode.PLUGIN_UI_SLOT_NAMESPACE_INVALID,
+                        "Plugin slot must be namespaced: " + code);
+            }
+        }
+    }
+
+    private void validateUiContributions(String pluginKey, JsonNode uiManifest) {
+        JsonNode contributions = uiManifest.path("contributions");
+        if (contributions.isArray()) {
+            List<String> missing = new ArrayList<>();
+            for (JsonNode contribution : contributions) {
+                validateRenderMode(contribution);
+                String slot = contribution.path("slot").asText(null);
+                if (slot == null) {
+                    throw new ApiException(400, PluginErrorCode.PLUGIN_UI_SLOT_NOT_FOUND,
+                            "Contribution slot is required");
+                }
+                boolean exists = uiSlotRepository.findCoreSlot(slot).isPresent()
+                        || uiSlotRepository.count("slotCode = ?1 and hostType = 'PLUGIN'", slot) > 0;
+                if (!exists) {
+                    missing.add(slot);
+                }
+            }
+            if (!missing.isEmpty()) {
+                Map<String, Object> params = new HashMap<>();
+                params.put(PluginResponseKey.SLOT_CODE.getKey(), missing);
+                throw new ApiException(409, PluginErrorCode.PLUGIN_UI_SLOT_NOT_FOUND,
+                        "Unknown UI slot(s): " + missing, params);
+            }
+        }
+        for (JsonNode screen : uiManifest.path("screens")) {
+            validateRenderMode(screen);
+        }
+    }
+
+    private void validateRenderMode(JsonNode item) {
+        String mode = item.path("render_mode").asText("WEB_COMPONENT").toUpperCase();
+        if (!"WEB_COMPONENT".equals(mode) && !"MODULE_FEDERATION".equals(mode)) {
+            throw new ApiException(400, PluginErrorCode.PLUGIN_UI_RENDER_MODE_UNSUPPORTED,
+                    "Unsupported render mode: " + mode);
+        }
+        if ("WEB_COMPONENT".equals(mode) && item.path("tag_name").asText("").isBlank()) {
+            throw new ApiException(400, PluginErrorCode.PLUGIN_UI_CONTRIBUTION_INVALID,
+                    "tag_name is required for WEB_COMPONENT");
         }
     }
 

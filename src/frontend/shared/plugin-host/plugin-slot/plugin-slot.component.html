@@ -1,0 +1,15 @@
+@for (contribution of contributions(); track trackContribution($index, contribution)) {
+  <app-plugin-contribution-outlet
+    [contribution]="contribution"
+    [context]="context()"
+    [hostContractVersion]="hostContractVersion()"
+    (failed)="failed.emit({ contribution, code: $event })"
+    (routeChange)="routeChange.emit($event)"
+    (navigate)="navigate.emit($event)"
+    (notify)="notify.emit($event)"
+  />
+} @empty {
+  @if (emptyKey()) {
+    <span class="hidden">{{ emptyKey() | translate }}</span>
+  }
+}

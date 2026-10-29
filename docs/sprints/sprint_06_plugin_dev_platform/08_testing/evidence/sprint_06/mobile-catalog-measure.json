@@ -1,0 +1,18 @@
+{
+  "captured_at": "2026-10-29",
+  "url": "http://localhost:8100/settings/catalog",
+  "viewport": { "width": 390, "height": 844, "deviceScaleFactor": 2, "isMobile": true, "hasTouch": true },
+  "tenant": "e2e-plugin-demo",
+  "selected_type": "Xã/Phường",
+  "catalog_web_component": { "present": true, "scrollHeight": 795, "clientHeight": 795 },
+  "records_table": { "top": 1013, "bottom": 2034.89, "bottom_out_of_viewport": 1190.89 },
+  "scrollable_elements": 0,
+  "document": { "scrollHeight": 844, "innerHeight": 844, "scrollYAfterScrollTo600": 0, "bodyOverflowY": "hidden" },
+  "document_overflow_x": 0,
+  "raw_i18n_keys": ["COMMON_ACTIONS", "COMMON_TOTAL_ITEMS", "COMMON_PREV", "COMMON_PAGE_OF", "COMMON_NEXT_PAGE"],
+  "small_touch_targets": [
+    { "text": "API", "width": 29, "height": 40 },
+    { "text": "Cây", "width": 30, "height": 40 }
+  ],
+  "plugin_header_contribution": { "op_in_app_notification_bell": 0, "core_notification_bell": 1 }
+}

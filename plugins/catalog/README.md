@@ -2,11 +2,11 @@
 
 Plugin độc lập của Open-ERP: hạ tầng danh mục dùng chung.
 
-- `plugin.json` — manifest theo schema Sprint 03.
+- `plugin.json` — manifest schema 2.0 (entities/queries/UI slots/screens).
 - `src/main/java` — Quarkus backend, package `com.vn9melody.openerp.plugins.catalog`.
 - `migrations/` — DDL bundle do **core** chạy trong schema tenant; manifest khai báo file + SHA-256, plugin không có datasource/Flyway.
 - `deploy/Dockerfile` — image runtime.
-- `web/` — Angular iframe bundle (P4).
+- `web/` — Angular Elements Web Component `op-catalog-app` (Sprint 06; không còn iframe).
 
 Plugin zero DB: mọi đọc/ghi đi qua core Plugin Data Gateway (gRPC + service token/mTLS); cache Redis do plugin tự quản lý.
 

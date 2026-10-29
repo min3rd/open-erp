@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { basename, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { writeFile } from '../lib/fsx.js';
 import { projectFiles } from '../lib/templates.js';
@@ -36,6 +36,7 @@ export async function createCommand(flags) {
   if (existsSync(target) && !flags.force) {
     throw new Error(`target already exists: ${target} (use --force to overwrite)`);
   }
+  options.monorepo = basename(dirname(target)) === 'plugins';
   const files = projectFiles(options);
   const manifestPath = join(target, 'plugin.json');
   const manifest = JSON.parse(files['plugin.json']);

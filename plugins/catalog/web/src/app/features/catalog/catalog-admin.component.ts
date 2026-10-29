@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -36,7 +36,7 @@ import {
   CatalogVersionDto
 } from '../../core/services/catalog-admin.service';
 import { PathListState, PathListStateService } from '@shared';
-import { CATALOG_READ_ONLY } from '../../core/catalog-read-only';
+import { CatalogRuntimeService } from '../../core/catalog-runtime.service';
 import { CatalogTypeDrawerComponent } from './catalog-type-drawer.component';
 import { CatalogItemDrawerComponent } from './catalog-item-drawer.component';
 import { CatalogItemDetailDrawerComponent } from './catalog-item-detail-drawer.component';
@@ -120,13 +120,12 @@ export class CatalogAdminComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private listState = inject(PathListStateService);
   private contextMenu = inject(ContextMenuService);
+  private runtime = inject(CatalogRuntimeService);
   /** Mobile/read-only host: no write actions even when the user has the grants. */
-  readonly readOnly = inject(CATALOG_READ_ONLY, { optional: true }) ?? false;
+  readonly readOnly = this.runtime.readOnly();
 
   /** `tenant` (settings) or `system` (platform portal, TASK-392). */
-  readonly scope = signal<CatalogScope>(
-    this.route.snapshot.data['catalogScope'] === CatalogScope.SYSTEM ? CatalogScope.SYSTEM : CatalogScope.TENANT
-  );
+  readonly scope = computed<CatalogScope>(() => this.runtime.scope());
   private readonly basePath = '';
 
   readonly viewModes = [CatalogViewMode.LIST, CatalogViewMode.TREE, CatalogViewMode.MULTI];
@@ -266,9 +265,23 @@ export class CatalogAdminComponent implements OnInit {
   private reselectCode: string | null = null;
   private searchTimer?: ReturnType<typeof setTimeout>;
 
+  constructor() {
+    effect(() => {
+      const view = this.runtime.viewMode();
+      if (view) {
+        this.viewMode.set(
+          view === CatalogViewMode.TREE || view === CatalogViewMode.MULTI ? view : CatalogViewMode.LIST
+        );
+      }
+    });
+  }
+
   ngOnInit(): void {
     this.loadTypes();
     this.listState.bind(this.basePath, (state, keyword) => this.applyState(state, keyword));
+    // The host may set the initial route after the component is created, so
+    // re-read query state when the plugin router publishes it.
+    this.route.queryParamMap.subscribe(() => this.applyQueryParams());
   }
 
   // ---------------------------------------------------------------------
@@ -295,7 +308,7 @@ export class CatalogAdminComponent implements OnInit {
     this.statusFilter.set((query.get('status') as CatalogStatus | null) ?? '');
     this.asOf.set(query.get('as_of') ?? '');
     this.relationFilter.set((query.get('relation_type') as CatalogRelationType | null) ?? '');
-    const view = query.get('view');
+    const view = this.runtime.viewMode() || query.get('view');
     this.viewMode.set(view === CatalogViewMode.TREE || view === CatalogViewMode.MULTI ? view : CatalogViewMode.LIST);
   }
 

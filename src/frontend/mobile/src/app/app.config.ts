@@ -10,10 +10,11 @@ import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalo
 import { map } from 'rxjs';
 
 import { routes } from './app.routes';
-import { PLUGIN_PERMISSION_CHECKER, UI_PREFERENCES_API, ThemeId, loadingInterceptor, toUiPreferences } from '@shared';
+import { PLUGIN_PERMISSION_CHECKER, UI_PREFERENCES_API, ThemeId, loadingInterceptor, toUiPreferences, API_BASE_URL } from '@shared';
 import { AuthService } from './core/auth.service';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { UiPreferencesService, UserUiPreferencesUpdate } from './core/ui-preferences.service';
+import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,6 +24,10 @@ export const appConfig: ApplicationConfig = {
     provideIonicAngular(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([loadingInterceptor, authInterceptor])),
+    {
+      provide: API_BASE_URL,
+      useValue: environment.apiBaseUrl
+    },
     {
       provide: PLUGIN_PERMISSION_CHECKER,
       useFactory: () => {

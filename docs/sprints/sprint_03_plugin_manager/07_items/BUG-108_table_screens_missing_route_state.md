@@ -22,7 +22,7 @@ Phạm vi: `/platform/plugins`, `/settings/plugins`, `/platform/plugin-credentia
 
 ## Hướng sửa (đã thực hiện)
 
-> **Cập nhật 2026-09-21 theo gợi ý khách hàng**: thay query-param bằng **chuẩn path-segment** `/:filter/:sort/:pageSize/:page/:id/:mode` (canonical `all/-/20/1/-/list`), khai báo qua helper `listState()` trong `app.routes.ts`; helper dùng chung `PathListStateService` (`core/utils/path-list-state.ts`). Từ khóa giữ ở `q`; tham số phụ (`scope/version/tenant`) ở query. Chuẩn được ghi tại [coding_standards.md mục 2.4](../../../../08_developer_guides/coding_standards.md).
+> **Cập nhật 2026-09-21 theo gợi ý khách hàng**: thay query-param bằng **chuẩn path-segment** `/:filter/:sort/:pageSize/:page/:id/:mode` (canonical `all/-/20/1/-/list`), khai báo qua helper `listState()` trong `app.routes.ts`; helper dùng chung `PathListStateService` (`core/utils/path-list-state.ts`). Từ khóa giữ ở `q`; tham số phụ (`scope/version/tenant`) ở query. Chuẩn được ghi tại [coding_standards.md mục 2.4](../../../08_developer_guides/coding_standards.md).
 
 Phạm vi áp dụng: 5 màn Plugin Manager + 7 màn bảng Sprint 01/02 (xem [TASK-348](TASK-348_route_state_rollout_sprint01_02.md)).
 

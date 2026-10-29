@@ -1,0 +1,55 @@
+<section class="space-y-2">
+  <header class="flex flex-wrap items-end justify-between gap-2">
+    <div class="min-w-0">
+      <h1 class="text-sm font-semibold text-ink">{{ 'SETTINGS_SYSTEM_TITLE' | translate }}</h1>
+      <p class="text-[11px] text-muted">{{ 'SETTINGS_SYSTEM_HINT' | translate }}</p>
+    </div>
+    @if (pluginContext.context().tenant; as tenant) {
+      <span class="font-mono text-[10px] text-muted">{{ tenant.name }}</span>
+    }
+  </header>
+
+  @if (loading()) {
+    <div class="h-8 animate-pulse border border-default bg-surface-muted"></div>
+    <div class="h-40 animate-pulse border border-default bg-surface-muted"></div>
+  } @else if (host.error()) {
+    <div class="border border-rose-300 bg-rose-50 p-2 text-[11px] text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
+      {{ 'PLUGIN_HOST_UNAVAILABLE' | translate }}
+      <button type="button" class="ms-2 underline" (click)="retry()">{{ 'COMMON_RETRY' | translate }}</button>
+    </div>
+  } @else {
+    <app-tab-strip
+      [tabs]="tabs()"
+      [activeId]="activeTab()"
+      (activeChange)="onTabChange($event)"
+    />
+
+    <div class="border border-default bg-surface p-2" role="tabpanel" [attr.aria-labelledby]="'tab-' + activeTab()">
+      @if (activeContribution(); as contribution) {
+        <app-plugin-contribution-outlet
+          [contribution]="contribution"
+          [context]="pluginContext.context()"
+          [hostContractVersion]="hostContractVersion()"
+        />
+      } @else if (activeTab() === 'plugins') {
+        <div class="space-y-1.5">
+          <p class="text-xs text-muted">{{ 'SETTINGS_SYSTEM_PLUGINS_HINT' | translate }}</p>
+          <a
+            routerLink="/settings/plugins"
+            class="inline-flex min-h-9 items-center border border-default px-2.5 text-xs font-semibold text-ink hover:bg-surface-muted"
+          >
+            {{ 'PLUGIN_MARKETPLACE_TITLE' | translate }}
+          </a>
+        </div>
+      } @else {
+        <div class="space-y-2">
+          <p class="text-xs text-muted">{{ 'SETTINGS_SYSTEM_GENERAL_HINT' | translate }}</p>
+          <app-plugin-slot
+            slot="core.settings.sections"
+            [context]="pluginContext.context()"
+          />
+        </div>
+      }
+    </div>
+  }
+</section>

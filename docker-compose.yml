@@ -251,6 +251,10 @@ services:
       OPENERP_PLUGIN_RUNTIME_GATEWAY_URL: https://backend-dev:9090
       OPENERP_PLUGIN_RUNTIME_TLS_DIR: /deploy/certs
       OPENERP_PLUGIN_DEPLOYER_TLS_HOST_DIR: openerp_plugin_certs
+      # Local dev registry used by the plugin image builder; private hosts are
+      # rejected unless explicitly allowlisted.
+      OPENERP_PLUGIN_REGISTRY_ALLOWED_HOSTS: openerp-registry.local
+      OPENERP_PLUGIN_OCI_RESOLVE_DIGEST: "false"
     ports:
       - "8088:8080"
     volumes:
@@ -279,7 +283,7 @@ services:
     build:
       context: .
       dockerfile: plugins/catalog/deploy/Dockerfile
-    image: open-erp/catalog:1.0.0
+    image: open-erp/catalog:1.0.9
     container_name: openerp-catalog-dev
     profiles: ["test"]
     environment:
@@ -311,7 +315,7 @@ services:
       - openerp-net
 
   catalog-system-dev:
-    image: open-erp/catalog:1.0.0
+    image: open-erp/catalog:1.0.9
     container_name: openerp-catalog-system-dev
     profiles: ["dev"]
     environment:
@@ -343,7 +347,7 @@ services:
       - openerp-net
 
   catalog-e2e-dev:
-    image: open-erp/catalog:1.0.0
+    image: open-erp/catalog:1.0.9
     container_name: openerp-catalog-e2e-dev
     profiles: ["test"]
     environment:

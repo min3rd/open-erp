@@ -1,0 +1,60 @@
+{
+  "results": [
+    {
+      "name": "Desktop header",
+      "status": "PASS",
+      "detail": "{\"pluginBell\":1,\"coreBell\":1,\"iframes\":0}"
+    },
+    {
+      "name": "Notification screen",
+      "status": "PASS",
+      "detail": "http://localhost:4200/settings/apps/in-app-notification"
+    },
+    {
+      "name": "Settings system tab",
+      "status": "PASS",
+      "detail": "http://localhost:4200/settings/system?tab=notification-settings"
+    },
+    {
+      "name": "Plugin Manager i18n",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Catalog WC",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Catalog tree reload",
+      "status": "PASS",
+      "detail": "http://localhost:4200/settings/apps/catalog/all/-/20/1/-/list?view=tree"
+    },
+    {
+      "name": "English dashboard",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "AC-11 error boundary",
+      "status": "PASS",
+      "detail": "{\"badContract\":0,\"badEntry\":0,\"bell\":1,\"heading\":true}"
+    },
+    {
+      "name": "Mobile header",
+      "status": "PASS",
+      "detail": "{\"pluginBell\":1,\"coreButtons\":2,\"taps\":[{\"w\":40,\"h\":40},{\"w\":40,\"h\":40}]}"
+    },
+    {
+      "name": "Mobile notification screen",
+      "status": "PASS",
+      "detail": "http://localhost:8100/settings/apps/in-app-notification"
+    },
+    {
+      "name": "Mobile catalog",
+      "status": "PASS",
+      "detail": "{\"wc\":true,\"tableTop\":577,\"asideH\":320,\"overflow\":0,\"raw\":false,\"small\":[]}"
+    }
+  ],
+  "consoleErrors": []
+}

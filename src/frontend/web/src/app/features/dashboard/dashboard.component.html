@@ -7,23 +7,14 @@
     [userEmail]="auth.user()?.email || ''"
     [settingsPath]="auth.canAccessSettings() ? '/settings/roles' : null"
     [platformPath]="auth.isPlatformAdmin() ? '/platform/tenants' : null"
-    [notifications]="notifications()"
-    [notificationUnreadCount]="notificationUnreadCount()"
-    [notificationDetailPath]="notificationDetailPath()"
+    [pluginContext]="pluginContext.context()"
     (openAccount)="openAccount()"
     (logout)="auth.logout()"
-    (markNotificationRead)="onMarkNotificationRead($event)"
-    (markAllNotificationsRead)="onMarkAllNotificationsRead()"
-    (openNotificationDetail)="onOpenNotificationDetail()"
+    (pluginNavigate)="pluginContext.navigate($event)"
   />
 
   <!-- Main Workspace Container -->
   <main class="flex-1 p-3 sm:p-4 lg:p-6 max-w-7xl w-full mx-auto space-y-3 sm:space-y-6">
-    <app-notification-banner
-      [items]="notifications()"
-      [detailPath]="notificationDetailPath()"
-    />
-
     @if (deniedNotice()) {
       <div class="rounded-container border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 px-3 py-2 text-xs text-amber-800 dark:text-amber-200">
         {{ deniedNotice() }}
@@ -48,6 +39,13 @@
         </div>
       </div>
     </div>
+
+    <!-- Plugin-contributed dashboard widgets -->
+    <app-plugin-slot
+      slot="core.dashboard.widgets"
+      [context]="pluginContext.context()"
+      emptyKey=""
+    />
 
     <!-- Features Status Grid -->
     <div>

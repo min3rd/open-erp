@@ -141,6 +141,8 @@
 | T11 | `DELETE /tenant/plugin-credentials/{id}` | Xóa credential | `core:plugin:credential:manage` |
 | T12 | `GET /tenant/notifications` | Thông báo (phân trang, filter unread) | đăng nhập |
 | T13 | `POST /tenant/notifications/{id}/read`, `POST /tenant/notifications/read-all` | Đánh dấu đã đọc | đăng nhập |
+
+> **T12/T13 đã bỏ ở Sprint 06** — thay bằng API plugin `in-app-notification` (`/api/v1/in-app-notification/notifications`). Dòng trên giữ làm lịch sử Sprint 03.
 | T14 | `POST /tenant/plugins/artifacts/upload` | Upload bundle plugin riêng (multipart → MinIO quarantine; kiểm tra quota tenant) | `core:plugin:register-custom` |
 | T15 | `POST /tenant/plugins/{key}/versions` | **Đăng ký thêm phiên bản** cho plugin riêng (3 nguồn, như P5 nhưng phạm vi tenant) | `core:plugin:register-custom` |
 | T16 | `GET /tenant/plugins/{key}/versions` | Danh sách phiên bản của plugin riêng (Non-Paginated) | `core:plugin:read` |

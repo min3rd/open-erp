@@ -83,9 +83,10 @@ npm run dev
 ```
 Lệnh này **build và chạy toàn bộ môi trường dev trong Docker** (không chạy Java/Angular dev server trên host):
 1. `predev` sinh khóa JWT dev nếu chưa có.
-2. Docker Compose profile `dev` build + chạy: PostgreSQL Primary, Redis, core backend (`backend-dev`, :8088), web Angular (`web-dev`, :4200), mobile Ionic (`mobile-dev`, :8100), `catalog-system-dev` (platform catalog tĩnh); catalog tenant dùng container shared theo version do backend deploy. Fixture/test containers nằm ở profile `test`.
+2. Docker Compose profile `dev` build + chạy: PostgreSQL Primary, Redis, core backend (`backend-dev`, :8088), web Angular (`web-dev`, :4200), mobile Ionic (`mobile-dev`, :8100), `catalog-system-dev` (catalog Web Component, image `open-erp/catalog:1.0.9`); catalog tenant dùng container shared theo version do backend deploy. Fixture/test containers nằm ở profile `test`.
 3. Plugin UI bundle được build **trong image** plugin (Node stage), không phụ thuộc `ng build` trên host.
 4. Web container dùng `proxy.docker.conf.json` để gọi backend qua `http://backend-dev:8080`.
+5. Catalog/notification UI là Web Component (`main.js`) do Core mount qua `/plugins-runtime/<key>/main.js`; không còn iframe host. Khi đổi version catalog phải build image mới và cập nhật `plugin_versions.distribution.image_ref` trước khi upgrade tenant.
 
 Dừng toàn bộ môi trường dev:
 ```bash

@@ -66,7 +66,6 @@ export enum ResponseKey {
   CHECKSUM = 'checksum',
   USERNAME = 'username',
   SECRET = 'secret',
-  UNREAD_ONLY = 'unread_only',
   ENTITLEMENT_PLANS = 'entitlement_plans',
   DEFAULT_INSTALL = 'default_install',
   FORCE_UNINSTALL = 'force_uninstall',

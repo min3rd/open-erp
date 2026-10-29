@@ -2,6 +2,7 @@ package com.vn9melody.openerp.modules.plugin.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.vn9melody.openerp.modules.plugin.api.PluginResponseKey;
 import java.time.Instant;
 import java.util.List;
@@ -196,6 +197,9 @@ public final class PluginResponses {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class UiContribution {
+        @JsonProperty(PluginResponseKey.Json.ID)
+        public String id;
+
         @JsonProperty(PluginResponseKey.Json.PLUGIN_KEY)
         public String pluginKey;
 
@@ -207,6 +211,21 @@ public final class PluginResponses {
 
         @JsonProperty(PluginResponseKey.Json.ENTRY)
         public String entry;
+
+        @JsonProperty(PluginResponseKey.Json.TAG_NAME)
+        public String tagName;
+
+        @JsonProperty(PluginResponseKey.Json.EXPOSED_MODULE)
+        public String exposedModule;
+
+        @JsonProperty(PluginResponseKey.Json.PLATFORMS)
+        public List<String> platforms;
+
+        @JsonProperty(PluginResponseKey.Json.ISOLATION)
+        public String isolation;
+
+        @JsonProperty(PluginResponseKey.Json.ICON)
+        public String icon;
 
         @JsonProperty(PluginResponseKey.Json.PERMISSION)
         public String permission;
@@ -249,15 +268,78 @@ public final class PluginResponses {
 
         @JsonProperty(PluginResponseKey.Json.RENDER_MODE)
         public String renderMode;
+
+        @JsonProperty(PluginResponseKey.Json.ENTRY)
+        public String entry;
+
+        @JsonProperty(PluginResponseKey.Json.TAG_NAME)
+        public String tagName;
+
+        @JsonProperty(PluginResponseKey.Json.EXPOSED_MODULE)
+        public String exposedModule;
+
+        @JsonProperty(PluginResponseKey.Json.PLATFORMS)
+        public List<String> platforms;
+
+        @JsonProperty(PluginResponseKey.Json.READ_ONLY)
+        public Boolean readOnly;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class UiManifest {
+        @JsonProperty(PluginResponseKey.Json.CONTRACT_VERSION)
+        public String contractVersion;
+
         @JsonProperty(PluginResponseKey.Json.SCREENS)
         public List<UiScreen> screens;
 
         @JsonProperty(PluginResponseKey.Json.SLOTS)
         public List<UiSlot> slots;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class UiSlotDefinition {
+        @JsonProperty(PluginResponseKey.Json.SLOT_CODE)
+        public String slotCode;
+
+        @JsonProperty(PluginResponseKey.Json.HOST)
+        public String hostType;
+
+        @JsonProperty(PluginResponseKey.Json.PLUGIN_KEY)
+        public String ownerPluginKey;
+
+        @JsonProperty(PluginResponseKey.Json.TITLE_KEY)
+        public String titleKey;
+
+        @JsonProperty(PluginResponseKey.Json.CONTRACT_VERSION)
+        public String contractVersion;
+
+        @JsonProperty(PluginResponseKey.Json.RENDER_MODE)
+        public JsonNode allowedRenderModes;
+
+        @JsonProperty(PluginResponseKey.Json.STATUS)
+        public String status;
+
+        @JsonProperty(PluginResponseKey.Json.CONSTRAINTS)
+        public JsonNode constraints;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class EntityRegistryEntry {
+        @JsonProperty(PluginResponseKey.Json.PLUGIN_ID)
+        public String pluginId;
+
+        @JsonProperty(PluginResponseKey.Json.ENTITY_NAME)
+        public String entityName;
+
+        @JsonProperty(PluginResponseKey.Json.TABLE_NAME)
+        public String table;
+
+        @JsonProperty(PluginResponseKey.Json.STORAGE_TYPE)
+        public String storageType;
+
+        @JsonProperty(PluginResponseKey.Json.SCHEMA_DEFINITION)
+        public JsonNode schemaDefinition;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -285,26 +367,6 @@ public final class PluginResponses {
 
         @JsonProperty(PluginResponseKey.Json.LAST_ERROR_CODE)
         public String lastErrorCode;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class NotificationItem {
-        public String id;
-
-        @JsonProperty(PluginResponseKey.Json.NOTIFICATION_TYPE)
-        public String type;
-
-        @JsonProperty(PluginResponseKey.Json.TITLE_KEY)
-        public String titleKey;
-
-        @JsonProperty(PluginResponseKey.Json.SEVERITY)
-        public String severity;
-
-        @JsonProperty(PluginResponseKey.Json.READ_AT)
-        public Instant readAt;
-
-        @JsonProperty(PluginResponseKey.Json.CREATED_AT)
-        public Instant createdAt;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 
 /**
- * Legacy `/apps/*` URLs used by the first iframe host. Plugin screens now live
+ * Legacy `/apps/*` URLs used by the first plugin host. Plugin screens now live
  * inside the core settings layout; keep old bookmarks working.
  */
 export const legacyPluginRedirectGuard: CanActivateFn = (_route, state) => {

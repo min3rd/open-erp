@@ -23,15 +23,12 @@ import org.jboss.logging.Logger;
  * stuck and the Redis lock only clears via its TTL. The sweeper (see
  * {@link PluginOperationRecoveryJob}) finds ledgers in an intermediate state
  * older than {@code staleMinutes} whose container is gone and closes them as
- * INSTALL_FAILED, releasing the lock, auditing and notifying the tenant.
+ * INSTALL_FAILED, releasing the lock and auditing the recovery.
  */
 @ApplicationScoped
 public class PluginOperationRecoveryService {
 
     private static final Logger LOG = Logger.getLogger(PluginOperationRecoveryService.class);
-
-    public static final String TYPE_PLUGIN_OPERATION_ABANDONED = "PLUGIN_OPERATION_ABANDONED";
-    public static final String TITLE_PLUGIN_OPERATION_ABANDONED = "NOTIFICATION_PLUGIN_OPERATION_ABANDONED";
 
     private static final List<TenantPluginStatus> INTERMEDIATE = List.of(
             TenantPluginStatus.INSTALLING, TenantPluginStatus.UPGRADING, TenantPluginStatus.UNINSTALLING);
@@ -47,9 +44,6 @@ public class PluginOperationRecoveryService {
 
     @Inject
     PluginAuditService auditService;
-
-    @Inject
-    PluginNotificationService notificationService;
 
     /** Closes every abandoned saga older than the cutoff; returns how many were recovered. */
     @Transactional
@@ -75,8 +69,6 @@ public class PluginOperationRecoveryService {
             auditService.tenant(ledger.tenantId, PlatformAction.TENANT_PLUGIN_OPERATION_RECOVERED,
                     ledger.pluginKey, Map.of("previous_operation_id",
                             previousOperationId == null ? "" : previousOperationId.toString()));
-            notificationService.notifyTenant(ledger.tenantId, TYPE_PLUGIN_OPERATION_ABANDONED,
-                    TITLE_PLUGIN_OPERATION_ABANDONED, Map.of("plugin_key", ledger.pluginKey), "WARNING");
             recovered++;
             LOG.infof("Recovered abandoned plugin operation for %s/%s", ledger.tenantId, ledger.pluginKey);
         }

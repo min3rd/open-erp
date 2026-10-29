@@ -41,7 +41,6 @@ export enum PluginDistributionType {
 export enum PluginRenderMode {
   WEB_COMPONENT = 'WEB_COMPONENT',
   MODULE_FEDERATION = 'MODULE_FEDERATION',
-  IFRAME = 'IFRAME',
 }
 
 export enum PluginRollbackStrategy {

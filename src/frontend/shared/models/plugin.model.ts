@@ -108,19 +108,6 @@ export interface PluginCredentialPayload {
   secret: string;
 }
 
-export interface PluginNotification {
-  id: string;
-  type: string;
-  title_key: string;
-  severity: string;
-  read_at?: string | null;
-  created_at?: string;
-}
-
-export interface PluginNotificationList {
-  items: PluginNotification[];
-}
-
 export interface PluginInstallationItem {
   tenant_id: string;
   tenant_slug?: string | null;

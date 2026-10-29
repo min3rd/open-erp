@@ -32,10 +32,10 @@ Tổng cộng **17 inline SVG** nằm trong 7 template của thư viện shared:
 | 1 | [topbar](../../../../src/frontend/shared/components/topbar/topbar.component.html) | Hamburger menu | `menu` |
 | 2 | [drawer](../../../../src/frontend/shared/components/drawer/drawer.component.html) | Đóng | `x` |
 | 3 | [user-menu](../../../../src/frontend/shared/components/user-menu/user-menu.component.html) | Chevron mở menu | `chevron-down` |
-| 4 | [notification-bell](../../../../src/frontend/shared/components/notification-bell/notification-bell.component.html) | Chuông thông báo | `bell` |
-| 5 | [notification-bell](../../../../src/frontend/shared/components/notification-bell/notification-bell.component.html) | Đánh dấu đã đọc | `check` |
-| 6 | [notification-banner](../../../../src/frontend/shared/components/notification-banner/notification-banner.component.html) | Trạng thái banner | `info` / `alert-*` |
-| 7 | [notification-banner](../../../../src/frontend/shared/components/notification-banner/notification-banner.component.html) | Đóng banner | `x` |
+| 4 | [notification-bell](../../../../plugins/in-app-notification/web/src/app/notification-bell.component.html) | Chuông thông báo | `bell` |
+| 5 | [notification-bell](../../../../plugins/in-app-notification/web/src/app/notification-bell.component.html) | Đánh dấu đã đọc | `check` |
+| 6 | [notification-screen](../../../../plugins/in-app-notification/web/src/app/notification-screen.component.html) | Trạng thái banner | `info` / `alert-*` |
+| 7 | [drawer](../../../../src/frontend/shared/components/drawer/drawer.component.html) | Đóng banner/drawer | `x` |
 | 8 | [sharp-button](../../../../src/frontend/shared/components/sharp-button/sharp-button.component.html) | Spinner khi tải | `loader` |
 | 9–17 | [mobile-nav-drawer](../../../../src/frontend/shared/components/mobile-nav-drawer/mobile-nav-drawer.component.html) | 9 icon mục điều hướng + đóng | `home`, `grid`, `settings`, `log-out`… |
 

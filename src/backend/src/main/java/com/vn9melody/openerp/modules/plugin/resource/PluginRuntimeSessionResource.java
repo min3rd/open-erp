@@ -21,7 +21,7 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 /**
- * Issues short-lived iframe session tokens (TASK-343): the token is scoped to a
+ * Issues short-lived plugin runtime tokens (TASK-343): the token is scoped to a
  * single (tenant, plugin) pair with the PLUGIN_RUNTIME type, so it cannot be
  * replayed against core APIs.
  */

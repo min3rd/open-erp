@@ -1,6 +1,10 @@
 import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 
+export function sha256Text(text) {
+  return createHash('sha256').update(text, 'utf8').digest('hex');
+}
+
 export function sha256File(filePath) {
   return new Promise((resolve, reject) => {
     const hash = createHash('sha256');

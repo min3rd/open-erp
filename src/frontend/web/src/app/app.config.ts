@@ -1,7 +1,7 @@
 import { ApplicationConfig, inject, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { map } from 'rxjs';
+import { map, of } from 'rxjs';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -31,8 +31,13 @@ export const appConfig: ApplicationConfig = {
       provide: UI_PREFERENCES_API,
       useFactory: () => {
         const prefs = inject(UiPreferencesService);
+        const auth = inject(AuthService);
         return {
-          fetch: () => prefs.getUserUiPreferences().pipe(map((res) => toUiPreferences(res.data))),
+          // Platform tokens have no tenant scope, so the tenant-scoped UI
+          // preferences endpoint would 401 and drop the platform session.
+          fetch: () => auth.isPlatformAdmin()
+            ? of(toUiPreferences(null))
+            : prefs.getUserUiPreferences().pipe(map((res) => toUiPreferences(res.data))),
           update: (preferences: UserUiPreferencesUpdate) => prefs.updateUserUiPreferences(preferences),
           updateTenantTheme: (theme: ThemeId) => prefs.updateUiPreferences(theme)
         };

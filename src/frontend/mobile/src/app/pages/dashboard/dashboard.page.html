@@ -4,26 +4,18 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>{{ 'DASHBOARD_ORGANIZATION' | translate:{ name: auth.user()?.tenant_name || 'Open-ERP' } }}</ion-title>
-    <ion-buttons slot="end">
-      <button
-        type="button"
-        (click)="openPlugins()"
-        [attr.aria-label]="'NOTIFICATION_TITLE' | translate"
-        class="inline-flex items-center justify-center min-h-10 min-w-10 text-ink cursor-pointer"
-      >
-        <app-icon name="bell" size="md" [decorative]="true" />
-      </button>
-    </ion-buttons>
+    <div slot="end" class="flex items-center">
+      <app-plugin-slot
+        [slot]="'core.layout.header.actions'"
+        [context]="pluginContext.context()"
+        (navigate)="openPluginPath($event)"
+      />
+    </div>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="max-w-md mx-auto p-3 space-y-3">
-    <app-notification-banner
-      [items]="notifications()"
-      [detailPath]="notificationDetailPath()"
-    />
-
     <div class="rounded-container bg-surface border border-default p-3">
       <h1 class="text-xs font-bold uppercase tracking-wider text-ink">
         {{ 'DASHBOARD_WELCOME' | translate:{ name: auth.user()?.full_name || auth.user()?.email } }}

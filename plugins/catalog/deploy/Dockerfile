@@ -17,6 +17,7 @@ WORKDIR /build
 COPY plugins/pom.xml .
 COPY plugins/sdk/pom.xml sdk/pom.xml
 COPY plugins/catalog/pom.xml catalog/pom.xml
+COPY plugins/in-app-notification/pom.xml in-app-notification/pom.xml
 RUN mvn -q -B -pl catalog -am dependency:go-offline || true
 COPY plugins/sdk/src/ sdk/src/
 COPY plugins/catalog/src/ catalog/src/

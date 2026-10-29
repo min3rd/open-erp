@@ -1,0 +1,4 @@
+@import '../../../../src/frontend/web/src/styles.css';
+
+/* Plugin-owned Tailwind entry: scan this plugin's sources only. */
+@source './';

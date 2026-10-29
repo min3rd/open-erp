@@ -72,6 +72,7 @@ export class AuthService {
       'core:role:manage',
       'core:organization:manage',
       'core:sample-record:read',
+      'core:tenant:settings-manage',
       'core:plugin:read',
       'core:plugin:credential:manage'
     ];

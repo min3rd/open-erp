@@ -74,6 +74,18 @@ public enum PluginResponseKey {
     PERMISSION("permission"),
     TITLE_KEY("title_key"),
     ROUTE("route"),
+    TAG_NAME("tag_name"),
+    EXPOSED_MODULE("exposed_module"),
+    PLATFORMS("platforms"),
+    READ_ONLY("read_only"),
+    ISOLATION("isolation"),
+    ICON("icon"),
+    CONSTRAINTS("constraints"),
+    TABLE_NAME("table"),
+    ENTITY_NAME("entity_name"),
+    PLUGIN_ID("plugin_id"),
+    STORAGE_TYPE("storage_type"),
+    SCHEMA_DEFINITION("schema_definition"),
 
     // Credentials / notifications
     SCOPE("scope"),
@@ -84,9 +96,6 @@ public enum PluginResponseKey {
     LAST_USED_AT("last_used_at"),
     CONNECTED("connected"),
     TEMPLATE_VERSION("template_version"),
-    NOTIFICATION_TYPE("type"),
-    SEVERITY("severity"),
-    READ_AT("read_at"),
 
     // Runtime session
     TOKEN("token"),
@@ -153,6 +162,18 @@ public enum PluginResponseKey {
         String PERMISSION = "permission";
         String TITLE_KEY = "title_key";
         String ROUTE = "route";
+        String TAG_NAME = "tag_name";
+        String EXPOSED_MODULE = "exposed_module";
+        String PLATFORMS = "platforms";
+        String READ_ONLY = "read_only";
+        String ISOLATION = "isolation";
+        String ICON = "icon";
+        String CONSTRAINTS = "constraints";
+        String TABLE_NAME = "table";
+        String ENTITY_NAME = "entity_name";
+        String PLUGIN_ID = "plugin_id";
+        String STORAGE_TYPE = "storage_type";
+        String SCHEMA_DEFINITION = "schema_definition";
         String SCOPE = "scope";
         String ID = "id";
         String REGISTRY_HOST = "registry_host";
@@ -161,9 +182,6 @@ public enum PluginResponseKey {
         String LAST_USED_AT = "last_used_at";
         String CONNECTED = "connected";
         String TEMPLATE_VERSION = "template_version";
-        String NOTIFICATION_TYPE = "type";
-        String SEVERITY = "severity";
-        String READ_AT = "read_at";
         String TOKEN = "token";
         String EXPIRES_IN_SECONDS = "expires_in_seconds";
         String CREDENTIAL_ID = "credential_id";

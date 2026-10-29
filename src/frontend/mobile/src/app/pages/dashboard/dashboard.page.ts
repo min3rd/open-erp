@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import {
   IonHeader,
   IonToolbar,
@@ -9,16 +9,14 @@ import {
   NavController,
 } from '@ionic/angular/standalone';
 import { AuthService } from '../../core/auth.service';
-import { PluginService } from '../../core/plugin.service';
+import { PluginContextService } from '../../core/plugin-context.service';
 import {
   TranslateDirective,
   TranslatePipe,
   SharpButtonComponent,
   BadgeComponent,
-  NotificationBannerComponent,
-  IconComponent,
+  PluginSlotComponent,
   ColorVariant,
-  PluginNotification,
 } from '@shared';
 
 @Component({
@@ -35,39 +33,25 @@ import {
     TranslatePipe,
     SharpButtonComponent,
     BadgeComponent,
-    NotificationBannerComponent,
-    IconComponent
+    PluginSlotComponent
   ],
   templateUrl: './dashboard.page.html'
 })
 export class DashboardPage implements OnInit {
   auth = inject(AuthService);
   navCtrl = inject(NavController);
-  private pluginService = inject(PluginService);
+  pluginContext = inject(PluginContextService);
 
   readonly badgeInfo = ColorVariant.INFO;
   readonly buttonSecondary = ColorVariant.SECONDARY;
-  readonly notifications = signal<PluginNotification[]>([]);
-
-  // Only link to the plugin settings page when the user may open it.
-  readonly notificationDetailPath = computed(() =>
-    this.auth.hasPermission('core:plugin:read') !== false ? '/settings/plugins' : null
-  );
   readonly canBrowseCatalog = computed(() => this.auth.hasPermission('catalog:item:read') !== false);
 
   ngOnInit(): void {
-    this.loadNotifications();
+    // Notification contributions are rendered by the plugin slot in the header.
   }
 
-  loadNotifications(): void {
-    this.pluginService.notifications(true).subscribe({
-      next: res => this.notifications.set(res.data?.items || []),
-      error: () => this.notifications.set([])
-    });
-  }
-
-  openPlugins() {
-    this.navCtrl.navigateForward(['/settings/plugins']);
+  openPluginPath(path: string) {
+    this.pluginContext.navigate(path);
   }
 
   openCatalog() {

@@ -298,6 +298,8 @@ CREATE INDEX idx_plugin_op_logs_plugin ON plugin_operation_logs (plugin_key, cre
 
 ### 2.7. Bảng `tenant_notifications` (Thông Báo Trong Ứng Dụng — Q3)
 
+> **Đã bỏ ở Sprint 06** — Q19/Q20 chuyển toàn bộ thông báo sang plugin `in-app-notification`; migration `V6.2.0__drop_tenant_notifications.sql` drop bảng này. Phần dưới giữ làm lịch sử thiết kế Sprint 03.
+
 ```sql
 CREATE TABLE tenant_notifications (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
