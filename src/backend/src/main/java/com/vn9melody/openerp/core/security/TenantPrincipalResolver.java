@@ -9,7 +9,8 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 
 /**
  * Shared resolver for the authenticated tenant principal used by every
- * {@code /api/v1/iam/*} and {@code /api/v1/organization/*} call.
+ * {@code /api/v1/iam/*} business call (organization endpoints live in the
+ * org-structure plugin since the Sprint 07 cutover).
  */
 @ApplicationScoped
 public class TenantPrincipalResolver {

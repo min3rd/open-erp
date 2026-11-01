@@ -1,0 +1,25 @@
+Sprint 07 — drop-legacy on QA dev
+Date: 2026-10-31
+Tenant: 15a14e7f-76a9-4c98-9cc6-be6efbe171e8 (S7 QA mvv0ge5r)
+Container: openerp-postgres-primary / openerp_dev
+
+Backup:
+  node scripts/ops/org-cutover.mjs backup --tenant 15a14e7f-76a9-4c98-9cc6-be6efbe171e8
+  -> backups/org-cutover-2026-10-31T10-00-35-216Z
+
+Verify (after allowing plugin-only extra rows and projection gaps check):
+  branches                     legacy=1 plugin=2 missing=0 OK
+  departments                  legacy=1 plugin=9 missing=0 OK
+  user_department_memberships  legacy=1 plugin=2 missing=0 OK
+  user_branch_assignments      legacy=1 plugin=2 missing=0 OK
+  projection scope=3 active_membership_users=2 missing_scope=0 closure=OK OK
+
+Drop:
+  node scripts/ops/org-cutover.mjs drop-legacy --tenant ... --confirm DROP-LEGACY
+  -> legacy organization tables dropped
+
+Post-drop smoke (app thật, 0 console/500):
+  admin employee screen OK
+  manager employee screen OK (branch-scoped 4 rows)
+  viewer employee screen OK (branch-scoped 4 rows)
+  admin organization plugin OK

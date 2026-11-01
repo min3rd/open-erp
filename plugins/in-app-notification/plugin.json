@@ -3,7 +3,7 @@
   "id": "in-app-notification",
   "name": "In-app Notification",
   "description": "Thông báo trong ứng dụng: header bell, tab cấu hình và danh sách thông báo.",
-  "version": "1.0.7",
+  "version": "1.0.10",
   "template_version": "2.0.0",
   "author": "Open-ERP Plugin Team",
   "core_version_compatibility": ">=1.0.0 <2.0.0",
@@ -85,6 +85,11 @@
         },
         {
           "name": "read_at",
+          "type": "datetime",
+          "required": false
+        },
+        {
+          "name": "created_at",
           "type": "datetime",
           "required": false
         }
@@ -660,6 +665,6 @@
     "type": "IMAGE_REGISTRY",
     "registry_url": "",
     "repository": "open-erp/in-app-notification",
-    "tag": "1.0.7"
+    "tag": "1.0.10"
   }
 }

@@ -49,7 +49,7 @@ import org.hibernate.annotations.ParamDef;
     pluginId = "core",
     table = "core_sample_records",
     publicFields = {"id", "tenant_id", "branch_id", "department_id", "created_by", "assignee_id", "title", "amount", "status", "created_at"},
-    relations = {"tenants", "branches", "departments", "users"}
+    relations = {"tenants", "users"}
 )
 public class CoreSampleRecord extends PanacheEntityBase {
     @Id

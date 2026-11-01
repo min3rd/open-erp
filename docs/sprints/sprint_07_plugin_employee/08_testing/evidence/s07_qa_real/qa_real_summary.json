@@ -1,0 +1,54 @@
+{
+  "results": [
+    {
+      "name": "login tenant admin",
+      "status": "PASS"
+    },
+    {
+      "name": "employee plugin screen loads",
+      "status": "PASS"
+    },
+    {
+      "name": "create employee via real API",
+      "status": "PASS"
+    },
+    {
+      "name": "edit employee drawer shows modules",
+      "status": "PASS"
+    },
+    {
+      "name": "HR tools load real config APIs",
+      "status": "PASS"
+    },
+    {
+      "name": "org chart renders",
+      "status": "PASS"
+    },
+    {
+      "name": "organization plugin screen loads",
+      "status": "PASS"
+    },
+    {
+      "name": "no console errors",
+      "status": "PASS"
+    },
+    {
+      "name": "no failed API requests",
+      "status": "PASS"
+    },
+    {
+      "name": "desktop no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "mobile employee screen self-only",
+      "status": "PASS"
+    },
+    {
+      "name": "mobile no horizontal overflow",
+      "status": "PASS"
+    }
+  ],
+  "errors": [],
+  "failedRequests": []
+}

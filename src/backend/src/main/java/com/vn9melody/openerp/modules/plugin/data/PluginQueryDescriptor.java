@@ -59,7 +59,7 @@ public record PluginQueryDescriptor(
 
     /** Correlated EXISTS filter (parent/relation guard) with an optional validity range. */
     public record Exists(String entity, String localField, String remoteField,
-                         String filterField, String param, String effectiveParam,
+                         String filterField, String param, String op, String effectiveParam,
                          String status, Scope tenantScope) {}
 
     /** Filter applied after tenant/system merge, e.g. hide rows whose tenant override is INACTIVE. */
@@ -137,6 +137,7 @@ public record PluginQueryDescriptor(
                 throw new IllegalArgumentException("Query " + id + " has an incomplete exists filter");
             }
             exists.add(new Exists(target, localField, remoteField, filterField, param,
+                    text(item, "op", "EQ").toUpperCase(Locale.ROOT),
                     text(item, "effective_param", null),
                     text(item, "status", null),
                     Scope.valueOf(text(item, "tenant_scope", "TENANT_OR_SYSTEM")

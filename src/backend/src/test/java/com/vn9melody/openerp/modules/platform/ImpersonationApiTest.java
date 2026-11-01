@@ -21,7 +21,6 @@ import com.vn9melody.openerp.core.security.SessionManager;
 import com.vn9melody.openerp.modules.iam.model.Tenant;
 import com.vn9melody.openerp.modules.iam.model.User;
 import com.vn9melody.openerp.modules.iam.service.IamErrorCodes;
-import com.vn9melody.openerp.modules.organization.OrganizationErrorCodes;
 import com.vn9melody.openerp.modules.platform.api.PlatformErrorCode;
 import com.vn9melody.openerp.modules.platform.service.PlatformJwtService;
 import io.quarkus.narayana.jta.QuarkusTransaction;
@@ -195,10 +194,10 @@ public class ImpersonationApiTest {
             .extract().path("data.impersonation_token");
 
         given().header("Authorization", "Bearer " + token)
-            .when().get("/api/v1/organization/branches")
+            .when().get("/api/v1/core/sample-records")
             .then()
             .statusCode(200)
-            .body("code", equalTo(OrganizationErrorCodes.BRANCH_LIST_SUCCESS));
+            .body("code", equalTo(com.vn9melody.openerp.core.api.ErrorCode.CORE_SAMPLE_RECORD_LIST_SUCCESS));
 
         given().header("Authorization", "Bearer " + token)
             .when().get("/api/v1/iam/roles")
@@ -212,9 +211,10 @@ public class ImpersonationApiTest {
             .statusCode(200)
             .body("code", equalTo(PlatformErrorCode.PLATFORM_IMPERSONATION_ENDED));
 
-        // Exit revoked the session: the old impersonation token is dead.
+        // Exit revoked the delegated session: the old impersonation token is dead
+        // on the session-checked IAM APIs.
         given().header("Authorization", "Bearer " + token)
-            .when().get("/api/v1/organization/branches")
+            .when().get("/api/v1/iam/roles")
             .then()
             .statusCode(401)
             .body("code", equalTo(com.vn9melody.openerp.core.api.ErrorCode.UNAUTHORIZED));

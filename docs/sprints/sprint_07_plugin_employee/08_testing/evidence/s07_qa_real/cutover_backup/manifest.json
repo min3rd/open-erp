@@ -1,0 +1,20 @@
+{
+  "tenant": "15a14e7f-76a9-4c98-9cc6-be6efbe171e8",
+  "schema": "tenant_15a14e7f_org_structure",
+  "createdAt": "2026-10-30T13:58:51.855Z",
+  "container": "openerp-postgres-primary",
+  "database": "openerp_dev",
+  "tables": [
+    "public.branches",
+    "public.departments",
+    "public.user_department_memberships",
+    "public.user_branch_assignments",
+    "tenant_15a14e7f_org_structure.plg_organization_branches",
+    "tenant_15a14e7f_org_structure.plg_organization_departments",
+    "tenant_15a14e7f_org_structure.plg_organization_memberships",
+    "tenant_15a14e7f_org_structure.plg_organization_branch_access",
+    "public.core_user_scope",
+    "public.core_user_manager_edge",
+    "public.core_department_closure"
+  ]
+}

@@ -69,6 +69,7 @@ public class PlatformLoginService {
             null,
             null,
             null,
+            admin.role.name(),
             admin.role.name()
         );
 

@@ -6,6 +6,38 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
 
 ## [Unreleased]
 
+### Sprint 07 — KHỞI TẠO DISCOVERY (2026-10-29): Plugin Employee
+
+- Tạo Sprint-Pack [sprint_07_plugin_employee](../sprints/sprint_07_plugin_employee/00_READING_GUIDE.md) bước 00–04: RAW, 2 ANL, BENCH, CONF.
+- Phạm vi đã chọn (54/54 câu): hồ sơ nhân viên theo tenant, **đa phân công + effective-dated**, always-on, quản trị tenant/chi nhánh, self-service allowlist tenant, duyệt nhiều cấp, self-onboarding, chiến dịch cập nhật, org chart/danh bạ, tài liệu, privacy đầy đủ.
+- Bổ sung **plugin `organization`** tách branch/department khỏi Core: organization giữ master data + access membership; employee giữ HR assignment; Core projection merge; big-bang migration; đổi namespace API/quyền/entity.
+- Bổ sung **tenant switcher** trên header: UI trong employee header contribution, auth endpoint Core, revoke session cũ, clear tenant state.
+- Chốt **offboarding guard**: chặn last owner/admin/platform role; chuyển quyền trước.
+- [CONF-S07-001](../sprints/sprint_07_plugin_employee/04_confirmation/01_CONF-S07-001_sprint_07_scope_and_questions.md) **APPROVED 1.0** — 55/55 câu; chủ dự án duyệt scope/AC.
+- Design **APPROVED 0.2** sau UI U1–U8; cấp **FEAT-36…38 / TASK-426…438**; Implementation To Do.
+- **TASK-426 In Progress**: `plugins/organization` (key `org-structure`) scaffold + schema 5 bảng + model/DTO/service/resource + bootstrap endpoint; CLI validate PASS, Maven test PASS. Seed runtime pending TASK-427/428.
+- **TASK-427 In Progress**: CRUD branch/department/membership/branch-access, validation/cycle/primary, outbox rows; CLI validate + Maven test PASS; projection sender TASK-428.
+- **Vertical slice**: org CRUD/UI, Core projection + auth switch, employee backend (16 entities/23 permissions) + WC list/me, shared tenant switcher; plugins tests/backend/web/mobile/i18n/WC build PASS.
+- **HANDOFF-S07-001**: QA partial; full scope chưa xong (cutover, permission/entity migration, employee offboard/contract/reporting, multi-level approval, onboarding/campaign/privacy, binary docs, admin UI/mobile).
+- **Runtime 2026-10-30**: Docker Postgres/Redis chạy; backend `mvn test` PASS (migration V7.0.0); plugins tests PASS; employee link/unlink user endpoints added.
+- **QA lần 3 (TR-S07-001 1.4)**: app thật Docker E2E desktop 12/12 + mobile Ionic 7/7 + tenant `minhvv` 4/4 (employee 1.0.4 + org-structure 1.0.0 ACTIVE), tenant switch 2 chiều, last-admin guard 409, cutover dev copy/verify PASS. 301 test Java; **BUG-164…173** resolved (tenant switcher, last-admin bypass Critical, plugin admin grant, missing slot, Docker Argon2 crash Critical, cutover conflict, self 404, mobile manifest 401, mobile route, artifact storage). `drop-legacy` deferred; QA PASS implementation.
+- **UI thân thiện (TR-S07-001 1.5)**: thiết kế lại Employee WC + Công cụ HR (KPI, filter, section, mô tả, empty state), nhãn field đa ngôn ngữ, tự seed 15 field config, onboarding copy link; `employee` **1.0.6** ACTIVE trên QA + minhvv, 0 console error, desktop + mobile build PASS, i18n 1366/1055.
+- **Phân công/hợp đồng + role (TR-S07-001 1.6)**: sub-tab hồ sơ có màn phân công (chi nhánh/phòng ban/quản lý/thời gian/primary) và hợp đồng (tạo/sửa trạng thái); **BUG-174** cấp quyền mặc định cho GENERAL_MANAGER/STAFF/VIEWER bằng V7.0.5 + `PluginPermissionSeeder`; role matrix 4 role PASS; `employee` **1.0.8**, 302 test Java, i18n 1383/1072, 0 console error.
+- **Org UI parity + notification (TR-S07-001 1.7)**: copy màn organization từ Core sang plugin (sơ đồ, branch/department, member, branch access), bỏ menu/màn hình Core + redirect; **BUG-175** outbox JSON; onboarding invite gửi in-app notification cho email đã đăng ký (V7.0.6 + Core internal bridge); 59 ảnh 4 role; `employee` **1.1.0**, `org-structure` **1.1.3**, `in-app-notification` **1.0.9**; 302 test Java; i18n 1452/1141.
+- **Catalog + tenant defaults (TR-S07-001 1.8)**: catalog `EMPLOYEE_DOCUMENT_TYPE` 9 loại; employee document select; bảng diff đề xuất; tenant mới có 8 phòng ban + luồng duyệt MANAGER → ROLE; `catalog` 1.0.9 ACTIVE QA + minhvv.
+- **Approval UX + paging (TR-S07-001 1.9)**: cấu hình duyệt dạng card từng bước; paging server-side cho nhân viên/onboarding/đề xuất/chiến dịch/quyền riêng tư và client-side cho hợp đồng/phân công; bảng danh mục hiển thị text thay mã; employee 1.1.3.
+- **Approval node flow (TR-S07-001 1.10)**: cấu hình duyệt thành sơ đồ node Đề xuất → bước → Hoàn tất có mũi tên, canvas chấm, chọn node + panel chi tiết, phạm vi chọn từ chi nhánh/phòng ban; ảnh desktop/mobile/minhvv; `employee` **1.1.8** ACTIVE QA + minhvv; 0 console error, overflow mobile 0.
+- **Approval order fix (TR-S07-001 1.11)**: **BUG-176** — node sắp theo step_no và chọn theo object identity; backend two-phase park step để swap/reorder không vi phạm unique key; regression PASS, `employee` **1.1.11** ACTIVE QA + minhvv.
+- **Role chip + notification link (TR-S07-001 1.12)**: `AuthUserInfo.rbac_role` lấy từ user_roles; topbar/dashboard hiển thị `GENERAL_MANAGER` thay vì `MEMBER`; notification drawer nhận diện URL trong body và mở link onboarding; `in-app-notification` **1.0.10** ACTIVE QA + minhvv.
+- **Unsaved guard tenant switch (TR-S07-001 1.13)**: event `op:before-tenant-switch` cancelable; employee drawer mở chặn switch và hiện banner nhắc đóng biểu mẫu; `employee` **1.1.12** ACTIVE QA + minhvv.
+- **Branch scope + DSAR + drop-legacy (TR-S07-001 1.14)**: gateway forward `X-User-Branch-Ids`; employee list `EXISTS branch_id IN` cho non-admin; DSAR export JSON + anonymize PII; drop legacy org tables QA sau backup/verify; `employee` **1.1.17**.
+- **ClamAV scan (TR-S07-001 1.15)**: thêm ClamAV INSTREAM scan + compose profile `av`; image chỉ mở local socket nên chưa verify end-to-end; `employee` **1.1.18**.
+- **Deferred closure hoàn tất (2026-11-01, chỉ đạo "hoàn tất tất cả, không đẩy sprint sau")**:
+  - **Cutover C6 (ADR-S07-002)**: migration `V7.0.7__organization_cutover_drop_legacy.sql` — drop 4 bảng legacy `branches`/`departments`/`user_department_memberships`/`user_branch_assignments` + xóa permission `core:*` cũ + seed `org-structure` **locked default-install** (always-on Q44); xóa toàn bộ `modules/organization` (REST/entity/service); `SecurityContextService` **projection-only**; `AuthService` bỏ provisioning legacy (org plugin bootstrap đảm nhận); `TenantQuotaService` + `SampleRecordService` đọc projection; test fixtures chuyển projection; **backend suite 254/254 PASS** trên PostgreSQL thật.
+  - **Signed URL tài liệu (TASK-433 0.3)**: `POST /documents/{id}/signed-url` + `POST /me/documents/{id}/signed-url` + `GET /signed-documents/{id}` — HMAC-SHA256 + TTL ngắn hạn (mặc định 300s); plugin 18/18 PASS; production cần cấu hình `EMPLOYEE_DOCUMENT_SIGNED_URL_SECRET` riêng.
+  - **Catalog 1.0.10 manifest sync**: root + resource `plugin.json` đồng bộ (version/ui/tag); `open-erp validate` PASS; runtime rebuild chờ QA.
+  - Items đồng bộ: FEAT-36…38 + TASK-426…438 **Done (QA)**; TR-S07-001 **1.17**; **[REV-S07-001 1.0](../sprints/sprint_07_plugin_employee/09_review/01_REV-S07-001_sprint_07_dod_review.md)** Draft ready — chờ chủ dự án duyệt để đóng Sprint.
+
 ### Sprint 06 — ĐÃ ĐÓNG (2026-10-29): Nền tảng phát triển plugin
 
 - Template 2.0 zero-DB + CLI tương tác: `create`, `generate entity|field|relation|crud|menu|ui-contribution`, `validate`, `upgrade`, `package`, `publish`, `dev`; CLI tests 11/11 ([FEAT-33](../sprints/sprint_06_plugin_dev_platform/07_items/FEAT-33_plugin_template_and_cli.md)).

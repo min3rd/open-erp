@@ -61,6 +61,8 @@ export interface AuthUser {
   tenant_name: string;
   tenant_slug: string;
   role: string;
+  /** Primary RBAC role code for the current tenant (for the header chip). */
+  rbac_role?: string | null;
   /** @deprecated Use `user_id` (kept for Mobile backward compatibility) */
   id?: string;
 }

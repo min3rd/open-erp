@@ -17,6 +17,7 @@ public final class ErrorCode {
     public static final String AUTH_FORGOT_PASSWORD_REQUESTED = "AUTH_FORGOT_PASSWORD_REQUESTED";
     public static final String AUTH_PASSWORD_RESET_SUCCESS = "AUTH_PASSWORD_RESET_SUCCESS";
     public static final String AUTH_LOGOUT_SUCCESS = "AUTH_LOGOUT_SUCCESS";
+    public static final String AUTH_TENANT_SWITCH_SUCCESS = "AUTH_TENANT_SWITCH_SUCCESS";
     public static final String AUTH_TOKEN_REFRESH_SUCCESS = "AUTH_TOKEN_REFRESH_SUCCESS";
     public static final String AUTH_VERIFICATION_EMAIL_RESENT = "AUTH_VERIFICATION_EMAIL_RESENT";
 
@@ -32,6 +33,9 @@ public final class ErrorCode {
     public static final String AUTH_RESET_TOKEN_INVALID_OR_EXPIRED = "AUTH_RESET_TOKEN_INVALID_OR_EXPIRED";
     public static final String AUTH_REFRESH_TOKEN_INVALID_OR_REVOKED = "AUTH_REFRESH_TOKEN_INVALID_OR_REVOKED";
     public static final String AUTH_OTP_RESEND_TOO_SOON = "AUTH_OTP_RESEND_TOO_SOON";
+    public static final String AUTH_TENANT_ACCESS_DENIED = "AUTH_TENANT_ACCESS_DENIED";
+    public static final String AUTH_TENANT_SUSPENDED = "AUTH_TENANT_SUSPENDED";
+    public static final String AUTH_TENANT_SWITCH_RATE_LIMITED = "AUTH_TENANT_SWITCH_RATE_LIMITED";
 
     // Account Success
     public static final String ACCOUNT_PROFILE_FETCH_SUCCESS = "ACCOUNT_PROFILE_FETCH_SUCCESS";

@@ -626,9 +626,26 @@ public final class PluginQueryCompiler {
         StringBuilder sql = new StringBuilder("EXISTS (SELECT 1 FROM ")
                 .append(qualified(schema, target.table())).append(" e WHERE e.")
                 .append(quote(exists.remoteField())).append(" = ")
-                .append(alias).append('.').append(quote(exists.localField()))
-                .append(" AND e.").append(quote(exists.filterField())).append(" = ?");
-        values.add(toJava(value));
+                .append(alias).append('.').append(quote(exists.localField()));
+        boolean in = "IN".equals(exists.op());
+        if (in) {
+            List<Value> items = value.hasListValue()
+                    ? value.getListValue().getValuesList()
+                    : List.of(value);
+            if (items.isEmpty()) {
+                return "1 = 0";
+            }
+            List<String> marks = new ArrayList<>();
+            for (Value item : items) {
+                marks.add("?");
+                values.add(toJava(item));
+            }
+            sql.append(" AND e.").append(quote(exists.filterField()))
+                    .append(" IN (").append(String.join(", ", marks)).append(")");
+        } else {
+            sql.append(" AND e.").append(quote(exists.filterField())).append(" = ?");
+            values.add(toJava(value));
+        }
         if (exists.effectiveParam() != null) {
             Value effective = params.get(exists.effectiveParam());
             if (effective == null || effective.hasNullValue()

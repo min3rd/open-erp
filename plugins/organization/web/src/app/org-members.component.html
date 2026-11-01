@@ -1,0 +1,89 @@
+<section class="space-y-2">
+  <div class="flex flex-wrap items-start justify-between gap-2">
+    <div>
+      <h2 class="text-sm font-semibold">{{ 'ORGANIZATION_MEMBERSHIPS' | translate }}</h2>
+      <p class="mt-1 text-[11px] text-muted">{{ 'ORGANIZATION_MEMBER_MANAGER' | translate }}</p>
+    </div>
+    <app-sharp-button *appRequirePermission="'organization:membership:manage'" size="sm" shape="sharp" (clicked)="openCreate()">
+      + {{ 'ORGANIZATION_MEMBER_ADD_BTN' | translate }}
+    </app-sharp-button>
+  </div>
+
+  @if (error(); as code) {
+    <div class="border border-rose-300 bg-rose-50 p-2 text-[11px] text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
+      {{ code | translate }}
+    </div>
+  }
+
+  <div class="overflow-x-auto border border-default">
+    <table class="w-full min-w-[40rem] text-xs">
+      <thead class="bg-surface-muted text-[10px] uppercase tracking-wide text-muted">
+        <tr>
+          <th class="p-2 text-start">{{ 'ORGANIZATION_MEMBER_USER' | translate }}</th>
+          <th class="p-2 text-start">{{ 'ORGANIZATION_MEMBER_BRANCH' | translate }}</th>
+          <th class="p-2 text-start">{{ 'ORGANIZATION_MEMBER_DEPARTMENT' | translate }}</th>
+          <th class="p-2 text-start">{{ 'ORGANIZATION_MEMBER_MANAGER' | translate }}</th>
+          <th class="p-2 text-center">{{ 'ORGANIZATION_MEMBER_PRIMARY' | translate }}</th>
+          <th class="p-2 text-end">{{ 'COMMON_ACTIONS' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-default">
+        @for (item of members(); track item.id) {
+          <tr class="hover:bg-surface-muted">
+            <td class="p-2">
+              <p class="font-medium">{{ userName(item) }}</p>
+              <p class="text-[10px] text-muted">{{ item.user_email || item.user_id }}</p>
+            </td>
+            <td class="p-2">{{ item.branch_name || '—' }}</td>
+            <td class="p-2">{{ item.department_name || '—' }}</td>
+            <td class="p-2 text-muted">{{ item.direct_manager_user_id || '—' }}</td>
+            <td class="p-2 text-center">
+              @if (item.is_primary) {
+                <app-badge variant="info">{{ 'ORGANIZATION_MEMBER_PRIMARY' | translate }}</app-badge>
+              }
+            </td>
+            <td class="p-2 text-end">
+              <div class="flex justify-end gap-1">
+                <button *appRequirePermission="'organization:membership:manage'" type="button"
+                  class="min-h-9 border border-default px-2 text-[11px] font-semibold hover:bg-surface"
+                  (click)="openEdit(item)">{{ 'COMMON_EDIT' | translate }}</button>
+                <button *appRequirePermission="'organization:membership:manage'" type="button"
+                  class="min-h-9 border border-rose-300 px-2 text-[11px] font-semibold text-rose-700 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-300 dark:hover:bg-rose-950/40"
+                  (click)="remove(item)">{{ 'COMMON_DELETE' | translate }}</button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr><td class="p-6 text-center text-[11px] text-muted" colspan="6">{{ 'COMMON_NO_DATA' | translate }}</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<app-drawer [isOpen]="drawerOpen()" [title]="(editingId() ? 'ORGANIZATION_MEMBER_EDIT' : 'ORGANIZATION_MEMBER_ADD_BTN') | translate"
+  width="w-screen max-w-xl" (close)="closeDrawer()">
+  <div class="space-y-3">
+    <app-sharp-select [label]="'ORGANIZATION_MEMBER_USER' | translate" [required]="true"
+      [options]="userOptions()" [value]="form.userId" (valueChange)="form.userId = $event" />
+    <div class="grid gap-2 sm:grid-cols-2">
+      <app-sharp-select [label]="'ORGANIZATION_MEMBER_BRANCH' | translate" [required]="true"
+        [options]="branchOptions()" [value]="form.branchId" (valueChange)="onBranchChange($event)" />
+      <app-sharp-select [label]="'ORGANIZATION_MEMBER_DEPARTMENT' | translate" [required]="true"
+        [options]="departmentOptions()" [value]="form.departmentId" (valueChange)="form.departmentId = $event" />
+      <app-sharp-select [label]="'ORGANIZATION_MEMBER_MANAGER' | translate"
+        [options]="managerOptions()" [value]="form.managerUserId" (valueChange)="form.managerUserId = $event" />
+      <label class="flex min-h-10 items-center gap-2 text-[11px] font-medium sm:mt-5">
+        <app-sharp-toggle [checked]="form.isPrimary" size="touch" [ariaLabel]="'ORGANIZATION_MEMBER_PRIMARY' | translate"
+          (checkedChange)="form.isPrimary = $event" />
+        {{ 'ORGANIZATION_MEMBER_PRIMARY' | translate }}
+      </label>
+    </div>
+    <div class="flex justify-end gap-2 border-t border-default pt-3">
+      <app-sharp-button variant="outline" size="sm" shape="sharp" (clicked)="closeDrawer()">{{ 'COMMON_CANCEL' | translate }}</app-sharp-button>
+      <app-sharp-button size="sm" shape="sharp"
+        [disabled]="saving() || !form.userId || !form.branchId || !form.departmentId"
+        (clicked)="save()">{{ 'COMMON_SAVE' | translate }}</app-sharp-button>
+    </div>
+  </div>
+</app-drawer>

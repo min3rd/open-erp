@@ -209,26 +209,9 @@ export const routes: Routes = [
         canActivate: [permissionGuard('core:role:manage')],
         children: listState(() => import('./features/settings/roles/role-matrix.component').then(m => m.RoleMatrixComponent))
       },
-      {
-        path: 'organization',
-        canActivate: [permissionGuard('core:organization:manage')],
-        children: listState(() => import('./features/settings/organization/organization.component').then(m => m.OrganizationComponent))
-      },
-      {
-        path: 'members',
-        canActivate: [permissionGuard('core:organization:manage')],
-        children: listState(() => import('./features/settings/members/members.component').then(m => m.MembersComponent))
-      },
-      {
-        path: 'memberships',
-        pathMatch: 'full',
-        redirectTo: 'members'
-      },
-      {
-        path: 'branch-assignments',
-        canActivate: [permissionGuard('core:organization:manage')],
-        children: listState(() => import('./features/settings/branch-assignments/branch-assignment-list.component').then(m => m.BranchAssignmentListComponent))
-      },
+      { path: 'organization', pathMatch: 'full', redirectTo: 'apps/org-structure' },
+      { path: 'members', pathMatch: 'full', redirectTo: 'apps/org-structure' },
+      { path: 'branch-assignments', pathMatch: 'full', redirectTo: 'apps/org-structure' },
       {
         path: 'sample-records',
         canActivate: [permissionGuard('core:sample-record:read')],

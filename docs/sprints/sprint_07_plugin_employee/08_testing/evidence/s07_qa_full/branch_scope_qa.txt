@@ -1,0 +1,15 @@
+Sprint 07 — branch data scope regression
+Date: 2026-10-31
+Tenant: 15a14e7f-76a9-4c98-9cc6-be6efbe171e8
+
+Core gateway forwards X-User-Branch-Ids from core_user_scope.
+Employee list applies EXISTS EmployeeAssignment branch_id IN (:branch_ids) for non-TENANT_ADMIN.
+Empty branch scope returns an empty page (deny).
+
+Observed app thật:
+  admin   s7qa-mvv0ge5r@example.com  rows=8 total=8
+  manager s7qa-manager@example.com   rows=4 total=4
+  viewer  s7qa-viewer@example.com    rows=4 total=4
+
+QA manager/viewer projection seeded to HQ branch 3c6e8bdd-3b55-4f71-96a7-5ae6782110aa.
+0 console error, 0 HTTP 500.

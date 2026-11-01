@@ -1,0 +1,17 @@
+{
+  "extends": "../../../src/frontend/web/tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/plugin",
+    "paths": {
+      "@shared": ["../../../src/frontend/shared/index.ts"],
+      "@shared/*": ["../../../src/frontend/shared/*"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "../../../src/frontend/shared/**/*.ts"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts"
+  ]
+}

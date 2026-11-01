@@ -2,7 +2,7 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { NavController } from '@ionic/angular/standalone';
 import { Observable, tap, catchError, of, switchMap } from 'rxjs';
 import { ApiService } from './api.service';
-import { ApiResponse, AuthUser, LoginResult, TenantInfo } from '@shared';
+import { ApiResponse, AuthUser, ListData, LoginResult, TenantInfo } from '@shared';
 import { SlugAvailability, VerifyEmailResult } from './models';
 import { getJwtPermissions, isMustChangePassword, isPlatformAdmin, isPlatformSuperAdmin } from './jwt.util';
 import { STORAGE_KEY_PLATFORM_TOKEN, STORAGE_KEY_SESSION_ID, STORAGE_KEY_TENANT_TOKEN } from './storage-keys';
@@ -25,9 +25,39 @@ export class AuthService {
   private sessionIdSignal = signal<string | null>(localStorage.getItem(STORAGE_KEY_SESSION_ID));
   private platformTokenSignal = signal<string | null>(localStorage.getItem(STORAGE_KEY_PLATFORM_TOKEN));
   private passwordChangedSignal = signal<boolean>(sessionStorage.getItem(PASSWORD_CHANGED_KEY) === '1');
+  private tenantsSignal = signal<TenantInfo[]>([]);
 
   public user = computed(() => this.userSignal());
   public isAuthenticated = computed(() => !!this.tokenSignal());
+  public tenants = computed(() => this.tenantsSignal());
+
+  constructor() {
+    if (this.isAuthenticated()) {
+      this.refreshTenants();
+    }
+  }
+
+  refreshTenants(): void {
+    if (!this.isAuthenticated()) {
+      this.tenantsSignal.set([]);
+      return;
+    }
+    this.api.get<ListData<TenantInfo>>('/api/v1/auth/me/tenants').subscribe({
+      next: (res) => this.tenantsSignal.set(res.data?.items ?? []),
+      error: () => this.tenantsSignal.set([]),
+    });
+  }
+
+  switchTenant(tenantId: string): Observable<ApiResponse<LoginResult>> {
+    return this.api.post<LoginResult>('/api/v1/auth/switch-tenant', { tenant_id: tenantId }).pipe(
+      tap((res) => {
+        if (res.success && res.data?.access_token && res.data.user) {
+          this.setSession(res.data.access_token, res.data.session_id || '', res.data.user);
+          this.refreshTenants();
+        }
+      })
+    );
+  }
 
   /** Both platform portal roles may enter (SUPPORT_ENGINEER is read-only). */
   public isPlatformAdmin = computed(() =>
@@ -235,5 +265,6 @@ export class AuthService {
     }
     this.clearPreAuth();
     this.setSession(data.access_token, data.session_id || '', data.user);
+    this.refreshTenants();
   }
 }

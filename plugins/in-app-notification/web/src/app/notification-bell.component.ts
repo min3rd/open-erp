@@ -115,6 +115,11 @@ export class NotificationBellComponent implements OnInit, AfterViewInit, OnDestr
     });
   }
 
+  linkOf(item: NotificationDto): string | null {
+    const match = item.body?.match(/https?:\/\/[^\s]+/);
+    return match ? match[0] : null;
+  }
+
   markAllRead(): void {
     this.service.markAllRead().subscribe({
       next: () => this.load(),

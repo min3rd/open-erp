@@ -1,0 +1,295 @@
+<div class="space-y-2">
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <h1 class="text-sm font-bold uppercase tracking-wider">{{ 'ORGANIZATION_STRUCTURE' | translate }}</h1>
+    <div class="flex gap-1">
+      <app-sharp-button size="sm" (clicked)="openCreateDepartment(null)">+ {{ 'ORGANIZATION_DEPARTMENT_ADD' | translate }}</app-sharp-button>
+      <app-sharp-button size="sm" variant="secondary" (clicked)="openCreateBranch()">+ {{ 'ORGANIZATION_BRANCH_ADD' | translate }}</app-sharp-button>
+    </div>
+  </div>
+
+  @if (errorText()) {
+    <div class="rounded-container border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-2 py-1.5 text-[11px] text-red-700 dark:text-red-300 flex justify-between items-center">
+      <span>{{ errorText() }}</span>
+      <button type="button" class="underline" (click)="errorText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+  @if (successText()) {
+    <div class="rounded-container border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1.5 text-[11px] text-emerald-700 dark:text-emerald-300 flex justify-between items-center">
+      <span>{{ successText() }}</span>
+      <button type="button" class="underline" (click)="successText.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+    </div>
+  }
+
+  @if (confirmDelete(); as pending) {
+    <div class="rounded-container border border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/30 px-2 py-1.5 flex flex-wrap items-center justify-between gap-2">
+      <span class="text-[11px] text-rose-700 dark:text-rose-300">
+        {{ (pending.type === 'BRANCH' ? 'ORGANIZATION_BRANCH_DELETE_CONFIRM' : 'ORGANIZATION_DEPARTMENT_DELETE_CONFIRM') | translate:{ name: pending.name } }}
+      </span>
+      <span class="flex gap-1">
+        <app-sharp-button size="sm" variant="danger" [loading]="deleting()" (clicked)="confirmDeleteAction()">
+          {{ 'COMMON_DELETE' | translate }}
+        </app-sharp-button>
+        <app-sharp-button size="sm" variant="secondary" (clicked)="cancelDelete()">
+          {{ 'COMMON_CANCEL' | translate }}
+        </app-sharp-button>
+      </span>
+    </div>
+  }
+
+  <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-2 items-start">
+    <section class="rounded-container border border-default bg-surface">
+      <div class="px-2 py-1.5 border-b border-default flex flex-wrap items-center justify-between gap-2">
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-muted">
+          {{ 'ORGANIZATION_CHART' | translate }}
+        </span>
+        <div class="flex flex-wrap items-center gap-1">
+          <div class="inline-flex rounded-control overflow-hidden border border-default" role="group" [attr.aria-label]="'ORGANIZATION_VIEW_MODE' | translate">
+            <button
+              type="button"
+              class="px-2 py-0.5 text-[10px] font-medium border-e border-default"
+              [ngClass]="viewMode() === 'list' ? 'bg-accent text-accent-contrast' : 'text-ink hover:bg-surface-muted'"
+              (click)="setViewMode('list')"
+            >
+              {{ 'ORGANIZATION_VIEW_LIST' | translate }}
+            </button>
+            <button
+              type="button"
+              class="px-2 py-0.5 text-[10px] font-medium"
+              [ngClass]="viewMode() === 'graph' ? 'bg-accent text-accent-contrast' : 'text-ink hover:bg-surface-muted'"
+              (click)="setViewMode('graph')"
+            >
+              {{ 'ORGANIZATION_VIEW_GRAPH' | translate }}
+            </button>
+          </div>
+          <button
+            type="button"
+            class="px-1.5 py-0.5 text-[10px] rounded-control border border-default hover:bg-surface-muted"
+            (click)="expandAll()"
+          >
+            {{ 'ORGANIZATION_TREE_EXPAND_ALL' | translate }}
+          </button>
+          <button
+            type="button"
+            class="px-1.5 py-0.5 text-[10px] rounded-control border border-default hover:bg-surface-muted"
+            (click)="collapseAll()"
+          >
+            {{ 'ORGANIZATION_TREE_COLLAPSE_ALL' | translate }}
+          </button>
+        </div>
+      </div>
+
+      @if (departmentsError()) {
+        <div class="px-2 py-3 text-center text-[11px] text-muted">
+          <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
+          <button type="button" class="ms-2 underline" (click)="loadDepartments()">{{ 'COMMON_RETRY' | translate }}</button>
+        </div>
+      } @else if (departmentsLoading()) {
+        <app-skeleton-table [rows]="5" [columns]="2" />
+      } @else if (viewMode() === 'list') {
+        <div class="op-stagger max-h-[540px] overflow-y-auto">
+          @for (node of visibleOrgNodes(); track node.id) {
+            <div
+              class="flex items-center justify-between gap-2 px-2 py-1 border-b border-default"
+              [ngClass]="node.kind === 'department'
+                ? (selectedId() === node.id ? 'bg-surface-muted' : 'hover:bg-surface-muted')
+                : 'bg-surface-muted'"
+            >
+              <div class="flex items-center gap-1 min-w-0" [style.padding-left]="indentation(node.depth)">
+                @if (node.hasChildren) {
+                  <button
+                    type="button"
+                    class="w-5 h-5 shrink-0 flex items-center justify-center rounded-control border border-default text-[10px] leading-none text-ink hover:bg-surface-muted"
+                    [attr.aria-expanded]="!isCollapsed(node.id)"
+                    (click)="toggleCollapse(node.id)"
+                  >
+                    {{ isCollapsed(node.id) ? '+' : '−' }}
+                  </button>
+                } @else {
+                  <span class="w-5 h-5 shrink-0 flex items-center justify-center text-muted">•</span>
+                }
+                <button type="button" class="min-w-0 flex-1 text-start" (click)="selectOrgNode(node)">
+                  <span class="block text-[11px] font-medium truncate">{{ node.name }}</span>
+                  <span class="block text-[10px] font-mono text-muted truncate">
+                    @if (node.kind === 'branch') {
+                      <span>{{ 'ORGANIZATION_BRANCH_BADGE' | translate }} • </span>
+                    }
+                    @if (node.code) {
+                      <span>{{ node.code }}</span>
+                    }
+                  </span>
+                </button>
+                <span class="shrink-0 text-[9px] font-mono rounded-control px-1 border border-default text-muted">
+                  {{ node.memberCount }}
+                </span>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                @if (node.kind === 'branch') {
+                  @if (branchById(node.id); as branch) {
+                    <button
+                      type="button"
+                      *appRequirePermission="'organization:branch:manage'"
+                      class="px-1 py-0.5 text-[10px] rounded-control border border-default hover:bg-surface-muted"
+                      (click)="openEditBranch(branch)"
+                    >
+                      {{ 'COMMON_EDIT' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      *appRequirePermission="'organization:branch:manage'"
+                      class="px-1 py-0.5 text-[10px] rounded-control border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                      (click)="askDeleteBranch(branch)"
+                    >
+                      {{ 'COMMON_DELETE' | translate }}
+                    </button>
+                  }
+                } @else if (node.kind === 'department') {
+                  @if (departmentById(node.id); as department) {
+                    <button
+                      type="button"
+                      *appRequirePermission="'organization:department:manage'"
+                      class="px-1 py-0.5 text-[10px] rounded-control border border-default hover:bg-surface-muted"
+                      (click)="openCreateDepartment(department.id)"
+                    >
+                      +
+                    </button>
+                    <button
+                      type="button"
+                      *appRequirePermission="'organization:department:manage'"
+                      class="px-1 py-0.5 text-[10px] rounded-control border border-default hover:bg-surface-muted"
+                      (click)="openEditDepartment(department)"
+                    >
+                      {{ 'COMMON_EDIT' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      *appRequirePermission="'organization:department:manage'"
+                      class="px-1 py-0.5 text-[10px] rounded-control border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                      (click)="askDeleteDepartment(department)"
+                    >
+                      {{ 'COMMON_DELETE' | translate }}
+                    </button>
+                  }
+                }
+              </div>
+            </div>
+          } @empty {
+            <div class="px-2 py-3 text-center text-[11px] text-muted">{{ 'COMMON_NO_DATA' | translate }}</div>
+          }
+        </div>
+      } @else {
+        <app-department-graph-canvas
+          [nodes]="graphLayout().nodes"
+          [edges]="graphLayout().edges"
+          [selectedId]="selectedId()"
+          [nodeWidth]="graphNodeWidth"
+          [nodeHeight]="graphNodeHeight"
+          (nodeSelected)="selectDepartmentById($event)"
+          (collapseToggled)="toggleCollapse($event)"
+        />
+      }
+
+      @if (selectedDepartment(); as selected) {
+        <div class="border-t border-default bg-surface-muted p-2 space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-muted">
+              {{ 'ORGANIZATION_DEPARTMENT_DETAIL' | translate }}
+            </span>
+            <button type="button" class="text-[11px] text-muted hover:text-ink" (click)="clearSelection()">×</button>
+          </div>
+          <div>
+            <div class="text-xs font-semibold">{{ selected.name }}</div>
+            <div class="text-[10px] font-mono text-muted">{{ selected.code }}</div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[10px] text-ink">
+            <div class="truncate">{{ 'ORGANIZATION_DEPARTMENT_BRANCH' | translate }}: {{ selected.branch_name || '—' }}</div>
+            <div class="truncate">{{ 'ORGANIZATION_DEPARTMENT_MANAGER' | translate }}: {{ selected.manager_name || '—' }}</div>
+            <div>{{ 'ORGANIZATION_DEPARTMENT_MEMBERS' | translate }}: {{ memberCount(selected.id) }}</div>
+            <div>{{ 'ORGANIZATION_DEPARTMENT_DEPTH' | translate }}: {{ depthOf(selected.id) }}</div>
+          </div>
+          <div class="flex flex-wrap gap-1">
+            <app-sharp-button size="sm" (clicked)="openCreateDepartment(selected.id)">
+              + {{ 'ORGANIZATION_DEPARTMENT_ADD_CHILD' | translate }}
+            </app-sharp-button>
+            <app-sharp-button size="sm" variant="secondary" (clicked)="openEditDepartment(selected)">
+              {{ 'COMMON_EDIT' | translate }}
+            </app-sharp-button>
+            <app-sharp-button size="sm" variant="danger" (clicked)="askDeleteDepartment(selected)">
+              {{ 'COMMON_DELETE' | translate }}
+            </app-sharp-button>
+          </div>
+        </div>
+      } @else {
+        <div class="border-t border-default px-2 py-1.5 text-[10px] text-muted">
+          {{ 'ORGANIZATION_DEPARTMENT_SELECT_HINT' | translate }}
+        </div>
+      }
+    </section>
+
+    <section>
+      <div class="rounded-t-container px-2 py-1.5 border border-default bg-surface border-b-0">
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-muted">
+          {{ 'ORGANIZATION_BRANCHES' | translate }}
+        </span>
+      </div>
+      @if (branchesError()) {
+        <div class="rounded-container border border-default border-t-0 px-2 py-3 text-center text-[11px] text-muted">
+          <span>{{ 'COMMON_LOAD_ERROR' | translate }}</span>
+          <button type="button" class="ms-2 underline" (click)="loadBranches()">{{ 'COMMON_RETRY' | translate }}</button>
+        </div>
+      } @else {
+        <app-table [columns]="branchColumns" [rows]="branches()" [loading]="branchesLoading()">
+        <ng-template let-b>
+          <tr class="hover:bg-surface-muted">
+            <td class="px-2 py-1.5 font-mono text-[10px]">{{ b.code }}</td>
+            <td class="px-2 py-1.5">
+              <div class="font-medium">{{ b.name }}</div>
+              @if (b.is_default) {
+                <span class="text-[10px] text-muted">{{ 'COMMON_DEFAULT' | translate }}</span>
+              }
+            </td>
+            <td class="px-2 py-1.5 font-mono text-[10px]">{{ b.phone || '-' }}</td>
+            <td class="px-2 py-1.5 text-[10px] text-muted truncate max-w-[160px]">{{ b.address || '-' }}</td>
+            <td class="px-2 py-1.5">
+              <div class="flex items-center justify-end gap-1">
+                <button
+                  type="button"
+                  *appRequirePermission="'organization:branch:manage'"
+                  class="px-1.5 py-0.5 text-[10px] rounded-control border border-default hover:bg-surface-muted"
+                  (click)="openEditBranch(b)"
+                >
+                  {{ 'COMMON_EDIT' | translate }}
+                </button>
+                <button
+                  type="button"
+                  *appRequirePermission="'organization:branch:manage'"
+                  class="px-1.5 py-0.5 text-[10px] rounded-control border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                  (click)="askDeleteBranch(b)"
+                >
+                  {{ 'COMMON_DELETE' | translate }}
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </app-table>
+      }
+    </section>
+  </div>
+
+  <app-department-form-drawer
+    [isOpen]="departmentDrawerOpen()"
+    [department]="editingDepartment()"
+    [presetParentId]="presetParentId()"
+    [branches]="branches()"
+    [departments]="flatDepartments()"
+    (close)="closeDepartmentDrawer()"
+    (saved)="onDepartmentSaved($event)"
+  />
+
+  <app-branch-form-drawer
+    [isOpen]="branchDrawerOpen()"
+    [branch]="editingBranch()"
+    (close)="closeBranchDrawer()"
+    (saved)="onBranchSaved($event)"
+  />
+</div>

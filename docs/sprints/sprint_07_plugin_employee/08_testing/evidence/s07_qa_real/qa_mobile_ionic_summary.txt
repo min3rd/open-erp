@@ -1,0 +1,15 @@
+Sprint 07 QA — mobile Ionic 390×844 (2026-10-30)
+URL: http://localhost:8100
+Backend: http://localhost:8088
+Tenant: 15a14e7f-76a9-4c98-9cc6-be6efbe171e8
+
+Results:
+PASS mobile login + dashboard
+PASS mobile menu opens
+PASS mobile app link "Nhân sự" visible
+PASS mobile employee plugin screen loads (op-employee-app)
+PASS mobile overflow 0
+PASS mobile touch targets >= 40px
+PASS mobile 0 console error
+
+Screenshot: mobile_ionic_employee_390x844.png

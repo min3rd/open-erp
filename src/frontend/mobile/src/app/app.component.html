@@ -17,7 +17,10 @@
     [isOpen]="menuOpen()"
     [zIndex]="1100"
     [tenantName]="auth.user()?.tenant_name || ''"
-    [role]="auth.user()?.role || 'MEMBER'"
+    [tenants]="tenants()"
+    [currentTenantId]="auth.user()?.tenant_id || null"
+    [apps]="pluginApps()"
+    [role]="auth.user()?.rbac_role || auth.user()?.role || 'MEMBER'"
     [userName]="auth.user()?.full_name || ''"
     [userEmail]="auth.user()?.email || ''"
     [canManageRoles]="canManageRoles()"
@@ -27,6 +30,7 @@
     [canBrowseCatalog]="canBrowseCatalog()"
     [isPlatformAdmin]="auth.isPlatformAdmin()"
     (close)="closeMenu()"
+    (switchTenant)="switchTenant($event)"
     (logout)="auth.logout()"
   />
 

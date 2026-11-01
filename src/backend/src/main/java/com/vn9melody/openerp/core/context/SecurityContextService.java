@@ -8,19 +8,12 @@ import com.vn9melody.openerp.core.enums.DataScope;
 import com.vn9melody.openerp.core.enums.TenantStatus;
 import com.vn9melody.openerp.modules.iam.model.RoleDataPolicy;
 import com.vn9melody.openerp.modules.iam.model.Tenant;
-import com.vn9melody.openerp.modules.iam.model.UserRole;
-import com.vn9melody.openerp.modules.organization.model.Department;
-import com.vn9melody.openerp.modules.organization.model.UserBranchAssignment;
-import com.vn9melody.openerp.modules.organization.model.UserDepartmentMembership;
 import io.quarkus.redis.datasource.RedisDataSource;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +48,9 @@ public class SecurityContextService {
 
     @Inject
     EntityManager entityManager;
+
+    @Inject
+    ScopeProjectionService scopeProjectionService;
 
     @Inject
     RedisDataSource redis;
@@ -142,61 +138,37 @@ public class SecurityContextService {
 
         Map<String, Map<DataOperation, DataScope>> dataPolicies = resolveDataPolicies(tenantId, roleIds);
 
-        List<UserDepartmentMembership> memberships = entityManager.createQuery(
-                "select m from UserDepartmentMembership m where m.userId = :userId and m.tenantId = :tenantId "
-                    + "order by m.isPrimary desc, m.joinedAt asc", UserDepartmentMembership.class)
-            .setParameter("userId", userId)
-            .setParameter("tenantId", tenantId)
-            .getResultList();
+        ScopeProjectionService.Projection projection = scopeProjectionService.find(tenantId, userId).orElse(null);
 
-        Set<UUID> memberBranchIds = new LinkedHashSet<>();
-        Set<UUID> departmentIds = new LinkedHashSet<>();
-        UUID primaryDepartmentId = null;
-        for (UserDepartmentMembership membership : memberships) {
-            if (membership.branchId != null) {
-                memberBranchIds.add(membership.branchId);
-            }
-            if (membership.departmentId != null) {
-                departmentIds.add(membership.departmentId);
-            }
-            if (primaryDepartmentId == null || Boolean.TRUE.equals(membership.isPrimary)) {
-                primaryDepartmentId = membership.departmentId != null ? membership.departmentId : primaryDepartmentId;
-            }
+        Set<UUID> memberBranchIds;
+        Set<UUID> departmentIds;
+        UUID primaryDepartmentId;
+        Set<UUID> managedBranchIds;
+        UUID primaryBranchId;
+        Set<UUID> departmentAndChildIds;
+        Set<UUID> subordinateUserIds;
+
+        if (projection != null) {
+            memberBranchIds = projection.memberBranchIds();
+            departmentIds = projection.departmentIds();
+            primaryDepartmentId = projection.primaryDepartmentId();
+            managedBranchIds = projection.managedBranchIds();
+            primaryBranchId = projection.primaryBranchId();
+            departmentAndChildIds = scopeProjectionService.departmentChildren(tenantId, departmentIds);
+            subordinateUserIds = scopeProjectionService.subordinates(tenantId, userId);
+        } else {
+            // Organization scope now comes exclusively from the projection
+            // (core_user_scope) after the Sprint 07 cutover. If the projection
+            // has not been built for this user, resolve an empty scope instead
+            // of reading the removed legacy organization tables.
+            memberBranchIds = new LinkedHashSet<>();
+            departmentIds = new LinkedHashSet<>();
+            managedBranchIds = new LinkedHashSet<>();
+            subordinateUserIds = new LinkedHashSet<>();
+            departmentAndChildIds = new LinkedHashSet<>();
+            primaryDepartmentId = null;
+            primaryBranchId = null;
         }
-
-        List<UserBranchAssignment> branchAssignments = entityManager.createQuery(
-                "select a from UserBranchAssignment a where a.userId = :userId and a.tenantId = :tenantId",
-                UserBranchAssignment.class)
-            .setParameter("userId", userId)
-            .setParameter("tenantId", tenantId)
-            .getResultList();
-
-        Set<UUID> managedBranchIds = new LinkedHashSet<>();
-        UUID primaryBranchId = null;
-        for (UserBranchAssignment assignment : branchAssignments) {
-            if (Boolean.TRUE.equals(assignment.canManage) && assignment.branchId != null) {
-                managedBranchIds.add(assignment.branchId);
-            }
-            if (Boolean.TRUE.equals(assignment.isPrimary) && assignment.branchId != null) {
-                primaryBranchId = assignment.branchId;
-            }
-        }
-        if (primaryBranchId == null) {
-            for (UserDepartmentMembership membership : memberships) {
-                if (Boolean.TRUE.equals(membership.isPrimary) && membership.branchId != null) {
-                    primaryBranchId = membership.branchId;
-                    break;
-                }
-            }
-        }
-
-        List<Department> departments = entityManager.createQuery(
-                "select d from Department d where d.tenantId = :tenantId", Department.class)
-            .setParameter("tenantId", tenantId)
-            .getResultList();
-
-        Set<UUID> departmentAndChildIds = expandDepartmentSubtrees(departments, departmentIds);
-        Set<UUID> subordinateUserIds = resolveSubordinateIds(tenantId, userId, departments);
 
         return UserSecurityContext.builder()
             .userId(userId)
@@ -297,75 +269,6 @@ public class SecurityContextService {
     private void mergeScope(Map<DataOperation, DataScope> byOperation, DataOperation operation, DataScope scope) {
         DataScope resolved = scope != null ? scope : DataScope.NONE;
         byOperation.merge(operation, resolved, (left, right) -> left.mostPermissive(right));
-    }
-
-    private Set<UUID> expandDepartmentSubtrees(List<Department> departments, Set<UUID> rootIds) {
-        if (rootIds.isEmpty()) {
-            return Set.of();
-        }
-        Map<UUID, Set<UUID>> childrenByParent = new HashMap<>();
-        for (Department department : departments) {
-            if (department.parentId != null) {
-                childrenByParent.computeIfAbsent(department.parentId, key -> new HashSet<>()).add(department.id);
-            }
-        }
-        Set<UUID> result = new LinkedHashSet<>();
-        Deque<UUID> queue = new ArrayDeque<>(rootIds);
-        while (!queue.isEmpty()) {
-            UUID current = queue.poll();
-            if (current == null || !result.add(current)) {
-                continue;
-            }
-            Set<UUID> children = childrenByParent.get(current);
-            if (children != null) {
-                queue.addAll(children);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Resolves subordinate users from the reporting line
-     * ({@code user_department_memberships.direct_manager_user_id}, recursive) plus the
-     * manager of the user's departments (and their sub-departments).
-     */
-    @SuppressWarnings("unchecked")
-    private Set<UUID> resolveSubordinateIds(UUID tenantId, UUID userId, List<Department> departments) {
-        Set<UUID> subordinates = new LinkedHashSet<>();
-
-        List<UUID> viaReportingLine = entityManager.createNativeQuery(
-                "WITH RECURSIVE subs AS ("
-                    + " SELECT m.user_id FROM user_department_memberships m"
-                    + " WHERE m.tenant_id = :tenantId AND m.direct_manager_user_id = :userId"
-                    + " UNION"
-                    + " SELECT m.user_id FROM user_department_memberships m"
-                    + " JOIN subs s ON m.direct_manager_user_id = s.user_id"
-                    + " WHERE m.tenant_id = :tenantId"
-                    + ") SELECT DISTINCT user_id FROM subs", UUID.class)
-            .setParameter("tenantId", tenantId)
-            .setParameter("userId", userId)
-            .getResultList();
-        subordinates.addAll(viaReportingLine);
-
-        Set<UUID> managedDepartmentRoots = new LinkedHashSet<>();
-        for (Department department : departments) {
-            if (userId.equals(department.managerUserId)) {
-                managedDepartmentRoots.add(department.id);
-            }
-        }
-        if (!managedDepartmentRoots.isEmpty()) {
-            Set<UUID> managedDepartments = expandDepartmentSubtrees(departments, managedDepartmentRoots);
-            List<UUID> viaDepartment = entityManager.createQuery(
-                    "select distinct m.userId from UserDepartmentMembership m "
-                        + "where m.tenantId = :tenantId and m.departmentId in :departmentIds", UUID.class)
-                .setParameter("tenantId", tenantId)
-                .setParameter("departmentIds", managedDepartments)
-                .getResultList();
-            subordinates.addAll(viaDepartment);
-        }
-
-        subordinates.remove(userId);
-        return subordinates;
     }
 
     private void assertTenantOperational(Tenant tenant) {

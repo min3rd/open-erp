@@ -1,0 +1,23 @@
+Sprint 07 — DSAR export/erase regression
+Date: 2026-10-31
+Tenant: 15a14e7f-76a9-4c98-9cc6-be6efbe171e8
+Employee fixture: QA-DSAR (11111111-1111-4111-8111-111111111111), removed after test
+
+EXPORT:
+  GET /privacy/requests/2222.../export
+  -> 200 EMPLOYEE_PRIVACY_EXPORT_SUCCESS
+  -> JSON contains request, employee, assignments, contracts, documents, consents, generated_at
+  UI: download privacy-export-22222222-....json
+
+DELETE:
+  POST /privacy/requests/3333.../erase
+  -> 200 EMPLOYEE_PRIVACY_REQUEST_COMPLETED
+  Employee after erase:
+    full_name=ANONYMIZED-QA-DSAR, national_id/personal_email/phone/current_address/notes empty,
+    user_id null, status LEFT
+  Request status COMPLETED
+
+UI:
+  Export button visible for RECEIVED EXPORT request.
+  Erase button requires second click ("Bấm lần nữa để xác nhận").
+  0 console error.

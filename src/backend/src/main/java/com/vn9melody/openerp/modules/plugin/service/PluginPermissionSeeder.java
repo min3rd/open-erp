@@ -16,12 +16,10 @@ import java.util.UUID;
 /**
  * Permission seeding on plugin install (TASK-309 / BR-PLG-12): registers the
  * plugin permission codes in the catalog and grants them to the TENANT_OWNER
- * system role, then invalidates cached security contexts of the tenant.
+ * and TENANT_ADMIN system roles, then invalidates cached security contexts.
  */
 @ApplicationScoped
 public class PluginPermissionSeeder {
-
-    public static final String TENANT_OWNER_ROLE = "TENANT_OWNER";
 
     @Inject
     PermissionRepository permissionRepository;
@@ -58,17 +56,44 @@ public class PluginPermissionSeeder {
             granted += entityManager.createNativeQuery("""
                     INSERT INTO role_permissions (role_id, permission_id, granted_at)
                     SELECT r.id, ?1, NOW() FROM roles r
-                    WHERE r.tenant_id IS NULL AND r.code = ?2
+                    WHERE r.tenant_id IS NULL AND r.code IN ('TENANT_OWNER', 'TENANT_ADMIN')
                     ON CONFLICT (role_id, permission_id) DO NOTHING
                     """)
                     .setParameter(1, permission.id)
-                    .setParameter(2, TENANT_OWNER_ROLE)
                     .executeUpdate();
         }
+        granted += seedPluginRoleDefaults();
         if (granted > 0) {
             invalidateTenant(tenantId);
         }
         return granted;
+    }
+
+    /**
+     * Sprint 07 role defaults: managers get read-only profile access, staff gets
+     * self-service, viewers get read-only profile access. Kept idempotent so a
+     * reinstall or a second plugin does not duplicate rows.
+     */
+    private int seedPluginRoleDefaults() {
+        return entityManager.createNativeQuery("""
+                INSERT INTO role_permissions (role_id, permission_id, granted_at)
+                SELECT r.id, p.id, NOW()
+                FROM roles r CROSS JOIN permissions p
+                WHERE r.tenant_id IS NULL AND (
+                    (r.code = 'GENERAL_MANAGER' AND p.code IN (
+                        'employee:profile:read', 'employee:self:read', 'employee:self:update',
+                        'employee:document:read', 'employee:directory:read', 'employee:org-chart:read'))
+                    OR (r.code = 'STAFF' AND p.code IN (
+                        'employee:self:read', 'employee:self:update', 'employee:document:read',
+                        'employee:directory:read', 'employee:org-chart:read'))
+                    OR (r.code = 'VIEWER' AND p.code IN (
+                        'employee:profile:read', 'employee:directory:read', 'employee:org-chart:read'))
+                    OR (r.code IN ('GENERAL_MANAGER', 'STAFF', 'VIEWER')
+                        AND p.code = 'in-app-notification:notification:read')
+                )
+                ON CONFLICT (role_id, permission_id) DO NOTHING
+                """)
+            .executeUpdate();
     }
 
     @SuppressWarnings("unchecked")

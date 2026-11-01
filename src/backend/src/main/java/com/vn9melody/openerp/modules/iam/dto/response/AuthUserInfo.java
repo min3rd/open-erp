@@ -9,6 +9,7 @@ public record AuthUserInfo(
     @JsonProperty("tenant_id") String tenantId,
     @JsonProperty("tenant_name") String tenantName,
     @JsonProperty("tenant_slug") String tenantSlug,
-    @JsonProperty("role") String role
+    @JsonProperty("role") String role,
+    @JsonProperty("rbac_role") String rbacRole
 ) {
 }

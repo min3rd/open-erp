@@ -9,6 +9,7 @@ import com.vn9melody.openerp.core.security.JwtTokenService;
 import com.vn9melody.openerp.core.security.SessionManager;
 import com.vn9melody.openerp.modules.iam.model.Tenant;
 import com.vn9melody.openerp.support.AuditEnabledTestProfile;
+import com.vn9melody.openerp.support.S2EngineFixtures;
 import com.vn9melody.openerp.support.S2IamFixtures;
 import com.vn9melody.openerp.support.S2IamFixtures.Person;
 import io.quarkus.test.junit.QuarkusTest;
@@ -54,6 +55,16 @@ public class AuditWiringTest {
         Person staff = S2IamFixtures.createUser(tenant.id, "s2iam.audit.staff@example.com", "Audit Staff");
         adminBearer = S2IamFixtures.bearer(jwtTokenService, sessionManager, admin, "TENANT_ADMIN");
         staffBearer = S2IamFixtures.bearer(jwtTokenService, sessionManager, staff, "STAFF");
+        // Tenant write audit uses the sample-record reference API; give the admin
+        // an explicit ALL data policy for that resource (like real provisioning).
+        com.vn9melody.openerp.modules.iam.model.Role auditRole =
+            S2IamFixtures.createCustomRole(tenant.id, "AUDITW", "Audit Wiring Role");
+        S2IamFixtures.assignRole(tenant.id, admin, auditRole);
+        S2EngineFixtures.upsertPolicy(em, tenant.id, auditRole.id,
+            com.vn9melody.openerp.modules.core.service.SampleRecordService.RESOURCE,
+            com.vn9melody.openerp.core.enums.DataScope.ALL, com.vn9melody.openerp.core.enums.DataScope.ALL,
+            com.vn9melody.openerp.core.enums.DataScope.ALL, com.vn9melody.openerp.core.enums.DataScope.ALL,
+            com.vn9melody.openerp.core.enums.DataScope.ALL, com.vn9melody.openerp.core.enums.DataScope.ALL);
     }
 
     @Test
@@ -71,19 +82,19 @@ public class AuditWiringTest {
     }
 
     @Test
-    @DisplayName("TASK-291: ghi branch thành công sinh audit TENANT scope ORG_BRANCH_CREATE")
+    @DisplayName("TASK-291: ghi tenant write thành công sinh audit TENANT scope CORE_SAMPLE_RECORD_CREATE")
     public void testOrgWriteIsAudited() {
         given()
             .header("Authorization", adminBearer)
             .contentType(ContentType.JSON)
-            .body(Map.of("code", "S2IAM-AUD", "name", "Audit Branch"))
+            .body(Map.of("title", "Audit Sample Record"))
         .when()
-            .post("/api/v1/organization/branches")
+            .post("/api/v1/core/sample-records")
         .then()
             .statusCode(201)
-            .body("code", equalTo("ORGANIZATION_BRANCH_CREATED_SUCCESS"));
+            .body("code", equalTo(ErrorCode.CORE_SAMPLE_RECORD_CREATED));
 
-        assertEquals(1L, countAudit("ORG_BRANCH_CREATE", "SUCCESS"));
+        assertEquals(1L, countAudit("CORE_SAMPLE_RECORD_CREATE", "SUCCESS"));
     }
 
     @Test

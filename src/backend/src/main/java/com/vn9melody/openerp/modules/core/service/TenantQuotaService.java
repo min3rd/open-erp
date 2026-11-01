@@ -110,11 +110,15 @@ public class TenantQuotaService {
     }
 
     long countUsersInDatabase(UUID tenantId) {
+        // Member users come from the organization projection (core_user_scope) which is
+        // now the source of truth after the Sprint 07 organization cutover. The projection
+        // covers every user with an organization membership even when they have no
+        // user_tenants row, mirroring the legacy union semantics.
         Number count = (Number) entityManager.createNativeQuery(
                 "SELECT COUNT(DISTINCT user_id) FROM ("
                     + " SELECT user_id FROM user_tenants WHERE tenant_id = :tenantId"
                     + " UNION"
-                    + " SELECT user_id FROM user_department_memberships WHERE tenant_id = :tenantId"
+                    + " SELECT user_id FROM core_user_scope WHERE tenant_id = :tenantId"
                     + ") tenant_users")
             .setParameter("tenantId", tenantId)
             .getSingleResult();

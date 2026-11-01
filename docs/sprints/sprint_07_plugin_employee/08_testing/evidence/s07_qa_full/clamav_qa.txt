@@ -1,0 +1,19 @@
+Sprint 07 — ClamAV document scan regression
+Date: 2026-10-31
+Tenant: 15a14e7f-76a9-4c98-9cc6-be6efbe171e8
+
+Setup:
+  docker compose --profile av up -d clamav
+  custom clamd config: TCPAddr 0.0.0.0, TCPSocket 3310
+  plugin config: employee.document.clamav.host=clamav, port=3310
+
+EICAR upload:
+  POST /employees/{id}/documents (multipart, eicar.txt)
+  -> 422 EMPLOYEE_DOCUMENT_INFECTED
+  -> file deleted before metadata insert
+
+Clean upload:
+  POST /employees/{id}/documents (multipart, clean.txt)
+  -> 200 EMPLOYEE_DOCUMENT_UPLOADED, scan_status=CLEAN
+
+Console/HTTP 500: none.

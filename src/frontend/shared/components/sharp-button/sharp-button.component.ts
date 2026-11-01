@@ -28,7 +28,7 @@ export class SharpButtonComponent {
   }
 
   buttonClasses(): string {
-    const base = 'op-press inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors select-none focus:outline-none focus:ring-1 focus:ring-muted disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
+    const base = 'op-press inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors select-none focus:outline-none focus:ring-1 focus:ring-muted disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-10 sm:min-h-0';
 
     const shape = this.shape() as string;
     const shapeCls = shape === ShapeVariant.SHARP || shape === 'sharp' ? 'rounded-none' : 'rounded-control';

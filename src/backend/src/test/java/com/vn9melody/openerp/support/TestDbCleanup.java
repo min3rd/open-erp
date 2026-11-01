@@ -45,12 +45,11 @@ public final class TestDbCleanup {
 
         entityManager.createNativeQuery("DELETE FROM platform_impersonation_logs").executeUpdate();
         entityManager.createNativeQuery("DELETE FROM core_sample_records").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM user_branch_assignments").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM user_department_memberships").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM core_department_closure").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM core_user_manager_edge").executeUpdate();
+        entityManager.createNativeQuery("DELETE FROM core_user_scope").executeUpdate();
         entityManager.createNativeQuery("DELETE FROM role_data_policies").executeUpdate();
         entityManager.createNativeQuery("DELETE FROM user_roles").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM departments").executeUpdate();
-        entityManager.createNativeQuery("DELETE FROM branches").executeUpdate();
         entityManager.createNativeQuery(
                 "DELETE FROM role_permissions WHERE role_id IN (SELECT id FROM roles WHERE tenant_id IS NOT NULL)")
             .executeUpdate();

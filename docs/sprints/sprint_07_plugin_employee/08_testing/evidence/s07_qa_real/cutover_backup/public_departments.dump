@@ -1,0 +1,156 @@
+--
+-- PostgreSQL database dump
+--
+
+\restrict Q8AQN6tNw0vYZE1BAmUBFkcou1Qcs8ugxu1NppkhdpFs2UYzLn9VhRPZJ8t4Xgy
+
+-- Dumped from database version 16.15
+-- Dumped by pg_dump version 16.15
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+ALTER TABLE IF EXISTS ONLY public.departments DROP CONSTRAINT IF EXISTS departments_tenant_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.departments DROP CONSTRAINT IF EXISTS departments_parent_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.departments DROP CONSTRAINT IF EXISTS departments_manager_user_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.departments DROP CONSTRAINT IF EXISTS departments_branch_id_fkey;
+DROP INDEX IF EXISTS public.idx_departments_tenant;
+DROP INDEX IF EXISTS public.idx_departments_parent;
+DROP INDEX IF EXISTS public.idx_departments_manager;
+DROP INDEX IF EXISTS public.idx_departments_branch;
+ALTER TABLE IF EXISTS ONLY public.departments DROP CONSTRAINT IF EXISTS uq_dept_tenant_code;
+ALTER TABLE IF EXISTS ONLY public.departments DROP CONSTRAINT IF EXISTS uq_departments_id_tenant;
+ALTER TABLE IF EXISTS ONLY public.departments DROP CONSTRAINT IF EXISTS departments_pkey;
+DROP TABLE IF EXISTS public.departments;
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: departments; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.departments (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    tenant_id uuid NOT NULL,
+    branch_id uuid,
+    parent_id uuid,
+    code character varying(32) NOT NULL,
+    name character varying(255) NOT NULL,
+    manager_user_id uuid,
+    status character varying(32) DEFAULT 'ACTIVE'::character varying NOT NULL,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now()
+);
+
+
+--
+-- Data for Name: departments; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.departments (id, tenant_id, branch_id, parent_id, code, name, manager_user_id, status, created_at, updated_at) FROM stdin;
+f6ada221-e97e-44cd-80cd-cc76ca007009	cd2729d8-aec0-423c-b2b0-2649a97d822f	1c7ae7f1-d360-4a4b-977c-ff642eaf6f9e	\N	CNTT	Công nghệ Thông tin	\N	ACTIVE	2026-10-05 07:06:43.766884+00	2026-10-05 07:06:43.766884+00
+c344d2f8-9c4f-49f6-bc4b-825859bf71d8	15a14e7f-76a9-4c98-9cc6-be6efbe171e8	3c6e8bdd-3b55-4f71-96a7-5ae6782110aa	\N	GENERAL	Phòng ban chung	\N	ACTIVE	2026-10-30 13:31:19.034266+00	2026-10-30 13:31:19.034266+00
+ddd3696a-fb12-485a-a361-7200b17fb064	cda27ab1-bc16-4900-9a5d-00ea1942ef39	85a84eff-95ec-4526-abe9-baa1ea17a851	\N	GENERAL	Phòng ban chung	\N	ACTIVE	2026-10-30 13:31:20.155974+00	2026-10-30 13:31:20.155974+00
+d4b6b35a-4b16-4f32-a887-c40c5e0ff443	08112f47-44ff-49ab-bd2a-fe4829ef8185	8cc18b4c-7557-4f20-9b38-34f10ec4b6ac	\N	GENERAL	Phòng ban chung	\N	ACTIVE	2026-10-30 13:49:57.347421+00	2026-10-30 13:49:57.347421+00
+\.
+
+
+--
+-- Name: departments departments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.departments
+    ADD CONSTRAINT departments_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: departments uq_departments_id_tenant; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.departments
+    ADD CONSTRAINT uq_departments_id_tenant UNIQUE (id, tenant_id);
+
+
+--
+-- Name: departments uq_dept_tenant_code; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.departments
+    ADD CONSTRAINT uq_dept_tenant_code UNIQUE (tenant_id, code);
+
+
+--
+-- Name: idx_departments_branch; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_departments_branch ON public.departments USING btree (branch_id);
+
+
+--
+-- Name: idx_departments_manager; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_departments_manager ON public.departments USING btree (manager_user_id);
+
+
+--
+-- Name: idx_departments_parent; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_departments_parent ON public.departments USING btree (parent_id);
+
+
+--
+-- Name: idx_departments_tenant; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_departments_tenant ON public.departments USING btree (tenant_id);
+
+
+--
+-- Name: departments departments_branch_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.departments
+    ADD CONSTRAINT departments_branch_id_fkey FOREIGN KEY (branch_id) REFERENCES public.branches(id) ON DELETE SET NULL;
+
+
+--
+-- Name: departments departments_manager_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.departments
+    ADD CONSTRAINT departments_manager_user_id_fkey FOREIGN KEY (manager_user_id) REFERENCES public.users(id) ON DELETE SET NULL;
+
+
+--
+-- Name: departments departments_parent_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.departments
+    ADD CONSTRAINT departments_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES public.departments(id) ON DELETE RESTRICT;
+
+
+--
+-- Name: departments departments_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.departments
+    ADD CONSTRAINT departments_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict Q8AQN6tNw0vYZE1BAmUBFkcou1Qcs8ugxu1NppkhdpFs2UYzLn9VhRPZJ8t4Xgy
+

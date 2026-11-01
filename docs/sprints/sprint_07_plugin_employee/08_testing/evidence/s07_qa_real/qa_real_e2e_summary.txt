@@ -1,0 +1,46 @@
+Sprint 07 QA — real app E2E (2026-10-30)
+Environment:
+- Backend: open-erp/backend:dev (glibc Temurin 21, Docker) at http://localhost:8088
+- Web: open-erp/web:dev at http://localhost:4200
+- Plugins: org-structure 1.0.0 ACTIVE; employee 1.0.4 ACTIVE
+- Tenant: 15a14e7f-76a9-4c98-9cc6-be6efbe171e8 (S7 QA)
+- Browser: Chrome headless, desktop 1440x900 + mobile 390x844
+
+Results:
+PASS login tenant admin
+PASS employee plugin screen loads (real gateway/JWT)
+PASS create employee via real API
+PASS edit employee drawer shows assignments/contracts/documents
+PASS HR tools load real config APIs
+PASS org chart renders
+PASS organization plugin screen loads
+PASS no console errors
+PASS no failed API requests
+PASS desktop no horizontal overflow
+PASS mobile employee screen self-only
+PASS mobile no horizontal overflow
+
+Tenant switch:
+PASS switch to second tenant (08112f47-44ff-49ab-bd2a-fe4829ef8185)
+PASS switch back to main tenant
+0 console error
+
+Offboarding guard:
+PASS offboard last tenant admin -> 409 EMPLOYEE_LAST_ADMIN_FORBIDDEN
+
+Cutover on dev tenant:
+PASS status before copy (legacy 1/1/1/1, plugin 1/1/0/0)
+PASS backup (evidence/s07_qa_real/cutover_backup/)
+PASS copy + verify (branches 1/1, departments 1/1, memberships 1/1, branch access 1/1,
+     projection scope=1, closure OK)
+
+Screenshots: desktop_employee_list.png, desktop_employee_create_drawer.png,
+desktop_employee_edit_drawer.png, desktop_hr_tools.png, desktop_organization.png,
+desktop_tenant_switcher.png, mobile_employee_390x844.png
+
+Additional tenant minhvv (2026-10-30):
+- Installed org-structure 1.0.0 + employee 1.0.4 ACTIVE.
+- Browser minhvv employee + organization screens PASS 4/4, 0 console error.
+- Screenshots: minhvv_employee.png, minhvv_organization.png.
+- BUG-173: artifact storage moved to named volume openerp_backend_storage.
+

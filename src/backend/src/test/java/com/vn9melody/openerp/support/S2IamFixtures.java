@@ -16,10 +16,6 @@ import com.vn9melody.openerp.modules.iam.model.UserRole;
 import com.vn9melody.openerp.modules.iam.model.UserTenant;
 import com.vn9melody.openerp.modules.iam.model.UserTenantId;
 import com.vn9melody.openerp.modules.iam.model.RoleDataPolicy;
-import com.vn9melody.openerp.modules.organization.model.Branch;
-import com.vn9melody.openerp.modules.organization.model.Department;
-import com.vn9melody.openerp.modules.organization.model.UserBranchAssignment;
-import com.vn9melody.openerp.modules.organization.model.UserDepartmentMembership;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.util.List;
@@ -47,6 +43,13 @@ public final class S2IamFixtures {
         tenant.type = TenantType.BUSINESS;
         tenant.status = TenantStatus.ACTIVE;
         tenant.persist();
+        // Core reference APIs (sample records) go through the plugin allowlist;
+        // fixtures must opt the tenant in, same as the V3.0.2 backfill does.
+        Tenant.getEntityManager().createNativeQuery(
+                "UPDATE tenants SET allowed_plugins = COALESCE(allowed_plugins, '[]'::jsonb) || '\"core\"'::jsonb "
+                    + "WHERE id = ?1")
+            .setParameter(1, tenant.id)
+            .executeUpdate();
         return tenant;
     }
 
@@ -79,57 +82,6 @@ public final class S2IamFixtures {
         link.persist();
 
         return new Person(user.id, tenantId, email, fullName);
-    }
-
-    public static Branch createBranch(UUID tenantId, String codeSuffix, String name) {
-        Branch branch = new Branch();
-        branch.tenantId = tenantId;
-        branch.code = (CODE_PREFIX + codeSuffix).toUpperCase();
-        branch.name = name;
-        branch.isDefault = false;
-        branch.status = "ACTIVE";
-        branch.persist();
-        return branch;
-    }
-
-    public static Department createDepartment(UUID tenantId, UUID branchId, UUID parentId, String codeSuffix) {
-        Department department = new Department();
-        department.tenantId = tenantId;
-        department.branchId = branchId;
-        department.parentId = parentId;
-        department.code = (CODE_PREFIX + codeSuffix).toUpperCase();
-        department.name = "Phòng " + codeSuffix;
-        department.status = "ACTIVE";
-        department.persist();
-        return department;
-    }
-
-    public static UserDepartmentMembership createMembership(UUID tenantId, Person person, Branch branch,
-                                                            Department department, UUID managerUserId,
-                                                            boolean primary) {
-        UserDepartmentMembership membership = new UserDepartmentMembership();
-        membership.userId = person.userId();
-        membership.tenantId = tenantId;
-        membership.branchId = branch.id;
-        membership.departmentId = department.id;
-        membership.directManagerUserId = managerUserId;
-        membership.isPrimary = primary;
-        membership.joinedAt = Instant.now();
-        membership.persist();
-        return membership;
-    }
-
-    public static UserBranchAssignment createBranchAssignment(UUID tenantId, Person person, Branch branch,
-                                                              boolean primary, boolean canManage) {
-        UserBranchAssignment assignment = new UserBranchAssignment();
-        assignment.userId = person.userId();
-        assignment.tenantId = tenantId;
-        assignment.branchId = branch.id;
-        assignment.isPrimary = primary;
-        assignment.canManage = canManage;
-        assignment.assignedAt = Instant.now();
-        assignment.persist();
-        return assignment;
     }
 
     public static Role createCustomRole(UUID tenantId, String codeSuffix, String name) {
@@ -219,30 +171,8 @@ public final class S2IamFixtures {
         return QuarkusTransaction.requiringNew().call(() -> createTenant(suffix));
     }
 
-    public static Branch createBranchTx(UUID tenantId, String codeSuffix, String name) {
-        return QuarkusTransaction.requiringNew().call(() -> createBranch(tenantId, codeSuffix, name));
-    }
-
-    public static Department createDepartmentTx(UUID tenantId, UUID branchId, UUID parentId, String codeSuffix) {
-        return QuarkusTransaction.requiringNew().call(
-            () -> createDepartment(tenantId, branchId, parentId, codeSuffix));
-    }
-
     public static Role createCustomRoleTx(UUID tenantId, String codeSuffix, String name) {
         return QuarkusTransaction.requiringNew().call(() -> createCustomRole(tenantId, codeSuffix, name));
-    }
-
-    public static UserDepartmentMembership createMembershipTx(UUID tenantId, Person person, Branch branch,
-                                                              Department department, UUID managerUserId,
-                                                              boolean primary) {
-        return QuarkusTransaction.requiringNew().call(
-            () -> createMembership(tenantId, person, branch, department, managerUserId, primary));
-    }
-
-    public static UserBranchAssignment createBranchAssignmentTx(UUID tenantId, Person person, Branch branch,
-                                                                boolean primary, boolean canManage) {
-        return QuarkusTransaction.requiringNew().call(
-            () -> createBranchAssignment(tenantId, person, branch, primary, canManage));
     }
 
     public static UserRole assignRoleTx(UUID tenantId, Person person, Role role) {
@@ -273,9 +203,8 @@ public final class S2IamFixtures {
         deleteScopedAuditLogs(entityManager, tenantIds, userIds);
         deleteScopedImpersonationLogs(entityManager, tenantIds, userIds);
         deleteScopedSampleRecords(entityManager, tenantIds, userIds);
+        deleteScopedProjection(entityManager, tenantIds);
 
-        UserBranchAssignment.delete("tenantId in ?1", tenantIds);
-        UserDepartmentMembership.delete("tenantId in ?1", tenantIds);
         RoleDataPolicy.delete("tenantId in ?1", tenantIds);
         UserRole.delete("tenantId in ?1", tenantIds);
         List<UUID> roleIds = Role.<Role>find("tenantId in ?1", tenantIds).list().stream()
@@ -284,8 +213,6 @@ public final class S2IamFixtures {
         if (!roleIds.isEmpty()) {
             RolePermission.delete("roleId in ?1", roleIds);
         }
-        Department.delete("tenantId in ?1", tenantIds);
-        Branch.delete("tenantId in ?1", tenantIds);
         Role.delete("tenantId in ?1", tenantIds);
         UserTenant.delete("id.tenantId in ?1", tenantIds);
         if (!userIds.isEmpty()) {
@@ -294,6 +221,15 @@ public final class S2IamFixtures {
             User.delete("id in ?1", userIds);
         }
         Tenant.delete("id in ?1", tenantIds);
+    }
+
+    /** Removes scope projection rows (core_user_scope / manager edge / closure) for the fixtures' tenants. */
+    private static void deleteScopedProjection(EntityManager entityManager, List<UUID> tenantIds) {
+        for (String table : List.of("core_user_scope", "core_user_manager_edge", "core_department_closure")) {
+            entityManager.createNativeQuery("DELETE FROM " + table + " WHERE tenant_id IN (:tenantIds)")
+                .setParameter("tenantIds", tenantIds)
+                .executeUpdate();
+        }
     }
 
     private static void deleteScopedAuditLogs(EntityManager entityManager, List<UUID> tenantIds,

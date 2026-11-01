@@ -2,7 +2,7 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { ApiService } from '@shared';
-import { ApiResponse, AuthUser, LoginResult, PlatformAdminRole, RefreshTokenData, SlugCheckData, TenantInfo, decodeJwtPayload, readBooleanClaim, readNumberClaim, readStringArrayClaim } from '@shared';
+import { ApiResponse, AuthUser, LoginResult, PlatformAdminRole, RefreshTokenData, SlugCheckData, TenantInfo, TenantSwitcherItem, ListData, decodeJwtPayload, readBooleanClaim, readNumberClaim, readStringArrayClaim } from '@shared';
 
 const TOKEN_KEY = 'openerp_token';
 const REFRESH_TOKEN_KEY = 'openerp_refresh_token';
@@ -22,10 +22,12 @@ export class AuthService {
 
   private userSignal = signal<AuthUser | null>(this.loadStoredUser());
   private tokenSignal = signal<string | null>(localStorage.getItem(TOKEN_KEY));
+  private tenantsSignal = signal<TenantSwitcherItem[]>([]);
   private passwordChangedSignal = signal<boolean>(sessionStorage.getItem(PASSWORD_CHANGED_KEY) === '1');
 
   public user = computed(() => this.userSignal());
   public token = computed(() => this.tokenSignal());
+  public tenants = computed(() => this.tenantsSignal());
   public isAuthenticated = computed(() => !!this.tokenSignal());
 
   /** Platform role claim from the access token (`SUPER_ADMIN` / `SUPPORT_ENGINEER`). */
@@ -70,7 +72,7 @@ export class AuthService {
   public canAccessSettings = computed<boolean>(() => {
     const required = [
       'core:role:manage',
-      'core:organization:manage',
+      'organization:org:manage',
       'core:sample-record:read',
       'core:tenant:settings-manage',
       'core:plugin:read',
@@ -97,6 +99,37 @@ export class AuthService {
     window.addEventListener('openerp:session-expired', () => {
       this.resetSignals();
     });
+    if (this.isAuthenticated()) {
+      this.refreshTenants();
+    }
+  }
+
+  refreshTenants(): void {
+    if (!this.isAuthenticated()) {
+      this.tenantsSignal.set([]);
+      return;
+    }
+    this.api.get<ListData<TenantInfo>>('/api/v1/auth/me/tenants').subscribe({
+      next: (res) => this.tenantsSignal.set((res.data?.items ?? []).map((item) => ({
+        id: item.tenant_id,
+        name: item.tenant_name,
+        slug: item.tenant_slug,
+        role: item.role,
+        is_default: item.is_default,
+      }))),
+      error: () => this.tenantsSignal.set([]),
+    });
+  }
+
+  switchTenant(tenantId: string): Observable<ApiResponse<LoginResult>> {
+    return this.api.post<LoginResult>('/api/v1/auth/switch-tenant', { tenant_id: tenantId }).pipe(
+      tap((res) => {
+        if (res.success && res.data?.access_token && res.data.user) {
+          this.setSession(res.data.access_token, res.data.session_id || '', res.data.user, res.data.refresh_token);
+          this.refreshTenants();
+        }
+      })
+    );
   }
 
   private loadStoredUser(): AuthUser | null {
@@ -242,6 +275,7 @@ export class AuthService {
     this.passwordChangedSignal.set(false);
     this.tokenSignal.set(token);
     this.userSignal.set(user);
+    this.refreshTenants();
   }
 
   private resetSignals() {

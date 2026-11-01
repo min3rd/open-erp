@@ -26,8 +26,15 @@
             {{ 'DASHBOARD_ORGANIZATION' | translate:{ name: tenantName() } }}
           </p>
         }
-        <div class="mt-1.5">
+        <div class="mt-1.5 flex items-center gap-1.5">
           <app-badge [variant]="colorInfo">{{ role() || 'MEMBER' }}</app-badge>
+          @if (tenants().length > 1) {
+            <app-tenant-switcher
+              [tenants]="tenants()"
+              [currentTenantId]="currentTenantId()"
+              (switchTenant)="switchTenant.emit($event)"
+            />
+          }
         </div>
       </div>
     </div>
@@ -74,6 +81,18 @@
         <app-icon name="monitor" [decorative]="true" />
         <span>{{ 'ACCOUNT_TAB_SESSIONS' | translate }}</span>
       </a>
+
+      @for (app of apps(); track app.route) {
+        <a
+          [routerLink]="app.route"
+          routerLinkActive="bg-surface-muted text-ink font-semibold"
+          (click)="onNavigate()"
+          class="flex items-center gap-2 min-h-10 px-2 py-1.5 text-xs text-muted hover:bg-surface-muted transition-colors"
+        >
+          <app-icon name="package" [decorative]="true" />
+          <span>{{ app.titleKey | translate }}</span>
+        </a>
+      }
     </nav>
 
     <!-- Tenant settings (permission-gated) -->

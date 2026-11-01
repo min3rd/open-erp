@@ -2,6 +2,8 @@ package com.vn9melody.openerp.modules.plugin.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vn9melody.openerp.core.api.ApiException;
+import com.vn9melody.openerp.core.context.SecurityContextService;
+import com.vn9melody.openerp.core.context.UserSecurityContext;
 import com.vn9melody.openerp.core.enums.TenantPluginStatus;
 import com.vn9melody.openerp.core.security.JwtTokenService;
 import com.vn9melody.openerp.modules.plugin.api.PluginErrorCode;
@@ -38,6 +40,9 @@ public class PluginRuntimeGatewayService {
     @Inject
     JwtTokenService jwtTokenService;
 
+    @Inject
+    SecurityContextService securityContextService;
+
     @ConfigProperty(name = "openerp.plugin.deployer.namespace", defaultValue = "default")
     String namespace;
 
@@ -59,7 +64,8 @@ public class PluginRuntimeGatewayService {
                                         java.util.Set<String> roles) {}
 
     public GatewayResponse forward(UUID tenantId, UUID userId, java.util.Set<String> permissions,
-                                   java.util.Set<String> roles, String pluginKey, String pluginToken,
+                                   java.util.Set<String> roles, java.util.Set<UUID> branchIds,
+                                   String pluginKey, String pluginToken,
                                    String method, String path, String query, String contentType, byte[] body) {
         if (pluginToken != null && !pluginToken.isBlank()) {
             PluginTokenPrincipal principal = verifyPluginToken(pluginToken, pluginKey);
@@ -67,6 +73,12 @@ public class PluginRuntimeGatewayService {
             userId = principal.userId();
             permissions = principal.permissions();
             roles = principal.roles();
+            try {
+                UserSecurityContext context = securityContextService.getContext(tenantId, userId);
+                branchIds = context.effectiveBranchIds();
+            } catch (Exception e) {
+                branchIds = java.util.Set.of();
+            }
         }
         TenantPlugin ledger = tenantPluginRepository.findByTenantAndKey(tenantId, pluginKey)
                 .orElseThrow(() -> new ApiException(403, PluginErrorCode.PLUGIN_DISABLED_FOR_TENANT,
@@ -87,6 +99,8 @@ public class PluginRuntimeGatewayService {
                 .header("X-User-Id", userId == null ? "" : userId.toString())
                 .header("X-User-Permissions", String.join(",", permissions))
                 .header("X-User-Roles", String.join(",", roles))
+                .header("X-User-Branch-Ids", branchIds == null ? "" : branchIds.stream()
+                        .map(UUID::toString).sorted().collect(java.util.stream.Collectors.joining(",")))
                 .header("X-Plugin-Key", pluginKey)
                 .header("X-Plugin-Service-Token", jwtTokenService.generatePluginServiceToken(
                         tenantId, pluginKey,

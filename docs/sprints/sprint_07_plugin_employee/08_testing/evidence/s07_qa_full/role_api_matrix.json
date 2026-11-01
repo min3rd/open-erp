@@ -1,0 +1,42 @@
+[
+  {
+    "role": "TENANT_ADMIN",
+    "employeeList": 200,
+    "employeeSelf": 200,
+    "employeeCreate": 400,
+    "fieldConfig": 200,
+    "createAssignment": 404,
+    "notifications": 200,
+    "orgBranches": 200
+  },
+  {
+    "role": "GENERAL_MANAGER",
+    "employeeList": 200,
+    "employeeSelf": 200,
+    "employeeCreate": 403,
+    "fieldConfig": 403,
+    "createAssignment": 403,
+    "notifications": 200,
+    "orgBranches": 200
+  },
+  {
+    "role": "STAFF",
+    "employeeList": 403,
+    "employeeSelf": 200,
+    "employeeCreate": 403,
+    "fieldConfig": 403,
+    "createAssignment": 403,
+    "notifications": 200,
+    "orgBranches": 403
+  },
+  {
+    "role": "VIEWER",
+    "employeeList": 200,
+    "employeeSelf": 403,
+    "employeeCreate": 403,
+    "fieldConfig": 403,
+    "createAssignment": 403,
+    "notifications": 200,
+    "orgBranches": 200
+  }
+]

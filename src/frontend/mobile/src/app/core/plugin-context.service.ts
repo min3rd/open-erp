@@ -1,6 +1,7 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { NavController } from '@ionic/angular/standalone';
 import { PluginContext } from '@shared';
+import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 import { getJwtPermissions } from './jwt.util';
@@ -26,6 +27,17 @@ export class PluginContextService {
         : null,
       permissions: getJwtPermissions(localStorage.getItem('openerp_token')) ?? [],
       apiBaseUrl: environment.apiBaseUrl,
+      tenants: this.auth.tenants().map((item) => ({
+        id: item.tenant_id,
+        name: item.tenant_name,
+        slug: item.tenant_slug,
+        role: item.role,
+        is_default: item.is_default,
+      })),
+      switchTenant: async (tenantId: string) => {
+        await firstValueFrom(this.auth.switchTenant(tenantId));
+        window.location.reload();
+      },
       navigate: (path: string) => this.navigate(path),
       notify: (payload) => {
         window.dispatchEvent(new CustomEvent('openerp:plugin-notify', { detail: payload }));

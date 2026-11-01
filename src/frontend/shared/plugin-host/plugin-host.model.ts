@@ -50,6 +50,15 @@ export interface PluginUiManifest {
   slots: PluginHostSlot[];
 }
 
+export interface PluginTenantSummary {
+  id: string;
+  name: string;
+  slug?: string;
+  role?: string;
+  status?: string;
+  is_default?: boolean;
+}
+
 /** Context passed to every plugin contribution. Data is serializable; actions are callbacks. */
 export interface PluginContext {
   theme: 'light' | 'dark';
@@ -59,6 +68,10 @@ export interface PluginContext {
   user: { id: string; name: string; email: string } | null;
   permissions: string[];
   apiBaseUrl: string;
+  /** Tenants available to the current user, for the account-menu switcher. */
+  tenants?: PluginTenantSummary[];
+  /** Host-owned switch; plugin must never handle tokens itself. */
+  switchTenant?: (tenantId: string) => Promise<void>;
   navigate?: (path: string) => void;
   notify?: (payload: PluginNotifyPayload) => void;
   resize?: () => void;

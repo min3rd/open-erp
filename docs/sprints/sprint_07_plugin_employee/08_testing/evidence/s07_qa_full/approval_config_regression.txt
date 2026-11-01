@@ -1,0 +1,46 @@
+Sprint 07 — Approval config node ordering/selection regression
+Date: 2026-10-31
+Plugin: employee 1.1.11 (QA tenant 15a14e7f-76a9-4c98-9cc6-be6efbe171e8)
+Browser: Chrome headless 1440x900, web http://localhost:4200
+
+Defect reproduced on employee 1.1.8/1.1.9:
+- Server list sorted by scope_type, field_group, step_no. Changing field_group moved
+  step 2 ahead of step 1 in the UI.
+- The editor selected by array index, so after save the panel jumped from step 2 to
+  step 1. Edits then landed on the wrong node, producing reversed approver values.
+- Swapping step numbers returned HTTP 500 because uq_employee_approval_scope
+  (tenant_id, scope_type, scope_id, field_group, step_no) rejected the transient duplicate.
+
+Fix:
+- UI renders approvalFlow() sorted by step_no; selection is by object identity.
+- Backend resolves id-based rows first, parks existing targets on temporary high steps,
+  then writes final scope/group/step values (two-phase update).
+- list descriptor sorts by step_no first.
+
+Regression run after employee 1.1.11:
+
+order before
+  1 Quản lý trực tiếp · Toàn workspace · Hồ sơ
+  2 Theo vai trò · Toàn workspace · Hồ sơ
+
+select node 2 -> selected step 2
+change step 2 field_group to ALL -> save
+order after:
+  1 Quản lý trực tiếp · Toàn workspace · Hồ sơ
+  2 Theo vai trò · Toàn workspace · Tất cả trường
+selected after: 2
+=> PASS: order stayed 1→2, editor stayed on step 2.
+
+restore field_group PROFILE -> save -> PASS
+
+swap step numbers 1 and 2 -> save
+order after:
+  1 Theo vai trò · Toàn workspace · Hồ sơ
+  2 Quản lý trực tiếp · Toàn workspace · Hồ sơ
+DB after:
+  step_no=1 approver_type=ROLE
+  step_no=2 approver_type=MANAGER
+=> PASS: swap persisted, no HTTP 500, selection stayed on the moved node.
+
+Console errors: none.
+QA + minhvv seed restored: step 1 MANAGER/PROFILE, step 2 ROLE/PROFILE.

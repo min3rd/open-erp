@@ -21,7 +21,7 @@
         {{ 'DASHBOARD_WELCOME' | translate:{ name: auth.user()?.full_name || auth.user()?.email } }}
       </h1>
       <div class="flex items-center gap-2 mt-1.5">
-        <app-badge [variant]="badgeInfo">{{ auth.user()?.role }}</app-badge>
+        <app-badge [variant]="badgeInfo">{{ auth.user()?.rbac_role || auth.user()?.role }}</app-badge>
         <span class="text-[11px] text-muted truncate">
           {{ auth.user()?.tenant_name }}
         </span>

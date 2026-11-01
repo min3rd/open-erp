@@ -143,6 +143,31 @@ public class AuthResource {
     }
 
     @POST
+    @Path("/switch-tenant")
+    public Response switchTenant(@Valid SwitchTenantRequest req, @Context HttpHeaders headers,
+                                 @Context HttpServerRequest request) {
+        AccessTokenVerifier.VerifiedAccessToken current = accessTokenVerifier
+            .verifyBearer(headers != null ? headers.getHeaderString(HttpHeaders.AUTHORIZATION) : null);
+        AuthResponse data = authService.switchTenant(
+            current.userId(), current.sessionId(), req.tenantId,
+            extractDevice(headers), extractClientIp(request));
+        return Response.ok(
+            ApiResponse.success(ErrorCode.AUTH_TENANT_SWITCH_SUCCESS, "Tenant switched successfully.", data)
+        ).build();
+    }
+
+    @GET
+    @Path("/me/tenants")
+    public Response myTenants(@Context HttpHeaders headers) {
+        AccessTokenVerifier.VerifiedAccessToken current = accessTokenVerifier
+            .verifyBearer(headers != null ? headers.getHeaderString(HttpHeaders.AUTHORIZATION) : null);
+        return Response.ok(ApiResponse.successList(
+            "AUTH_TENANT_LIST_SUCCESS",
+            "Tenant list retrieved successfully.",
+            authService.listSwitchableTenants(current.userId()))).build();
+    }
+
+    @POST
     @Path("/2fa/verify-login")
     public Response verifyLogin2Fa(@Valid VerifyLogin2FaRequest req, @Context HttpHeaders headers, @Context HttpServerRequest request) {
         JsonWebToken preAuthJwt = parsePreAuthToken(req.preAuthToken, PURPOSE_2FA_CHALLENGE);

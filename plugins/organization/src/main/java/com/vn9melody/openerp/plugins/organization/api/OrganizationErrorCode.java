@@ -1,0 +1,41 @@
+package com.vn9melody.openerp.plugins.organization.api;
+
+/** Stable codes for organization plugin responses/errors. */
+public final class OrganizationErrorCode {
+
+    public static final String BRANCH_LIST_SUCCESS = "ORGANIZATION_BRANCH_LIST_SUCCESS";
+    public static final String BRANCH_CREATED = "ORGANIZATION_BRANCH_CREATED";
+    public static final String BRANCH_CODE_EXISTS = "ORGANIZATION_BRANCH_CODE_EXISTS";
+    public static final String BRANCH_NOT_FOUND = "ORGANIZATION_BRANCH_NOT_FOUND";
+    public static final String BRANCH_REQUIRED = "ORGANIZATION_BRANCH_REQUIRED";
+    public static final String BRANCH_ARCHIVED = "ORGANIZATION_BRANCH_ARCHIVED";
+    public static final String BRANCH_IN_USE = "ORGANIZATION_BRANCH_IN_USE";
+
+    public static final String DEPARTMENT_LIST_SUCCESS = "ORGANIZATION_DEPARTMENT_LIST_SUCCESS";
+    public static final String DEPARTMENT_CREATED = "ORGANIZATION_DEPARTMENT_CREATED";
+    public static final String DEPARTMENT_CODE_EXISTS = "ORGANIZATION_DEPARTMENT_CODE_EXISTS";
+    public static final String DEPARTMENT_NOT_FOUND = "ORGANIZATION_DEPARTMENT_NOT_FOUND";
+    public static final String DEPARTMENT_BRANCH_MISMATCH = "ORGANIZATION_DEPARTMENT_BRANCH_MISMATCH";
+    public static final String DEPARTMENT_CYCLE = "ORGANIZATION_DEPARTMENT_CYCLE";
+    public static final String DEPARTMENT_ARCHIVED = "ORGANIZATION_DEPARTMENT_ARCHIVED";
+    public static final String DEPARTMENT_IN_USE = "ORGANIZATION_DEPARTMENT_IN_USE";
+
+    public static final String MEMBERSHIP_LIST_SUCCESS = "ORGANIZATION_MEMBERSHIP_LIST_SUCCESS";
+    public static final String MEMBERSHIP_CREATED = "ORGANIZATION_MEMBERSHIP_CREATED";
+    public static final String MEMBERSHIP_PRIMARY_REQUIRED = "ORGANIZATION_MEMBERSHIP_PRIMARY_REQUIRED";
+    public static final String MEMBERSHIP_PRIMARY_EXISTS = "ORGANIZATION_MEMBERSHIP_PRIMARY_EXISTS";
+    public static final String MEMBERSHIP_CYCLE = "ORGANIZATION_MEMBERSHIP_CYCLE";
+    public static final String MEMBERSHIP_NOT_FOUND = "ORGANIZATION_MEMBERSHIP_NOT_FOUND";
+    public static final String MEMBERSHIP_DELETED = "ORGANIZATION_MEMBERSHIP_DELETED";
+
+    public static final String BRANCH_ACCESS_LIST_SUCCESS = "ORGANIZATION_BRANCH_ACCESS_LIST_SUCCESS";
+    public static final String BRANCH_ACCESS_SAVED = "ORGANIZATION_BRANCH_ACCESS_SAVED";
+    public static final String BRANCH_ACCESS_DELETED = "ORGANIZATION_BRANCH_ACCESS_DELETED";
+    public static final String BRANCH_ACCESS_PRIMARY_EXISTS = "ORGANIZATION_BRANCH_ACCESS_PRIMARY_EXISTS";
+
+    public static final String BOOTSTRAP_SUCCESS = "ORGANIZATION_BOOTSTRAP_SUCCESS";
+    public static final String BOOTSTRAP_TENANT_REQUIRED = "ORGANIZATION_BOOTSTRAP_TENANT_REQUIRED";
+
+    private OrganizationErrorCode() {
+    }
+}

@@ -224,6 +224,20 @@ services:
     networks:
       - openerp-net
 
+  clamav:
+    image: clamav/clamav:stable
+    container_name: openerp-clamav
+    profiles: ["av"]
+    entrypoint: ["clamd", "-F", "-c", "/etc/clamav/clamd-tcp.conf"]
+    volumes:
+      - ./docker/clamav/clamd-tcp.conf:/etc/clamav/clamd-tcp.conf:ro
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    networks:
+      - openerp-net
+
   backend-dev:
     build:
       context: ./src/backend
@@ -261,6 +275,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./plugins/catalog/migrations:/deploy/plugin-migrations/catalog:ro
       - plugin_certs:/deploy/certs:ro
+      - backend_storage:/tmp/openerp-object-storage
     # The socket is root:root 0660 on Docker Desktop; grant the dev user the
     # socket group so the deployer can spawn per-tenant plugin containers.
     group_add:
@@ -463,3 +478,5 @@ volumes:
   mobile_angular_cache:
   plugin_certs:
     name: openerp_plugin_certs
+  backend_storage:
+    name: openerp_backend_storage

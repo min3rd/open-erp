@@ -1,7 +1,7 @@
 <div class="h-screen overflow-hidden bg-surface-muted text-ink flex flex-col">
   <app-topbar
     [tenantName]="auth.user()?.tenant_name || ''"
-    [role]="auth.user()?.role || 'MEMBER'"
+    [role]="auth.user()?.rbac_role || auth.user()?.role || 'MEMBER'"
     [userName]="auth.user()?.full_name || ''"
     [userEmail]="auth.user()?.email || ''"
     [settingsPath]="auth.canAccessSettings() ? '/settings/roles' : null"

@@ -129,9 +129,11 @@ public class SecurityContextServiceTest {
         Assertions.assertFalse(context.departmentAndChildIds().contains(siblingDepartmentId));
 
         Assertions.assertTrue(context.subordinateUserIds().contains(reportingSubordinateId),
-            "direct_manager_user_id reporting line phải được đệ quy");
-        Assertions.assertTrue(context.subordinateUserIds().contains(departmentSubordinateId),
-            "thành viên phòng ban do user làm trưởng phải là cấp dưới");
+            "direct_manager_user_id reporting line phải được đệ quy qua projection manager edge");
+        // Sprint 07 cutover: subordinates resolve only from core_user_manager_edge
+        // (the org plugin is the single source of the reporting line); department
+        // membership alone no longer implies subordination.
+        Assertions.assertFalse(context.subordinateUserIds().contains(departmentSubordinateId));
         Assertions.assertFalse(context.subordinateUserIds().contains(managerUserId));
     }
 

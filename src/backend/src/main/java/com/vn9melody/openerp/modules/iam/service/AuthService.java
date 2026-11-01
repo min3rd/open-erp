@@ -14,17 +14,19 @@ import org.jboss.logging.Logger;
 import com.vn9melody.openerp.core.api.ApiException;
 import com.vn9melody.openerp.core.api.ApiFieldError;
 import com.vn9melody.openerp.core.api.ErrorCode;
+import com.vn9melody.openerp.core.audit.AuditTrail;
 import com.vn9melody.openerp.core.context.SecurityContextService;
 import com.vn9melody.openerp.core.enums.AccountStatus;
+import com.vn9melody.openerp.core.enums.PlatformAction;
 import com.vn9melody.openerp.core.enums.ResponseKey;
 import com.vn9melody.openerp.core.enums.TenantType;
+import com.vn9melody.openerp.core.enums.TenantStatus;
 import com.vn9melody.openerp.core.enums.UserRole;
 import com.vn9melody.openerp.core.security.*;
 import com.vn9melody.openerp.modules.iam.dto.*;
 import com.vn9melody.openerp.modules.iam.dto.response.*;
 import com.vn9melody.openerp.modules.iam.model.*;
 import com.vn9melody.openerp.modules.platform.service.PlatformLoginService;
-import com.vn9melody.openerp.modules.organization.service.OrganizationProvisioningService;
 import com.vn9melody.openerp.modules.plugin.service.PluginProvisioningService;
 
 @ApplicationScoped
@@ -74,9 +76,6 @@ public class AuthService {
     AccountService accountService;
 
     @Inject
-    OrganizationProvisioningService organizationProvisioningService;
-
-    @Inject
     RoleDataPolicyProvisioningService roleDataPolicyProvisioningService;
 
     @Inject
@@ -84,6 +83,12 @@ public class AuthService {
 
     @Inject
     SecurityContextService securityContextService;
+
+    @Inject
+    TenantSwitchRateLimiter tenantSwitchRateLimiter;
+
+    @Inject
+    AuditTrail auditTrail;
 
     @Transactional
     public PersonalRegisterResponse registerPersonal(PersonalRegisterRequest req) {
@@ -155,7 +160,6 @@ public class AuthService {
 
         // TASK-271: user_roles is the single source of truth for the enforcement engine.
         systemRoleAssigner.assignSystemRole(personalTenant.id, user.id, SystemRoleAssigner.TENANT_ADMIN);
-        organizationProvisioningService.provisionDefaults(personalTenant.id, user.id);
         roleDataPolicyProvisioningService.provisionAdminDefaults(personalTenant.id);
 
         return new VerifyEmailResponse(AccountStatus.ACTIVE, personalTenant.id.toString());
@@ -223,10 +227,11 @@ public class AuthService {
 
         // TASK-271: user_roles is the single source of truth for the enforcement engine.
         systemRoleAssigner.assignSystemRole(tenant.id, user.id, SystemRoleAssigner.TENANT_ADMIN);
-        organizationProvisioningService.provisionDefaults(tenant.id, user.id);
         roleDataPolicyProvisioningService.provisionAdminDefaults(tenant.id);
 
         // TASK-307 / Gate Q5: apply system-default plugins to the new tenant.
+        // Sprint 07: org-structure is an always-on locked default; its bootstrap
+        // seeder provisions HQ/GENERAL + owner membership after deployment.
         pluginProvisioningService.provisionDefaults(tenant.id);
 
         emailNotificationService.sendBusinessWelcomeEmail(user.email, tenant.name, tenant.slug);
@@ -303,8 +308,7 @@ public class AuthService {
             ut.isDefault = true;
             ut.persist();
             systemRoleAssigner.assignSystemRole(personalTenant.id, user.id, SystemRoleAssigner.TENANT_ADMIN);
-        organizationProvisioningService.provisionDefaults(personalTenant.id, user.id);
-        roleDataPolicyProvisioningService.provisionAdminDefaults(personalTenant.id);
+            roleDataPolicyProvisioningService.provisionAdminDefaults(personalTenant.id);
             userTenants = List.of(ut);
         }
 
@@ -347,6 +351,51 @@ public class AuthService {
         return response;
     }
 
+    @Transactional
+    public AuthResponse switchTenant(UUID userId, String currentSessionId, UUID tenantId,
+                                     String device, String ipAddress) {
+        tenantSwitchRateLimiter.check(userId);
+        User user = User.findById(userId);
+        if (user == null) {
+            throw new ApiException(401, ErrorCode.UNAUTHORIZED, "User not found");
+        }
+        UserTenant ut = UserTenant.findByUserAndTenant(userId, tenantId);
+        if (ut == null) {
+            throw new ApiException(403, ErrorCode.AUTH_TENANT_ACCESS_DENIED,
+                "User does not belong to selected tenant");
+        }
+        if (ut.tenant.status != TenantStatus.ACTIVE && ut.tenant.status != TenantStatus.TRIAL) {
+            throw new ApiException(403, ErrorCode.AUTH_TENANT_SUSPENDED,
+                "Tenant is not available for switching");
+        }
+
+        AuthResponse response = issueTokensForTenant(
+            user, ut.tenant, ut.role != null ? ut.role.name() : "MEMBER", device, ipAddress);
+        if (currentSessionId != null && !currentSessionId.isBlank()) {
+            sessionManager.revokeSession(userId, currentSessionId);
+        }
+        try {
+            auditTrail.recordSuccess(tenantId, PlatformAction.AUTH_TENANT_SWITCHED,
+                "user_tenant", userId, Map.of("session_id", response.sessionId()));
+        } catch (RuntimeException e) {
+            LOG.warnf("Cannot audit tenant switch for %s/%s: %s", tenantId, userId, e.getMessage());
+        }
+        return response;
+    }
+
+    public List<TenantItemResponse> listSwitchableTenants(UUID userId) {
+        return UserTenant.listByUserId(userId).stream()
+            .filter(ut -> ut.tenant != null
+                && (ut.tenant.status == TenantStatus.ACTIVE || ut.tenant.status == TenantStatus.TRIAL))
+            .map(ut -> new TenantItemResponse(
+                ut.tenant.id.toString(),
+                ut.tenant.name,
+                ut.tenant.slug,
+                ut.role != null ? ut.role.name() : "MEMBER",
+                ut.isDefault != null && ut.isDefault))
+            .toList();
+    }
+
     private AuthResponse issueTokensForTenant(User user, Tenant tenant, String role, String device, String ipAddress) {
         String sessionId = sessionManager.createSession(user.id, device, ipAddress);
         Set<String> permissions = resolvePermissionsForToken(tenant.id, user.id);
@@ -355,6 +404,7 @@ public class AuthService {
         String refreshToken = jwtTokenService.generateRefreshToken(user.id, tenant.id, role, sessionId);
 
         UserProfile profile = UserProfile.findByUserId(user.id);
+        String rbacRole = resolveRbacRole(tenant.id, user.id);
 
         AuthUserInfo userInfo = new AuthUserInfo(
             user.id.toString(),
@@ -363,7 +413,8 @@ public class AuthService {
             tenant.id.toString(),
             tenant.name,
             tenant.slug,
-            role
+            role,
+            rbacRole
         );
 
         return AuthResponse.forSuccess(accessToken, refreshToken, sessionId, (int) ACCESS_TOKEN_TTL_SECONDS, userInfo);
@@ -384,6 +435,22 @@ public class AuthService {
             LOG.warnf("Could not resolve functional permissions for token of %s/%s: %s",
                 tenantId, userId, e.getMessage());
             return Set.of();
+        }
+    }
+
+    /** First RBAC role code for the tenant header chip; falls back to the membership role. */
+    private String resolveRbacRole(UUID tenantId, UUID userId) {
+        if (tenantId == null || userId == null) {
+            return null;
+        }
+        try {
+            return securityContextService.getContext(tenantId, userId).roleCodes().stream()
+                .sorted()
+                .findFirst()
+                .orElse(null);
+        } catch (Exception e) {
+            LOG.warnf("Could not resolve RBAC role for %s/%s: %s", tenantId, userId, e.getMessage());
+            return null;
         }
     }
 

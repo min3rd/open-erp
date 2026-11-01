@@ -1,0 +1,35 @@
+<section class="space-y-2 bg-surface p-2 text-xs text-ink">
+  <header class="flex flex-wrap items-center justify-between gap-2">
+    <div>
+      <h1 class="text-sm font-semibold">{{ 'ORGANIZATION_STRUCTURE' | translate }}</h1>
+      <p class="text-[11px] text-muted">{{ 'ORGANIZATION_CHART' | translate }}</p>
+    </div>
+  </header>
+
+  <nav class="flex flex-wrap gap-1 border-b border-default pb-1" [attr.aria-label]="'ORGANIZATION_STRUCTURE' | translate">
+    <button type="button" class="inline-flex min-h-9 items-center border-b-2 px-2 text-[11px] font-medium"
+      [class.border-accent]="tab() === 'structure'" [class.text-ink]="tab() === 'structure'"
+      [class.border-transparent]="tab() !== 'structure'" [class.text-muted]="tab() !== 'structure'"
+      (click)="selectTab('structure')">
+      {{ 'ORGANIZATION_CHART' | translate }}
+    </button>
+    <button type="button" class="inline-flex min-h-9 items-center border-b-2 px-2 text-[11px] font-medium"
+      [class.border-accent]="tab() === 'members'" [class.text-ink]="tab() === 'members'"
+      [class.border-transparent]="tab() !== 'members'" [class.text-muted]="tab() !== 'members'"
+      (click)="selectTab('members')">
+      {{ 'ORGANIZATION_MEMBERSHIPS' | translate }}
+    </button>
+    <button type="button" class="inline-flex min-h-9 items-center border-b-2 px-2 text-[11px] font-medium"
+      [class.border-accent]="tab() === 'branch-access'" [class.text-ink]="tab() === 'branch-access'"
+      [class.border-transparent]="tab() !== 'branch-access'" [class.text-muted]="tab() !== 'branch-access'"
+      (click)="selectTab('branch-access')">
+      {{ 'ORGANIZATION_BRANCH_ASSIGNMENT_TITLE' | translate }}
+    </button>
+  </nav>
+
+  @switch (tab()) {
+    @case ('structure') { <app-org-structure /> }
+    @case ('members') { <app-org-members /> }
+    @case ('branch-access') { <app-org-branch-access /> }
+  }
+</section>

@@ -1,0 +1,4234 @@
+{
+  "schema_version": "2.0",
+  "id": "employee",
+  "name": "Employee",
+  "description": "Employee profiles, effective-dated assignments, change requests, documents and HR self-service.",
+  "version": "1.1.19",
+  "template_version": "2.0.0",
+  "author": "Open-ERP Plugin Team",
+  "core_version_compatibility": ">=1.0.0 <2.0.0",
+  "migration_policy": "COMPATIBLE",
+  "rollback_strategy": "SNAPSHOT_RESTORE",
+  "dependencies": [],
+  "platforms": {
+    "desktop": {
+      "supported": true,
+      "features": [
+        "employee:profile:read",
+        "employee:profile:create",
+        "employee:profile:update",
+        "employee:assignment:manage",
+        "employee:change-request:read",
+        "employee:change-request:approve",
+        "employee:field-config:manage",
+        "employee:document:read",
+        "employee:document:manage",
+        "employee:directory:read",
+        "employee:self:read",
+        "employee:self:update",
+        "employee:approval-config:manage",
+        "employee:onboarding:manage",
+        "employee:campaign:manage",
+        "employee:privacy:manage"
+      ]
+    },
+    "mobile": {
+      "supported": true,
+      "features": [
+        "employee:self:read",
+        "employee:self:update",
+        "employee:directory:read"
+      ]
+    }
+  },
+  "permissions": [
+    {
+      "code": "employee:profile:read",
+      "name": "Employee profile read"
+    },
+    {
+      "code": "employee:profile:create",
+      "name": "Employee profile create"
+    },
+    {
+      "code": "employee:profile:update",
+      "name": "Employee profile update"
+    },
+    {
+      "code": "employee:profile:archive",
+      "name": "Employee profile archive"
+    },
+    {
+      "code": "employee:profile:import",
+      "name": "Employee profile import"
+    },
+    {
+      "code": "employee:profile:export",
+      "name": "Employee profile export"
+    },
+    {
+      "code": "employee:assignment:manage",
+      "name": "Employee assignment manage"
+    },
+    {
+      "code": "employee:reporting:manage",
+      "name": "Employee reporting manage"
+    },
+    {
+      "code": "employee:contract:manage",
+      "name": "Employee contract manage"
+    },
+    {
+      "code": "employee:document:read",
+      "name": "Employee document read"
+    },
+    {
+      "code": "employee:document:manage",
+      "name": "Employee document manage"
+    },
+    {
+      "code": "employee:sensitive:read",
+      "name": "Employee sensitive data read"
+    },
+    {
+      "code": "employee:change-request:read",
+      "name": "Employee change request read"
+    },
+    {
+      "code": "employee:change-request:approve",
+      "name": "Employee change request approve"
+    },
+    {
+      "code": "employee:self:read",
+      "name": "Employee self read"
+    },
+    {
+      "code": "employee:self:update",
+      "name": "Employee self update"
+    },
+    {
+      "code": "employee:field-config:manage",
+      "name": "Employee field config manage"
+    },
+    {
+      "code": "employee:approval-config:manage",
+      "name": "Employee approval config manage"
+    },
+    {
+      "code": "employee:onboarding:manage",
+      "name": "Employee onboarding manage"
+    },
+    {
+      "code": "employee:campaign:manage",
+      "name": "Employee campaign manage"
+    },
+    {
+      "code": "employee:privacy:manage",
+      "name": "Employee privacy manage"
+    },
+    {
+      "code": "employee:directory:read",
+      "name": "Employee directory read"
+    },
+    {
+      "code": "employee:org-chart:read",
+      "name": "Employee org chart read"
+    }
+  ],
+  "entities": [
+    {
+      "name": "Employee",
+      "table": "plg_employee_profiles",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "employee_code",
+          "type": "string",
+          "required": true,
+          "max_length": 32
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "required": false
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "enum_values": [
+            "DRAFT",
+            "PROBATION",
+            "ACTIVE",
+            "SUSPENDED",
+            "LEFT",
+            "RETIRED"
+          ],
+          "default": "DRAFT"
+        },
+        {
+          "name": "employee_type",
+          "type": "enum",
+          "enum_values": [
+            "EMPLOYEE",
+            "WORKER",
+            "INTERN",
+            "CONTRACTOR",
+            "FREELANCER"
+          ],
+          "default": "EMPLOYEE"
+        },
+        {
+          "name": "full_name",
+          "type": "string",
+          "required": true,
+          "max_length": 255
+        },
+        {
+          "name": "photo_url",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "date_of_birth",
+          "type": "date",
+          "required": false
+        },
+        {
+          "name": "gender",
+          "type": "string",
+          "required": false,
+          "max_length": 16
+        },
+        {
+          "name": "nationality",
+          "type": "string",
+          "required": false,
+          "max_length": 64
+        },
+        {
+          "name": "marital_status",
+          "type": "string",
+          "required": false,
+          "max_length": 32
+        },
+        {
+          "name": "national_id",
+          "type": "string",
+          "required": false,
+          "max_length": 32
+        },
+        {
+          "name": "tax_code",
+          "type": "string",
+          "required": false,
+          "max_length": 32
+        },
+        {
+          "name": "social_insurance_no",
+          "type": "string",
+          "required": false,
+          "max_length": 32
+        },
+        {
+          "name": "health_insurance_no",
+          "type": "string",
+          "required": false,
+          "max_length": 32
+        },
+        {
+          "name": "personal_email",
+          "type": "string",
+          "required": false,
+          "max_length": 255
+        },
+        {
+          "name": "work_email",
+          "type": "string",
+          "required": false,
+          "max_length": 255
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "required": false,
+          "max_length": 32
+        },
+        {
+          "name": "current_address",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "permanent_address",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "emergency_contact_name",
+          "type": "string",
+          "required": false,
+          "max_length": 255
+        },
+        {
+          "name": "emergency_contact_relationship",
+          "type": "string",
+          "required": false,
+          "max_length": 64
+        },
+        {
+          "name": "emergency_contact_phone",
+          "type": "string",
+          "required": false,
+          "max_length": 32
+        },
+        {
+          "name": "education_level",
+          "type": "string",
+          "required": false,
+          "max_length": 64
+        },
+        {
+          "name": "school",
+          "type": "string",
+          "required": false,
+          "max_length": 255
+        },
+        {
+          "name": "major",
+          "type": "string",
+          "required": false,
+          "max_length": 255
+        },
+        {
+          "name": "graduation_year",
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "scope_sync_status",
+          "type": "enum",
+          "enum_values": [
+            "PENDING",
+            "SYNCED",
+            "FAILED",
+            "NOT_APPLICABLE"
+          ],
+          "default": "PENDING"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "required": true
+        },
+        {
+          "name": "archived_at",
+          "type": "datetime",
+          "required": false
+        },
+        {
+          "name": "version",
+          "type": "long",
+          "required": true,
+          "default": 0
+        },
+        {
+          "name": "exit_date",
+          "type": "date",
+          "required": false
+        },
+        {
+          "name": "exit_reason",
+          "type": "string",
+          "required": false,
+          "max_length": 255
+        }
+      ],
+      "validators": [
+        {
+          "field": "employee_code",
+          "rule": "max_length",
+          "value": 32
+        },
+        {
+          "field": "status",
+          "rule": "enum",
+          "value": [
+            "DRAFT",
+            "PROBATION",
+            "ACTIVE",
+            "SUSPENDED",
+            "LEFT",
+            "RETIRED"
+          ]
+        },
+        {
+          "field": "employee_type",
+          "rule": "enum",
+          "value": [
+            "EMPLOYEE",
+            "WORKER",
+            "INTERN",
+            "CONTRACTOR",
+            "FREELANCER"
+          ]
+        },
+        {
+          "field": "scope_sync_status",
+          "rule": "enum",
+          "value": [
+            "PENDING",
+            "SYNCED",
+            "FAILED",
+            "NOT_APPLICABLE"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EmployeeAssignment",
+      "table": "plg_employee_assignments",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "employee_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "branch_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "department_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "job_title",
+          "type": "string",
+          "required": true,
+          "max_length": 255
+        },
+        {
+          "name": "job_title_catalog_id",
+          "type": "uuid",
+          "required": false
+        },
+        {
+          "name": "manager_employee_id",
+          "type": "uuid",
+          "required": false
+        },
+        {
+          "name": "is_primary",
+          "type": "bool",
+          "required": true,
+          "default": false
+        },
+        {
+          "name": "valid_from",
+          "type": "date",
+          "required": true
+        },
+        {
+          "name": "valid_to",
+          "type": "date",
+          "required": false
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "enum_values": [
+            "ACTIVE",
+            "INACTIVE"
+          ],
+          "default": "ACTIVE"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "required": true
+        }
+      ],
+      "validators": [
+        {
+          "field": "status",
+          "rule": "enum",
+          "value": [
+            "ACTIVE",
+            "INACTIVE"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EmployeeReportingRelationship",
+      "table": "plg_employee_reporting_relationships",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "employee_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "manager_employee_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "relationship_type",
+          "type": "enum",
+          "enum_values": [
+            "PRIMARY",
+            "DOTTED",
+            "MATRIX"
+          ]
+        },
+        {
+          "name": "valid_from",
+          "type": "date",
+          "required": true
+        },
+        {
+          "name": "valid_to",
+          "type": "date",
+          "required": false
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "required": true
+        }
+      ],
+      "validators": [
+        {
+          "field": "relationship_type",
+          "rule": "enum",
+          "value": [
+            "PRIMARY",
+            "DOTTED",
+            "MATRIX"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EmployeeContract",
+      "table": "plg_employee_contracts",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "employee_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "contract_type",
+          "type": "string",
+          "required": true,
+          "max_length": 64
+        },
+        {
+          "name": "contract_no",
+          "type": "string",
+          "required": true,
+          "max_length": 64
+        },
+        {
+          "name": "start_date",
+          "type": "date",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "date",
+          "required": false
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "required": true,
+          "max_length": 32
+        },
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "required": false
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "EmployeeJobHistory",
+      "table": "plg_employee_job_history",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "employee_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "change_type",
+          "type": "string",
+          "required": true,
+          "max_length": 32
+        },
+        {
+          "name": "effective_date",
+          "type": "date",
+          "required": true
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "required": true,
+          "max_length": 16
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "EmployeeFieldConfig",
+      "table": "plg_employee_field_config",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "field_key",
+          "type": "string",
+          "required": true,
+          "max_length": 64
+        },
+        {
+          "name": "editable_by_employee",
+          "type": "bool",
+          "required": true,
+          "default": false
+        },
+        {
+          "name": "requires_approval",
+          "type": "bool",
+          "required": true,
+          "default": false
+        },
+        {
+          "name": "sort_order",
+          "type": "int",
+          "required": true,
+          "default": 0
+        },
+        {
+          "name": "updated_by",
+          "type": "uuid",
+          "required": false
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "EmployeeApprovalConfig",
+      "table": "plg_employee_approval_config",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "scope_type",
+          "type": "enum",
+          "enum_values": [
+            "TENANT",
+            "BRANCH",
+            "DEPARTMENT"
+          ]
+        },
+        {
+          "name": "scope_id",
+          "type": "uuid",
+          "required": false
+        },
+        {
+          "name": "field_group",
+          "type": "string",
+          "required": true,
+          "max_length": 64
+        },
+        {
+          "name": "step_no",
+          "type": "int",
+          "required": true
+        },
+        {
+          "name": "approver_type",
+          "type": "enum",
+          "enum_values": [
+            "ROLE",
+            "USER",
+            "MANAGER"
+          ]
+        },
+        {
+          "name": "approver_id",
+          "type": "uuid",
+          "required": false
+        }
+      ],
+      "validators": [
+        {
+          "field": "scope_type",
+          "rule": "enum",
+          "value": [
+            "TENANT",
+            "BRANCH",
+            "DEPARTMENT"
+          ]
+        },
+        {
+          "field": "approver_type",
+          "rule": "enum",
+          "value": [
+            "ROLE",
+            "USER",
+            "MANAGER"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EmployeeChangeRequest",
+      "table": "plg_employee_change_requests",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "employee_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "requested_by_user_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "enum_values": [
+            "PENDING",
+            "IN_REVIEW",
+            "APPROVED",
+            "REJECTED",
+            "WITHDRAWN",
+            "CONFLICT",
+            "EXPIRED"
+          ]
+        },
+        {
+          "name": "current_step",
+          "type": "int",
+          "required": true,
+          "default": 1
+        },
+        {
+          "name": "changes",
+          "type": "json",
+          "required": true
+        },
+        {
+          "name": "submitted_at",
+          "type": "datetime",
+          "required": true
+        },
+        {
+          "name": "reviewed_at",
+          "type": "datetime",
+          "required": false
+        },
+        {
+          "name": "rejection_reason",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "version",
+          "type": "long",
+          "required": true,
+          "default": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "required": true
+        }
+      ],
+      "validators": [
+        {
+          "field": "status",
+          "rule": "enum",
+          "value": [
+            "PENDING",
+            "IN_REVIEW",
+            "APPROVED",
+            "REJECTED",
+            "WITHDRAWN",
+            "CONFLICT",
+            "EXPIRED"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EmployeeChangeRequestStep",
+      "table": "plg_employee_change_request_steps",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "request_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "step_no",
+          "type": "int",
+          "required": true
+        },
+        {
+          "name": "approver_type",
+          "type": "enum",
+          "enum_values": [
+            "ROLE",
+            "USER",
+            "MANAGER"
+          ]
+        },
+        {
+          "name": "approver_id",
+          "type": "uuid",
+          "required": false
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "enum_values": [
+            "PENDING",
+            "APPROVED",
+            "REJECTED",
+            "SKIPPED"
+          ]
+        },
+        {
+          "name": "acted_by",
+          "type": "uuid",
+          "required": false
+        },
+        {
+          "name": "acted_at",
+          "type": "datetime",
+          "required": false
+        },
+        {
+          "name": "comment",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "required": true
+        }
+      ],
+      "validators": [
+        {
+          "field": "status",
+          "rule": "enum",
+          "value": [
+            "PENDING",
+            "APPROVED",
+            "REJECTED",
+            "SKIPPED"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EmployeeDocument",
+      "table": "plg_employee_documents",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "employee_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "document_type",
+          "type": "string",
+          "required": true,
+          "max_length": 64
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "required": true
+        },
+        {
+          "name": "storage_key",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "file_name",
+          "type": "string",
+          "required": true,
+          "max_length": 255
+        },
+        {
+          "name": "mime_type",
+          "type": "string",
+          "required": true,
+          "max_length": 128
+        },
+        {
+          "name": "size_bytes",
+          "type": "long",
+          "required": true
+        },
+        {
+          "name": "checksum",
+          "type": "string",
+          "required": false,
+          "max_length": 64
+        },
+        {
+          "name": "scan_status",
+          "type": "enum",
+          "enum_values": [
+            "PENDING",
+            "CLEAN",
+            "INFECTED",
+            "FAILED"
+          ]
+        },
+        {
+          "name": "uploaded_by",
+          "type": "uuid",
+          "required": false
+        },
+        {
+          "name": "upload_source",
+          "type": "enum",
+          "enum_values": [
+            "HR",
+            "EMPLOYEE"
+          ]
+        },
+        {
+          "name": "retention_until",
+          "type": "date",
+          "required": false
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "enum_values": [
+            "ACTIVE",
+            "ARCHIVED"
+          ]
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "required": true
+        }
+      ],
+      "validators": [
+        {
+          "field": "scan_status",
+          "rule": "enum",
+          "value": [
+            "PENDING",
+            "CLEAN",
+            "INFECTED",
+            "FAILED"
+          ]
+        },
+        {
+          "field": "upload_source",
+          "rule": "enum",
+          "value": [
+            "HR",
+            "EMPLOYEE"
+          ]
+        },
+        {
+          "field": "status",
+          "rule": "enum",
+          "value": [
+            "ACTIVE",
+            "ARCHIVED"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EmployeeOnboardingInvite",
+      "table": "plg_employee_onboarding_invites",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "employee_id",
+          "type": "uuid",
+          "required": false
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "required": true,
+          "max_length": 255
+        },
+        {
+          "name": "token_hash",
+          "type": "string",
+          "required": true,
+          "max_length": 128
+        },
+        {
+          "name": "expires_at",
+          "type": "datetime",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "enum_values": [
+            "PENDING",
+            "SUBMITTED",
+            "APPROVED",
+            "EXPIRED",
+            "REVOKED"
+          ]
+        },
+        {
+          "name": "submitted_at",
+          "type": "datetime",
+          "required": false
+        },
+        {
+          "name": "payload",
+          "type": "json",
+          "required": false
+        },
+        {
+          "name": "created_by",
+          "type": "uuid",
+          "required": false
+        }
+      ],
+      "validators": [
+        {
+          "field": "status",
+          "rule": "enum",
+          "value": [
+            "PENDING",
+            "SUBMITTED",
+            "APPROVED",
+            "EXPIRED",
+            "REVOKED"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EmployeeUpdateCampaign",
+      "table": "plg_employee_update_campaigns",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "max_length": 255
+        },
+        {
+          "name": "filter",
+          "type": "json",
+          "required": false
+        },
+        {
+          "name": "deadline",
+          "type": "date",
+          "required": false
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "enum_values": [
+            "DRAFT",
+            "ACTIVE",
+            "CLOSED"
+          ]
+        },
+        {
+          "name": "created_by",
+          "type": "uuid",
+          "required": false
+        }
+      ],
+      "validators": [
+        {
+          "field": "status",
+          "rule": "enum",
+          "value": [
+            "DRAFT",
+            "ACTIVE",
+            "CLOSED"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EmployeeUpdateCampaignRecipient",
+      "table": "plg_employee_update_campaign_recipients",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "employee_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "enum_values": [
+            "PENDING",
+            "COMPLETED",
+            "SKIPPED"
+          ]
+        },
+        {
+          "name": "completed_at",
+          "type": "datetime",
+          "required": false
+        }
+      ],
+      "validators": [
+        {
+          "field": "status",
+          "rule": "enum",
+          "value": [
+            "PENDING",
+            "COMPLETED",
+            "SKIPPED"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EmployeeConsent",
+      "table": "plg_employee_consents",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "employee_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "purpose",
+          "type": "string",
+          "required": true,
+          "max_length": 64
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "enum_values": [
+            "GRANTED",
+            "REVOKED",
+            "PENDING"
+          ]
+        },
+        {
+          "name": "granted_at",
+          "type": "datetime",
+          "required": false
+        },
+        {
+          "name": "revoked_at",
+          "type": "datetime",
+          "required": false
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "required": false,
+          "max_length": 32
+        }
+      ],
+      "validators": [
+        {
+          "field": "status",
+          "rule": "enum",
+          "value": [
+            "GRANTED",
+            "REVOKED",
+            "PENDING"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EmployeePrivacyRequest",
+      "table": "plg_employee_privacy_requests",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "subject_user_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "employee_id",
+          "type": "uuid",
+          "required": false
+        },
+        {
+          "name": "request_type",
+          "type": "enum",
+          "enum_values": [
+            "ACCESS",
+            "EXPORT",
+            "DELETE",
+            "RECTIFY",
+            "RESTRICT"
+          ]
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "enum_values": [
+            "RECEIVED",
+            "IN_PROGRESS",
+            "COMPLETED",
+            "REJECTED"
+          ]
+        },
+        {
+          "name": "payload",
+          "type": "json",
+          "required": false
+        },
+        {
+          "name": "due_at",
+          "type": "datetime",
+          "required": false
+        },
+        {
+          "name": "completed_at",
+          "type": "datetime",
+          "required": false
+        }
+      ],
+      "validators": [
+        {
+          "field": "request_type",
+          "rule": "enum",
+          "value": [
+            "ACCESS",
+            "EXPORT",
+            "DELETE",
+            "RECTIFY",
+            "RESTRICT"
+          ]
+        },
+        {
+          "field": "status",
+          "rule": "enum",
+          "value": [
+            "RECEIVED",
+            "IN_PROGRESS",
+            "COMPLETED",
+            "REJECTED"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EmployeeOutbox",
+      "table": "plg_employee_outbox",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "event_type",
+          "type": "string",
+          "required": true,
+          "max_length": 64
+        },
+        {
+          "name": "aggregate_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "json",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "enum_values": [
+            "PENDING",
+            "SENT",
+            "FAILED"
+          ]
+        },
+        {
+          "name": "retry_count",
+          "type": "int",
+          "required": true,
+          "default": 0
+        },
+        {
+          "name": "next_retry_at",
+          "type": "datetime",
+          "required": false
+        },
+        {
+          "name": "sent_at",
+          "type": "datetime",
+          "required": false
+        }
+      ],
+      "validators": [
+        {
+          "field": "status",
+          "rule": "enum",
+          "value": [
+            "PENDING",
+            "SENT",
+            "FAILED"
+          ]
+        }
+      ]
+    }
+  ],
+  "relations": [],
+  "queries": [
+    {
+      "id": "employee.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "Employee",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_code",
+        "user_id",
+        "status",
+        "employee_type",
+        "full_name",
+        "photo_url",
+        "work_email",
+        "phone",
+        "scope_sync_status",
+        "created_at",
+        "updated_at",
+        "exit_date",
+        "exit_reason"
+      ],
+      "filters": [
+        {
+          "field": "status",
+          "op": "EQ",
+          "param": "status"
+        },
+        {
+          "field": "employee_type",
+          "op": "EQ",
+          "param": "employee_type"
+        }
+      ],
+      "exists": [
+        {
+          "entity": "EmployeeAssignment",
+          "local_field": "id",
+          "remote_field": "employee_id",
+          "filter_field": "branch_id",
+          "param": "branch_id"
+        },
+        {
+          "entity": "EmployeeAssignment",
+          "local_field": "id",
+          "remote_field": "employee_id",
+          "filter_field": "branch_id",
+          "param": "branch_ids",
+          "op": "IN"
+        },
+        {
+          "entity": "EmployeeAssignment",
+          "local_field": "id",
+          "remote_field": "employee_id",
+          "filter_field": "department_id",
+          "param": "department_id"
+        }
+      ],
+      "search": [
+        {
+          "param": "q",
+          "fields": [
+            "employee_code",
+            "full_name",
+            "work_email",
+            "personal_email"
+          ]
+        }
+      ],
+      "sort": [
+        {
+          "field": "created_at",
+          "direction": "DESC"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 100,
+        "defaultSize": 20
+      },
+      "maxRows": 100
+    },
+    {
+      "id": "employee.get",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "Employee",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_code",
+        "user_id",
+        "status",
+        "employee_type",
+        "full_name",
+        "photo_url",
+        "date_of_birth",
+        "gender",
+        "nationality",
+        "marital_status",
+        "national_id",
+        "tax_code",
+        "social_insurance_no",
+        "health_insurance_no",
+        "personal_email",
+        "work_email",
+        "phone",
+        "current_address",
+        "permanent_address",
+        "emergency_contact_name",
+        "emergency_contact_relationship",
+        "emergency_contact_phone",
+        "education_level",
+        "school",
+        "major",
+        "graduation_year",
+        "notes",
+        "scope_sync_status",
+        "created_at",
+        "updated_at",
+        "archived_at",
+        "version",
+        "exit_date",
+        "exit_reason"
+      ],
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "maxRows": 1
+    },
+    {
+      "id": "employee.get_by_code",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "Employee",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_code",
+        "user_id",
+        "full_name",
+        "status",
+        "exit_date",
+        "exit_reason"
+      ],
+      "filters": [
+        {
+          "field": "employee_code",
+          "op": "LOWER_EQ",
+          "param": "employee_code",
+          "required": true
+        }
+      ],
+      "maxRows": 1
+    },
+    {
+      "id": "employee.get_by_user",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "Employee",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_code",
+        "user_id",
+        "status",
+        "employee_type",
+        "full_name",
+        "photo_url",
+        "date_of_birth",
+        "gender",
+        "nationality",
+        "marital_status",
+        "national_id",
+        "tax_code",
+        "social_insurance_no",
+        "health_insurance_no",
+        "personal_email",
+        "work_email",
+        "phone",
+        "current_address",
+        "permanent_address",
+        "emergency_contact_name",
+        "emergency_contact_relationship",
+        "emergency_contact_phone",
+        "education_level",
+        "school",
+        "major",
+        "graduation_year",
+        "notes",
+        "scope_sync_status",
+        "created_at",
+        "updated_at",
+        "archived_at",
+        "version",
+        "exit_date",
+        "exit_reason"
+      ],
+      "filters": [
+        {
+          "field": "user_id",
+          "op": "EQ",
+          "param": "user_id",
+          "required": true
+        }
+      ],
+      "maxRows": 1
+    },
+    {
+      "id": "employee.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "Employee",
+      "tenant_scope": "TENANT",
+      "values": {
+        "employee_code": {
+          "param": "employee_code"
+        },
+        "full_name": {
+          "param": "full_name"
+        },
+        "user_id": {
+          "param": "user_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        },
+        "employee_type": {
+          "param": "employee_type",
+          "optional": true
+        },
+        "photo_url": {
+          "param": "photo_url",
+          "optional": true,
+          "allow_null": true
+        },
+        "date_of_birth": {
+          "param": "date_of_birth",
+          "optional": true,
+          "allow_null": true
+        },
+        "gender": {
+          "param": "gender",
+          "optional": true,
+          "allow_null": true
+        },
+        "nationality": {
+          "param": "nationality",
+          "optional": true,
+          "allow_null": true
+        },
+        "marital_status": {
+          "param": "marital_status",
+          "optional": true,
+          "allow_null": true
+        },
+        "national_id": {
+          "param": "national_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "tax_code": {
+          "param": "tax_code",
+          "optional": true,
+          "allow_null": true
+        },
+        "social_insurance_no": {
+          "param": "social_insurance_no",
+          "optional": true,
+          "allow_null": true
+        },
+        "health_insurance_no": {
+          "param": "health_insurance_no",
+          "optional": true,
+          "allow_null": true
+        },
+        "personal_email": {
+          "param": "personal_email",
+          "optional": true,
+          "allow_null": true
+        },
+        "work_email": {
+          "param": "work_email",
+          "optional": true,
+          "allow_null": true
+        },
+        "phone": {
+          "param": "phone",
+          "optional": true,
+          "allow_null": true
+        },
+        "current_address": {
+          "param": "current_address",
+          "optional": true,
+          "allow_null": true
+        },
+        "permanent_address": {
+          "param": "permanent_address",
+          "optional": true,
+          "allow_null": true
+        },
+        "emergency_contact_name": {
+          "param": "emergency_contact_name",
+          "optional": true,
+          "allow_null": true
+        },
+        "emergency_contact_relationship": {
+          "param": "emergency_contact_relationship",
+          "optional": true,
+          "allow_null": true
+        },
+        "emergency_contact_phone": {
+          "param": "emergency_contact_phone",
+          "optional": true,
+          "allow_null": true
+        },
+        "education_level": {
+          "param": "education_level",
+          "optional": true,
+          "allow_null": true
+        },
+        "school": {
+          "param": "school",
+          "optional": true,
+          "allow_null": true
+        },
+        "major": {
+          "param": "major",
+          "optional": true,
+          "allow_null": true
+        },
+        "graduation_year": {
+          "param": "graduation_year",
+          "optional": true,
+          "allow_null": true
+        },
+        "notes": {
+          "param": "notes",
+          "optional": true,
+          "allow_null": true
+        },
+        "exit_date": {
+          "param": "exit_date",
+          "optional": true,
+          "allow_null": true
+        },
+        "exit_reason": {
+          "param": "exit_reason",
+          "optional": true,
+          "allow_null": true
+        }
+      },
+      "returning": [
+        "id",
+        "employee_code",
+        "user_id",
+        "status",
+        "employee_type",
+        "full_name",
+        "photo_url",
+        "date_of_birth",
+        "gender",
+        "nationality",
+        "marital_status",
+        "national_id",
+        "tax_code",
+        "social_insurance_no",
+        "health_insurance_no",
+        "personal_email",
+        "work_email",
+        "phone",
+        "current_address",
+        "permanent_address",
+        "emergency_contact_name",
+        "emergency_contact_relationship",
+        "emergency_contact_phone",
+        "education_level",
+        "school",
+        "major",
+        "graduation_year",
+        "notes",
+        "scope_sync_status",
+        "created_at",
+        "updated_at",
+        "archived_at",
+        "version",
+        "exit_date",
+        "exit_reason"
+      ]
+    },
+    {
+      "id": "employee.anonymize",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "Employee",
+      "tenant_scope": "TENANT",
+      "values": {
+        "full_name": {
+          "param": "full_name"
+        },
+        "photo_url": {
+          "param": "photo_url",
+          "optional": true,
+          "allow_null": true
+        },
+        "user_id": {
+          "param": "user_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "status": {
+          "param": "status"
+        },
+        "date_of_birth": {
+          "param": "date_of_birth",
+          "optional": true,
+          "allow_null": true
+        },
+        "gender": {
+          "param": "gender",
+          "optional": true,
+          "allow_null": true
+        },
+        "nationality": {
+          "param": "nationality",
+          "optional": true,
+          "allow_null": true
+        },
+        "marital_status": {
+          "param": "marital_status",
+          "optional": true,
+          "allow_null": true
+        },
+        "national_id": {
+          "param": "national_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "tax_code": {
+          "param": "tax_code",
+          "optional": true,
+          "allow_null": true
+        },
+        "social_insurance_no": {
+          "param": "social_insurance_no",
+          "optional": true,
+          "allow_null": true
+        },
+        "health_insurance_no": {
+          "param": "health_insurance_no",
+          "optional": true,
+          "allow_null": true
+        },
+        "personal_email": {
+          "param": "personal_email",
+          "optional": true,
+          "allow_null": true
+        },
+        "work_email": {
+          "param": "work_email",
+          "optional": true,
+          "allow_null": true
+        },
+        "phone": {
+          "param": "phone",
+          "optional": true,
+          "allow_null": true
+        },
+        "current_address": {
+          "param": "current_address",
+          "optional": true,
+          "allow_null": true
+        },
+        "permanent_address": {
+          "param": "permanent_address",
+          "optional": true,
+          "allow_null": true
+        },
+        "emergency_contact_name": {
+          "param": "emergency_contact_name",
+          "optional": true,
+          "allow_null": true
+        },
+        "emergency_contact_relationship": {
+          "param": "emergency_contact_relationship",
+          "optional": true,
+          "allow_null": true
+        },
+        "emergency_contact_phone": {
+          "param": "emergency_contact_phone",
+          "optional": true,
+          "allow_null": true
+        },
+        "education_level": {
+          "param": "education_level",
+          "optional": true,
+          "allow_null": true
+        },
+        "school": {
+          "param": "school",
+          "optional": true,
+          "allow_null": true
+        },
+        "major": {
+          "param": "major",
+          "optional": true,
+          "allow_null": true
+        },
+        "graduation_year": {
+          "param": "graduation_year",
+          "optional": true,
+          "allow_null": true
+        },
+        "notes": {
+          "param": "notes",
+          "optional": true,
+          "allow_null": true
+        },
+        "scope_sync_status": {
+          "param": "scope_sync_status",
+          "optional": true
+        },
+        "updated_at": {
+          "param": "updated_at"
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "employee_code",
+        "full_name",
+        "status"
+      ]
+    },
+    {
+      "id": "employee.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "Employee",
+      "tenant_scope": "TENANT",
+      "values": {
+        "employee_code": {
+          "param": "employee_code",
+          "optional": true
+        },
+        "full_name": {
+          "param": "full_name",
+          "optional": true
+        },
+        "user_id": {
+          "param": "user_id",
+          "optional": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        },
+        "employee_type": {
+          "param": "employee_type",
+          "optional": true
+        },
+        "photo_url": {
+          "param": "photo_url",
+          "optional": true,
+          "allow_null": true
+        },
+        "date_of_birth": {
+          "param": "date_of_birth",
+          "optional": true,
+          "allow_null": true
+        },
+        "gender": {
+          "param": "gender",
+          "optional": true,
+          "allow_null": true
+        },
+        "nationality": {
+          "param": "nationality",
+          "optional": true,
+          "allow_null": true
+        },
+        "marital_status": {
+          "param": "marital_status",
+          "optional": true,
+          "allow_null": true
+        },
+        "national_id": {
+          "param": "national_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "tax_code": {
+          "param": "tax_code",
+          "optional": true,
+          "allow_null": true
+        },
+        "social_insurance_no": {
+          "param": "social_insurance_no",
+          "optional": true,
+          "allow_null": true
+        },
+        "health_insurance_no": {
+          "param": "health_insurance_no",
+          "optional": true,
+          "allow_null": true
+        },
+        "personal_email": {
+          "param": "personal_email",
+          "optional": true,
+          "allow_null": true
+        },
+        "work_email": {
+          "param": "work_email",
+          "optional": true,
+          "allow_null": true
+        },
+        "phone": {
+          "param": "phone",
+          "optional": true,
+          "allow_null": true
+        },
+        "current_address": {
+          "param": "current_address",
+          "optional": true,
+          "allow_null": true
+        },
+        "permanent_address": {
+          "param": "permanent_address",
+          "optional": true,
+          "allow_null": true
+        },
+        "emergency_contact_name": {
+          "param": "emergency_contact_name",
+          "optional": true,
+          "allow_null": true
+        },
+        "emergency_contact_relationship": {
+          "param": "emergency_contact_relationship",
+          "optional": true,
+          "allow_null": true
+        },
+        "emergency_contact_phone": {
+          "param": "emergency_contact_phone",
+          "optional": true,
+          "allow_null": true
+        },
+        "education_level": {
+          "param": "education_level",
+          "optional": true,
+          "allow_null": true
+        },
+        "school": {
+          "param": "school",
+          "optional": true,
+          "allow_null": true
+        },
+        "major": {
+          "param": "major",
+          "optional": true,
+          "allow_null": true
+        },
+        "graduation_year": {
+          "param": "graduation_year",
+          "optional": true,
+          "allow_null": true
+        },
+        "notes": {
+          "param": "notes",
+          "optional": true,
+          "allow_null": true
+        },
+        "scope_sync_status": {
+          "param": "scope_sync_status",
+          "optional": true
+        },
+        "updated_at": {
+          "param": "updated_at"
+        },
+        "version": {
+          "param": "version",
+          "optional": true
+        },
+        "exit_date": {
+          "param": "exit_date",
+          "optional": true,
+          "allow_null": true
+        },
+        "exit_reason": {
+          "param": "exit_reason",
+          "optional": true,
+          "allow_null": true
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "employee_code",
+        "user_id",
+        "status",
+        "employee_type",
+        "full_name",
+        "photo_url",
+        "date_of_birth",
+        "gender",
+        "nationality",
+        "marital_status",
+        "national_id",
+        "tax_code",
+        "social_insurance_no",
+        "health_insurance_no",
+        "personal_email",
+        "work_email",
+        "phone",
+        "current_address",
+        "permanent_address",
+        "emergency_contact_name",
+        "emergency_contact_relationship",
+        "emergency_contact_phone",
+        "education_level",
+        "school",
+        "major",
+        "graduation_year",
+        "notes",
+        "scope_sync_status",
+        "created_at",
+        "updated_at",
+        "archived_at",
+        "version",
+        "exit_date",
+        "exit_reason"
+      ]
+    },
+    {
+      "id": "employee.mark_scope_sync",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "Employee",
+      "tenant_scope": "TENANT",
+      "values": {
+        "scope_sync_status": {
+          "param": "scope_sync_status"
+        },
+        "updated_at": {
+          "param": "updated_at"
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "scope_sync_status",
+        "updated_at"
+      ]
+    },
+    {
+      "id": "assignment.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "EmployeeAssignment",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_id",
+        "branch_id",
+        "department_id",
+        "job_title",
+        "job_title_catalog_id",
+        "manager_employee_id",
+        "is_primary",
+        "valid_from",
+        "valid_to",
+        "status",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "employee_id",
+          "op": "EQ",
+          "param": "employee_id",
+          "required": true
+        }
+      ],
+      "sort": [
+        {
+          "field": "valid_from",
+          "direction": "DESC"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 200,
+        "defaultSize": 100
+      },
+      "maxRows": 200
+    },
+    {
+      "id": "assignment.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "EmployeeAssignment",
+      "tenant_scope": "TENANT",
+      "values": {
+        "employee_id": {
+          "param": "employee_id"
+        },
+        "branch_id": {
+          "param": "branch_id"
+        },
+        "department_id": {
+          "param": "department_id"
+        },
+        "job_title": {
+          "param": "job_title"
+        },
+        "job_title_catalog_id": {
+          "param": "job_title_catalog_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "manager_employee_id": {
+          "param": "manager_employee_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "is_primary": {
+          "param": "is_primary",
+          "optional": true
+        },
+        "valid_from": {
+          "param": "valid_from"
+        },
+        "valid_to": {
+          "param": "valid_to",
+          "optional": true,
+          "allow_null": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        }
+      },
+      "returning": [
+        "id",
+        "employee_id",
+        "branch_id",
+        "department_id",
+        "job_title",
+        "job_title_catalog_id",
+        "manager_employee_id",
+        "is_primary",
+        "valid_from",
+        "valid_to",
+        "status",
+        "created_at"
+      ]
+    },
+    {
+      "id": "change_request.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "EmployeeChangeRequest",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_id",
+        "requested_by_user_id",
+        "status",
+        "current_step",
+        "submitted_at",
+        "reviewed_at",
+        "rejection_reason",
+        "version",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "status",
+          "op": "EQ",
+          "param": "status"
+        },
+        {
+          "field": "employee_id",
+          "op": "EQ",
+          "param": "employee_id"
+        }
+      ],
+      "sort": [
+        {
+          "field": "submitted_at",
+          "direction": "DESC"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 100,
+        "defaultSize": 20
+      },
+      "maxRows": 100
+    },
+    {
+      "id": "change_request.get",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "EmployeeChangeRequest",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_id",
+        "requested_by_user_id",
+        "status",
+        "current_step",
+        "changes",
+        "submitted_at",
+        "reviewed_at",
+        "rejection_reason",
+        "version",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "maxRows": 1
+    },
+    {
+      "id": "change_request.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "EmployeeChangeRequest",
+      "tenant_scope": "TENANT",
+      "values": {
+        "employee_id": {
+          "param": "employee_id"
+        },
+        "requested_by_user_id": {
+          "param": "requested_by_user_id"
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        },
+        "current_step": {
+          "param": "current_step",
+          "optional": true
+        },
+        "changes": {
+          "param": "changes",
+          "type": "jsonb"
+        },
+        "submitted_at": {
+          "param": "submitted_at"
+        },
+        "version": {
+          "param": "version",
+          "optional": true
+        }
+      },
+      "returning": [
+        "id",
+        "employee_id",
+        "requested_by_user_id",
+        "status",
+        "current_step",
+        "changes",
+        "submitted_at",
+        "reviewed_at",
+        "rejection_reason",
+        "version",
+        "created_at"
+      ]
+    },
+    {
+      "id": "change_request.update_status",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "EmployeeChangeRequest",
+      "tenant_scope": "TENANT",
+      "values": {
+        "status": {
+          "param": "status"
+        },
+        "current_step": {
+          "param": "current_step"
+        },
+        "reviewed_at": {
+          "param": "reviewed_at",
+          "optional": true,
+          "allow_null": true
+        },
+        "rejection_reason": {
+          "param": "rejection_reason",
+          "optional": true,
+          "allow_null": true
+        },
+        "version": {
+          "param": "version"
+        },
+        "updated_at": {
+          "param": "updated_at"
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "employee_id",
+        "requested_by_user_id",
+        "status",
+        "current_step",
+        "changes",
+        "submitted_at",
+        "reviewed_at",
+        "rejection_reason",
+        "version",
+        "created_at"
+      ]
+    },
+    {
+      "id": "change_request_step.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "EmployeeChangeRequestStep",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "request_id",
+        "step_no",
+        "approver_type",
+        "approver_id",
+        "status",
+        "acted_by",
+        "acted_at",
+        "comment",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "request_id",
+          "op": "EQ",
+          "param": "request_id",
+          "required": true
+        }
+      ],
+      "sort": [
+        {
+          "field": "step_no",
+          "direction": "ASC"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 200,
+        "defaultSize": 100
+      },
+      "maxRows": 200
+    },
+    {
+      "id": "change_request_step.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "EmployeeChangeRequestStep",
+      "tenant_scope": "TENANT",
+      "values": {
+        "request_id": {
+          "param": "request_id"
+        },
+        "step_no": {
+          "param": "step_no"
+        },
+        "approver_type": {
+          "param": "approver_type"
+        },
+        "approver_id": {
+          "param": "approver_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        }
+      },
+      "returning": [
+        "id",
+        "request_id",
+        "step_no",
+        "approver_type",
+        "approver_id",
+        "status",
+        "acted_by",
+        "acted_at",
+        "comment",
+        "created_at"
+      ]
+    },
+    {
+      "id": "change_request_step.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "EmployeeChangeRequestStep",
+      "tenant_scope": "TENANT",
+      "values": {
+        "status": {
+          "param": "status"
+        },
+        "acted_by": {
+          "param": "acted_by",
+          "optional": true,
+          "allow_null": true
+        },
+        "acted_at": {
+          "param": "acted_at",
+          "optional": true,
+          "allow_null": true
+        },
+        "comment": {
+          "param": "comment",
+          "optional": true,
+          "allow_null": true
+        },
+        "updated_at": {
+          "param": "updated_at"
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "request_id",
+        "status",
+        "acted_by",
+        "acted_at",
+        "comment"
+      ]
+    },
+    {
+      "id": "field_config.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "EmployeeFieldConfig",
+      "tenant_scope": "TENANT",
+      "select": [
+        "field_key",
+        "editable_by_employee",
+        "requires_approval",
+        "sort_order",
+        "updated_by",
+        "updated_at"
+      ],
+      "sort": [
+        {
+          "field": "sort_order",
+          "direction": "ASC"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 200,
+        "defaultSize": 200
+      },
+      "maxRows": 200
+    },
+    {
+      "id": "field_config.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "EmployeeFieldConfig",
+      "tenant_scope": "TENANT",
+      "values": {
+        "field_key": {
+          "param": "field_key"
+        },
+        "editable_by_employee": {
+          "param": "editable_by_employee"
+        },
+        "requires_approval": {
+          "param": "requires_approval"
+        },
+        "sort_order": {
+          "param": "sort_order"
+        },
+        "updated_by": {
+          "param": "updated_by",
+          "optional": true,
+          "allow_null": true
+        },
+        "updated_at": {
+          "param": "updated_at"
+        }
+      },
+      "returning": [
+        "field_key",
+        "editable_by_employee",
+        "requires_approval",
+        "sort_order",
+        "updated_by",
+        "updated_at"
+      ]
+    },
+    {
+      "id": "field_config.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "EmployeeFieldConfig",
+      "tenant_scope": "TENANT",
+      "values": {
+        "editable_by_employee": {
+          "param": "editable_by_employee"
+        },
+        "requires_approval": {
+          "param": "requires_approval"
+        },
+        "sort_order": {
+          "param": "sort_order"
+        },
+        "updated_by": {
+          "param": "updated_by",
+          "optional": true,
+          "allow_null": true
+        },
+        "updated_at": {
+          "param": "updated_at"
+        }
+      },
+      "filters": [
+        {
+          "field": "field_key",
+          "op": "EQ",
+          "param": "field_key",
+          "required": true
+        }
+      ],
+      "returning": [
+        "field_key",
+        "editable_by_employee",
+        "requires_approval",
+        "sort_order",
+        "updated_by",
+        "updated_at"
+      ]
+    },
+    {
+      "id": "document.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "EmployeeDocument",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_id",
+        "document_type",
+        "version",
+        "storage_key",
+        "file_name",
+        "mime_type",
+        "size_bytes",
+        "checksum",
+        "scan_status",
+        "uploaded_by",
+        "upload_source",
+        "retention_until",
+        "status",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "employee_id",
+          "op": "EQ",
+          "param": "employee_id",
+          "required": true
+        }
+      ],
+      "sort": [
+        {
+          "field": "created_at",
+          "direction": "DESC"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 200,
+        "defaultSize": 100
+      },
+      "maxRows": 200
+    },
+    {
+      "id": "document.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "EmployeeDocument",
+      "tenant_scope": "TENANT",
+      "values": {
+        "employee_id": {
+          "param": "employee_id"
+        },
+        "document_type": {
+          "param": "document_type"
+        },
+        "version": {
+          "param": "version"
+        },
+        "storage_key": {
+          "param": "storage_key"
+        },
+        "file_name": {
+          "param": "file_name"
+        },
+        "mime_type": {
+          "param": "mime_type"
+        },
+        "size_bytes": {
+          "param": "size_bytes"
+        },
+        "checksum": {
+          "param": "checksum",
+          "optional": true,
+          "allow_null": true
+        },
+        "scan_status": {
+          "param": "scan_status",
+          "optional": true
+        },
+        "uploaded_by": {
+          "param": "uploaded_by",
+          "optional": true,
+          "allow_null": true
+        },
+        "upload_source": {
+          "param": "upload_source",
+          "optional": true
+        },
+        "retention_until": {
+          "param": "retention_until",
+          "optional": true,
+          "allow_null": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        }
+      },
+      "returning": [
+        "id",
+        "employee_id",
+        "document_type",
+        "version",
+        "storage_key",
+        "file_name",
+        "mime_type",
+        "size_bytes",
+        "checksum",
+        "scan_status",
+        "uploaded_by",
+        "upload_source",
+        "retention_until",
+        "status",
+        "created_at"
+      ]
+    },
+    {
+      "id": "directory.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "Employee",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_code",
+        "full_name",
+        "photo_url",
+        "work_email",
+        "phone",
+        "employee_type",
+        "status"
+      ],
+      "filters": [
+        {
+          "field": "status",
+          "op": "EQ",
+          "param": "status"
+        },
+        {
+          "field": "employee_type",
+          "op": "EQ",
+          "param": "employee_type"
+        }
+      ],
+      "search": [
+        {
+          "param": "q",
+          "fields": [
+            "employee_code",
+            "full_name",
+            "work_email"
+          ]
+        }
+      ],
+      "sort": [
+        {
+          "field": "full_name",
+          "direction": "ASC"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 100,
+        "defaultSize": 20
+      },
+      "maxRows": 100
+    },
+    {
+      "id": "outbox.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "EmployeeOutbox",
+      "tenant_scope": "TENANT",
+      "values": {
+        "event_type": {
+          "param": "event_type"
+        },
+        "aggregate_id": {
+          "param": "aggregate_id"
+        },
+        "payload": {
+          "param": "payload",
+          "type": "jsonb"
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        },
+        "retry_count": {
+          "param": "retry_count",
+          "optional": true
+        },
+        "next_retry_at": {
+          "param": "next_retry_at",
+          "optional": true,
+          "allow_null": true
+        }
+      },
+      "returning": [
+        "id",
+        "event_type",
+        "aggregate_id",
+        "status",
+        "created_at"
+      ]
+    },
+    {
+      "id": "employee.link_user",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "Employee",
+      "tenant_scope": "TENANT",
+      "values": {
+        "user_id": {
+          "param": "user_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "updated_at": {
+          "param": "updated_at"
+        },
+        "version": {
+          "param": "version"
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "employee_code",
+        "user_id",
+        "full_name",
+        "status",
+        "scope_sync_status",
+        "updated_at",
+        "version"
+      ]
+    },
+    {
+      "id": "assignment.list_by_manager",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "EmployeeAssignment",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_id",
+        "manager_employee_id",
+        "is_primary",
+        "status",
+        "valid_from",
+        "valid_to"
+      ],
+      "filters": [
+        {
+          "field": "manager_employee_id",
+          "op": "EQ",
+          "param": "manager_employee_id",
+          "required": true
+        }
+      ],
+      "maxRows": 200
+    },
+    {
+      "id": "contract.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "EmployeeContract",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_id",
+        "contract_type",
+        "contract_no",
+        "start_date",
+        "end_date",
+        "status",
+        "document_id",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "employee_id",
+          "op": "EQ",
+          "param": "employee_id",
+          "required": true
+        }
+      ],
+      "sort": [
+        {
+          "field": "start_date",
+          "direction": "DESC"
+        }
+      ],
+      "maxRows": 100
+    },
+    {
+      "id": "contract.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "EmployeeContract",
+      "tenant_scope": "TENANT",
+      "values": {
+        "employee_id": {
+          "param": "employee_id"
+        },
+        "contract_type": {
+          "param": "contract_type"
+        },
+        "contract_no": {
+          "param": "contract_no"
+        },
+        "start_date": {
+          "param": "start_date"
+        },
+        "end_date": {
+          "param": "end_date",
+          "optional": true,
+          "allow_null": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        },
+        "document_id": {
+          "param": "document_id",
+          "optional": true,
+          "allow_null": true
+        }
+      },
+      "returning": [
+        "id",
+        "employee_id",
+        "contract_type",
+        "contract_no",
+        "start_date",
+        "end_date",
+        "status",
+        "document_id",
+        "created_at"
+      ]
+    },
+    {
+      "id": "contract.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "EmployeeContract",
+      "tenant_scope": "TENANT",
+      "values": {
+        "contract_type": {
+          "param": "contract_type"
+        },
+        "contract_no": {
+          "param": "contract_no"
+        },
+        "start_date": {
+          "param": "start_date"
+        },
+        "end_date": {
+          "param": "end_date",
+          "optional": true,
+          "allow_null": true
+        },
+        "status": {
+          "param": "status"
+        },
+        "document_id": {
+          "param": "document_id",
+          "optional": true,
+          "allow_null": true
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "employee_id",
+        "contract_type",
+        "contract_no",
+        "start_date",
+        "end_date",
+        "status",
+        "document_id",
+        "created_at"
+      ]
+    },
+    {
+      "id": "reporting.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "EmployeeReportingRelationship",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_id",
+        "manager_employee_id",
+        "relationship_type",
+        "valid_from",
+        "valid_to",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "employee_id",
+          "op": "EQ",
+          "param": "employee_id",
+          "required": true
+        }
+      ],
+      "maxRows": 100
+    },
+    {
+      "id": "reporting.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "EmployeeReportingRelationship",
+      "tenant_scope": "TENANT",
+      "values": {
+        "employee_id": {
+          "param": "employee_id"
+        },
+        "manager_employee_id": {
+          "param": "manager_employee_id"
+        },
+        "relationship_type": {
+          "param": "relationship_type"
+        },
+        "valid_from": {
+          "param": "valid_from"
+        },
+        "valid_to": {
+          "param": "valid_to",
+          "optional": true,
+          "allow_null": true
+        }
+      },
+      "returning": [
+        "id",
+        "employee_id",
+        "manager_employee_id",
+        "relationship_type",
+        "valid_from",
+        "valid_to",
+        "created_at"
+      ]
+    },
+    {
+      "id": "reporting.delete",
+      "mode": "WRITE",
+      "operation": "DELETE",
+      "entity": "EmployeeReportingRelationship",
+      "tenant_scope": "TENANT",
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id"
+      ]
+    },
+    {
+      "id": "approval_config.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "EmployeeApprovalConfig",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "scope_type",
+        "scope_id",
+        "field_group",
+        "step_no",
+        "approver_type",
+        "approver_id",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "scope_type",
+          "op": "EQ",
+          "param": "scope_type"
+        },
+        {
+          "field": "field_group",
+          "op": "EQ",
+          "param": "field_group"
+        }
+      ],
+      "sort": [
+        {
+          "field": "step_no",
+          "direction": "ASC"
+        },
+        {
+          "field": "scope_type",
+          "direction": "ASC"
+        },
+        {
+          "field": "field_group",
+          "direction": "ASC"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 200,
+        "defaultSize": 200
+      },
+      "maxRows": 200
+    },
+    {
+      "id": "approval_config.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "EmployeeApprovalConfig",
+      "tenant_scope": "TENANT",
+      "values": {
+        "scope_type": {
+          "param": "scope_type"
+        },
+        "scope_id": {
+          "param": "scope_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "field_group": {
+          "param": "field_group"
+        },
+        "step_no": {
+          "param": "step_no"
+        },
+        "approver_type": {
+          "param": "approver_type"
+        },
+        "approver_id": {
+          "param": "approver_id",
+          "optional": true,
+          "allow_null": true
+        }
+      },
+      "returning": [
+        "id",
+        "scope_type",
+        "scope_id",
+        "field_group",
+        "step_no",
+        "approver_type",
+        "approver_id",
+        "created_at"
+      ]
+    },
+    {
+      "id": "approval_config.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "EmployeeApprovalConfig",
+      "tenant_scope": "TENANT",
+      "values": {
+        "scope_type": {
+          "param": "scope_type"
+        },
+        "scope_id": {
+          "param": "scope_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "field_group": {
+          "param": "field_group"
+        },
+        "step_no": {
+          "param": "step_no"
+        },
+        "approver_type": {
+          "param": "approver_type"
+        },
+        "approver_id": {
+          "param": "approver_id",
+          "optional": true,
+          "allow_null": true
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "scope_type",
+        "scope_id",
+        "field_group",
+        "step_no",
+        "approver_type",
+        "approver_id",
+        "created_at"
+      ]
+    },
+    {
+      "id": "approval_config.delete",
+      "mode": "WRITE",
+      "operation": "DELETE",
+      "entity": "EmployeeApprovalConfig",
+      "tenant_scope": "TENANT",
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id"
+      ]
+    },
+    {
+      "id": "onboarding.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "EmployeeOnboardingInvite",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_id",
+        "email",
+        "expires_at",
+        "status",
+        "submitted_at",
+        "created_by",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "status",
+          "op": "EQ",
+          "param": "status"
+        },
+        {
+          "field": "email",
+          "op": "LOWER_EQ",
+          "param": "email"
+        }
+      ],
+      "sort": [
+        {
+          "field": "created_at",
+          "direction": "DESC"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 100,
+        "defaultSize": 20
+      },
+      "maxRows": 100
+    },
+    {
+      "id": "onboarding.get",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "EmployeeOnboardingInvite",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_id",
+        "email",
+        "expires_at",
+        "status",
+        "submitted_at",
+        "created_by",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "maxRows": 1
+    },
+    {
+      "id": "onboarding.get_by_token",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "EmployeeOnboardingInvite",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_id",
+        "email",
+        "expires_at",
+        "status",
+        "submitted_at",
+        "created_by",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "token_hash",
+          "op": "EQ",
+          "param": "token_hash",
+          "required": true
+        }
+      ],
+      "maxRows": 1
+    },
+    {
+      "id": "onboarding.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "EmployeeOnboardingInvite",
+      "tenant_scope": "TENANT",
+      "values": {
+        "employee_id": {
+          "param": "employee_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "email": {
+          "param": "email"
+        },
+        "token_hash": {
+          "param": "token_hash"
+        },
+        "expires_at": {
+          "param": "expires_at"
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        },
+        "created_by": {
+          "param": "created_by",
+          "optional": true,
+          "allow_null": true
+        }
+      },
+      "returning": [
+        "id",
+        "employee_id",
+        "email",
+        "expires_at",
+        "status",
+        "submitted_at",
+        "created_by",
+        "created_at"
+      ]
+    },
+    {
+      "id": "onboarding.update_status",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "EmployeeOnboardingInvite",
+      "tenant_scope": "TENANT",
+      "values": {
+        "status": {
+          "param": "status"
+        },
+        "submitted_at": {
+          "param": "submitted_at",
+          "optional": true,
+          "allow_null": true
+        },
+        "payload": {
+          "param": "payload",
+          "optional": true,
+          "allow_null": true,
+          "type": "jsonb"
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        },
+        {
+          "field": "status",
+          "op": "EQ",
+          "param": "expected_status"
+        }
+      ],
+      "returning": [
+        "id",
+        "employee_id",
+        "email",
+        "expires_at",
+        "status",
+        "submitted_at",
+        "created_by",
+        "created_at"
+      ]
+    },
+    {
+      "id": "campaign.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "EmployeeUpdateCampaign",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "name",
+        "filter",
+        "deadline",
+        "status",
+        "created_by",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "status",
+          "op": "EQ",
+          "param": "status"
+        }
+      ],
+      "sort": [
+        {
+          "field": "created_at",
+          "direction": "DESC"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 100,
+        "defaultSize": 20
+      },
+      "maxRows": 100
+    },
+    {
+      "id": "campaign.get",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "EmployeeUpdateCampaign",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "name",
+        "filter",
+        "deadline",
+        "status",
+        "created_by",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "maxRows": 1
+    },
+    {
+      "id": "campaign.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "EmployeeUpdateCampaign",
+      "tenant_scope": "TENANT",
+      "values": {
+        "name": {
+          "param": "name"
+        },
+        "filter": {
+          "param": "filter",
+          "type": "jsonb"
+        },
+        "deadline": {
+          "param": "deadline",
+          "optional": true,
+          "allow_null": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        },
+        "created_by": {
+          "param": "created_by",
+          "optional": true,
+          "allow_null": true
+        }
+      },
+      "returning": [
+        "id",
+        "name",
+        "filter",
+        "deadline",
+        "status",
+        "created_by",
+        "created_at"
+      ]
+    },
+    {
+      "id": "campaign.update_status",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "EmployeeUpdateCampaign",
+      "tenant_scope": "TENANT",
+      "values": {
+        "status": {
+          "param": "status"
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        },
+        {
+          "field": "status",
+          "op": "EQ",
+          "param": "expected_status"
+        }
+      ],
+      "returning": [
+        "id",
+        "name",
+        "filter",
+        "deadline",
+        "status",
+        "created_by",
+        "created_at"
+      ]
+    },
+    {
+      "id": "campaign_recipient.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "EmployeeUpdateCampaignRecipient",
+      "tenant_scope": "TENANT",
+      "select": [
+        "campaign_id",
+        "employee_id",
+        "status",
+        "completed_at"
+      ],
+      "filters": [
+        {
+          "field": "campaign_id",
+          "op": "EQ",
+          "param": "campaign_id",
+          "required": true
+        },
+        {
+          "field": "status",
+          "op": "EQ",
+          "param": "status"
+        }
+      ],
+      "sort": [
+        {
+          "field": "employee_id",
+          "direction": "ASC"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 100,
+        "defaultSize": 20
+      },
+      "maxRows": 100
+    },
+    {
+      "id": "campaign_recipient.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "EmployeeUpdateCampaignRecipient",
+      "tenant_scope": "TENANT",
+      "values": {
+        "campaign_id": {
+          "param": "campaign_id"
+        },
+        "employee_id": {
+          "param": "employee_id"
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        },
+        "completed_at": {
+          "param": "completed_at",
+          "optional": true,
+          "allow_null": true
+        }
+      },
+      "returning": [
+        "campaign_id",
+        "employee_id",
+        "status",
+        "completed_at"
+      ]
+    },
+    {
+      "id": "campaign_recipient.skip_pending",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "EmployeeUpdateCampaignRecipient",
+      "tenant_scope": "TENANT",
+      "values": {
+        "status": {
+          "param": "status"
+        }
+      },
+      "filters": [
+        {
+          "field": "campaign_id",
+          "op": "EQ",
+          "param": "campaign_id",
+          "required": true
+        },
+        {
+          "field": "status",
+          "op": "EQ",
+          "param": "from_status"
+        }
+      ],
+      "returning": [
+        "campaign_id",
+        "employee_id",
+        "status",
+        "completed_at"
+      ]
+    },
+    {
+      "id": "privacy.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "EmployeePrivacyRequest",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "subject_user_id",
+        "employee_id",
+        "request_type",
+        "status",
+        "payload",
+        "due_at",
+        "completed_at",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "status",
+          "op": "EQ",
+          "param": "status"
+        },
+        {
+          "field": "employee_id",
+          "op": "EQ",
+          "param": "employee_id"
+        }
+      ],
+      "sort": [
+        {
+          "field": "created_at",
+          "direction": "DESC"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 100,
+        "defaultSize": 20
+      },
+      "maxRows": 100
+    },
+    {
+      "id": "privacy.get",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "EmployeePrivacyRequest",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "subject_user_id",
+        "employee_id",
+        "request_type",
+        "status",
+        "payload",
+        "due_at",
+        "completed_at",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "maxRows": 1
+    },
+    {
+      "id": "privacy.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "EmployeePrivacyRequest",
+      "tenant_scope": "TENANT",
+      "values": {
+        "subject_user_id": {
+          "param": "subject_user_id"
+        },
+        "employee_id": {
+          "param": "employee_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "request_type": {
+          "param": "request_type"
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        },
+        "payload": {
+          "param": "payload",
+          "type": "jsonb"
+        },
+        "due_at": {
+          "param": "due_at",
+          "optional": true,
+          "allow_null": true
+        }
+      },
+      "returning": [
+        "id",
+        "subject_user_id",
+        "employee_id",
+        "request_type",
+        "status",
+        "payload",
+        "due_at",
+        "completed_at",
+        "created_at"
+      ]
+    },
+    {
+      "id": "privacy.update_status",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "EmployeePrivacyRequest",
+      "tenant_scope": "TENANT",
+      "values": {
+        "status": {
+          "param": "status"
+        },
+        "completed_at": {
+          "param": "completed_at",
+          "optional": true,
+          "allow_null": true
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "subject_user_id",
+        "employee_id",
+        "request_type",
+        "status",
+        "payload",
+        "due_at",
+        "completed_at",
+        "created_at"
+      ]
+    },
+    {
+      "id": "consent.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "EmployeeConsent",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_id",
+        "purpose",
+        "status",
+        "granted_at",
+        "revoked_at",
+        "source",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "employee_id",
+          "op": "EQ",
+          "param": "employee_id",
+          "required": true
+        },
+        {
+          "field": "purpose",
+          "op": "EQ",
+          "param": "purpose"
+        }
+      ],
+      "sort": [
+        {
+          "field": "purpose",
+          "direction": "ASC"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 200,
+        "defaultSize": 200
+      },
+      "maxRows": 200
+    },
+    {
+      "id": "consent.get_by_key",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "EmployeeConsent",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_id",
+        "purpose",
+        "status",
+        "granted_at",
+        "revoked_at",
+        "source",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "employee_id",
+          "op": "EQ",
+          "param": "employee_id",
+          "required": true
+        },
+        {
+          "field": "purpose",
+          "op": "EQ",
+          "param": "purpose",
+          "required": true
+        }
+      ],
+      "maxRows": 1
+    },
+    {
+      "id": "consent.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "EmployeeConsent",
+      "tenant_scope": "TENANT",
+      "values": {
+        "employee_id": {
+          "param": "employee_id"
+        },
+        "purpose": {
+          "param": "purpose"
+        },
+        "status": {
+          "param": "status"
+        },
+        "granted_at": {
+          "param": "granted_at",
+          "optional": true,
+          "allow_null": true
+        },
+        "revoked_at": {
+          "param": "revoked_at",
+          "optional": true,
+          "allow_null": true
+        },
+        "source": {
+          "param": "source",
+          "optional": true,
+          "allow_null": true
+        }
+      },
+      "returning": [
+        "id",
+        "employee_id",
+        "purpose",
+        "status",
+        "granted_at",
+        "revoked_at",
+        "source",
+        "created_at"
+      ]
+    },
+    {
+      "id": "consent.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "EmployeeConsent",
+      "tenant_scope": "TENANT",
+      "values": {
+        "status": {
+          "param": "status"
+        },
+        "granted_at": {
+          "param": "granted_at",
+          "optional": true,
+          "allow_null": true
+        },
+        "revoked_at": {
+          "param": "revoked_at",
+          "optional": true,
+          "allow_null": true
+        },
+        "source": {
+          "param": "source",
+          "optional": true,
+          "allow_null": true
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "employee_id",
+        "purpose",
+        "status",
+        "granted_at",
+        "revoked_at",
+        "source",
+        "created_at"
+      ]
+    },
+    {
+      "id": "document.get",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "EmployeeDocument",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_id",
+        "document_type",
+        "version",
+        "storage_key",
+        "file_name",
+        "mime_type",
+        "size_bytes",
+        "checksum",
+        "scan_status",
+        "uploaded_by",
+        "upload_source",
+        "retention_until",
+        "status",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "maxRows": 1
+    },
+    {
+      "id": "document.update_scan",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "EmployeeDocument",
+      "tenant_scope": "TENANT",
+      "values": {
+        "scan_status": {
+          "param": "scan_status"
+        },
+        "updated_at": {
+          "param": "updated_at"
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "employee_id",
+        "document_type",
+        "version",
+        "storage_key",
+        "file_name",
+        "mime_type",
+        "size_bytes",
+        "checksum",
+        "scan_status",
+        "uploaded_by",
+        "upload_source",
+        "retention_until",
+        "status",
+        "created_at"
+      ]
+    },
+    {
+      "id": "reporting.list_all",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "EmployeeReportingRelationship",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_id",
+        "manager_employee_id",
+        "relationship_type",
+        "valid_from",
+        "valid_to"
+      ],
+      "maxRows": 5000
+    }
+  ],
+  "migrations": [
+    {
+      "version": "1.0.0",
+      "file": "V1.0.0__employee_schema.sql",
+      "checksum": "sha256:dc75e8737116fd01a96517882637f8bb37ab033a797db45f4980f4325730ac41",
+      "description": "employee profiles, assignments, change requests, documents, privacy and outbox"
+    },
+    {
+      "version": "1.0.1",
+      "file": "V1.0.1__employee_offboarding.sql",
+      "checksum": "sha256:699aedad82f7997b0949ca71a1436bc4d56ce3dbe345f625466c017a6cfb34a3",
+      "description": "employee offboarding fields"
+    },
+    {
+      "version": "1.0.2",
+      "file": "V1.0.2__employee_onboarding_campaign_privacy.sql",
+      "checksum": "sha256:5f37c9ac2ec2bbab53e01b683a803320dbfdf39e3244da7c0cb4452ebad15057",
+      "description": "onboarding payload, approval scope guard and campaign/privacy indexes"
+    }
+  ],
+  "kafka_events": {
+    "publishes": [],
+    "subscribes": []
+  },
+  "websockets": [],
+  "ui_manifest": {
+    "contract_version": "1.0",
+    "screens": [
+      {
+        "route": "/apps/employee",
+        "title_key": "PLUGIN_EMPLOYEE_TITLE",
+        "render_mode": "WEB_COMPONENT",
+        "entry": "/plugins-runtime/employee/main.js",
+        "tag_name": "op-employee-app",
+        "order": 140,
+        "platforms": [
+          "desktop",
+          "mobile"
+        ]
+      }
+    ],
+    "contributions": [
+      {
+        "id": "employee-menu-item",
+        "slot": "core.layout.user-menu.items",
+        "title_key": "PLUGIN_EMPLOYEE_MY",
+        "render_mode": "WEB_COMPONENT",
+        "entry": "/plugins-runtime/employee/main.js",
+        "tag_name": "op-employee-menu-item",
+        "permission": "employee:self:read",
+        "order": 10,
+        "contract_version": "1.0",
+        "platforms": [
+          "desktop",
+          "mobile"
+        ],
+        "isolation": "light",
+        "icon": "user"
+      }
+    ],
+    "slots": [],
+    "crud": []
+  },
+  "distribution": {
+    "type": "IMAGE_REGISTRY",
+    "registry_url": "",
+    "repository": "open-erp/employee",
+    "tag": "1.1.19"
+  }
+}

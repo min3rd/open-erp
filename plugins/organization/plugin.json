@@ -1,0 +1,1158 @@
+{
+  "schema_version": "2.0",
+  "id": "org-structure",
+  "name": "Organization Structure",
+  "description": "Chi nhánh, phòng ban và access membership; nguồn dữ liệu cho data scope Core.",
+  "version": "1.1.3",
+  "template_version": "2.0.0",
+  "author": "Open-ERP Plugin Team",
+  "core_version_compatibility": ">=1.0.0 <2.0.0",
+  "migration_policy": "COMPATIBLE",
+  "rollback_strategy": "SNAPSHOT_RESTORE",
+  "dependencies": [],
+  "platforms": {
+    "desktop": {
+      "supported": true,
+      "features": [
+        "organization:branch:manage",
+        "organization:department:manage",
+        "organization:membership:manage",
+        "organization:org-chart:read"
+      ]
+    },
+    "mobile": {
+      "supported": true,
+      "features": [
+        "organization:org-chart:read"
+      ]
+    }
+  },
+  "permissions": [
+    {
+      "code": "organization:org:manage",
+      "name": "Organization manage"
+    },
+    {
+      "code": "organization:branch:read",
+      "name": "Branch read"
+    },
+    {
+      "code": "organization:branch:manage",
+      "name": "Branch manage"
+    },
+    {
+      "code": "organization:department:read",
+      "name": "Department read"
+    },
+    {
+      "code": "organization:department:manage",
+      "name": "Department manage"
+    },
+    {
+      "code": "organization:membership:read",
+      "name": "Membership read"
+    },
+    {
+      "code": "organization:membership:manage",
+      "name": "Membership manage"
+    },
+    {
+      "code": "organization:branch-access:read",
+      "name": "Branch access read"
+    },
+    {
+      "code": "organization:branch-access:manage",
+      "name": "Branch access manage"
+    },
+    {
+      "code": "organization:org-chart:read",
+      "name": "Organization chart read"
+    }
+  ],
+  "entities": [
+    {
+      "name": "OrgBranch",
+      "table": "plg_organization_branches",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "required": true,
+          "max_length": 32
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "max_length": 255
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "required": false,
+          "max_length": 32
+        },
+        {
+          "name": "address",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "is_default",
+          "type": "bool",
+          "required": true,
+          "default": false
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "enum_values": [
+            "ACTIVE",
+            "INACTIVE"
+          ],
+          "default": "ACTIVE"
+        }
+      ],
+      "validators": [
+        {
+          "field": "code",
+          "rule": "max_length",
+          "value": 32
+        },
+        {
+          "field": "status",
+          "rule": "enum",
+          "value": [
+            "ACTIVE",
+            "INACTIVE"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "OrgDepartment",
+      "table": "plg_organization_departments",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "branch_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "parent_id",
+          "type": "uuid",
+          "required": false
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "required": true,
+          "max_length": 32
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "max_length": 255
+        },
+        {
+          "name": "manager_user_id",
+          "type": "uuid",
+          "required": false
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "enum_values": [
+            "ACTIVE",
+            "INACTIVE"
+          ],
+          "default": "ACTIVE"
+        }
+      ],
+      "validators": [
+        {
+          "field": "code",
+          "rule": "max_length",
+          "value": 32
+        },
+        {
+          "field": "status",
+          "rule": "enum",
+          "value": [
+            "ACTIVE",
+            "INACTIVE"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "OrgMembership",
+      "table": "plg_organization_memberships",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "branch_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "department_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "direct_manager_user_id",
+          "type": "uuid",
+          "required": false
+        },
+        {
+          "name": "is_primary",
+          "type": "bool",
+          "required": true,
+          "default": false
+        },
+        {
+          "name": "joined_at",
+          "type": "datetime",
+          "required": true
+        },
+        {
+          "name": "valid_from",
+          "type": "date",
+          "required": true
+        },
+        {
+          "name": "valid_to",
+          "type": "date",
+          "required": false
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "enum_values": [
+            "ACTIVE",
+            "INACTIVE"
+          ],
+          "default": "ACTIVE"
+        }
+      ],
+      "validators": [
+        {
+          "field": "status",
+          "rule": "enum",
+          "value": [
+            "ACTIVE",
+            "INACTIVE"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "OrgBranchAccess",
+      "table": "plg_organization_branch_access",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "branch_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "is_primary",
+          "type": "bool",
+          "required": true,
+          "default": false
+        },
+        {
+          "name": "can_manage",
+          "type": "bool",
+          "required": true,
+          "default": false
+        },
+        {
+          "name": "assigned_at",
+          "type": "datetime",
+          "required": true
+        },
+        {
+          "name": "valid_from",
+          "type": "date",
+          "required": true
+        },
+        {
+          "name": "valid_to",
+          "type": "date",
+          "required": false
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "enum_values": [
+            "ACTIVE",
+            "INACTIVE"
+          ],
+          "default": "ACTIVE"
+        }
+      ],
+      "validators": [
+        {
+          "field": "status",
+          "rule": "enum",
+          "value": [
+            "ACTIVE",
+            "INACTIVE"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "OrgOutbox",
+      "table": "plg_organization_outbox",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "event_type",
+          "type": "string",
+          "required": true,
+          "max_length": 64
+        },
+        {
+          "name": "aggregate_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "enum_values": [
+            "PENDING",
+            "SENT",
+            "FAILED"
+          ],
+          "default": "PENDING"
+        },
+        {
+          "name": "retry_count",
+          "type": "int",
+          "required": true,
+          "default": 0
+        },
+        {
+          "name": "next_retry_at",
+          "type": "datetime",
+          "required": false
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "required": true
+        },
+        {
+          "name": "sent_at",
+          "type": "datetime",
+          "required": false
+        }
+      ],
+      "validators": [
+        {
+          "field": "status",
+          "rule": "enum",
+          "value": [
+            "PENDING",
+            "SENT",
+            "FAILED"
+          ]
+        }
+      ]
+    }
+  ],
+  "relations": [],
+  "queries": [
+    {
+      "id": "branch.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "OrgBranch",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "code",
+        "name",
+        "phone",
+        "address",
+        "is_default",
+        "status",
+        "created_at"
+      ],
+      "sort": [
+        {
+          "field": "code",
+          "direction": "ASC"
+        }
+      ],
+      "maxRows": 500
+    },
+    {
+      "id": "branch.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "OrgBranch",
+      "tenant_scope": "TENANT",
+      "values": {
+        "code": {
+          "param": "code"
+        },
+        "name": {
+          "param": "name"
+        },
+        "phone": {
+          "param": "phone",
+          "optional": true,
+          "allow_null": true
+        },
+        "address": {
+          "param": "address",
+          "optional": true,
+          "allow_null": true
+        },
+        "is_default": {
+          "param": "is_default",
+          "optional": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        }
+      },
+      "returning": [
+        "id",
+        "code",
+        "name",
+        "is_default",
+        "status",
+        "created_at"
+      ]
+    },
+    {
+      "id": "department.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "OrgDepartment",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "branch_id",
+        "parent_id",
+        "code",
+        "name",
+        "manager_user_id",
+        "status",
+        "created_at"
+      ],
+      "sort": [
+        {
+          "field": "code",
+          "direction": "ASC"
+        }
+      ],
+      "maxRows": 1000
+    },
+    {
+      "id": "department.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "OrgDepartment",
+      "tenant_scope": "TENANT",
+      "values": {
+        "branch_id": {
+          "param": "branch_id"
+        },
+        "parent_id": {
+          "param": "parent_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "code": {
+          "param": "code"
+        },
+        "name": {
+          "param": "name"
+        },
+        "manager_user_id": {
+          "param": "manager_user_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        }
+      },
+      "returning": [
+        "id",
+        "branch_id",
+        "parent_id",
+        "code",
+        "name",
+        "status",
+        "created_at"
+      ]
+    },
+    {
+      "id": "membership.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "OrgMembership",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "user_id",
+        "branch_id",
+        "department_id",
+        "direct_manager_user_id",
+        "is_primary",
+        "valid_from",
+        "valid_to",
+        "status"
+      ],
+      "filters": [
+        {
+          "field": "user_id",
+          "op": "EQ",
+          "param": "user_id"
+        }
+      ],
+      "maxRows": 100
+    },
+    {
+      "id": "membership.list_all",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "OrgMembership",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "user_id",
+        "branch_id",
+        "department_id",
+        "direct_manager_user_id",
+        "is_primary",
+        "valid_from",
+        "valid_to",
+        "status",
+        "joined_at"
+      ],
+      "filters": [],
+      "maxRows": 500
+    },
+    {
+      "id": "membership.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "OrgMembership",
+      "tenant_scope": "TENANT",
+      "values": {
+        "user_id": {
+          "param": "user_id"
+        },
+        "branch_id": {
+          "param": "branch_id"
+        },
+        "department_id": {
+          "param": "department_id"
+        },
+        "direct_manager_user_id": {
+          "param": "direct_manager_user_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "is_primary": {
+          "param": "is_primary",
+          "optional": true
+        },
+        "joined_at": {
+          "param": "joined_at"
+        },
+        "valid_from": {
+          "param": "valid_from"
+        },
+        "valid_to": {
+          "param": "valid_to",
+          "optional": true,
+          "allow_null": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        }
+      },
+      "returning": [
+        "id",
+        "user_id",
+        "branch_id",
+        "department_id",
+        "is_primary",
+        "valid_from",
+        "valid_to",
+        "status"
+      ]
+    },
+    {
+      "id": "branch_access.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "OrgBranchAccess",
+      "tenant_scope": "TENANT",
+      "values": {
+        "user_id": {
+          "param": "user_id"
+        },
+        "branch_id": {
+          "param": "branch_id"
+        },
+        "is_primary": {
+          "param": "is_primary",
+          "optional": true
+        },
+        "can_manage": {
+          "param": "can_manage",
+          "optional": true
+        },
+        "assigned_at": {
+          "param": "assigned_at"
+        },
+        "valid_from": {
+          "param": "valid_from"
+        },
+        "valid_to": {
+          "param": "valid_to",
+          "optional": true,
+          "allow_null": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        }
+      },
+      "returning": [
+        "id",
+        "user_id",
+        "branch_id",
+        "is_primary",
+        "can_manage",
+        "valid_from",
+        "valid_to",
+        "status"
+      ]
+    },
+    {
+      "id": "branch.get",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "OrgBranch",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "code",
+        "name",
+        "phone",
+        "address",
+        "is_default",
+        "status",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "maxRows": 1
+    },
+    {
+      "id": "branch.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "OrgBranch",
+      "tenant_scope": "TENANT",
+      "values": {
+        "code": {
+          "param": "code"
+        },
+        "name": {
+          "param": "name"
+        },
+        "phone": {
+          "param": "phone",
+          "optional": true,
+          "allow_null": true
+        },
+        "address": {
+          "param": "address",
+          "optional": true,
+          "allow_null": true
+        },
+        "is_default": {
+          "param": "is_default",
+          "optional": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "code",
+        "name",
+        "is_default",
+        "status",
+        "created_at"
+      ]
+    },
+    {
+      "id": "department.get",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "OrgDepartment",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "branch_id",
+        "parent_id",
+        "code",
+        "name",
+        "manager_user_id",
+        "status",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "maxRows": 1
+    },
+    {
+      "id": "department.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "OrgDepartment",
+      "tenant_scope": "TENANT",
+      "values": {
+        "branch_id": {
+          "param": "branch_id"
+        },
+        "parent_id": {
+          "param": "parent_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "code": {
+          "param": "code"
+        },
+        "name": {
+          "param": "name"
+        },
+        "manager_user_id": {
+          "param": "manager_user_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "branch_id",
+        "parent_id",
+        "code",
+        "name",
+        "status",
+        "created_at"
+      ]
+    },
+    {
+      "id": "membership.get",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "OrgMembership",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "user_id",
+        "branch_id",
+        "department_id",
+        "direct_manager_user_id",
+        "is_primary",
+        "joined_at",
+        "valid_from",
+        "valid_to",
+        "status"
+      ],
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "maxRows": 1
+    },
+    {
+      "id": "membership.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "OrgMembership",
+      "tenant_scope": "TENANT",
+      "values": {
+        "branch_id": {
+          "param": "branch_id"
+        },
+        "department_id": {
+          "param": "department_id"
+        },
+        "direct_manager_user_id": {
+          "param": "direct_manager_user_id",
+          "optional": true,
+          "allow_null": true
+        },
+        "is_primary": {
+          "param": "is_primary",
+          "optional": true
+        },
+        "valid_from": {
+          "param": "valid_from"
+        },
+        "valid_to": {
+          "param": "valid_to",
+          "optional": true,
+          "allow_null": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "user_id",
+        "branch_id",
+        "department_id",
+        "is_primary",
+        "valid_from",
+        "valid_to",
+        "status"
+      ]
+    },
+    {
+      "id": "membership.delete",
+      "mode": "WRITE",
+      "operation": "DELETE",
+      "entity": "OrgMembership",
+      "tenant_scope": "TENANT",
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id"
+      ]
+    },
+    {
+      "id": "branch_access.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "OrgBranchAccess",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "user_id",
+        "branch_id",
+        "is_primary",
+        "can_manage",
+        "assigned_at",
+        "valid_from",
+        "valid_to",
+        "status"
+      ],
+      "filters": [
+        {
+          "field": "user_id",
+          "op": "EQ",
+          "param": "user_id",
+          "required": true
+        }
+      ],
+      "maxRows": 100
+    },
+    {
+      "id": "branch_access.list_all",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "OrgBranchAccess",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "user_id",
+        "branch_id",
+        "is_primary",
+        "can_manage",
+        "assigned_at",
+        "valid_from",
+        "valid_to",
+        "status"
+      ],
+      "filters": [],
+      "maxRows": 500
+    },
+    {
+      "id": "branch_access.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "OrgBranchAccess",
+      "tenant_scope": "TENANT",
+      "values": {
+        "branch_id": {
+          "param": "branch_id"
+        },
+        "is_primary": {
+          "param": "is_primary",
+          "optional": true
+        },
+        "can_manage": {
+          "param": "can_manage",
+          "optional": true
+        },
+        "valid_from": {
+          "param": "valid_from"
+        },
+        "valid_to": {
+          "param": "valid_to",
+          "optional": true,
+          "allow_null": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "user_id",
+        "branch_id",
+        "is_primary",
+        "can_manage",
+        "valid_from",
+        "valid_to",
+        "status"
+      ]
+    },
+    {
+      "id": "branch_access.delete",
+      "mode": "WRITE",
+      "operation": "DELETE",
+      "entity": "OrgBranchAccess",
+      "tenant_scope": "TENANT",
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id"
+      ]
+    },
+    {
+      "id": "outbox.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "OrgOutbox",
+      "tenant_scope": "TENANT",
+      "values": {
+        "event_type": {
+          "param": "event_type"
+        },
+        "aggregate_id": {
+          "param": "aggregate_id"
+        },
+        "payload": {
+          "param": "payload",
+          "type": "jsonb"
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        },
+        "retry_count": {
+          "param": "retry_count",
+          "optional": true
+        },
+        "next_retry_at": {
+          "param": "next_retry_at",
+          "optional": true,
+          "allow_null": true
+        }
+      },
+      "returning": [
+        "id",
+        "event_type",
+        "aggregate_id",
+        "status",
+        "created_at"
+      ]
+    },
+    {
+      "id": "membership.list_by_department",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "OrgMembership",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "user_id",
+        "department_id",
+        "status"
+      ],
+      "filters": [
+        {
+          "field": "department_id",
+          "op": "EQ",
+          "param": "department_id",
+          "required": true
+        }
+      ],
+      "maxRows": 1000
+    }
+  ],
+  "migrations": [
+    {
+      "version": "1.0.0",
+      "file": "V1.0.0__initial_schema.sql",
+      "checksum": "sha256:2a7ecdfcd7ee893db4e7bf5f534e2c241c92c555259739751b42152ed229ceef",
+      "description": "organization schema"
+    }
+  ],
+  "kafka_events": {
+    "publishes": [],
+    "subscribes": []
+  },
+  "websockets": [],
+  "ui_manifest": {
+    "contract_version": "1.0",
+    "screens": [
+      {
+        "route": "/apps/organization",
+        "title_key": "ORGANIZATION_STRUCTURE",
+        "permission": "organization:branch:read",
+        "render_mode": "WEB_COMPONENT",
+        "entry": "/plugins-runtime/org-structure/main.js",
+        "tag_name": "op-org-structure-app",
+        "order": 130,
+        "platforms": [
+          "desktop",
+          "mobile"
+        ]
+      }
+    ],
+    "contributions": [],
+    "slots": [],
+    "crud": []
+  },
+  "distribution": {
+    "type": "IMAGE_REGISTRY",
+    "registry_url": "",
+    "repository": "open-erp/org-structure",
+    "tag": "1.0.0"
+  }
+}

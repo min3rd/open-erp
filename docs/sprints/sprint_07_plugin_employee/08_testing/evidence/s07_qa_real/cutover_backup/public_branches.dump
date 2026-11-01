@@ -1,0 +1,114 @@
+--
+-- PostgreSQL database dump
+--
+
+\restrict 6wI9oBWyzKOvWEzrxppaItk8iwj7FvJOIVfukUVBpN6qfyjEzXsdiRIF6M2gwpE
+
+-- Dumped from database version 16.15
+-- Dumped by pg_dump version 16.15
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+ALTER TABLE IF EXISTS ONLY public.branches DROP CONSTRAINT IF EXISTS branches_tenant_id_fkey;
+DROP INDEX IF EXISTS public.idx_branches_tenant;
+DROP INDEX IF EXISTS public.idx_branches_status;
+ALTER TABLE IF EXISTS ONLY public.branches DROP CONSTRAINT IF EXISTS uq_branches_id_tenant;
+ALTER TABLE IF EXISTS ONLY public.branches DROP CONSTRAINT IF EXISTS uq_branch_tenant_code;
+ALTER TABLE IF EXISTS ONLY public.branches DROP CONSTRAINT IF EXISTS branches_pkey;
+DROP TABLE IF EXISTS public.branches;
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: branches; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.branches (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    tenant_id uuid NOT NULL,
+    code character varying(32) NOT NULL,
+    name character varying(255) NOT NULL,
+    phone character varying(32),
+    address text,
+    is_default boolean DEFAULT false NOT NULL,
+    status character varying(32) DEFAULT 'ACTIVE'::character varying NOT NULL,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now()
+);
+
+
+--
+-- Data for Name: branches; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.branches (id, tenant_id, code, name, phone, address, is_default, status, created_at, updated_at) FROM stdin;
+1c7ae7f1-d360-4a4b-977c-ff642eaf6f9e	cd2729d8-aec0-423c-b2b0-2649a97d822f	HN	Hà Nội	\N	\N	t	ACTIVE	2026-10-05 06:49:33.131623+00	2026-10-05 06:49:33.131623+00
+84c5a1e0-e18d-4bcf-9228-f55e7516e113	cd2729d8-aec0-423c-b2b0-2649a97d822f	HCM	Hồ Chí Minh	\N	\N	f	ACTIVE	2026-10-05 08:01:30.124416+00	2026-10-05 08:01:30.124416+00
+3c6e8bdd-3b55-4f71-96a7-5ae6782110aa	15a14e7f-76a9-4c98-9cc6-be6efbe171e8	HQ	Trụ sở chính	\N	\N	t	ACTIVE	2026-10-30 13:31:19.034266+00	2026-10-30 13:31:19.034266+00
+85a84eff-95ec-4526-abe9-baa1ea17a851	cda27ab1-bc16-4900-9a5d-00ea1942ef39	HQ	Trụ sở chính	\N	\N	t	ACTIVE	2026-10-30 13:31:20.155974+00	2026-10-30 13:31:20.155974+00
+8cc18b4c-7557-4f20-9b38-34f10ec4b6ac	08112f47-44ff-49ab-bd2a-fe4829ef8185	HQ	Trụ sở chính	\N	\N	t	ACTIVE	2026-10-30 13:49:57.347421+00	2026-10-30 13:49:57.347421+00
+\.
+
+
+--
+-- Name: branches branches_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.branches
+    ADD CONSTRAINT branches_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: branches uq_branch_tenant_code; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.branches
+    ADD CONSTRAINT uq_branch_tenant_code UNIQUE (tenant_id, code);
+
+
+--
+-- Name: branches uq_branches_id_tenant; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.branches
+    ADD CONSTRAINT uq_branches_id_tenant UNIQUE (id, tenant_id);
+
+
+--
+-- Name: idx_branches_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_branches_status ON public.branches USING btree (status);
+
+
+--
+-- Name: idx_branches_tenant; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_branches_tenant ON public.branches USING btree (tenant_id);
+
+
+--
+-- Name: branches branches_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.branches
+    ADD CONSTRAINT branches_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict 6wI9oBWyzKOvWEzrxppaItk8iwj7FvJOIVfukUVBpN6qfyjEzXsdiRIF6M2gwpE
+

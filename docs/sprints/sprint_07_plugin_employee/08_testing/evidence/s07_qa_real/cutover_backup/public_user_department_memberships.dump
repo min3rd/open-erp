@@ -1,0 +1,196 @@
+--
+-- PostgreSQL database dump
+--
+
+\restrict 0bD06vxYHVo0fX3pRdTMQwpepBlvk9vB9No9IZkNcDwlfODUYPNmS3wNsIrW5N4
+
+-- Dumped from database version 16.15
+-- Dumped by pg_dump version 16.15
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+ALTER TABLE IF EXISTS ONLY public.user_department_memberships DROP CONSTRAINT IF EXISTS user_department_memberships_user_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.user_department_memberships DROP CONSTRAINT IF EXISTS user_department_memberships_tenant_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.user_department_memberships DROP CONSTRAINT IF EXISTS user_department_memberships_direct_manager_user_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.user_department_memberships DROP CONSTRAINT IF EXISTS user_department_memberships_department_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.user_department_memberships DROP CONSTRAINT IF EXISTS user_department_memberships_branch_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.user_department_memberships DROP CONSTRAINT IF EXISTS fk_membership_department_tenant;
+ALTER TABLE IF EXISTS ONLY public.user_department_memberships DROP CONSTRAINT IF EXISTS fk_membership_branch_tenant;
+DROP TRIGGER IF EXISTS trg_membership_branch_match ON public.user_department_memberships;
+DROP INDEX IF EXISTS public.uq_user_primary_dept;
+DROP INDEX IF EXISTS public.idx_user_dept_user;
+DROP INDEX IF EXISTS public.idx_user_dept_tenant;
+DROP INDEX IF EXISTS public.idx_user_dept_manager;
+DROP INDEX IF EXISTS public.idx_user_dept_dept;
+DROP INDEX IF EXISTS public.idx_user_dept_branch;
+ALTER TABLE IF EXISTS ONLY public.user_department_memberships DROP CONSTRAINT IF EXISTS user_department_memberships_pkey;
+ALTER TABLE IF EXISTS ONLY public.user_department_memberships DROP CONSTRAINT IF EXISTS uq_user_dept;
+DROP TABLE IF EXISTS public.user_department_memberships;
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: user_department_memberships; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.user_department_memberships (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id uuid NOT NULL,
+    tenant_id uuid NOT NULL,
+    branch_id uuid NOT NULL,
+    department_id uuid NOT NULL,
+    direct_manager_user_id uuid,
+    title character varying(128),
+    is_primary boolean DEFAULT true NOT NULL,
+    joined_at timestamp with time zone DEFAULT now()
+);
+
+
+--
+-- Data for Name: user_department_memberships; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.user_department_memberships (id, user_id, tenant_id, branch_id, department_id, direct_manager_user_id, title, is_primary, joined_at) FROM stdin;
+48ce39b2-a9a0-45f1-a4a5-123fa9066a17	f5543948-837b-4afa-94d3-5028b6597dac	15a14e7f-76a9-4c98-9cc6-be6efbe171e8	3c6e8bdd-3b55-4f71-96a7-5ae6782110aa	c344d2f8-9c4f-49f6-bc4b-825859bf71d8	\N	\N	t	2026-10-30 13:31:19.034266+00
+54027afa-0757-4419-a74a-101c43a6d1a3	e1c4858f-5586-4206-b01a-d9e49cd4f6b6	cda27ab1-bc16-4900-9a5d-00ea1942ef39	85a84eff-95ec-4526-abe9-baa1ea17a851	ddd3696a-fb12-485a-a361-7200b17fb064	\N	\N	t	2026-10-30 13:31:20.155974+00
+77c2c11c-c623-4aa8-941d-2e6525db7037	924b9678-9738-4157-a725-bae5b77f6d07	08112f47-44ff-49ab-bd2a-fe4829ef8185	8cc18b4c-7557-4f20-9b38-34f10ec4b6ac	d4b6b35a-4b16-4f32-a887-c40c5e0ff443	\N	\N	t	2026-10-30 13:49:57.347421+00
+\.
+
+
+--
+-- Name: user_department_memberships uq_user_dept; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_department_memberships
+    ADD CONSTRAINT uq_user_dept UNIQUE (user_id, department_id);
+
+
+--
+-- Name: user_department_memberships user_department_memberships_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_department_memberships
+    ADD CONSTRAINT user_department_memberships_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: idx_user_dept_branch; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_user_dept_branch ON public.user_department_memberships USING btree (branch_id);
+
+
+--
+-- Name: idx_user_dept_dept; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_user_dept_dept ON public.user_department_memberships USING btree (department_id);
+
+
+--
+-- Name: idx_user_dept_manager; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_user_dept_manager ON public.user_department_memberships USING btree (direct_manager_user_id);
+
+
+--
+-- Name: idx_user_dept_tenant; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_user_dept_tenant ON public.user_department_memberships USING btree (tenant_id);
+
+
+--
+-- Name: idx_user_dept_user; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_user_dept_user ON public.user_department_memberships USING btree (user_id);
+
+
+--
+-- Name: uq_user_primary_dept; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_user_primary_dept ON public.user_department_memberships USING btree (user_id) WHERE is_primary;
+
+
+--
+-- Name: user_department_memberships trg_membership_branch_match; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trg_membership_branch_match BEFORE INSERT OR UPDATE ON public.user_department_memberships FOR EACH ROW EXECUTE FUNCTION public.trg_fn_check_membership_branch_matches_dept();
+
+
+--
+-- Name: user_department_memberships fk_membership_branch_tenant; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_department_memberships
+    ADD CONSTRAINT fk_membership_branch_tenant FOREIGN KEY (branch_id, tenant_id) REFERENCES public.branches(id, tenant_id) ON DELETE CASCADE;
+
+
+--
+-- Name: user_department_memberships fk_membership_department_tenant; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_department_memberships
+    ADD CONSTRAINT fk_membership_department_tenant FOREIGN KEY (department_id, tenant_id) REFERENCES public.departments(id, tenant_id) ON DELETE CASCADE;
+
+
+--
+-- Name: user_department_memberships user_department_memberships_branch_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_department_memberships
+    ADD CONSTRAINT user_department_memberships_branch_id_fkey FOREIGN KEY (branch_id) REFERENCES public.branches(id) ON DELETE CASCADE;
+
+
+--
+-- Name: user_department_memberships user_department_memberships_department_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_department_memberships
+    ADD CONSTRAINT user_department_memberships_department_id_fkey FOREIGN KEY (department_id) REFERENCES public.departments(id) ON DELETE CASCADE;
+
+
+--
+-- Name: user_department_memberships user_department_memberships_direct_manager_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_department_memberships
+    ADD CONSTRAINT user_department_memberships_direct_manager_user_id_fkey FOREIGN KEY (direct_manager_user_id) REFERENCES public.users(id) ON DELETE SET NULL;
+
+
+--
+-- Name: user_department_memberships user_department_memberships_tenant_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_department_memberships
+    ADD CONSTRAINT user_department_memberships_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES public.tenants(id) ON DELETE CASCADE;
+
+
+--
+-- Name: user_department_memberships user_department_memberships_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_department_memberships
+    ADD CONSTRAINT user_department_memberships_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict 0bD06vxYHVo0fX3pRdTMQwpepBlvk9vB9No9IZkNcDwlfODUYPNmS3wNsIrW5N4
+

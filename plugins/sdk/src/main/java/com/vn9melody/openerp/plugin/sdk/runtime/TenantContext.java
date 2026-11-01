@@ -12,6 +12,7 @@ public class TenantContext {
     private UUID userId;
     private Set<String> roleCodes = Set.of();
     private Set<String> permissions = Set.of();
+    private Set<UUID> branchIds = Set.of();
     private String serviceToken;
     private boolean platform;
 
@@ -31,6 +32,10 @@ public class TenantContext {
         return permissions;
     }
 
+    public Set<UUID> branchIds() {
+        return branchIds;
+    }
+
     public boolean platform() {
         return platform;
     }
@@ -44,11 +49,13 @@ public class TenantContext {
         return new UserContext(tenantId, userId, roleCodes, permissions, platform);
     }
 
-    void set(UUID tenantId, UUID userId, Set<String> roleCodes, Set<String> permissions, boolean platform) {
+    void set(UUID tenantId, UUID userId, Set<String> roleCodes, Set<String> permissions,
+             Set<UUID> branchIds, boolean platform) {
         this.tenantId = tenantId;
         this.userId = userId;
         this.roleCodes = roleCodes;
         this.permissions = permissions;
+        this.branchIds = branchIds == null ? Set.of() : branchIds;
         this.platform = platform;
     }
 

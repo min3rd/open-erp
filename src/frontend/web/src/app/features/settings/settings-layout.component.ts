@@ -79,15 +79,6 @@ export class SettingsLayoutComponent implements OnInit {
   private readonly menuTree: ReadonlyArray<SettingsMenuNode> = [
     { path: '/settings/roles', labelKey: 'IAM_ROLE_MANAGEMENT', icon: IconName.SHIELD, permission: 'core:role:manage' },
     {
-      labelKey: 'SETTINGS_GROUP_ORGANIZATION',
-      icon: IconName.GRID,
-      children: [
-        { path: '/settings/organization', labelKey: 'ORGANIZATION_STRUCTURE', icon: IconName.GRID, permission: 'core:organization:manage' },
-        { path: '/settings/members', labelKey: 'ORGANIZATION_MEMBERSHIPS', icon: IconName.USER, permission: 'core:organization:manage' },
-        { path: '/settings/branch-assignments', labelKey: 'ORGANIZATION_BRANCH_ASSIGNMENT_TITLE', icon: IconName.HOME, permission: 'core:organization:manage' }
-      ]
-    },
-    {
       labelKey: 'SETTINGS_GROUP_DATA',
       icon: IconName.FILE_TEXT,
       children: [

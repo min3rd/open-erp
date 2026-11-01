@@ -9,6 +9,7 @@ import com.vn9melody.openerp.core.api.PagedData;
 import com.vn9melody.openerp.core.audit.AuditRecorder;
 import com.vn9melody.openerp.core.context.DataScopeEngine;
 import com.vn9melody.openerp.core.context.DataScopeTarget;
+import com.vn9melody.openerp.core.context.ScopeProjectionService;
 import com.vn9melody.openerp.core.context.UserSecurityContext;
 import com.vn9melody.openerp.core.enums.DataOperation;
 import com.vn9melody.openerp.core.enums.ResponseKey;
@@ -20,11 +21,6 @@ import com.vn9melody.openerp.modules.core.model.CoreSampleRecord;
 import com.vn9melody.openerp.modules.core.repository.CoreSampleRecordRepository;
 import com.vn9melody.openerp.modules.iam.model.UserProfile;
 import com.vn9melody.openerp.modules.iam.model.UserTenant;
-import com.vn9melody.openerp.modules.organization.model.Branch;
-import com.vn9melody.openerp.modules.organization.model.Department;
-import com.vn9melody.openerp.modules.organization.model.UserDepartmentMembership;
-import com.vn9melody.openerp.modules.organization.repository.BranchRepository;
-import com.vn9melody.openerp.modules.organization.repository.DepartmentRepository;
 import com.vn9melody.openerp.modules.platform.service.TenantPluginAllowlistService;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
@@ -45,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Business service of the reference entity {@code core_sample_records}
@@ -68,10 +63,7 @@ public class SampleRecordService {
     DataScopeEngine dataScopeEngine;
 
     @Inject
-    BranchRepository branchRepository;
-
-    @Inject
-    DepartmentRepository departmentRepository;
+    ScopeProjectionService scopeProjectionService;
 
     @Inject
     Instance<AuditRecorder> auditRecorders;
@@ -95,12 +87,6 @@ public class SampleRecordService {
             context, RESOURCE, request.branchId, request.departmentId);
         UUID branchId = target.branchId();
         UUID departmentId = target.departmentId();
-        branchId = validateBranch(context.tenantId(), branchId);
-        departmentId = validateDepartment(context.tenantId(), departmentId);
-        if (departmentId != null && branchId == null) {
-            Department department = departmentRepository.find("id = ?1", departmentId).firstResult();
-            branchId = department != null ? department.branchId : null;
-        }
         validateAssignee(context.tenantId(), request.assigneeId);
 
         CoreSampleRecord record = new CoreSampleRecord();
@@ -176,14 +162,8 @@ public class SampleRecordService {
             record.status = normalizeStatus(request.status);
         }
         if (request.branchId != null || request.departmentId != null) {
-            UUID branchId = request.branchId != null ? validateBranch(context.tenantId(), request.branchId) : record.branchId;
-            UUID departmentId = request.departmentId != null
-                ? validateDepartment(context.tenantId(), request.departmentId)
-                : record.departmentId;
-            if (departmentId != null && branchId == null) {
-                Department department = departmentRepository.find("id = ?1", departmentId).firstResult();
-                branchId = department != null ? department.branchId : null;
-            }
+            UUID branchId = request.branchId != null ? request.branchId : record.branchId;
+            UUID departmentId = request.departmentId != null ? request.departmentId : record.departmentId;
             DataScopeTarget requested = new DataScopeTarget(branchId, departmentId, context.userId(), context.userId());
             if (!dataScopeEngine.canMutate(context, RESOURCE, DataOperation.UPDATE, requested)) {
                 throw dataScopeEngine.deniedDataScope(RESOURCE, DataOperation.UPDATE);
@@ -274,47 +254,19 @@ public class SampleRecordService {
         return new DataScopeTarget(record.branchId, record.departmentId, record.createdBy, record.assigneeId);
     }
 
-    private UUID validateBranch(UUID tenantId, UUID branchId) {
-        if (branchId == null) {
-            return null;
-        }
-        Branch branch = branchRepository.find("id = ?1", branchId).firstResult();
-        if (branch == null || !tenantId.equals(branch.tenantId)) {
-            throw new ApiException(403, ErrorCode.IAM_PERMISSION_DENIED_DATA_SCOPE,
-                "Branch is outside the allowed data scope", scopeParams());
-        }
-        return branchId;
-    }
-
-    private UUID validateDepartment(UUID tenantId, UUID departmentId) {
-        if (departmentId == null) {
-            return null;
-        }
-                Department department = departmentRepository.find("id = ?1", departmentId).firstResult();
-        if (department == null || !tenantId.equals(department.tenantId)) {
-            throw new ApiException(403, ErrorCode.IAM_PERMISSION_DENIED_DATA_SCOPE,
-                "Department is outside the allowed data scope", scopeParams());
-        }
-        return departmentId;
-    }
-
     private void validateAssignee(UUID tenantId, UUID assigneeId) {
         if (assigneeId == null) {
             return;
         }
+        // Organization data now lives in the org plugin; membership is visible to
+        // Core only through the scope projection (Sprint 07 cutover).
         boolean member = UserTenant.findByUserAndTenant(assigneeId, tenantId) != null
-            || UserDepartmentMembership.count("userId = ?1 and tenantId = ?2", assigneeId, tenantId) > 0;
+            || scopeProjectionService.find(tenantId, assigneeId).isPresent();
         if (!member) {
             throw new ApiException(400, ErrorCode.VALIDATION_INVALID, "Assignee does not belong to the tenant",
                 Map.of(ResponseKey.FIELD.getKey(), ResponseKey.ASSIGNEE_ID.getKey()),
                 List.of(new ApiFieldError(ResponseKey.ASSIGNEE_ID.getKey(), ErrorCode.VALIDATION_INVALID, Map.of())));
         }
-    }
-
-    private Map<String, Object> scopeParams() {
-        Map<String, Object> params = new HashMap<>();
-        params.put(ResponseKey.RESOURCE.getKey(), RESOURCE);
-        return params;
     }
 
     private String requireTitle(String title) {
@@ -351,10 +303,6 @@ public class SampleRecordService {
         if (records == null || records.isEmpty()) {
             return List.of();
         }
-        Set<UUID> branchIds = records.stream().map(r -> r.branchId).filter(java.util.Objects::nonNull)
-            .collect(Collectors.toSet());
-        Set<UUID> departmentIds = records.stream().map(r -> r.departmentId).filter(java.util.Objects::nonNull)
-            .collect(Collectors.toSet());
         Set<UUID> userIds = new HashSet<>();
         records.forEach(r -> {
             if (r.assigneeId != null) {
@@ -365,14 +313,8 @@ public class SampleRecordService {
             }
         });
 
-        Map<UUID, String> branchNames = names(branchIds, id -> {
-            Branch branch = branchRepository.find("id = ?1", id).firstResult();
-            return branch != null ? branch.name : null;
-        });
-        Map<UUID, String> departmentNames = names(departmentIds, id -> {
-            Department department = departmentRepository.find("id = ?1", id).firstResult();
-            return department != null ? department.name : null;
-        });
+        // Branch/department master data lives in the org plugin; Core only stores
+        // the scope UUIDs and resolves user display names.
         Map<UUID, String> userNames = names(userIds, id -> {
             UserProfile profile = UserProfile.findByUserId(id);
             return profile != null ? profile.fullName : null;
@@ -381,8 +323,8 @@ public class SampleRecordService {
         List<SampleRecordResponse> responses = new ArrayList<>(records.size());
         for (CoreSampleRecord record : records) {
             responses.add(SampleRecordResponse.from(record,
-                record.branchId != null ? branchNames.get(record.branchId) : null,
-                record.departmentId != null ? departmentNames.get(record.departmentId) : null,
+                null,
+                null,
                 record.assigneeId != null ? userNames.get(record.assigneeId) : null));
         }
         return responses;

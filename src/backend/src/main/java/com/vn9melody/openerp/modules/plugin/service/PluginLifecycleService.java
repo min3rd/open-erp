@@ -100,6 +100,11 @@ public class PluginLifecycleService {
             defaultValue = "http://backend-dev:9090")
     String runtimeGatewayUrl;
 
+    /** Core REST base reachable from plugin containers (offboarding governance, future callbacks). */
+    @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.runtime.core-rest-url",
+            defaultValue = "http://backend-dev:8080")
+    String runtimeCoreRestUrl;
+
     @org.eclipse.microprofile.config.inject.ConfigProperty(name = "openerp.plugin.runtime.redis-hosts",
             defaultValue = "redis://:openerp_redis_password@redis:6379")
     String runtimeRedisHosts;
@@ -813,6 +818,7 @@ public class PluginLifecycleService {
         boolean system = isSystem(tenantId);
         env.put("PLUGIN_SCOPE", system ? "platform" : "tenant");
         env.put("PLUGIN_DATA_GATEWAY_URL", runtimeGatewayUrl);
+        env.put("OPENERP_CORE_URL", runtimeCoreRestUrl);
         env.put("QUARKUS_REDIS_HOSTS", runtimeRedisHosts);
         String tlsDir = runtimeTlsDir.orElse("").trim();
         if (!tlsDir.isEmpty()) {

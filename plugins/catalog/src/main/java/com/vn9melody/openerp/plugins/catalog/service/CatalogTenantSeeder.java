@@ -40,7 +40,22 @@ public class CatalogTenantSeeder {
         new TypeSeed("DEPARTMENT", "CATALOG_TYPE_DEPARTMENT", "TREE", List.of("HIERARCHY"), false),
         new TypeSeed("CONTRACT_TYPE", "CATALOG_TYPE_CONTRACT_TYPE", "FLAT", List.of(), false),
         new TypeSeed("SHIFT", "CATALOG_TYPE_SHIFT", "FLAT", List.of(), false),
-        new TypeSeed("EDUCATION_LEVEL", "CATALOG_TYPE_EDUCATION_LEVEL", "FLAT", List.of(), false)
+        new TypeSeed("EDUCATION_LEVEL", "CATALOG_TYPE_EDUCATION_LEVEL", "FLAT", List.of(), false),
+        new TypeSeed("EMPLOYEE_DOCUMENT_TYPE", "CATALOG_TYPE_EMPLOYEE_DOCUMENT_TYPE", "FLAT", List.of(), false)
+    );
+
+    private record ItemSeed(String code, String name, String nameEn, int sortOrder) {}
+
+    private static final List<ItemSeed> DOCUMENT_TYPE_ITEMS = List.of(
+        new ItemSeed("CONTRACT", "Hợp đồng lao động", "Employment contract", 10),
+        new ItemSeed("ID_CARD", "CCCD / CMND", "ID card", 20),
+        new ItemSeed("DEGREE", "Bằng cấp", "Degree", 30),
+        new ItemSeed("CERTIFICATE", "Chứng chỉ", "Certificate", 40),
+        new ItemSeed("INSURANCE", "Bảo hiểm", "Insurance", 50),
+        new ItemSeed("TAX", "Thuế", "Tax", 60),
+        new ItemSeed("RESUME", "CV / Sơ yếu lý lịch", "Resume", 70),
+        new ItemSeed("MEDICAL", "Giấy khám sức khỏe", "Medical certificate", 80),
+        new ItemSeed("OTHER", "Khác", "Other", 90)
     );
 
     @Inject
@@ -107,6 +122,32 @@ public class CatalogTenantSeeder {
                 .filter(type -> tenant.equals(type.tenantId))
                 .toList();
         Instant now = Instant.now();
+        CatalogType documentType = types.stream()
+                .filter(type -> "EMPLOYEE_DOCUMENT_TYPE".equals(type.code))
+                .findFirst()
+                .orElse(null);
+        int items = 0;
+        if (documentType != null) {
+            for (ItemSeed seed : DOCUMENT_TYPE_ITEMS) {
+                if (gateway.currentItemByCode(tenant, documentType.id, seed.code(), false) != null) {
+                    continue;
+                }
+                Map<String, Object> params = new LinkedHashMap<>();
+                params.put("type_id", documentType.id);
+                params.put("version_group_id", UUID.randomUUID());
+                params.put("version", 1);
+                params.put("code", seed.code());
+                params.put("name", seed.name());
+                params.put("name_en", seed.nameEn());
+                params.put("sort_order", seed.sortOrder());
+                params.put("status", "ACTIVE");
+                params.put("valid_from", now);
+                params.put("created_at", now);
+                params.put("updated_at", now);
+                gateway.insertItem(tenant, params, false);
+                items++;
+            }
+        }
         int grants = 0;
         for (String role : DEFAULT_ROLES) {
             for (CatalogType type : types) {
@@ -125,7 +166,8 @@ public class CatalogTenantSeeder {
             }
         }
         cache.invalidate(tenant);
-        LOG.infof("Catalog tenant seed ready for %s: %d types, %d new grants", tenant, types.size(), grants);
+        LOG.infof("Catalog tenant seed ready for %s: %d types, %d document types, %d new grants",
+                tenant, types.size(), items, grants);
     }
 
     private static Map<String, Object> typeParams(TypeSeed seed) {

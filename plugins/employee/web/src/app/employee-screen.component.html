@@ -1,0 +1,1236 @@
+<section class="flex min-h-full flex-col bg-surface-muted text-xs text-ink">
+  <header class="border-b border-default bg-surface px-4 py-4 sm:px-6">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div class="min-w-0">
+        <div class="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted">
+          <app-icon name="grid" size="sm" [decorative]="true" />
+          <span>{{ 'PLUGIN_EMPLOYEE_WORKSPACE' | translate }}</span>
+        </div>
+        <h1 class="mt-1 text-lg font-semibold tracking-tight text-ink">{{ 'PLUGIN_EMPLOYEE_TITLE' | translate }}</h1>
+        <p class="mt-1 max-w-2xl text-xs leading-relaxed text-muted">{{ headerSubtitleKey | translate }}</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        @if (can('employee:profile:export')) {
+          <app-sharp-button variant="outline" size="sm" shape="sharp" (clicked)="exportEmployees()">
+            <span class="inline-flex items-center gap-1"><app-icon name="download" size="sm" [decorative]="true" />{{ 'PLUGIN_EMPLOYEE_EXPORT' | translate }}</span>
+          </app-sharp-button>
+        }
+        @if (can('employee:profile:import')) {
+          <label class="inline-flex min-h-10 cursor-pointer items-center gap-1 border border-default bg-surface px-3 text-[11px] font-semibold hover:bg-surface-muted sm:min-h-8">
+            <app-icon name="upload" size="sm" [decorative]="true" />
+            {{ 'PLUGIN_EMPLOYEE_IMPORT' | translate }}
+            <input type="file" accept=".json,application/json" class="hidden" (change)="onImportFile($event)" />
+          </label>
+        }
+        @if (can('employee:profile:create')) {
+          <app-sharp-button size="sm" shape="sharp" (clicked)="openCreate()">
+            <span class="inline-flex items-center gap-1"><app-icon name="plus" size="sm" [decorative]="true" />{{ 'PLUGIN_EMPLOYEE_CREATE' | translate }}</span>
+          </app-sharp-button>
+        }
+        <app-sharp-button variant="ghost" size="sm" shape="sharp" (clicked)="load()">
+          <span class="inline-flex items-center gap-1"><app-icon name="refresh-cw" size="sm" [decorative]="true" />{{ 'COMMON_REFRESH' | translate }}</span>
+        </app-sharp-button>
+      </div>
+    </div>
+
+    @if (can('employee:profile:read')) {
+      <div class="mt-4 grid grid-cols-2 gap-2 xl:grid-cols-4">
+        <div class="border border-default bg-surface p-3">
+          <div class="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
+            <span>{{ 'PLUGIN_EMPLOYEE_KPI_TOTAL' | translate }}</span>
+            <app-icon name="user" size="sm" [decorative]="true" />
+          </div>
+          <p class="mt-1 text-2xl font-semibold leading-none">{{ employees().length }}</p>
+          <p class="mt-1 text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_KPI_TOTAL_HINT' | translate }}</p>
+        </div>
+        <div class="border border-default bg-surface p-3">
+          <div class="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
+            <span>{{ 'PLUGIN_EMPLOYEE_KPI_ACTIVE' | translate }}</span>
+            <app-icon name="check" size="sm" [decorative]="true" />
+          </div>
+          <p class="mt-1 text-2xl font-semibold leading-none text-emerald-600 dark:text-emerald-400">{{ activeCount }}</p>
+          <p class="mt-1 text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_KPI_ACTIVE_HINT' | translate }}</p>
+        </div>
+        <div class="border border-default bg-surface p-3">
+          <div class="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
+            <span>{{ 'PLUGIN_EMPLOYEE_KPI_PROBATION' | translate }}</span>
+            <app-icon name="file-text" size="sm" [decorative]="true" />
+          </div>
+          <p class="mt-1 text-2xl font-semibold leading-none text-amber-600 dark:text-amber-400">{{ probationCount }}</p>
+          <p class="mt-1 text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_KPI_PROBATION_HINT' | translate }}</p>
+        </div>
+        <div class="border border-default bg-surface p-3">
+          <div class="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
+            <span>{{ 'PLUGIN_EMPLOYEE_KPI_LEFT' | translate }}</span>
+            <app-icon name="user" size="sm" [decorative]="true" />
+          </div>
+          <p class="mt-1 text-2xl font-semibold leading-none text-rose-600 dark:text-rose-400">{{ leftCount }}</p>
+          <p class="mt-1 text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_KPI_LEFT_HINT' | translate }}</p>
+        </div>
+      </div>
+    }
+  </header>
+
+  <nav class="flex gap-1 overflow-x-auto border-b border-default bg-surface px-3 sm:px-5" [attr.aria-label]="'PLUGIN_EMPLOYEE_TITLE' | translate">
+    @for (item of tabs; track item.key) {
+      <button type="button"
+        class="inline-flex min-h-10 shrink-0 items-center gap-1.5 border-b-2 px-2.5 text-[11px] font-medium transition-colors"
+        [class.border-accent]="tab() === item.key"
+        [class.text-ink]="tab() === item.key"
+        [class.border-transparent]="tab() !== item.key"
+        [class.text-muted]="tab() !== item.key"
+        [class.hover:text-ink]="tab() !== item.key"
+        (click)="selectTab(item.key)">
+        <app-icon [name]="item.icon" size="sm" [decorative]="true" />
+        <span>{{ item.labelKey | translate }}</span>
+        @if (item.count !== undefined && item.count > 0) {
+          <span class="min-w-5 border border-default bg-surface-muted px-1 text-center text-[10px] font-semibold text-muted">{{ item.count }}</span>
+        }
+      </button>
+    }
+  </nav>
+
+  <main class="flex-1 space-y-3 p-3 sm:p-5">
+    @if (error(); as code) {
+      <div class="flex items-start gap-2 border border-rose-300 bg-rose-50 p-2.5 text-[11px] text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
+        <app-icon name="alert-triangle" size="sm" [decorative]="true" />
+        <span>{{ code | translate }}</span>
+      </div>
+    }
+    @if (actionError(); as code) {
+      <div class="flex items-start gap-2 border border-amber-300 bg-amber-50 p-2.5 text-[11px] text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+        <app-icon name="alert-triangle" size="sm" [decorative]="true" />
+        <span>{{ code | translate }}</span>
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="grid gap-2">
+        <div class="h-10 animate-pulse border border-default bg-surface"></div>
+        <div class="h-48 animate-pulse border border-default bg-surface"></div>
+      </div>
+    } @else if (tab() === 'me') {
+      <div class="grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+        <section class="border border-default bg-surface">
+          @if (me(); as item) {
+            <div class="flex flex-wrap items-center gap-3 border-b border-default p-4">
+              <div class="flex h-14 w-14 shrink-0 items-center justify-center bg-accent text-lg font-bold text-accent-contrast">{{ initials(item.full_name) }}</div>
+              <div class="min-w-0 flex-1">
+                <h2 class="truncate text-sm font-semibold">{{ item.full_name }}</h2>
+                <p class="mt-0.5 font-mono text-[11px] text-muted">{{ item.employee_code }}</p>
+                <div class="mt-1.5 flex flex-wrap gap-1.5">
+                  <app-badge [variant]="statusVariant(item.status)">{{ enumLabel(item.status) | translate }}</app-badge>
+                  <app-badge variant="info">{{ enumLabel(item.employee_type) | translate }}</app-badge>
+                </div>
+              </div>
+              @if (can('employee:self:update')) {
+                <app-sharp-button size="sm" shape="sharp" (clicked)="openSelfRequest()">
+                  {{ 'PLUGIN_EMPLOYEE_SUBMIT_REQUEST' | translate }}
+                </app-sharp-button>
+              }
+            </div>
+            <div class="grid gap-0 divide-y divide-default sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+              <div class="space-y-3 p-4">
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_EMPLOYEE_CONTACT' | translate }}</p>
+                <div class="space-y-2">
+                  <div><p class="text-[11px] text-muted">{{ 'AUTH_EMAIL_LABEL' | translate }}</p><p class="mt-0.5 text-xs">{{ item.work_email || '—' }}</p></div>
+                  <div><p class="text-[11px] text-muted">{{ 'ACCOUNT_PHONE_LABEL' | translate }}</p><p class="mt-0.5 text-xs">{{ item.phone || '—' }}</p></div>
+                </div>
+              </div>
+              <div class="space-y-3 p-4">
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_EMPLOYEE_PERSONAL' | translate }}</p>
+                <div class="space-y-2">
+                  <div><p class="text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_DOB' | translate }}</p><p class="mt-0.5 text-xs">{{ formatDate(item.date_of_birth) }}</p></div>
+                  <div><p class="text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_NOTES' | translate }}</p><p class="mt-0.5 text-xs">{{ item.notes || '—' }}</p></div>
+                </div>
+              </div>
+            </div>
+          } @else {
+            <div class="flex flex-col items-center justify-center gap-2 p-8 text-center">
+              <app-icon name="user" size="md" [decorative]="true" class="text-muted" />
+              <p class="text-sm font-semibold">{{ 'PLUGIN_EMPLOYEE_NO_PROFILE' | translate }}</p>
+              <p class="max-w-sm text-[11px] leading-relaxed text-muted">{{ 'PLUGIN_EMPLOYEE_NO_PROFILE_HINT' | translate }}</p>
+            </div>
+          }
+        </section>
+
+        <div class="space-y-3">
+          <section class="border border-default bg-surface">
+            <div class="flex items-center justify-between border-b border-default px-3 py-2">
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_EMPLOYEE_DOCUMENTS' | translate }}</p>
+              @if (myDocuments().length) {
+                <span class="text-[11px] text-muted">{{ myDocuments().length }}</span>
+              }
+            </div>
+            @if (can('employee:self:update')) {
+              <div class="flex flex-wrap items-end gap-2 border-b border-default p-2.5">
+                <app-sharp-select class="min-w-32 flex-1" [label]="'PLUGIN_EMPLOYEE_DOCUMENT_TYPE' | translate"
+                  [options]="documentTypeOptions" [(value)]="selfDocumentType" />
+                <input type="file" class="min-h-10 max-w-full border border-default bg-surface px-2 py-1 text-[11px] sm:min-h-8" (change)="onSelfFile($event)" />
+                <app-sharp-button size="sm" shape="sharp" [disabled]="saving() || !selfFile" (clicked)="uploadSelfDocument()">
+                  {{ 'PLUGIN_EMPLOYEE_DOCUMENT_UPLOAD' | translate }}
+                </app-sharp-button>
+              </div>
+            }
+            <div class="grid gap-2 p-2.5">
+              @for (item of myDocuments(); track item.id) {
+                <div class="flex items-center gap-2 border border-default p-2">
+                  <app-icon name="file-text" size="sm" [decorative]="true" class="text-muted" />
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate text-xs font-medium">{{ item.file_name || item.document_type }}</p>
+                    <p class="text-[10px] text-muted">{{ enumLabel(item.document_type) | translate }} · v{{ item.version || 1 }}</p>
+                  </div>
+                  <app-badge [variant]="statusVariant(item.scan_status)">{{ enumLabel(item.scan_status || 'PENDING') | translate }}</app-badge>
+                  <button type="button" class="min-h-10 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted sm:min-h-8" (click)="downloadMyDocument(item)">
+                    {{ 'PLUGIN_EMPLOYEE_DOCUMENT_DOWNLOAD' | translate }}
+                  </button>
+                </div>
+              } @empty {
+                <p class="border border-dashed border-default p-3 text-center text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_NO_DOCUMENTS' | translate }}</p>
+              }
+            </div>
+          </section>
+
+          <section class="border border-default bg-surface">
+            <div class="border-b border-default px-3 py-2">
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_EMPLOYEE_MY_REQUESTS' | translate }}</p>
+            </div>
+            <div class="divide-y divide-default">
+              @for (request of myRequests(); track request.id) {
+                <div class="flex flex-wrap items-center justify-between gap-2 p-2.5">
+                  <div class="min-w-0">
+                    <p class="text-xs font-medium">{{ formatDate(request.created_at) }}</p>
+                    <p class="text-[10px] text-muted">{{ request.changes | json }}</p>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <app-badge [variant]="statusVariant(request.status)">{{ enumLabel(request.status) | translate }}</app-badge>
+                    @if (request.status === 'PENDING') {
+                      <button type="button" class="min-h-10 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted sm:min-h-8" (click)="withdraw(request)">
+                        {{ 'PLUGIN_EMPLOYEE_WITHDRAW' | translate }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              } @empty {
+                <p class="p-4 text-center text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_NO_REQUESTS' | translate }}</p>
+              }
+            </div>
+          </section>
+        </div>
+      </div>
+    } @else if (tab() === 'tools') {
+      <div class="grid gap-3 xl:grid-cols-[250px_minmax(0,1fr)]">
+        <aside class="h-fit border border-default bg-surface p-2">
+          <p class="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_EMPLOYEE_TOOLS' | translate }}</p>
+          <div class="space-y-1">
+            @for (tool of toolSections; track tool.key) {
+              <button type="button"
+                class="flex w-full items-start gap-2 border p-2 text-start transition-colors"
+                [class.border-accent]="toolSection() === tool.key"
+                [class.bg-surface-muted]="toolSection() === tool.key"
+                [class.border-transparent]="toolSection() !== tool.key"
+                [class.hover:bg-surface-muted]="toolSection() !== tool.key"
+                (click)="selectTool(tool.key)">
+                <app-icon [name]="tool.icon" size="sm" [decorative]="true" class="mt-0.5" />
+                <span class="min-w-0">
+                  <span class="block text-xs font-semibold">{{ tool.labelKey | translate }}</span>
+                  <span class="mt-0.5 block text-[10px] leading-relaxed text-muted">{{ tool.descKey | translate }}</span>
+                </span>
+              </button>
+            }
+          </div>
+          <div class="mt-3 border-t border-default px-2 pt-2 text-[10px] leading-relaxed text-muted">
+            {{ 'PLUGIN_EMPLOYEE_TOOLS_TIP' | translate }}
+          </div>
+        </aside>
+
+        <section class="border border-default bg-surface">
+          @switch (toolSection()) {
+            @case ('fields') {
+              <div class="flex flex-wrap items-start justify-between gap-2 border-b border-default px-3 py-3">
+                <div>
+                  <h2 class="text-sm font-semibold">{{ 'PLUGIN_EMPLOYEE_FIELD_CONFIG' | translate }}</h2>
+                  <p class="mt-1 max-w-2xl text-[11px] leading-relaxed text-muted">{{ 'PLUGIN_EMPLOYEE_FIELD_CONFIG_DESC' | translate }}</p>
+                </div>
+                <app-sharp-button size="sm" shape="sharp" [disabled]="saving()" (clicked)="saveFieldConfigs()">
+                  {{ 'COMMON_SAVE' | translate }}
+                </app-sharp-button>
+              </div>
+              @if (!fieldConfigs().length) {
+                <div class="flex flex-col items-center gap-2 p-8 text-center">
+                  <app-icon name="settings" size="md" [decorative]="true" class="text-muted" />
+                  <p class="text-sm font-semibold">{{ 'PLUGIN_EMPLOYEE_FIELD_CONFIG_EMPTY' | translate }}</p>
+                  <p class="max-w-md text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_FIELD_CONFIG_EMPTY_HINT' | translate }}</p>
+                  <app-sharp-button size="sm" shape="sharp" [disabled]="saving()" (clicked)="bootstrapFieldConfigs()">
+                    {{ 'PLUGIN_EMPLOYEE_FIELD_CONFIG_BOOTSTRAP' | translate }}
+                  </app-sharp-button>
+                </div>
+              } @else {
+                <div class="overflow-x-auto">
+                  <table class="w-full min-w-[36rem] text-xs">
+                    <thead class="bg-surface-muted text-[10px] uppercase tracking-wide text-muted">
+                      <tr>
+                        <th class="p-2.5 text-start">{{ 'PLUGIN_EMPLOYEE_FIELD' | translate }}</th>
+                        <th class="p-2.5 text-center">{{ 'PLUGIN_EMPLOYEE_EDITABLE' | translate }}</th>
+                        <th class="p-2.5 text-center">{{ 'PLUGIN_EMPLOYEE_REQUIRES_APPROVAL' | translate }}</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-default">
+                      @for (field of fieldConfigs(); track field.field_key) {
+                        <tr class="hover:bg-surface-muted">
+                          <td class="p-2.5">
+                            <p class="font-medium">{{ fieldLabelKey(field.field_key) | translate }}</p>
+                            <p class="font-mono text-[10px] text-muted">{{ field.field_key }}</p>
+                          </td>
+                          <td class="p-2.5 text-center">
+                            <app-sharp-toggle [checked]="field.editable_by_employee"
+                              (checkedChange)="field.editable_by_employee = $event"
+                              [ariaLabel]="'PLUGIN_EMPLOYEE_EDITABLE' | translate" size="touch" />
+                          </td>
+                          <td class="p-2.5 text-center">
+                            <app-sharp-toggle [checked]="field.requires_approval"
+                              (checkedChange)="field.requires_approval = $event"
+                              [ariaLabel]="'PLUGIN_EMPLOYEE_REQUIRES_APPROVAL' | translate" size="touch" />
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            }
+
+            @case ('onboarding') {
+              <div class="border-b border-default px-3 py-3">
+                <h2 class="text-sm font-semibold">{{ 'PLUGIN_EMPLOYEE_ONBOARDING' | translate }}</h2>
+                <p class="mt-1 max-w-2xl text-[11px] leading-relaxed text-muted">{{ 'PLUGIN_EMPLOYEE_ONBOARDING_DESC' | translate }}</p>
+              </div>
+              <div class="border-b border-default p-3">
+                <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+                  <app-sharp-input type="email" [label]="'AUTH_EMAIL_LABEL' | translate"
+                    [placeholder]="'AUTH_EMAIL_PLACEHOLDER' | translate"
+                    [hint]="'PLUGIN_EMPLOYEE_INVITE_HINT' | translate" [(value)]="inviteEmail" />
+                  <app-sharp-button size="sm" shape="sharp" [disabled]="saving()" (clicked)="addInvite()">
+                    {{ 'PLUGIN_EMPLOYEE_INVITE' | translate }}
+                  </app-sharp-button>
+                </div>
+                @if (lastInviteLink(); as link) {
+                  <div class="mt-2 space-y-1 border border-emerald-300 bg-emerald-50 p-2 text-[11px] dark:border-emerald-800 dark:bg-emerald-950/40">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class="font-medium text-emerald-800 dark:text-emerald-200">{{ 'PLUGIN_EMPLOYEE_INVITE_LINK' | translate }}</span>
+                      <span class="min-w-0 flex-1 truncate font-mono text-[10px] text-emerald-700 dark:text-emerald-300">{{ link }}</span>
+                      <button type="button" class="min-h-10 border border-emerald-400 px-2 font-semibold text-emerald-800 sm:min-h-8 dark:border-emerald-700 dark:text-emerald-200" (click)="copyInviteLink()">
+                        {{ 'PLUGIN_EMPLOYEE_COPY_LINK' | translate }}
+                      </button>
+                    </div>
+                    @if (lastInviteNotified()) {
+                      <p class="text-emerald-700 dark:text-emerald-300">{{ 'PLUGIN_EMPLOYEE_INVITE_NOTIFIED' | translate }}</p>
+                    } @else if (lastInviteReason() === 'USER_NOT_IN_TENANT') {
+                      <p class="text-amber-700 dark:text-amber-300">{{ 'PLUGIN_EMPLOYEE_INVITE_NOT_REGISTERED' | translate }}</p>
+                    } @else if (lastInviteReason()) {
+                      <p class="text-amber-700 dark:text-amber-300">{{ 'PLUGIN_EMPLOYEE_INVITE_NOTIFY_UNAVAILABLE' | translate }}</p>
+                    }
+                  </div>
+                }
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full min-w-[38rem] text-xs">
+                  <thead class="bg-surface-muted text-[10px] uppercase tracking-wide text-muted">
+                    <tr>
+                      <th class="p-2.5 text-start">{{ 'AUTH_EMAIL_LABEL' | translate }}</th>
+                      <th class="p-2.5 text-start">{{ 'COMMON_STATUS' | translate }}</th>
+                      <th class="p-2.5 text-start">{{ 'PLUGIN_EMPLOYEE_EXPIRES' | translate }}</th>
+                      <th class="p-2.5 text-end">{{ 'COMMON_ACTIONS' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-default">
+                    @for (invite of onboardingInvites(); track invite.id) {
+                      <tr class="hover:bg-surface-muted">
+                        <td class="p-2.5 font-medium">{{ invite.email }}</td>
+                        <td class="p-2.5"><app-badge [variant]="statusVariant(invite.status)">{{ enumLabel(invite.status) | translate }}</app-badge></td>
+                        <td class="p-2.5 text-muted">{{ formatDate(invite.expires_at) }}</td>
+                        <td class="p-2.5 text-end">
+                          @if (invite.status === 'PENDING') {
+                            <button type="button" class="min-h-10 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted sm:min-h-8" (click)="revokeInvite(invite)">
+                              {{ 'PLUGIN_EMPLOYEE_REVOKE' | translate }}
+                            </button>
+                          }
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr><td class="p-8 text-center text-[11px] text-muted" colspan="4">{{ 'PLUGIN_EMPLOYEE_NO_INVITES' | translate }}</td></tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              <div class="flex flex-wrap items-center justify-between gap-2 border-t border-default px-3 py-2 text-[11px] text-muted">
+                <span>{{ 'COMMON_PAGE_OF' | translate:{ page: invitePage() + 1, total_pages: pageCount(inviteTotal()) } }} · {{ inviteTotal() }}</span>
+                <span class="flex gap-1">
+                  <button type="button" class="min-h-9 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted disabled:opacity-40" [disabled]="invitePage() === 0" (click)="prevPage('invite')">{{ 'COMMON_PREV' | translate }}</button>
+                  <button type="button" class="min-h-9 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted disabled:opacity-40" [disabled]="invitePage() + 1 >= pageCount(inviteTotal())" (click)="nextPage('invite')">{{ 'COMMON_NEXT_PAGE' | translate }}</button>
+                </span>
+              </div>
+            }
+
+            @case ('campaigns') {
+              <div class="border-b border-default px-3 py-3">
+                <h2 class="text-sm font-semibold">{{ 'PLUGIN_EMPLOYEE_CAMPAIGNS' | translate }}</h2>
+                <p class="mt-1 max-w-2xl text-[11px] leading-relaxed text-muted">{{ 'PLUGIN_EMPLOYEE_CAMPAIGNS_DESC' | translate }}</p>
+              </div>
+              <div class="border-b border-default p-3">
+                <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+                  <app-sharp-input [label]="'PLUGIN_EMPLOYEE_CAMPAIGN_NAME' | translate"
+                    [placeholder]="'PLUGIN_EMPLOYEE_CAMPAIGN_PLACEHOLDER' | translate"
+                    [hint]="'PLUGIN_EMPLOYEE_CAMPAIGN_HINT' | translate" [(value)]="campaignName" />
+                  <app-sharp-button size="sm" shape="sharp" [disabled]="saving()" (clicked)="addCampaign()">
+                    {{ 'PLUGIN_EMPLOYEE_CREATE' | translate }}
+                  </app-sharp-button>
+                </div>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full min-w-[34rem] text-xs">
+                  <thead class="bg-surface-muted text-[10px] uppercase tracking-wide text-muted">
+                    <tr>
+                      <th class="p-2.5 text-start">{{ 'PLUGIN_EMPLOYEE_CAMPAIGN_NAME' | translate }}</th>
+                      <th class="p-2.5 text-start">{{ 'COMMON_STATUS' | translate }}</th>
+                      <th class="p-2.5 text-start">{{ 'PLUGIN_EMPLOYEE_CREATED' | translate }}</th>
+                      <th class="p-2.5 text-end">{{ 'COMMON_ACTIONS' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-default">
+                    @for (campaign of campaigns(); track campaign.id) {
+                      <tr class="hover:bg-surface-muted">
+                        <td class="p-2.5 font-medium">{{ campaign.name }}</td>
+                        <td class="p-2.5"><app-badge [variant]="statusVariant(campaign.status)">{{ enumLabel(campaign.status) | translate }}</app-badge></td>
+                        <td class="p-2.5 text-muted">{{ formatDate(campaign.created_at) }}</td>
+                        <td class="p-2.5 text-end">
+                          @if (campaign.status === 'ACTIVE') {
+                            <button type="button" class="min-h-10 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted sm:min-h-8" (click)="closeCampaign(campaign)">
+                              {{ 'PLUGIN_EMPLOYEE_CLOSE' | translate }}
+                            </button>
+                          }
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr><td class="p-8 text-center text-[11px] text-muted" colspan="4">{{ 'PLUGIN_EMPLOYEE_NO_CAMPAIGNS' | translate }}</td></tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              <div class="flex flex-wrap items-center justify-between gap-2 border-t border-default px-3 py-2 text-[11px] text-muted">
+                <span>{{ 'COMMON_PAGE_OF' | translate:{ page: campaignPage() + 1, total_pages: pageCount(campaignTotal()) } }} · {{ campaignTotal() }}</span>
+                <span class="flex gap-1">
+                  <button type="button" class="min-h-9 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted disabled:opacity-40" [disabled]="campaignPage() === 0" (click)="prevPage('campaign')">{{ 'COMMON_PREV' | translate }}</button>
+                  <button type="button" class="min-h-9 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted disabled:opacity-40" [disabled]="campaignPage() + 1 >= pageCount(campaignTotal())" (click)="nextPage('campaign')">{{ 'COMMON_NEXT_PAGE' | translate }}</button>
+                </span>
+              </div>
+            }
+
+            @case ('privacy') {
+              <div class="border-b border-default px-3 py-3">
+                <h2 class="text-sm font-semibold">{{ 'PLUGIN_EMPLOYEE_PRIVACY' | translate }}</h2>
+                <p class="mt-1 max-w-2xl text-[11px] leading-relaxed text-muted">{{ 'PLUGIN_EMPLOYEE_PRIVACY_DESC' | translate }}</p>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full min-w-[36rem] text-xs">
+                  <thead class="bg-surface-muted text-[10px] uppercase tracking-wide text-muted">
+                    <tr>
+                      <th class="p-2.5 text-start">{{ 'PLUGIN_EMPLOYEE_REQUEST_TYPE' | translate }}</th>
+                      <th class="p-2.5 text-start">{{ 'COMMON_STATUS' | translate }}</th>
+                      <th class="p-2.5 text-start">{{ 'PLUGIN_EMPLOYEE_DUE' | translate }}</th>
+                      <th class="p-2.5 text-end">{{ 'COMMON_ACTIONS' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-default">
+                    @for (request of privacyRequests(); track request.id) {
+                      <tr class="hover:bg-surface-muted">
+                        <td class="p-2.5 font-medium">{{ enumLabel(request.request_type) | translate }}</td>
+                        <td class="p-2.5"><app-badge [variant]="statusVariant(request.status)">{{ enumLabel(request.status) | translate }}</app-badge></td>
+                        <td class="p-2.5 text-muted">{{ formatDate(request.due_at || request.created_at) }}</td>
+                        <td class="p-2.5 text-end">
+                          <span class="inline-flex flex-wrap justify-end gap-1">
+                            @if ((request.status === 'RECEIVED' || request.status === 'IN_PROGRESS') && request.request_type === 'EXPORT') {
+                              <button type="button" class="min-h-10 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted sm:min-h-8" (click)="exportPrivacy(request)">
+                                {{ 'PLUGIN_EMPLOYEE_PRIVACY_EXPORT' | translate }}
+                              </button>
+                            }
+                            @if ((request.status === 'RECEIVED' || request.status === 'IN_PROGRESS') && request.request_type === 'DELETE') {
+                              <button type="button" class="min-h-10 border border-rose-300 px-2 text-[11px] font-semibold text-rose-700 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-300 dark:hover:bg-rose-950/40 sm:min-h-8" (click)="erasePrivacy(request)">
+                                {{ (pendingEraseId() === request.id ? 'PLUGIN_EMPLOYEE_PRIVACY_ERASE_CONFIRM' : 'PLUGIN_EMPLOYEE_PRIVACY_ERASE') | translate }}
+                              </button>
+                            }
+                            @if (request.status === 'RECEIVED' || request.status === 'IN_PROGRESS') {
+                              <button type="button" class="min-h-10 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted sm:min-h-8" (click)="completePrivacy(request)">
+                                {{ 'PLUGIN_EMPLOYEE_COMPLETE' | translate }}
+                              </button>
+                            }
+                          </span>
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr><td class="p-8 text-center text-[11px] text-muted" colspan="4">{{ 'PLUGIN_EMPLOYEE_NO_PRIVACY' | translate }}</td></tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              <div class="flex flex-wrap items-center justify-between gap-2 border-t border-default px-3 py-2 text-[11px] text-muted">
+                <span>{{ 'COMMON_PAGE_OF' | translate:{ page: privacyPage() + 1, total_pages: pageCount(privacyTotal()) } }} · {{ privacyTotal() }}</span>
+                <span class="flex gap-1">
+                  <button type="button" class="min-h-9 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted disabled:opacity-40" [disabled]="privacyPage() === 0" (click)="prevPage('privacy')">{{ 'COMMON_PREV' | translate }}</button>
+                  <button type="button" class="min-h-9 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted disabled:opacity-40" [disabled]="privacyPage() + 1 >= pageCount(privacyTotal())" (click)="nextPage('privacy')">{{ 'COMMON_NEXT_PAGE' | translate }}</button>
+                </span>
+              </div>
+            }
+          }
+        </section>
+      </div>
+    } @else if (tab() === 'list') {
+      <div class="flex flex-wrap items-end gap-2 border border-default bg-surface p-3">
+        <label class="min-w-52 flex-1">
+          <span class="mb-1 block text-[11px] font-medium text-muted">{{ 'COMMON_SEARCH' | translate }}</span>
+          <span class="relative block">
+            <app-icon name="search" size="sm" [decorative]="true" class="pointer-events-none absolute start-2 top-1/2 -translate-y-1/2 text-muted" />
+            <input type="search" class="min-h-10 w-full border border-default bg-surface ps-8 pe-2 text-xs sm:min-h-8"
+              [placeholder]="'PLUGIN_EMPLOYEE_SEARCH_PLACEHOLDER' | translate"
+              [ngModel]="search()" (ngModelChange)="onSearchChange($event)" />
+          </span>
+        </label>
+        <label>
+          <span class="mb-1 block text-[11px] font-medium text-muted">{{ 'COMMON_STATUS' | translate }}</span>
+          <select class="min-h-10 border border-default bg-surface px-2 text-xs sm:min-h-8" [ngModel]="statusFilter()" (ngModelChange)="onStatusFilterChange($event)">
+            <option value="">{{ 'PLUGIN_EMPLOYEE_ALL_STATUS' | translate }}</option>
+            @for (option of employeeStatusOptions; track option.value) {
+              <option [value]="option.value">{{ (option.labelKey || option.value) | translate }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span class="mb-1 block text-[11px] font-medium text-muted">{{ 'PLUGIN_EMPLOYEE_TYPE' | translate }}</span>
+          <select class="min-h-10 border border-default bg-surface px-2 text-xs sm:min-h-8" [ngModel]="typeFilter()" (ngModelChange)="onTypeFilterChange($event)">
+            <option value="">{{ 'PLUGIN_EMPLOYEE_ALL_TYPES' | translate }}</option>
+            @for (option of employeeTypeOptions; track option.value) {
+              <option [value]="option.value">{{ (option.labelKey || option.value) | translate }}</option>
+            }
+          </select>
+        </label>
+        @if (hasFilters) {
+          <button type="button" class="min-h-10 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted sm:min-h-8" (click)="clearFilters()">
+            {{ 'PLUGIN_EMPLOYEE_CLEAR_FILTERS' | translate }}
+          </button>
+        }
+        <span class="ms-auto pb-1 text-[11px] text-muted">{{ filteredEmployees().length }} / {{ employees().length }}</span>
+      </div>
+
+      <div class="border border-default bg-surface">
+        <div class="flex items-center justify-between border-b border-default px-3 py-2">
+          <p class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_EMPLOYEE_LIST' | translate }}</p>
+          <p class="text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_LIST_HINT' | translate }}</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[44rem] text-xs">
+            <thead class="bg-surface-muted text-[10px] uppercase tracking-wide text-muted">
+              <tr>
+                <th class="p-2.5 text-start">{{ 'PLUGIN_EMPLOYEE_EMPLOYEE' | translate }}</th>
+                <th class="p-2.5 text-start">{{ 'PLUGIN_EMPLOYEE_CONTACT' | translate }}</th>
+                <th class="p-2.5 text-start">{{ 'PLUGIN_EMPLOYEE_TYPE' | translate }}</th>
+                <th class="p-2.5 text-start">{{ 'COMMON_STATUS' | translate }}</th>
+                <th class="p-2.5 text-end">{{ 'COMMON_ACTIONS' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-default">
+              @for (item of filteredEmployees(); track item.id) {
+                <tr class="cursor-pointer hover:bg-surface-muted" (click)="openEdit(item)">
+                  <td class="p-2.5">
+                    <div class="flex items-center gap-2.5">
+                      <span class="flex h-8 w-8 shrink-0 items-center justify-center bg-surface-muted text-[11px] font-bold text-ink">{{ initials(item.full_name) }}</span>
+                      <div class="min-w-0">
+                        <p class="truncate text-sm font-medium">{{ item.full_name }}</p>
+                        <p class="font-mono text-[10px] text-muted">{{ item.employee_code }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="p-2.5">
+                    <p class="truncate text-[11px]">{{ item.work_email || '—' }}</p>
+                    <p class="text-[10px] text-muted">{{ item.phone || '—' }}</p>
+                  </td>
+                  <td class="p-2.5">{{ enumLabel(item.employee_type) | translate }}</td>
+                  <td class="p-2.5"><app-badge [variant]="statusVariant(item.status)">{{ enumLabel(item.status) | translate }}</app-badge></td>
+                  <td class="p-2.5 text-end">
+                    @if (can('employee:profile:update')) {
+                      <button type="button" class="inline-flex min-h-10 items-center gap-1 border border-default px-2 text-[11px] font-semibold hover:bg-surface sm:min-h-8" (click)="$event.stopPropagation(); openEdit(item)">
+                        <app-icon name="edit-2" size="sm" [decorative]="true" />{{ 'COMMON_EDIT' | translate }}
+                      </button>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="p-10 text-center">
+                    <div class="flex flex-col items-center gap-2">
+                      <app-icon name="user" size="md" [decorative]="true" class="text-muted" />
+                      <p class="text-sm font-semibold">{{ 'PLUGIN_EMPLOYEE_EMPTY' | translate }}</p>
+                      <p class="max-w-sm text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_EMPTY_HINT' | translate }}</p>
+                      @if (can('employee:profile:create')) {
+                        <app-sharp-button size="sm" shape="sharp" (clicked)="openCreate()">{{ 'PLUGIN_EMPLOYEE_CREATE' | translate }}</app-sharp-button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-2 border-t border-default px-3 py-2 text-[11px] text-muted">
+          <span>{{ 'COMMON_PAGE_OF' | translate:{ page: employeePage() + 1, total_pages: pageCount(employeeTotal()) } }} · {{ employeeTotal() }}</span>
+          <span class="flex gap-1">
+            <button type="button" class="min-h-9 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted disabled:opacity-40" [disabled]="employeePage() === 0" (click)="prevPage('employee')">{{ 'COMMON_PREV' | translate }}</button>
+            <button type="button" class="min-h-9 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted disabled:opacity-40" [disabled]="employeePage() + 1 >= pageCount(employeeTotal())" (click)="nextPage('employee')">{{ 'COMMON_NEXT_PAGE' | translate }}</button>
+          </span>
+        </div>
+      </div>
+      @if (importResult(); as result) {
+        <div class="border border-default bg-surface p-3 text-[11px]">
+          <p>{{ 'PLUGIN_EMPLOYEE_IMPORT_RESULT' | translate }}: {{ result.imported }} / {{ result.errors.length }}</p>
+          @if (!result.dry_run && importRows.length) {
+            <button type="button" class="mt-1 min-h-10 border border-default px-2 text-[11px] font-semibold sm:min-h-8" (click)="importEmployees(false)">
+              {{ 'PLUGIN_EMPLOYEE_IMPORT_APPLY' | translate }}
+            </button>
+          }
+        </div>
+      }
+    } @else if (tab() === 'requests') {
+      <div class="border border-default bg-surface">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-default px-3 py-2">
+          <p class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_EMPLOYEE_REQUESTS' | translate }}</p>
+          <p class="text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_REQUESTS_HINT' | translate }}</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[40rem] text-xs">
+            <thead class="bg-surface-muted text-[10px] uppercase tracking-wide text-muted">
+              <tr>
+                <th class="p-2.5 text-start">{{ 'PLUGIN_EMPLOYEE_EMPLOYEE' | translate }}</th>
+                <th class="p-2.5 text-start">{{ 'COMMON_STATUS' | translate }}</th>
+                <th class="p-2.5 text-start">{{ 'PLUGIN_EMPLOYEE_STEPS' | translate }}</th>
+                <th class="p-2.5 text-start">{{ 'PLUGIN_EMPLOYEE_CREATED' | translate }}</th>
+                <th class="p-2.5 text-end">{{ 'COMMON_ACTIONS' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-default">
+              @for (request of requests(); track request.id) {
+                <tr class="cursor-pointer hover:bg-surface-muted" (click)="openRequest(request)">
+                  <td class="p-2.5">
+                    <p class="text-xs font-medium">{{ employeeName(request.employee_id) }}</p>
+                    <p class="font-mono text-[10px] text-muted">{{ request.employee_id }}</p>
+                  </td>
+                  <td class="p-2.5"><app-badge [variant]="statusVariant(request.status)">{{ enumLabel(request.status) | translate }}</app-badge></td>
+                  <td class="p-2.5 text-muted">{{ request.current_step || 0 }} / {{ request.steps?.length || 0 }}</td>
+                  <td class="p-2.5 text-muted">{{ formatDate(request.created_at) }}</td>
+                  <td class="p-2.5 text-end">
+                    <button type="button" class="min-h-10 border border-default px-2 text-[11px] font-semibold hover:bg-surface sm:min-h-8" (click)="$event.stopPropagation(); openRequest(request)">
+                      {{ 'COMMON_EDIT' | translate }}
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td class="p-10 text-center text-[11px] text-muted" colspan="5">{{ 'PLUGIN_EMPLOYEE_NO_REQUESTS' | translate }}</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-2 border-t border-default px-3 py-2 text-[11px] text-muted">
+          <span>{{ 'COMMON_PAGE_OF' | translate:{ page: requestPage() + 1, total_pages: pageCount(requestTotal()) } }} · {{ requestTotal() }}</span>
+          <span class="flex gap-1">
+            <button type="button" class="min-h-9 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted disabled:opacity-40" [disabled]="requestPage() === 0" (click)="prevPage('request')">{{ 'COMMON_PREV' | translate }}</button>
+            <button type="button" class="min-h-9 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted disabled:opacity-40" [disabled]="requestPage() + 1 >= pageCount(requestTotal())" (click)="nextPage('request')">{{ 'COMMON_NEXT_PAGE' | translate }}</button>
+          </span>
+        </div>
+      </div>
+    } @else if (tab() === 'directory') {
+      <div class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+        <section class="border border-default bg-surface">
+          <div class="border-b border-default px-3 py-2">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_EMPLOYEE_ORG_CHART' | translate }}</p>
+            <p class="mt-0.5 text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_ORG_CHART_HINT' | translate }}</p>
+          </div>
+          <div class="max-h-[420px] overflow-y-auto p-2">
+            @for (node of orgNodes(); track node.employee_id) {
+              <div class="flex items-center gap-2 border-s-2 border-default py-1 pe-2" [style.padding-left.px]="8 + node.depth * 18">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center bg-surface-muted text-[9px] font-bold">{{ initials(node.full_name) }}</span>
+                <span class="min-w-0">
+                  <span class="block truncate text-[11px] font-medium">{{ node.full_name }}</span>
+                  <span class="block font-mono text-[9px] text-muted">{{ node.employee_code }}</span>
+                </span>
+              </div>
+            } @empty {
+              <p class="p-6 text-center text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_NO_ORG_CHART' | translate }}</p>
+            }
+          </div>
+        </section>
+
+        <section class="border border-default bg-surface">
+          <div class="border-b border-default px-3 py-2">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_EMPLOYEE_DIRECTORY' | translate }}</p>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full min-w-[32rem] text-xs">
+              <thead class="bg-surface-muted text-[10px] uppercase tracking-wide text-muted">
+                <tr>
+                  <th class="p-2.5 text-start">{{ 'PLUGIN_EMPLOYEE_EMPLOYEE' | translate }}</th>
+                  <th class="p-2.5 text-start">{{ 'PLUGIN_EMPLOYEE_JOB_TITLE' | translate }}</th>
+                  <th class="p-2.5 text-start">{{ 'PLUGIN_EMPLOYEE_CONTACT' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-default">
+                @for (item of filteredDirectory(); track item.id) {
+                  <tr class="hover:bg-surface-muted">
+                    <td class="p-2.5">
+                      <p class="text-xs font-medium">{{ item.full_name }}</p>
+                      <p class="font-mono text-[10px] text-muted">{{ item.employee_code }}</p>
+                    </td>
+                    <td class="p-2.5 text-muted">{{ item.job_title || '—' }}</td>
+                    <td class="p-2.5">
+                      <p class="truncate text-[11px]">{{ item.work_email || '—' }}</p>
+                      <p class="text-[10px] text-muted">{{ item.phone || '—' }}</p>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td class="p-10 text-center text-[11px] text-muted" colspan="3">{{ 'PLUGIN_EMPLOYEE_EMPTY' | translate }}</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    } @else if (tab() === 'config') {
+      <div class="border border-default bg-surface">
+        <div class="flex flex-wrap items-start justify-between gap-2 border-b border-default px-3 py-3">
+          <div>
+            <h2 class="text-sm font-semibold">{{ 'PLUGIN_EMPLOYEE_CONFIG' | translate }}</h2>
+            <p class="mt-1 max-w-2xl text-[11px] leading-relaxed text-muted">{{ 'PLUGIN_EMPLOYEE_CONFIG_DESC' | translate }}</p>
+          </div>
+          <div class="flex gap-1">
+            <button type="button" class="min-h-10 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted sm:min-h-8" (click)="addApprovalStep()">
+              {{ 'PLUGIN_EMPLOYEE_CONFIG_ADD_STEP' | translate }}
+            </button>
+            <app-sharp-button size="sm" shape="sharp" [disabled]="saving()" (clicked)="saveApprovals()">{{ 'COMMON_SAVE' | translate }}</app-sharp-button>
+          </div>
+        </div>
+        <div class="grid gap-3 p-3 xl:grid-cols-[minmax(0,1fr)_20rem]">
+          <section class="flex flex-col border border-default bg-surface-muted">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-default px-3 py-2">
+              <div>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_EMPLOYEE_CONFIG_FLOW' | translate }}</p>
+                <p class="mt-0.5 text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_CONFIG_FLOW_HINT' | translate }}</p>
+              </div>
+              <span class="border border-default bg-surface px-2 py-1 text-[10px] font-semibold text-muted">
+                {{ 'PLUGIN_EMPLOYEE_CONFIG_STEP_COUNT' | translate }} · {{ approvalFlow().length }}
+              </span>
+            </div>
+            <div class="flex flex-1 items-center overflow-x-auto bg-[radial-gradient(circle_at_1px_1px,var(--op-border)_1px,transparent_0)] [background-size:16px_16px] p-3">
+              @if (approvalFlow().length) {
+                <div class="flex w-full flex-col items-stretch sm:flex-row sm:items-center">
+                  <div class="flex shrink-0 items-center justify-center gap-1 border border-default bg-surface px-2 py-2 text-[10px] font-semibold uppercase tracking-wide text-muted sm:w-24 sm:flex-col">
+                    <app-icon name="file-text" size="sm" [decorative]="true" />
+                    <span>{{ 'PLUGIN_EMPLOYEE_CONFIG_FLOW_START' | translate }}</span>
+                  </div>
+                  <span class="flex shrink-0 flex-col items-center justify-center text-muted sm:flex-row" aria-hidden="true">
+                    <span class="h-4 border-s border-default sm:h-0 sm:w-6 sm:border-s-0 sm:border-t"></span>
+                    <span class="h-0 w-0 border-x-4 border-t-4 border-x-transparent border-t-default sm:border-x-0 sm:border-y-4 sm:border-s-4 sm:border-y-transparent sm:border-s-default"></span>
+                  </span>
+                  @for (item of approvalFlow(); track item) {
+                    <div class="relative w-full max-w-full shrink-0 border bg-surface sm:w-48 sm:max-w-48"
+                      [class.border-accent]="isApprovalSelected(item)"
+                      [class.border-default]="!isApprovalSelected(item)">
+                      @if (isApprovalSelected(item)) {
+                        <span class="absolute inset-x-0 top-0 h-0.5 bg-accent" aria-hidden="true"></span>
+                      }
+                      <div class="flex items-center justify-between gap-1 px-2 pt-2">
+                        <span class="inline-flex h-5 min-w-5 items-center justify-center bg-accent px-1 text-[10px] font-bold text-accent-contrast">{{ item.step_no || $index + 1 }}</span>
+                        <button type="button"
+                          class="inline-flex min-h-10 min-w-10 items-center justify-center text-muted hover:text-rose-600 sm:min-h-6 sm:min-w-6"
+                          [attr.aria-label]="('COMMON_DELETE' | translate) + ' ' + ('PLUGIN_EMPLOYEE_CONFIG_STEP_NO' | translate) + ' ' + (item.step_no || $index + 1)"
+                          (click)="removeApprovalStep(item)">
+                          <app-icon name="trash-2" size="sm" [decorative]="true" />
+                        </button>
+                      </div>
+                      <button type="button" class="block w-full px-2 pb-2 pt-1 text-start" (click)="selectApproval(item)">
+                        <span class="block truncate text-xs font-semibold">{{ enumLabel(item.approver_type) | translate }}</span>
+                        <span class="mt-0.5 block truncate text-[10px] text-muted">
+                          {{ enumLabel(item.scope_type) | translate }} · {{ enumLabel(item.field_group) | translate }}
+                        </span>
+                        @if (item.approver_type === 'USER' && item.approver_id) {
+                          <span class="mt-1 block truncate font-mono text-[9px] text-muted">{{ item.approver_id }}</span>
+                        }
+                      </button>
+                    </div>
+                    <span class="flex shrink-0 flex-col items-center justify-center text-muted sm:flex-row" aria-hidden="true">
+                      <span class="h-4 border-s border-default sm:h-0 sm:w-6 sm:border-s-0 sm:border-t"></span>
+                      <span class="h-0 w-0 border-x-4 border-t-4 border-x-transparent border-t-default sm:border-x-0 sm:border-y-4 sm:border-s-4 sm:border-y-transparent sm:border-s-default"></span>
+                    </span>
+                  }
+                  <div class="flex shrink-0 items-center justify-center gap-1 border border-default bg-surface px-2 py-2 text-[10px] font-semibold uppercase tracking-wide text-muted sm:w-24 sm:flex-col">
+                    <app-icon name="check" size="sm" [decorative]="true" />
+                    <span>{{ 'PLUGIN_EMPLOYEE_CONFIG_FLOW_END' | translate }}</span>
+                  </div>
+                </div>
+              } @else {
+                <div class="flex flex-col items-center gap-2 border border-dashed border-default p-6 text-center">
+                  <p class="text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_CONFIG_EMPTY' | translate }}</p>
+                  <button type="button" class="min-h-10 border border-default bg-surface px-2 text-[11px] font-semibold hover:bg-surface-muted" (click)="addApprovalStep()">
+                    {{ 'PLUGIN_EMPLOYEE_CONFIG_ADD_STEP' | translate }}
+                  </button>
+                </div>
+              }
+            </div>
+          </section>
+
+          <aside class="border border-default bg-surface">
+            <div class="border-b border-default px-3 py-2">
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_EMPLOYEE_CONFIG_EDIT_STEP' | translate }}</p>
+            </div>
+            @if (selectedApproval(); as step) {
+              <div class="space-y-2 p-3">
+                <label class="block">
+                  <span class="mb-1 block text-[11px] font-medium text-ink">{{ 'PLUGIN_EMPLOYEE_CONFIG_STEP_NO' | translate }}</span>
+                  <input type="number" min="1" class="min-h-10 w-full border border-default bg-surface px-2 text-xs sm:min-h-8" [(ngModel)]="step.step_no" />
+                </label>
+                <app-sharp-select [label]="'PLUGIN_EMPLOYEE_CONFIG_SCOPE_TYPE' | translate"
+                  [options]="approvalScopeOptions" [value]="step.scope_type"
+                  (valueChange)="step.scope_type = $event; step.scope_id = undefined" />
+                @if (step.scope_type !== 'TENANT') {
+                  @if (scopeIdOptions(step).length) {
+                    <app-sharp-select [label]="'PLUGIN_EMPLOYEE_CONFIG_SCOPE_TARGET' | translate"
+                      [options]="scopeIdOptions(step)" [value]="step.scope_id || ''"
+                      (valueChange)="step.scope_id = $event" />
+                  } @else {
+                    <app-sharp-input [label]="'PLUGIN_EMPLOYEE_CONFIG_SCOPE_ID' | translate"
+                      [hint]="'PLUGIN_EMPLOYEE_CONFIG_SCOPE_ID_HINT' | translate"
+                      [value]="step.scope_id || ''" (valueChange)="step.scope_id = $event" />
+                  }
+                }
+                <app-sharp-select [label]="'PLUGIN_EMPLOYEE_CONFIG_FIELD_GROUP' | translate"
+                  [options]="fieldGroupOptions" [value]="step.field_group"
+                  (valueChange)="step.field_group = $event" />
+                <app-sharp-select [label]="'PLUGIN_EMPLOYEE_CONFIG_APPROVER_TYPE' | translate"
+                  [options]="approverTypeOptions" [value]="step.approver_type"
+                  (valueChange)="step.approver_type = $event" />
+                @if (step.approver_type === 'USER') {
+                  <app-sharp-input [label]="'PLUGIN_EMPLOYEE_CONFIG_APPROVER_ID' | translate"
+                    [value]="step.approver_id || ''" (valueChange)="step.approver_id = $event" />
+                }
+              </div>
+            } @else {
+              <p class="p-3 text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_CONFIG_SELECT_STEP' | translate }}</p>
+            }
+          </aside>
+        </div>
+      </div>
+    }
+  </main>
+</section>
+
+<app-drawer [isOpen]="drawerOpen()" [title]="drawerTitleKey | translate" width="w-screen max-w-2xl" (close)="closeDrawer()">
+  @if (actionError(); as code) {
+    <div class="mb-2 border border-rose-300 bg-rose-50 p-2 text-[11px] text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
+      {{ code | translate }}
+    </div>
+  }
+  @if (drawerMode() === 'edit') {
+    <div class="space-y-4">
+      @if (selected()) {
+        <nav class="flex gap-1 overflow-x-auto border-b border-default pb-2" [attr.aria-label]="'PLUGIN_EMPLOYEE_EDIT' | translate">
+          @for (section of drawerSections; track section.key) {
+            <button type="button"
+              class="inline-flex min-h-10 shrink-0 items-center gap-1.5 border-b-2 px-2.5 text-[11px] font-medium transition-colors"
+              [class.border-accent]="drawerSection() === section.key"
+              [class.text-ink]="drawerSection() === section.key"
+              [class.border-transparent]="drawerSection() !== section.key"
+              [class.text-muted]="drawerSection() !== section.key"
+              (click)="selectDrawerSection(section.key)">
+              <app-icon [name]="section.icon" size="sm" [decorative]="true" />
+              <span>{{ section.labelKey | translate }}</span>
+            </button>
+          }
+        </nav>
+      }
+
+      @switch (drawerSection()) {
+        @case ('profile') {
+          <section class="space-y-2">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_EMPLOYEE_SECTION_BASIC' | translate }}</p>
+            <div class="grid gap-2 sm:grid-cols-2">
+              <app-sharp-input [label]="'PLUGIN_EMPLOYEE_CODE' | translate" [required]="true" [disabled]="!canEditSelected"
+                [value]="form.employee_code || ''" (valueChange)="form.employee_code = $event" />
+              <app-sharp-input [label]="'PLUGIN_EMPLOYEE_NAME' | translate" [required]="true" [disabled]="!canEditSelected"
+                [value]="form.full_name || ''" (valueChange)="form.full_name = $event" />
+              <app-sharp-select [label]="'COMMON_STATUS' | translate" [disabled]="!canEditSelected"
+                [options]="employeeStatusOptions" [value]="form.status || 'DRAFT'"
+                (valueChange)="form.status = $event" />
+              <app-sharp-select [label]="'PLUGIN_EMPLOYEE_TYPE' | translate" [disabled]="!canEditSelected"
+                [options]="employeeTypeOptions" [value]="form.employee_type || 'EMPLOYEE'"
+                (valueChange)="form.employee_type = $event" />
+            </div>
+          </section>
+
+          <section class="space-y-2 border-t border-default pt-3">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_EMPLOYEE_CONTACT' | translate }}</p>
+            <div class="grid gap-2 sm:grid-cols-2">
+              <app-sharp-input type="email" [label]="'AUTH_EMAIL_LABEL' | translate" [disabled]="!canEditSelected"
+                [value]="form.work_email || ''" (valueChange)="form.work_email = $event" />
+              <app-sharp-input type="tel" [label]="'ACCOUNT_PHONE_LABEL' | translate" [disabled]="!canEditSelected"
+                [value]="form.phone || ''" (valueChange)="form.phone = $event" />
+            </div>
+            <label class="block">
+              <span class="mb-1 block text-[11px] font-medium text-ink">{{ 'PLUGIN_EMPLOYEE_NOTES' | translate }}</span>
+              <textarea rows="3" class="w-full border border-default bg-surface px-2 py-1.5 text-xs disabled:opacity-60"
+                [disabled]="!canEditSelected" [(ngModel)]="form.notes"></textarea>
+            </label>
+          </section>
+
+          @if (selected() && can('employee:profile:archive')) {
+            <section class="space-y-2 border border-rose-300 bg-rose-50 p-3 dark:border-rose-900 dark:bg-rose-950/30">
+              <p class="flex items-center gap-1.5 text-[11px] font-semibold text-rose-700 dark:text-rose-300">
+                <app-icon name="alert-triangle" size="sm" [decorative]="true" />
+                {{ 'PLUGIN_EMPLOYEE_OFFBOARD_SECTION' | translate }}
+              </p>
+              <div class="grid gap-2 sm:grid-cols-2">
+                <label class="block">
+                  <span class="mb-1 block text-[11px] text-rose-700 dark:text-rose-300">{{ 'PLUGIN_EMPLOYEE_EXIT_DATE' | translate }}</span>
+                  <input type="date" class="min-h-10 w-full border border-rose-300 bg-surface px-2 text-xs sm:min-h-8 dark:border-rose-900" [(ngModel)]="form.exit_date" />
+                </label>
+                <label class="block">
+                  <span class="mb-1 block text-[11px] text-rose-700 dark:text-rose-300">{{ 'PLUGIN_EMPLOYEE_EXIT_REASON' | translate }}</span>
+                  <input type="text" class="min-h-10 w-full border border-rose-300 bg-surface px-2 text-xs sm:min-h-8 dark:border-rose-900" [(ngModel)]="form.exit_reason" />
+                </label>
+              </div>
+              <app-sharp-button variant="danger" size="sm" shape="sharp" [disabled]="saving()" (clicked)="offboard()">
+                {{ 'PLUGIN_EMPLOYEE_OFFBOARD' | translate }}
+              </app-sharp-button>
+            </section>
+          }
+
+          @if (!canEditSelected && selected()) {
+            <p class="border border-default bg-surface-muted p-2.5 text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_READ_ONLY' | translate }}</p>
+          }
+
+          <div class="flex justify-end gap-2 border-t border-default pt-3">
+            <app-sharp-button variant="outline" size="sm" shape="sharp" (clicked)="closeDrawer()">{{ 'COMMON_CANCEL' | translate }}</app-sharp-button>
+            @if (canEditSelected) {
+              <app-sharp-button size="sm" shape="sharp" [disabled]="saving()" (clicked)="save()">{{ 'COMMON_SAVE' | translate }}</app-sharp-button>
+            }
+          </div>
+        }
+
+        @case ('assignments') {
+          <section class="space-y-3">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <h3 class="text-sm font-semibold">{{ 'PLUGIN_EMPLOYEE_ASSIGNMENTS' | translate }}</h3>
+                <p class="mt-1 max-w-xl text-[11px] leading-relaxed text-muted">{{ 'PLUGIN_EMPLOYEE_ASSIGNMENT_DESC' | translate }}</p>
+              </div>
+              @if (can('employee:assignment:manage')) {
+                <app-sharp-button size="sm" shape="sharp" [disabled]="assignmentFormOpen()" (clicked)="openAssignmentForm()">
+                  <span class="inline-flex items-center gap-1"><app-icon name="plus" size="sm" [decorative]="true" />{{ 'PLUGIN_EMPLOYEE_ASSIGNMENT_ADD' | translate }}</span>
+                </app-sharp-button>
+              }
+            </div>
+
+            @if (assignmentFormOpen()) {
+              <div class="space-y-2 border border-default bg-surface-muted p-3">
+                <div class="grid gap-2 sm:grid-cols-2">
+                  <app-sharp-select [label]="'PLUGIN_EMPLOYEE_BRANCH' | translate" [required]="true"
+                    [hint]="branches().length ? '' : ('PLUGIN_EMPLOYEE_NO_ORG_UNITS' | translate)"
+                    [options]="branchOptions" [value]="assignmentForm.branch_id"
+                    (valueChange)="onAssignmentBranchChange($event)" />
+                  <app-sharp-select [label]="'PLUGIN_EMPLOYEE_DEPARTMENT' | translate" [required]="true"
+                    [options]="departmentOptions(assignmentForm.branch_id)" [value]="assignmentForm.department_id"
+                    (valueChange)="assignmentForm.department_id = $event" />
+                  <app-sharp-input [label]="'PLUGIN_EMPLOYEE_JOB_TITLE' | translate" [required]="true"
+                    [value]="assignmentForm.job_title" (valueChange)="assignmentForm.job_title = $event" />
+                  <app-sharp-select [label]="'PLUGIN_EMPLOYEE_MANAGER' | translate"
+                    [options]="employeeOptions(selected()?.id)" [value]="assignmentForm.manager_employee_id || ''"
+                    (valueChange)="assignmentForm.manager_employee_id = $event || undefined" />
+                  <label class="block">
+                    <span class="mb-1 block text-[11px] font-medium text-ink">{{ 'PLUGIN_EMPLOYEE_VALID_FROM' | translate }}</span>
+                    <input type="date" class="min-h-10 w-full border border-default bg-surface px-2 text-xs sm:min-h-8"
+                      [(ngModel)]="assignmentForm.valid_from" />
+                  </label>
+                  <label class="block">
+                    <span class="mb-1 block text-[11px] font-medium text-ink">{{ 'PLUGIN_EMPLOYEE_VALID_TO' | translate }}</span>
+                    <input type="date" class="min-h-10 w-full border border-default bg-surface px-2 text-xs sm:min-h-8"
+                      [(ngModel)]="assignmentForm.valid_to" />
+                  </label>
+                  <app-sharp-select [label]="'COMMON_STATUS' | translate" [options]="assignmentStatusOptions"
+                    [value]="assignmentForm.status || 'ACTIVE'" (valueChange)="assignmentForm.status = $event" />
+                  <label class="flex min-h-10 items-center gap-2 text-[11px] font-medium sm:min-h-8 sm:mt-5">
+                    <app-sharp-toggle [checked]="assignmentForm.is_primary ?? false" size="touch"
+                      [ariaLabel]="'PLUGIN_EMPLOYEE_ASSIGNMENT_PRIMARY' | translate"
+                      (checkedChange)="assignmentForm.is_primary = $event" />
+                    {{ 'PLUGIN_EMPLOYEE_ASSIGNMENT_PRIMARY' | translate }}
+                  </label>
+                </div>
+                <div class="flex justify-end gap-2">
+                  <app-sharp-button variant="outline" size="sm" shape="sharp" (clicked)="cancelAssignmentForm()">{{ 'COMMON_CANCEL' | translate }}</app-sharp-button>
+                  <app-sharp-button size="sm" shape="sharp"
+                    [disabled]="saving() || !assignmentForm.branch_id || !assignmentForm.department_id || !assignmentForm.job_title"
+                    (clicked)="saveAssignment()">{{ 'COMMON_SAVE' | translate }}</app-sharp-button>
+                </div>
+              </div>
+            }
+
+            <div class="overflow-x-auto border border-default">
+              <table class="w-full min-w-[34rem] text-xs">
+                <thead class="bg-surface-muted text-[10px] uppercase tracking-wide text-muted">
+                  <tr>
+                    <th class="p-2 text-start">{{ 'PLUGIN_EMPLOYEE_JOB_TITLE' | translate }}</th>
+                    <th class="p-2 text-start">{{ 'PLUGIN_EMPLOYEE_BRANCH' | translate }} / {{ 'PLUGIN_EMPLOYEE_DEPARTMENT' | translate }}</th>
+                    <th class="p-2 text-start">{{ 'PLUGIN_EMPLOYEE_ASSIGNMENT_PERIOD' | translate }}</th>
+                    <th class="p-2 text-center">{{ 'PLUGIN_EMPLOYEE_ASSIGNMENT_PRIMARY' | translate }}</th>
+                    <th class="p-2 text-start">{{ 'COMMON_STATUS' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-default">
+                  @for (assignment of pagedAssignments(); track assignment.id) {
+                    <tr class="hover:bg-surface-muted">
+                      <td class="p-2 font-medium">{{ assignment.job_title || '—' }}</td>
+                      <td class="p-2">
+                        <p>{{ branchName(assignment.branch_id) }}</p>
+                        <p class="text-[10px] text-muted">{{ departmentName(assignment.department_id) }}</p>
+                      </td>
+                      <td class="p-2 text-muted">{{ formatDate(assignment.valid_from) }} → {{ formatDate(assignment.valid_to) }}</td>
+                      <td class="p-2 text-center">
+                        @if (assignment.is_primary) { <app-badge variant="info">{{ 'PLUGIN_EMPLOYEE_ASSIGNMENT_PRIMARY' | translate }}</app-badge> }
+                      </td>
+                      <td class="p-2"><app-badge [variant]="statusVariant(assignment.status)">{{ enumLabel(assignment.status) | translate }}</app-badge></td>
+                    </tr>
+                  } @empty {
+                    <tr><td class="p-6 text-center text-[11px] text-muted" colspan="5">{{ 'PLUGIN_EMPLOYEE_NO_ASSIGNMENTS' | translate }}</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <div class="flex items-center justify-between gap-2 text-[11px] text-muted">
+              <span>{{ 'COMMON_PAGE_OF' | translate:{ page: assignmentPage() + 1, total_pages: pageCount(selectedAssignments().length) } }} · {{ selectedAssignments().length }}</span>
+              <span class="flex gap-1">
+                <button type="button" class="min-h-9 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted disabled:opacity-40" [disabled]="assignmentPage() === 0" (click)="changeAssignmentPage(-1)">{{ 'COMMON_PREV' | translate }}</button>
+                <button type="button" class="min-h-9 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted disabled:opacity-40" [disabled]="assignmentPage() + 1 >= pageCount(selectedAssignments().length)" (click)="changeAssignmentPage(1)">{{ 'COMMON_NEXT_PAGE' | translate }}</button>
+              </span>
+            </div>
+          </section>
+        }
+
+        @case ('contracts') {
+          <section class="space-y-3">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <h3 class="text-sm font-semibold">{{ 'PLUGIN_EMPLOYEE_CONTRACTS' | translate }}</h3>
+                <p class="mt-1 max-w-xl text-[11px] leading-relaxed text-muted">{{ 'PLUGIN_EMPLOYEE_CONTRACT_DESC' | translate }}</p>
+              </div>
+              @if (can('employee:contract:manage')) {
+                <app-sharp-button size="sm" shape="sharp" [disabled]="contractFormOpen()" (clicked)="openContractForm()">
+                  <span class="inline-flex items-center gap-1"><app-icon name="plus" size="sm" [decorative]="true" />{{ 'PLUGIN_EMPLOYEE_CONTRACT_ADD' | translate }}</span>
+                </app-sharp-button>
+              }
+            </div>
+
+            @if (contractFormOpen()) {
+              <div class="space-y-2 border border-default bg-surface-muted p-3">
+                <div class="grid gap-2 sm:grid-cols-2">
+                  <app-sharp-select [label]="'PLUGIN_EMPLOYEE_CONTRACT_TYPE' | translate" [required]="true"
+                    [options]="contractTypeOptions" [value]="contractForm.contract_type"
+                    (valueChange)="contractForm.contract_type = $event" />
+                  <app-sharp-input [label]="'PLUGIN_EMPLOYEE_CONTRACT_NO' | translate" [required]="true"
+                    [value]="contractForm.contract_no" (valueChange)="contractForm.contract_no = $event" />
+                  <label class="block">
+                    <span class="mb-1 block text-[11px] font-medium text-ink">{{ 'PLUGIN_EMPLOYEE_VALID_FROM' | translate }}</span>
+                    <input type="date" class="min-h-10 w-full border border-default bg-surface px-2 text-xs sm:min-h-8"
+                      [(ngModel)]="contractForm.start_date" />
+                  </label>
+                  <label class="block">
+                    <span class="mb-1 block text-[11px] font-medium text-ink">{{ 'PLUGIN_EMPLOYEE_VALID_TO' | translate }}</span>
+                    <input type="date" class="min-h-10 w-full border border-default bg-surface px-2 text-xs sm:min-h-8"
+                      [(ngModel)]="contractForm.end_date" />
+                  </label>
+                  <app-sharp-select [label]="'COMMON_STATUS' | translate" [options]="contractStatusOptions"
+                    [value]="contractForm.status || 'ACTIVE'" (valueChange)="contractForm.status = $event" />
+                </div>
+                <div class="flex justify-end gap-2">
+                  <app-sharp-button variant="outline" size="sm" shape="sharp" (clicked)="cancelContractForm()">{{ 'COMMON_CANCEL' | translate }}</app-sharp-button>
+                  <app-sharp-button size="sm" shape="sharp"
+                    [disabled]="saving() || !contractForm.contract_no || !contractForm.contract_type"
+                    (clicked)="saveContract()">{{ 'COMMON_SAVE' | translate }}</app-sharp-button>
+                </div>
+              </div>
+            }
+
+            <div class="overflow-x-auto border border-default">
+              <table class="w-full min-w-[34rem] text-xs">
+                <thead class="bg-surface-muted text-[10px] uppercase tracking-wide text-muted">
+                  <tr>
+                    <th class="p-2 text-start">{{ 'PLUGIN_EMPLOYEE_CONTRACT_NO' | translate }}</th>
+                    <th class="p-2 text-start">{{ 'PLUGIN_EMPLOYEE_CONTRACT_TYPE' | translate }}</th>
+                    <th class="p-2 text-start">{{ 'PLUGIN_EMPLOYEE_CONTRACT_PERIOD' | translate }}</th>
+                    <th class="p-2 text-start">{{ 'COMMON_STATUS' | translate }}</th>
+                    @if (can('employee:contract:manage')) {
+                      <th class="p-2 text-end">{{ 'COMMON_ACTIONS' | translate }}</th>
+                    }
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-default">
+                  @for (contract of pagedContracts(); track contract.id) {
+                    <tr class="hover:bg-surface-muted">
+                      <td class="p-2 font-mono font-medium">{{ contract.contract_no || '—' }}</td>
+                      <td class="p-2">{{ enumLabel(contract.contract_type) | translate }}</td>
+                      <td class="p-2 text-muted">{{ formatDate(contract.start_date) }} → {{ formatDate(contract.end_date) }}</td>
+                      <td class="p-2"><app-badge [variant]="statusVariant(contract.status)">{{ enumLabel(contract.status) | translate }}</app-badge></td>
+                      @if (can('employee:contract:manage')) {
+                        <td class="p-2 text-end">
+                          <button type="button" class="inline-flex min-h-10 items-center gap-1 border border-default px-2 text-[11px] font-semibold hover:bg-surface sm:min-h-8"
+                            (click)="openContractForm(contract)">
+                            <app-icon name="edit-2" size="sm" [decorative]="true" />{{ 'COMMON_EDIT' | translate }}
+                          </button>
+                        </td>
+                      }
+                    </tr>
+                  } @empty {
+                    <tr><td class="p-6 text-center text-[11px] text-muted" [attr.colspan]="can('employee:contract:manage') ? 5 : 4">{{ 'PLUGIN_EMPLOYEE_NO_CONTRACTS' | translate }}</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <div class="flex items-center justify-between gap-2 text-[11px] text-muted">
+              <span>{{ 'COMMON_PAGE_OF' | translate:{ page: contractPage() + 1, total_pages: pageCount(selectedContracts().length) } }} · {{ selectedContracts().length }}</span>
+              <span class="flex gap-1">
+                <button type="button" class="min-h-9 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted disabled:opacity-40" [disabled]="contractPage() === 0" (click)="changeContractPage(-1)">{{ 'COMMON_PREV' | translate }}</button>
+                <button type="button" class="min-h-9 border border-default px-2 text-[11px] font-semibold hover:bg-surface-muted disabled:opacity-40" [disabled]="contractPage() + 1 >= pageCount(selectedContracts().length)" (click)="changeContractPage(1)">{{ 'COMMON_NEXT_PAGE' | translate }}</button>
+              </span>
+            </div>
+          </section>
+        }
+
+        @case ('documents') {
+          <section class="space-y-3">
+            <div>
+              <h3 class="text-sm font-semibold">{{ 'PLUGIN_EMPLOYEE_DOCUMENTS' | translate }}</h3>
+              <p class="mt-1 text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_DOCUMENTS_DESC' | translate }}</p>
+            </div>
+            @if (can('employee:document:manage')) {
+              <div class="flex flex-wrap items-end gap-2 border border-default bg-surface-muted p-3">
+                <app-sharp-select class="min-w-32 flex-1" [label]="'PLUGIN_EMPLOYEE_DOCUMENT_TYPE' | translate"
+                  [options]="documentTypeOptions" [(value)]="documentType" />
+                <input type="file" class="min-h-10 max-w-full border border-default bg-surface px-2 py-1 text-[11px] sm:min-h-8" (change)="onDocumentFile($event)" />
+                <app-sharp-button size="sm" shape="sharp" [disabled]="saving() || !selectedFile" (clicked)="uploadDocument()">
+                  {{ 'PLUGIN_EMPLOYEE_DOCUMENT_UPLOAD' | translate }}
+                </app-sharp-button>
+              </div>
+            }
+            <div class="grid gap-2 sm:grid-cols-2">
+              @for (document of selectedDocuments(); track document.id) {
+                <div class="flex items-center gap-2 border border-default p-2">
+                  <app-icon name="file-text" size="sm" [decorative]="true" class="text-muted" />
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate text-xs font-medium">{{ document.file_name || document.document_type }}</p>
+                    <p class="text-[10px] text-muted">{{ enumLabel(document.document_type) | translate }} · v{{ document.version || 1 }}</p>
+                  </div>
+                  <div class="flex flex-col items-end gap-1">
+                    <app-badge [variant]="statusVariant(document.scan_status)">{{ enumLabel(document.scan_status || 'PENDING') | translate }}</app-badge>
+                    <button type="button" class="min-h-10 border border-default px-2 text-[10px] font-semibold sm:min-h-8" (click)="downloadDocument(document)">
+                      {{ 'PLUGIN_EMPLOYEE_DOCUMENT_DOWNLOAD' | translate }}
+                    </button>
+                  </div>
+                </div>
+              } @empty {
+                <p class="border border-dashed border-default p-3 text-center text-[11px] text-muted sm:col-span-2">{{ 'PLUGIN_EMPLOYEE_NO_DOCUMENTS' | translate }}</p>
+              }
+            </div>
+          </section>
+        }
+      }
+    </div>
+  } @else if (drawerMode() === 'request') {
+
+    @if (selectedRequest(); as request) {
+      <div class="space-y-4">
+        <div class="grid gap-2 border border-default bg-surface p-3 sm:grid-cols-2">
+          <div><span class="text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_EMPLOYEE' | translate }}: </span><span class="font-medium">{{ employeeName(request.employee_id) }}</span></div>
+          <div><span class="text-[11px] text-muted">{{ 'COMMON_STATUS' | translate }}: </span><app-badge [variant]="statusVariant(request.status)">{{ enumLabel(request.status) | translate }}</app-badge></div>
+          <div><span class="text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_STEPS' | translate }}: </span>{{ request.current_step || 0 }} / {{ request.steps?.length || 0 }}</div>
+          <div><span class="text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_CREATED' | translate }}: </span>{{ formatDate(request.created_at) }}</div>
+        </div>
+        <section class="space-y-2">
+          <p class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_EMPLOYEE_CHANGES' | translate }}</p>
+          @if (changeRows(request).length) {
+            <div class="overflow-x-auto border border-default">
+              <table class="w-full min-w-[32rem] text-xs">
+                <thead class="bg-surface-muted text-[10px] uppercase tracking-wide text-muted">
+                  <tr>
+                    <th class="p-2 text-start">{{ 'PLUGIN_EMPLOYEE_CHANGE_FIELD' | translate }}</th>
+                    <th class="p-2 text-start">{{ 'PLUGIN_EMPLOYEE_CHANGE_OLD' | translate }}</th>
+                    <th class="p-2 text-start">{{ 'PLUGIN_EMPLOYEE_CHANGE_NEW' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-default">
+                  @for (row of changeRows(request); track row.field) {
+                    <tr class="hover:bg-surface-muted">
+                      <td class="p-2">
+                        <p class="font-medium">{{ row.labelKey | translate }}</p>
+                        <p class="font-mono text-[10px] text-muted">{{ row.field }}</p>
+                      </td>
+                      <td class="p-2 text-muted">{{ row.oldValue }}</td>
+                      <td class="p-2 font-medium">{{ row.newValue }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <p class="border border-dashed border-default p-3 text-center text-[11px] text-muted">{{ 'PLUGIN_EMPLOYEE_NO_CHANGES' | translate }}</p>
+          }
+        </section>
+        @if (request.steps?.length) {
+          <section class="space-y-2">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_EMPLOYEE_STEPS' | translate }}</p>
+            <div class="divide-y divide-default border border-default">
+              @for (step of request.steps; track step.id) {
+                <div class="flex flex-wrap items-center justify-between gap-2 p-2.5">
+                  <span class="text-xs">#{{ step.step_no }} · {{ enumLabel(step.approver_type) | translate }}
+                    @if (step.approver_id) { <span class="font-mono text-[10px] text-muted">{{ step.approver_id }}</span> }
+                  </span>
+                  <app-badge [variant]="statusVariant(step.status)">{{ enumLabel(step.status) | translate }}</app-badge>
+                </div>
+              }
+            </div>
+          </section>
+        }
+        @if (request.rejection_reason) {
+          <div class="border border-rose-300 bg-rose-50 p-2.5 text-[11px] text-rose-700 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300">
+            {{ request.rejection_reason }}
+          </div>
+        }
+        @if (request.status === 'PENDING' && can('employee:change-request:approve')) {
+          <section class="space-y-2 border-t border-default pt-3">
+            <app-sharp-input [label]="'PLUGIN_EMPLOYEE_REJECT_REASON' | translate" [(value)]="rejectReason" />
+            <div class="flex gap-2">
+              <app-sharp-button size="sm" shape="sharp" [disabled]="saving()" (clicked)="approve()">{{ 'PLUGIN_EMPLOYEE_APPROVE' | translate }}</app-sharp-button>
+              <app-sharp-button variant="danger" size="sm" shape="sharp" [disabled]="saving()" (clicked)="reject()">{{ 'PLUGIN_EMPLOYEE_REJECT' | translate }}</app-sharp-button>
+            </div>
+          </section>
+        }
+      </div>
+    }
+  } @else {
+    <div class="space-y-4">
+      <p class="border border-default bg-surface-muted p-3 text-[11px] leading-relaxed text-muted">{{ 'PLUGIN_EMPLOYEE_SELF_DISCLAIMER' | translate }}</p>
+      <div class="grid gap-2 sm:grid-cols-2">
+        @for (field of selfFields; track field) {
+          <app-sharp-input [label]="('PLUGIN_EMPLOYEE_FIELD_' + field.toUpperCase()) | translate"
+            [value]="selfChanges[field] || ''" (valueChange)="selfChanges[field] = $event" />
+        }
+      </div>
+      <div class="flex justify-end gap-2 border-t border-default pt-3">
+        <app-sharp-button variant="outline" size="sm" shape="sharp" (clicked)="closeDrawer()">{{ 'COMMON_CANCEL' | translate }}</app-sharp-button>
+        <app-sharp-button size="sm" shape="sharp" [disabled]="saving()" (clicked)="submitSelfRequest()">{{ 'PLUGIN_EMPLOYEE_SUBMIT_REQUEST' | translate }}</app-sharp-button>
+      </div>
+    </div>
+  }
+</app-drawer>

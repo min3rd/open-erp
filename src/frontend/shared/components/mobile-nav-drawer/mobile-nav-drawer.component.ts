@@ -9,6 +9,7 @@ import { IconComponent } from '../icon/icon.component';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 import { ThemeSwitcherComponent } from '../theme-switcher/theme-switcher.component';
 import { SharpButtonComponent } from '../sharp-button/sharp-button.component';
+import { TenantSwitcherComponent, TenantSwitcherItem } from '../tenant-switcher/tenant-switcher.component';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 
 @Component({
@@ -23,6 +24,7 @@ import { TranslatePipe } from '../../i18n/translate.pipe';
     LanguageSwitcherComponent,
     ThemeSwitcherComponent,
     SharpButtonComponent,
+    TenantSwitcherComponent,
     TranslatePipe
   ],
   templateUrl: './mobile-nav-drawer.component.html'
@@ -31,6 +33,10 @@ export class MobileNavDrawerComponent {
   private theme = inject(ThemeService);
 
   tenantName = input<string>('');
+  tenants = input<TenantSwitcherItem[]>([]);
+  currentTenantId = input<string | null>(null);
+  /** Plugin-provided mobile screens; host filters by platform/permission. */
+  apps = input<Array<{ route: string; titleKey: string }>>([]);
   role = input<string>('MEMBER');
   userName = input<string>('');
   userEmail = input<string>('');
@@ -48,6 +54,7 @@ export class MobileNavDrawerComponent {
 
   close = output<void>();
   logout = output<void>();
+  switchTenant = output<string>();
 
   readonly colorInfo = ColorVariant.INFO;
   readonly colorDanger = ColorVariant.DANGER;

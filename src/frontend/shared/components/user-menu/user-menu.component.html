@@ -33,12 +33,26 @@
         }
       </div>
 
+      @if (tenants().length > 1) {
+        <app-tenant-switcher
+          [tenants]="tenants()"
+          [currentTenantId]="currentTenantId()"
+          (switchTenant)="onSwitchTenant($event)"
+        />
+      }
+
       <div class="space-y-1.5">
         <app-theme-switcher />
         <app-language-switcher />
       </div>
 
       <div class="space-y-0.5 border-t border-default pt-2">
+        <app-plugin-slot
+          slot="core.layout.user-menu.items"
+          [context]="pluginContext()"
+          (navigate)="onPluginNavigate($event)"
+          (routeChange)="onPluginNavigate($event)"
+        />
         @if (settingsPath()) {
           <a
             role="menuitem"

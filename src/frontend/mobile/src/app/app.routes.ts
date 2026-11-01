@@ -116,15 +116,16 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/settings/catalog/catalog.page').then(m => m.CatalogBrowsePage)
       },
       {
-        path: 'apps/:pluginKey',
-        loadComponent: () => import('./pages/settings/plugin-screen/plugin-screen.page').then(m => m.PluginScreenPage)
-      },
-      {
         path: 'plugins',
         canActivate: [permissionGuard('core:plugin:read')],
         loadComponent: () => import('./pages/settings/plugins/plugins.page').then(m => m.MobilePluginsPage)
       }
     ]
+  },
+  {
+    path: 'apps/:pluginKey',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/settings/plugin-screen/plugin-screen.page').then(m => m.PluginScreenPage)
   },
   {
     path: 'platform/change-password',

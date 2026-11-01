@@ -7,10 +7,13 @@ RUN mvn -q -B dependency:go-offline || true
 COPY src/ src/
 RUN mvn -q -B package -DskipTests -Dquarkus.package.type=fast-jar
 
-FROM eclipse-temurin:21-jre-alpine
+# Docker CLI is copied from the official static image; Alpine JRE crashes in
+# the Argon2 JNA native library on musl, so use the glibc-based Temurin image.
+FROM docker:27-cli AS dockercli
+FROM eclipse-temurin:21-jre
 WORKDIR /app
-RUN apk add --no-cache docker-cli \
-    && addgroup -S openerp && adduser -S openerp -G openerp
+RUN groupadd -r openerp && useradd -r -g openerp openerp
+COPY --from=dockercli /usr/local/bin/docker /usr/local/bin/docker
 COPY --from=build --chown=openerp:openerp /build/target/quarkus-app/lib/ /app/lib/
 COPY --from=build --chown=openerp:openerp /build/target/quarkus-app/*.jar /app/
 COPY --from=build --chown=openerp:openerp /build/target/quarkus-app/app/ /app/app/

@@ -1,0 +1,28 @@
+Sprint 07 QA browser harness (Employee WC build thật + mock API)
+Baseline: working tree 2026-10-30
+Browser: Google Chrome headless via playwright-core 1.64.1
+Viewports: desktop 1440x900, mobile 390x844
+Command: node qa-employee-ui.mjs (temp harness, static server port 9099)
+
+Results 2026-10-30:
+PASS desktop: list renders 2 employees
+PASS desktop: create drawer opens and closes (Escape)
+PASS desktop: change request approval drawer
+PASS desktop: directory + org chart
+PASS desktop: self profile
+PASS desktop: self request drawer fields
+PASS desktop: edit drawer assignments/contracts/documents
+PASS desktop: no horizontal overflow
+PASS desktop: HR tools tabs (field/onboarding/campaign/privacy)
+PASS mobile: self-only tabs, no HR list
+PASS mobile: no horizontal overflow
+PASS mobile: touch targets >= 40px
+console errors: []
+
+Screenshots:
+- desktop_list.png
+- desktop_approval_drawer.png
+- desktop_self.png
+- desktop_edit_drawer.png
+- desktop_hr_tools.png
+- mobile_self_390x844.png

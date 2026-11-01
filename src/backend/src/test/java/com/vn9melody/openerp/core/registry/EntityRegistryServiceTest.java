@@ -40,15 +40,20 @@ public class EntityRegistryServiceTest {
 
     @Test
     @Transactional
-    @DisplayName("BUG-26 + TASK-276 + TASK-302: 25 entity IAM/Platform/Organization/Core/Plugin được đăng ký tự động và upsert idempotent")
+    @DisplayName("BUG-26 + TASK-276 + TASK-302: 21 entity IAM/Platform/Core/Plugin được đăng ký tự động và upsert idempotent (organization entities chuyển sang plugin Sprint 07)")
     public void testAllEntitiesRegisteredOnStartup() {
         // Catalog entities are registered by PluginEntityRegistrar at install time,
-        // not by the core Jandex scan. Clear stale rows from earlier runs.
+        // not by the core Jandex scan. The Sprint 07 cutover moved the legacy
+        // core-organization entities to the org plugin: clear stale rows from
+        // earlier runs so the core count reflects the current Jandex scan.
         entityManager.createNativeQuery(
                 "DELETE FROM sys_entity_registry WHERE plugin_id = 'catalog'")
             .executeUpdate();
+        entityManager.createNativeQuery(
+                "DELETE FROM sys_entity_registry WHERE plugin_id = 'core-organization'")
+            .executeUpdate();
         List<Object[]> rows = registryRows();
-        Assertions.assertEquals(25, rows.size(), "Phải đăng ký đúng 25 entity (20 entity Sprint 01/02 + 5 entity Plugin Manager Sprint 03); catalog do plugin tự đăng ký khi cài");
+        Assertions.assertEquals(21, rows.size(), "Phải đăng ký đúng 21 entity core (12 core-iam + 3 platform + 1 core + 5 plugin manager); organization entity thuộc plugin org-structure, catalog do plugin tự đăng ký");
 
         Map<String, List<Object[]>> byPlugin = rows.stream()
             .collect(Collectors.groupingBy(row -> (String) row[0]));
@@ -67,12 +72,6 @@ public class EntityRegistryServiceTest {
             "PlatformSuperAdmin", "PlatformImpersonationLog", "PlatformAuditLog"
         )), "Thiếu entity core-platform trong registry: " + platform.keySet());
 
-        Map<String, Object[]> organization = byEntityName(byPlugin, "core-organization");
-        Assertions.assertEquals(4, organization.size(), "core-organization phải chứa 4 entity");
-        Assertions.assertTrue(organization.keySet().containsAll(List.of(
-            "Branch", "Department", "UserDepartmentMembership", "UserBranchAssignment"
-        )), "Thiếu entity core-organization trong registry: " + organization.keySet());
-
         Map<String, Object[]> core = byEntityName(byPlugin, "core");
         Assertions.assertEquals(1, core.size(), "plugin core phải chứa entity reference CoreSampleRecord");
 
@@ -81,7 +80,6 @@ public class EntityRegistryServiceTest {
         assertEntity(coreIam, "Role", "roles");
         assertEntity(coreIam, "UserRole", "user_roles");
         assertEntity(platform, "PlatformAuditLog", "platform_audit_logs");
-        assertEntity(organization, "UserDepartmentMembership", "user_department_memberships");
         assertEntity(core, "CoreSampleRecord", "core_sample_records");
 
         Assertions.assertTrue(((String) coreIam.get("User")[4]).contains("\"fields\""),
@@ -90,7 +88,7 @@ public class EntityRegistryServiceTest {
             "exported_relations phải chứa quan hệ users");
 
         entityRegistryService.registerAnnotatedEntities();
-        Assertions.assertEquals(25, registryRows().size(), "Upsert phải idempotent, không nhân bản bản ghi");
+        Assertions.assertEquals(21, registryRows().size(), "Upsert phải idempotent, không nhân bản bản ghi");
     }
 
     private Map<String, Object[]> byEntityName(Map<String, List<Object[]>> byPlugin, String pluginId) {

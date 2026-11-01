@@ -47,4 +47,8 @@ export class TopbarComponent {
   closeMobileMenu() {
     this.mobileMenuOpen.set(false);
   }
+
+  onSwitchTenant(tenantId: string): void {
+    void this.pluginContext()?.switchTenant?.(tenantId);
+  }
 }

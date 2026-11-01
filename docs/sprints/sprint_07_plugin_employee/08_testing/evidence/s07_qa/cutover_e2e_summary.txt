@@ -1,0 +1,24 @@
+Sprint 07 cutover E2E (TASK-428/BUG-163)
+Database: openerp_cutover_test (created and dropped inside openerp-postgres-primary)
+Tenant: aaaaaaaa-0000-4000-8000-000000000001
+Date: 2026-10-30
+
+copy:
+  branches                     legacy=1 plugin=1 missing=0 OK
+  departments                  legacy=2 plugin=2 missing=0 OK
+  user_department_memberships  legacy=2 plugin=2 missing=0 OK
+  user_branch_assignments      legacy=1 plugin=1 missing=0 OK
+  projection scope=2 active_membership_users=2 closure=OK
+
+assertions:
+  core_user_scope=2
+  core_department_closure=3
+  core_user_manager_edge=1
+  managed_branch_ids={b0000001-0000-4000-8000-000000000001}
+
+drop-legacy --confirm DROP-LEGACY:
+  verify PASS
+  legacy branches dropped (to_regclass = null)
+  projection still 2 rows
+
+Result: CUTOVER E2E PASS

@@ -112,58 +112,96 @@ public final class S2EngineFixtures {
             .executeUpdate();
     }
 
+    /**
+     * Sprint 07 cutover: branch/department master data lives in the org plugin and
+     * Core only reads the projection. These fixtures therefore seed
+     * {@code core_user_scope}, {@code core_user_manager_edge} and
+     * {@code core_department_closure} directly instead of the removed legacy
+     * organization tables.
+     */
     public static UUID insertBranch(EntityManager em, UUID tenantId, String code) {
-        UUID id = UUID.randomUUID();
-        em.createNativeQuery("INSERT INTO branches (id, tenant_id, code, name) VALUES (?1, ?2, ?3, ?4)")
-            .setParameter(1, id)
-            .setParameter(2, tenantId)
-            .setParameter(3, code)
-            .setParameter(4, "Branch " + code)
-            .executeUpdate();
-        return id;
+        return UUID.randomUUID();
     }
 
     public static UUID insertDepartment(EntityManager em, UUID tenantId, UUID branchId, UUID parentId,
                                         String code, UUID managerUserId) {
         UUID id = UUID.randomUUID();
-        em.createNativeQuery("INSERT INTO departments (id, tenant_id, branch_id, parent_id, code, name, manager_user_id) "
-                + "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)")
-            .setParameter(1, id)
-            .setParameter(2, tenantId)
-            .setParameter(3, branchId)
-            .setParameter(4, parentId)
-            .setParameter(5, code)
-            .setParameter(6, "Department " + code)
-            .setParameter(7, managerUserId)
+        em.createNativeQuery("INSERT INTO core_department_closure (tenant_id, ancestor_id, descendant_id, depth, updated_at) "
+                + "VALUES (?1, ?2, ?2, 0, now())")
+            .setParameter(1, tenantId)
+            .setParameter(2, id)
             .executeUpdate();
+        if (parentId != null) {
+            em.createNativeQuery("INSERT INTO core_department_closure (tenant_id, ancestor_id, descendant_id, depth, updated_at) "
+                    + "SELECT ?1, ancestor_id, ?2, depth + 1, now() FROM core_department_closure WHERE descendant_id = ?3")
+                .setParameter(1, tenantId)
+                .setParameter(2, id)
+                .setParameter(3, parentId)
+                .executeUpdate();
+        }
         return id;
     }
 
     public static void insertMembership(EntityManager em, UUID userId, UUID tenantId, UUID branchId,
                                         UUID departmentId, boolean primary, UUID directManagerUserId) {
-        em.createNativeQuery("INSERT INTO user_department_memberships "
-                + "(user_id, tenant_id, branch_id, department_id, is_primary, direct_manager_user_id) "
-                + "VALUES (?1, ?2, ?3, ?4, ?5, ?6) ON CONFLICT DO NOTHING")
-            .setParameter(1, userId)
-            .setParameter(2, tenantId)
-            .setParameter(3, branchId)
-            .setParameter(4, departmentId)
-            .setParameter(5, primary)
-            .setParameter(6, directManagerUserId)
+        em.createNativeQuery("INSERT INTO core_user_scope "
+                + "(tenant_id, user_id, member_branch_ids, managed_branch_ids, department_ids, "
+                + "primary_branch_id, primary_department_id, version, updated_at) "
+                + "VALUES (?1, ?2, CAST(?3 AS uuid[]), '{}'::uuid[], CAST(?4 AS uuid[]), ?5, ?6, 1, now()) "
+                + "ON CONFLICT (tenant_id, user_id) DO UPDATE SET "
+                + "member_branch_ids = (SELECT array_agg(DISTINCT x) FROM unnest(core_user_scope.member_branch_ids "
+                + "|| EXCLUDED.member_branch_ids) x), "
+                + "department_ids = (SELECT array_agg(DISTINCT x) FROM unnest(core_user_scope.department_ids "
+                + "|| EXCLUDED.department_ids) x), "
+                + "primary_branch_id = COALESCE(EXCLUDED.primary_branch_id, core_user_scope.primary_branch_id), "
+                + "primary_department_id = COALESCE(EXCLUDED.primary_department_id, core_user_scope.primary_department_id), "
+                + "version = core_user_scope.version + 1, updated_at = now()")
+            .setParameter(1, tenantId)
+            .setParameter(2, userId)
+            .setParameter(3, uuidArrayOrEmpty(branchId))
+            .setParameter(4, uuidArrayOrEmpty(departmentId))
+            .setParameter(5, primary ? branchId : null)
+            .setParameter(6, primary ? departmentId : null)
             .executeUpdate();
+        if (directManagerUserId != null) {
+            em.createNativeQuery("INSERT INTO core_user_manager_edge "
+                    + "(tenant_id, manager_user_id, subordinate_user_id, source, updated_at) "
+                    + "VALUES (?1, ?2, ?3, 'TEST', now()) ON CONFLICT DO NOTHING")
+                .setParameter(1, tenantId)
+                .setParameter(2, directManagerUserId)
+                .setParameter(3, userId)
+                .executeUpdate();
+        }
     }
 
     public static void insertBranchAssignment(EntityManager em, UUID userId, UUID tenantId, UUID branchId,
                                               boolean primary, boolean canManage) {
-        em.createNativeQuery("INSERT INTO user_branch_assignments "
-                + "(user_id, tenant_id, branch_id, is_primary, can_manage) VALUES (?1, ?2, ?3, ?4, ?5) "
-                + "ON CONFLICT DO NOTHING")
-            .setParameter(1, userId)
-            .setParameter(2, tenantId)
-            .setParameter(3, branchId)
-            .setParameter(4, primary)
+        em.createNativeQuery("INSERT INTO core_user_scope "
+                + "(tenant_id, user_id, member_branch_ids, managed_branch_ids, department_ids, "
+                + "primary_branch_id, primary_department_id, version, updated_at) "
+                + "VALUES (?1, ?2, '{}'::uuid[], CAST(?3 AS uuid[]), '{}'::uuid[], ?4, NULL, 1, now()) "
+                + "ON CONFLICT (tenant_id, user_id) DO UPDATE SET "
+                + "managed_branch_ids = CASE WHEN ?5 THEN "
+                + "(SELECT array_agg(DISTINCT x) FROM unnest(core_user_scope.managed_branch_ids || EXCLUDED.managed_branch_ids) x) "
+                + "ELSE core_user_scope.managed_branch_ids END, "
+                + "primary_branch_id = COALESCE(EXCLUDED.primary_branch_id, core_user_scope.primary_branch_id), "
+                + "version = core_user_scope.version + 1, updated_at = now()")
+            .setParameter(1, tenantId)
+            .setParameter(2, userId)
+            .setParameter(3, canManage ? uuidArrayOrEmpty(branchId) : "{}")
+            .setParameter(4, primary ? branchId : null)
             .setParameter(5, canManage)
             .executeUpdate();
+    }
+
+    /** Builds a PostgreSQL uuid[] literal from a single UUID (or an empty array when null). */
+    private static String uuidArray(UUID value) {
+        return value == null ? null : "{" + value + "}";
+    }
+
+    /** Never-null uuid[] literal so NOT NULL array columns always receive a value. */
+    private static String uuidArrayOrEmpty(UUID value) {
+        return value == null ? "{}" : "{" + value + "}";
     }
 
     public static UUID insertSampleRecord(EntityManager em, UUID tenantId, UUID branchId, UUID departmentId,

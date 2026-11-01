@@ -1,5 +1,6 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { PluginContext } from '@shared';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
@@ -26,6 +27,12 @@ export class PluginContextService {
         : null,
       permissions,
       apiBaseUrl: environment.apiBaseUrl,
+      tenants: this.auth.tenants(),
+      switchTenant: async (tenantId: string) => {
+        await firstValueFrom(this.auth.switchTenant(tenantId));
+        // Full reload drops tenant-scoped caches/plugin sessions/manifests.
+        window.location.reload();
+      },
       navigate: (path: string) => this.navigate(path),
       notify: (payload) => {
         // Contributions report codes, not localized text. A core toast service

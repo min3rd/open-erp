@@ -35,6 +35,7 @@
     "cli:test": "npm --prefix tools/open-erp-cli test",
     "i18n:check": "node scripts/check-i18n-parity.mjs",
     "i18n:check:strict": "node scripts/check-i18n-parity.mjs --strict",
+    "ops:org-cutover": "node scripts/ops/org-cutover.mjs",
     "icons:gen": "node scripts/gen-icons.mjs",
     "data:admin-units": "node scripts/gen-admin-units.mjs",
     "data:admin-units:check": "node scripts/check-admin-units.mjs",

@@ -1,0 +1,92 @@
+<section class="space-y-2">
+  <div class="flex flex-wrap items-start justify-between gap-2">
+    <div>
+      <h2 class="text-sm font-semibold">{{ 'ORGANIZATION_BRANCH_ASSIGNMENT_TITLE' | translate }}</h2>
+      <p class="mt-1 text-[11px] text-muted">{{ 'ORGANIZATION_BRANCH_ASSIGNMENT_HINT' | translate }}</p>
+    </div>
+    <app-sharp-button *appRequirePermission="'organization:branch-access:manage'" size="sm" shape="sharp" (clicked)="openCreate()">
+      + {{ 'ORGANIZATION_BRANCH_ASSIGNMENT_ASSIGN_BTN' | translate }}
+    </app-sharp-button>
+  </div>
+
+  @if (error(); as code) {
+    <div class="border border-rose-300 bg-rose-50 p-2 text-[11px] text-rose-800 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200">
+      {{ code | translate }}
+    </div>
+  }
+
+  <div class="overflow-x-auto border border-default">
+    <table class="w-full min-w-[38rem] text-xs">
+      <thead class="bg-surface-muted text-[10px] uppercase tracking-wide text-muted">
+        <tr>
+          <th class="p-2 text-start">{{ 'ORGANIZATION_USER_ASSIGN_USER' | translate }}</th>
+          <th class="p-2 text-start">{{ 'ORGANIZATION_MEMBER_BRANCH' | translate }}</th>
+          <th class="p-2 text-center">{{ 'ORGANIZATION_BRANCH_ASSIGNMENT_PRIMARY_BRANCH' | translate }}</th>
+          <th class="p-2 text-center">{{ 'ORGANIZATION_BRANCH_ASSIGNMENT_MANAGE_COL' | translate }}</th>
+          <th class="p-2 text-end">{{ 'COMMON_ACTIONS' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-default">
+        @for (item of items(); track item.id) {
+          <tr class="hover:bg-surface-muted">
+            <td class="p-2">
+              <p class="font-medium">{{ userName(item) }}</p>
+              <p class="font-mono text-[10px] text-muted">{{ item.user_id }}</p>
+            </td>
+            <td class="p-2">{{ item.branch_code || item.branch_id }}</td>
+            <td class="p-2 text-center">
+              @if (item.is_primary) {
+                <app-badge variant="info">{{ 'ORGANIZATION_MEMBER_PRIMARY' | translate }}</app-badge>
+              }
+            </td>
+            <td class="p-2 text-center">
+              @if (item.can_manage) {
+                <app-badge variant="success">{{ 'ORGANIZATION_BRANCH_ASSIGNMENT_MANAGE_COL' | translate }}</app-badge>
+              }
+            </td>
+            <td class="p-2 text-end">
+              <div class="flex justify-end gap-1">
+                <button *appRequirePermission="'organization:branch-access:manage'" type="button"
+                  class="min-h-9 border border-default px-2 text-[11px] font-semibold hover:bg-surface"
+                  (click)="openEdit(item)">{{ 'COMMON_EDIT' | translate }}</button>
+                <button *appRequirePermission="'organization:branch-access:manage'" type="button"
+                  class="min-h-9 border border-rose-300 px-2 text-[11px] font-semibold text-rose-700 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-300 dark:hover:bg-rose-950/40"
+                  (click)="remove(item)">{{ 'COMMON_DELETE' | translate }}</button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr><td class="p-6 text-center text-[11px] text-muted" colspan="5">{{ 'COMMON_NO_DATA' | translate }}</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<app-drawer [isOpen]="drawerOpen()" [title]="(editingId() ? 'COMMON_EDIT' : 'ORGANIZATION_BRANCH_ASSIGNMENT_ASSIGN_BTN') | translate"
+  width="w-screen max-w-xl" (close)="closeDrawer()">
+  <div class="space-y-3">
+    <app-sharp-select [label]="'ORGANIZATION_USER_ASSIGN_USER' | translate" [required]="true"
+      [options]="userOptions()" [value]="form.userId" (valueChange)="form.userId = $event" />
+    <app-sharp-select [label]="'ORGANIZATION_MEMBER_BRANCH' | translate" [required]="true"
+      [options]="branchOptions()" [value]="form.branchId" (valueChange)="form.branchId = $event" />
+    <div class="grid gap-2 sm:grid-cols-2">
+      <label class="flex min-h-10 items-center gap-2 text-[11px] font-medium">
+        <app-sharp-toggle [checked]="form.isPrimary" size="touch" [ariaLabel]="'ORGANIZATION_BRANCH_ASSIGNMENT_PRIMARY_BRANCH' | translate"
+          (checkedChange)="form.isPrimary = $event" />
+        {{ 'ORGANIZATION_BRANCH_ASSIGNMENT_PRIMARY_BRANCH' | translate }}
+      </label>
+      <label class="flex min-h-10 items-center gap-2 text-[11px] font-medium">
+        <app-sharp-toggle [checked]="form.canManage" size="touch" [ariaLabel]="'ORGANIZATION_BRANCH_ASSIGNMENT_MANAGE_COL' | translate"
+          (checkedChange)="form.canManage = $event" />
+        {{ 'ORGANIZATION_BRANCH_ASSIGNMENT_MANAGE_COL' | translate }}
+      </label>
+    </div>
+    <div class="flex justify-end gap-2 border-t border-default pt-3">
+      <app-sharp-button variant="outline" size="sm" shape="sharp" (clicked)="closeDrawer()">{{ 'COMMON_CANCEL' | translate }}</app-sharp-button>
+      <app-sharp-button size="sm" shape="sharp"
+        [disabled]="saving() || !form.userId || !form.branchId"
+        (clicked)="save()">{{ 'COMMON_SAVE' | translate }}</app-sharp-button>
+    </div>
+  </div>
+</app-drawer>

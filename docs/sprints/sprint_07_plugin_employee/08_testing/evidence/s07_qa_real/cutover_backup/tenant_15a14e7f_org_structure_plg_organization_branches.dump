@@ -1,0 +1,93 @@
+--
+-- PostgreSQL database dump
+--
+
+\restrict 0CoRCC1xGerS9SLS0UClOTKYLP63OHUgOyTd7VMpiTLdrSF2cURGOKpeDAh5XN8
+
+-- Dumped from database version 16.15
+-- Dumped by pg_dump version 16.15
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+DROP INDEX IF EXISTS tenant_15a14e7f_org_structure.uq_org_branch_default;
+DROP INDEX IF EXISTS tenant_15a14e7f_org_structure.idx_org_branch_tenant_status;
+ALTER TABLE IF EXISTS ONLY tenant_15a14e7f_org_structure.plg_organization_branches DROP CONSTRAINT IF EXISTS uq_org_branch_code;
+ALTER TABLE IF EXISTS ONLY tenant_15a14e7f_org_structure.plg_organization_branches DROP CONSTRAINT IF EXISTS plg_organization_branches_pkey;
+DROP TABLE IF EXISTS tenant_15a14e7f_org_structure.plg_organization_branches;
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: plg_organization_branches; Type: TABLE; Schema: tenant_15a14e7f_org_structure; Owner: -
+--
+
+CREATE TABLE tenant_15a14e7f_org_structure.plg_organization_branches (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    tenant_id uuid NOT NULL,
+    code character varying(32) NOT NULL,
+    name character varying(255) NOT NULL,
+    phone character varying(32),
+    address text,
+    is_default boolean DEFAULT false NOT NULL,
+    status character varying(32) DEFAULT 'ACTIVE'::character varying NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_org_branch_status CHECK (((status)::text = ANY ((ARRAY['ACTIVE'::character varying, 'INACTIVE'::character varying])::text[])))
+);
+
+
+--
+-- Data for Name: plg_organization_branches; Type: TABLE DATA; Schema: tenant_15a14e7f_org_structure; Owner: -
+--
+
+COPY tenant_15a14e7f_org_structure.plg_organization_branches (id, tenant_id, code, name, phone, address, is_default, status, created_at, updated_at) FROM stdin;
+7fb3e020-85e0-472a-b494-935e6a785002	15a14e7f-76a9-4c98-9cc6-be6efbe171e8	HQ	Trụ sở chính	\N	\N	t	ACTIVE	2026-10-30 13:33:20.575606+00	2026-10-30 13:33:20.575606+00
+\.
+
+
+--
+-- Name: plg_organization_branches plg_organization_branches_pkey; Type: CONSTRAINT; Schema: tenant_15a14e7f_org_structure; Owner: -
+--
+
+ALTER TABLE ONLY tenant_15a14e7f_org_structure.plg_organization_branches
+    ADD CONSTRAINT plg_organization_branches_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: plg_organization_branches uq_org_branch_code; Type: CONSTRAINT; Schema: tenant_15a14e7f_org_structure; Owner: -
+--
+
+ALTER TABLE ONLY tenant_15a14e7f_org_structure.plg_organization_branches
+    ADD CONSTRAINT uq_org_branch_code UNIQUE (tenant_id, code);
+
+
+--
+-- Name: idx_org_branch_tenant_status; Type: INDEX; Schema: tenant_15a14e7f_org_structure; Owner: -
+--
+
+CREATE INDEX idx_org_branch_tenant_status ON tenant_15a14e7f_org_structure.plg_organization_branches USING btree (tenant_id, status);
+
+
+--
+-- Name: uq_org_branch_default; Type: INDEX; Schema: tenant_15a14e7f_org_structure; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_org_branch_default ON tenant_15a14e7f_org_structure.plg_organization_branches USING btree (tenant_id) WHERE is_default;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict 0CoRCC1xGerS9SLS0UClOTKYLP63OHUgOyTd7VMpiTLdrSF2cURGOKpeDAh5XN8
+

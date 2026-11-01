@@ -179,15 +179,15 @@ public class PlatformTenantApiTest {
         String tenantToken = login(PlatformTestSupport.PREFIX + "owner@example.com");
         given().header("Authorization", "Bearer " + tenantToken)
             .contentType(ContentType.JSON)
-            .body(Map.of("code", "X", "name", "Blocked"))
-            .when().post("/api/v1/organization/branches")
+            .body(Map.of("title", "Blocked"))
+            .when().post("/api/v1/core/sample-records")
             .then()
             .statusCode(403)
             .body("code", equalTo(PlatformErrorCode.TENANT_SUSPENDED));
 
         // FEAT-10 AC3: every business API is blocked, including read-only GET.
         given().header("Authorization", "Bearer " + tenantToken)
-            .when().get("/api/v1/organization/branches")
+            .when().get("/api/v1/core/sample-records")
             .then()
             .statusCode(403)
             .body("code", equalTo(PlatformErrorCode.TENANT_SUSPENDED));

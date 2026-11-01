@@ -16,6 +16,7 @@ export * from './topbar/topbar.component';
 export * from './section-nav/section-nav.component';
 export * from './tab-strip/tab-strip.component';
 export * from './user-menu/user-menu.component';
+export * from './tenant-switcher/tenant-switcher.component';
 export * from './plugin-card/plugin-card.component';
 export * from './version-timeline/version-timeline.component';
 export * from './operation-progress/operation-progress.component';

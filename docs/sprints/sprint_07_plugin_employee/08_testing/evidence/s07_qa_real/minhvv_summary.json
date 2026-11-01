@@ -1,0 +1,21 @@
+{
+  "results": [
+    {
+      "name": "minhvv login",
+      "status": "PASS"
+    },
+    {
+      "name": "minhvv employee plugin screen",
+      "status": "PASS"
+    },
+    {
+      "name": "minhvv organization plugin screen",
+      "status": "PASS"
+    },
+    {
+      "name": "minhvv 0 console error",
+      "status": "PASS"
+    }
+  ],
+  "errors": []
+}

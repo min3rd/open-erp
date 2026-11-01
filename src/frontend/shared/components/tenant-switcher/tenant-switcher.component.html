@@ -1,0 +1,51 @@
+<div class="relative">
+  <button
+    type="button"
+    class="flex w-full items-center justify-between gap-2 border border-default px-2 py-1.5 text-start text-xs hover:bg-surface-muted disabled:opacity-50"
+    [disabled]="disabled() || tenants().length < 2"
+    [attr.aria-expanded]="open()"
+    (click)="toggle()"
+  >
+    <span class="min-w-0">
+      <span class="block text-[10px] uppercase tracking-wide text-muted">
+        {{ 'AUTH_SELECT_TENANT_TITLE' | translate }}
+      </span>
+      <span class="block truncate font-medium">{{ current()?.name || '—' }}</span>
+    </span>
+    <app-icon name="chevron-down" size="sm" [decorative]="true" />
+  </button>
+
+  @if (open()) {
+    <div class="absolute inset-x-0 z-50 mt-1 max-h-72 overflow-y-auto border border-default bg-surface shadow-lg">
+      <div class="border-b border-default p-1">
+        <input
+          type="search"
+          class="w-full border border-default bg-surface px-2 py-1.5 text-xs outline-none focus:border-accent"
+          [placeholder]="'COMMON_SEARCH' | translate"
+          [value]="query()"
+          (input)="query.set($any($event.target).value)"
+        />
+      </div>
+      @for (item of filtered(); track item.id) {
+        <button
+          type="button"
+          class="flex w-full items-center justify-between gap-2 px-2 py-1.5 text-start text-xs hover:bg-surface-muted disabled:opacity-50"
+          [disabled]="item.status && item.status !== 'ACTIVE' && item.status !== 'TRIAL'"
+          (click)="select(item)"
+        >
+          <span class="min-w-0">
+            <span class="block truncate font-medium">{{ item.name }}</span>
+            <span class="block text-[10px] text-muted">
+              {{ item.slug || item.role || '' }}
+            </span>
+          </span>
+          @if (item.id === currentTenantId()) {
+            <span class="text-[10px] font-semibold uppercase text-accent">{{ 'ORGANIZATION_MEMBER_PRIMARY' | translate }}</span>
+          }
+        </button>
+      } @empty {
+        <div class="px-2 py-3 text-[11px] text-muted">{{ 'COMMON_NO_DATA' | translate }}</div>
+      }
+    </div>
+  }
+</div>
