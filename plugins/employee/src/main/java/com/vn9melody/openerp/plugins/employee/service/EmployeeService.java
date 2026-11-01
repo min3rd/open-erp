@@ -158,6 +158,11 @@ public class EmployeeService {
     @ConfigProperty(name = "employee.document.signed-url.secret", defaultValue = "openerp-employee-signed-url-secret")
     String signedUrlSecret;
 
+    /** Gateway prefix clients use to reach this plugin's runtime API. */
+    @ConfigProperty(name = "employee.document.signed-url.gateway-prefix",
+            defaultValue = "/api/v1/plugins/runtime/employee/api/v1/employee")
+    String signedUrlGatewayPrefix;
+
     @ConfigProperty(name = "openerp.frontend.url", defaultValue = "https://openerp.9ms.io.vn")
     String frontendUrl;
 
@@ -1952,8 +1957,9 @@ public class EmployeeService {
         long ttl = Math.max(30, signedUrlTtlSeconds);
         long expiry = Instant.now().plusSeconds(ttl).getEpochSecond();
         String signature = signedUrlSignature(id, expiry);
-        String url = "/api/v1/employee/signed-documents/" + id
-            + "?exp=" + expiry + "&sig=" + signature;
+        String url = signedUrlGatewayPrefix + "/signed-documents/" + id
+            + "?exp=" + expiry + "&sig=" + signature
+            + "&tenant_id=" + context.tenantId();
         return new SignedUrlResponse(id, url, Instant.ofEpochSecond(expiry));
     }
 

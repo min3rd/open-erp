@@ -2,6 +2,19 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-11-01 — Sprint 07 commit `52fee05c` + runtime E2E PASS (TR-S07-001 1.18, REV 1.1)
+
+- **Commit**: `52fee05c feat(sprint07): employee/org plugins, cutover C6 and deferred closure` — 464 file, +74.081/−5.449 (loại `.commandcode/`, `backups/`, `tools/affiliate-*` khỏi commit).
+- **Runtime E2E trên app thật (QA/QC)**:
+  - Rebuild backend image mới → Flyway **V7.0.7 apply thật** trên `openerp_dev` (`Migrating schema "public" to version 7.0.7`); `plugin_catalog.org-structure` chuyển locked+default-install; 0 permission `core:*` legacy còn lại.
+  - employee **1.1.20 → 1.1.21 → 1.1.22** package/publish/upgrade tenant QA (lifecycle 7 bước OK mỗi lần): 1.1.21 sửa signed URL trả **gateway prefix**; 1.1.22 thêm `tenant_id` vào URL; catalog **1.0.10** bundle JAR (web dist copy từ META-INF/resources) publish + upgrade ACTIVE.
+  - **Signed URL E2E 9/9 PASS** (`e2e-signed-url.mjs`): tạo NV qua gateway → upload document (ClamAV CLEAN) → POST signed-url → **GET tải file KHÔNG Bearer 200** nội dung khớp → tampered sig 403 → forged/expired exp 403 → replay trong TTL 200.
+  - **Gateway signed passthrough**: `PluginRuntimeGatewayResource` forward GET `…/signed-documents/**` khi query có `sig` + `tenant_id` (không cần Bearer); plugin tự verify HMAC/TTL theo tenant context — sửa 2 vòng: thêm import `MediaType`, đổi điều kiện sang `contains("/signed-documents/")` vì path param không có leading slash và `exp` param đọc thất thường trên RESTEasy reactive.
+  - Browser (agent-browser, session QA): employee 1.1.22 + catalog 1.0.10 render, `Loại tài liệu nhân sự` hiển thị, 0 overflow, **0 console error**; ảnh `evidence/s07_qa_real/{employee_122_list,catalog_1010_loaded,catalog_1010_document_types}.png`.
+- **Tests**: plugin employee **18/18 PASS** chạy lại sau 1.1.22; backend không đổi logic nghiệp vụ ngoài gateway passthrough.
+- **Docs**: TR-S07-001 **1.18** (mục 2.6 + mục 4/7); REV-S07-001 **1.1**; reading guide 1.1 history 1.20; task board cập nhật.
+- Vận hành: probe QA dùng JWT dev mint từ `privateKey.pem` với session Redis còn sống (platform `s7qa-platform-mvv0ge5r`, tenant admin `s7qa-mvv0ge5r`); token TTL 30 phút phải mint lại giữa chừng. Docker Desktop wslrelay kẹt port 8088 một lần — kill theo port giải quyết.
+
 ## 2026-11-01 — Sprint 07 deferred closure hoàn tất (TR-S07-001 1.17, REV-S07-001 Draft)
 
 - Chủ dự án chỉ đạo "hoàn tất tất cả các mục chưa hoàn thành, không đẩy sang sprint sau". Thực hiện trọn bộ các mục Deferred Medium.

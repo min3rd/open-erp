@@ -14,6 +14,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
@@ -103,7 +104,25 @@ public class PluginRuntimeGatewayResource {
         java.util.Set<String> permissions = java.util.Set.of();
         java.util.Set<String> roles = java.util.Set.of();
         java.util.Set<UUID> branchIds = java.util.Set.of();
-        if (pluginToken == null || pluginToken.isBlank()) {
+        // TASK-433: pre-signed downloads bypass the bearer gate. The plugin itself
+        // verifies the HMAC signature + TTL against its own secret and resolves the
+        // document strictly inside the tenant context sent below, so a leaked link
+        // cannot cross tenants or outlive its short expiry.
+        String signedTenantId = uriInfo.getQueryParameters().getFirst("tenant_id");
+        String signedPath = path == null ? "" : path;
+        boolean signedPassthrough = "GET".equals(method)
+            && signedTenantId != null && !signedTenantId.isBlank()
+            && uriInfo.getQueryParameters().containsKey("sig")
+            && signedPath.contains("/signed-documents/");
+        if (signedPassthrough) {
+            try {
+                tenantId = UUID.fromString(signedTenantId);
+            } catch (IllegalArgumentException e) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity("{\"success\":false,\"code\":\"PLUGIN_RUNTIME_TOKEN_INVALID\"}").build();
+            }
+        } else if (pluginToken == null || pluginToken.isBlank()) {
             UserSecurityContext context = securityContextService.getCurrentContext();
             tenantId = context.tenantId();
             userId = context.userId();

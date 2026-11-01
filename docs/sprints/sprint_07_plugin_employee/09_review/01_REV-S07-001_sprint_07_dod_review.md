@@ -3,11 +3,11 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | REV-S07-001 / Sprint review & DoD / Sprint 07 |
-| Trạng thái / phiên bản / ngày | **Draft — Ready for PM/customer review** / 1.0 / 2026-11-01 |
+| Trạng thái / phiên bản / ngày | **Draft — Ready for PM/customer review (runtime E2E PASS)** / 1.1 / 2026-11-01 |
 | Owner / reviewer | PM / Chủ dự án (Product Owner) + Architect + QA |
 | Phạm vi | 37 AC của [CONF-S07-001](../04_confirmation/01_CONF-S07-001_sprint_07_scope_and_questions.md) 1.0; FEAT-36…38 (TASK-426…438) + BUG-161…176 |
-| Baseline | Working tree 2026-11-01 (cutover C6 + signed URL + catalog 1.0.10 manifest; chưa commit) |
-| Evidence | [TR-S07-001](../08_testing/03_TR-S07-001_sprint_07_test_report.md) 1.17 (64 ảnh inline, 4 role); backend suite 254/254 PASS 2026-11-01; plugin employee 18/18 PASS |
+| Baseline | commit `52fee05c` + runtime E2E 2026-11-01 (employee 1.1.22, catalog 1.0.10 ACTIVE) |
+| Evidence | [TR-S07-001](../08_testing/03_TR-S07-001_sprint_07_test_report.md) 1.18 (64 ảnh inline + runtime E2E mục 2.6); backend suite 254/254 PASS 2026-11-01; plugin employee 18/18 PASS; signed URL E2E 9/9 |
 
 ## 1. Tóm tắt điều hành
 
@@ -44,10 +44,10 @@ Chi tiết truy vết từng AC: [FEAT-36](../07_items/FEAT-36_organization_extr
 
 ## 4. Backlog chuyển tiếp
 
-Không còn item Medium deferred mở. Ghi chú deployment (không phải item sprint):
+Không còn item Medium deferred mở. Ghi chú production (không phải item sprint):
 
-- QA rebuild image `employee` 1.1.20 + `catalog` 1.0.10 để E2E runtime lần cuối (signed URL + document type UI) trước khi đóng Sprint.
 - Production: cấu hình `EMPLOYEE_DOCUMENT_SIGNED_URL_SECRET` riêng; staging chạy `org-cutover.mjs backup/copy/verify` + rollback drill trước khi deploy (V7.0.7 tự drop bảng legacy khi deploy).
+- Signed URL WC UI có thể chuyển tải file qua signed URL (hiện blob + JWT) — tối ưu vận hành cho sprint sau, không chặn DoD.
 
 ## 5. Quyết định và xác nhận
 

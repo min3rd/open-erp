@@ -3,10 +3,10 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TR-S07-001 / Test Report / Sprint 07 |
-| Trạng thái / phiên bản / cập nhật | **Reviewed — QA PASS implementation + deferred closure (legacy cutover C6 + signed URL + catalog 1.0.10 manifest)** / 1.17 / 2026-11-01 |
+| Trạng thái / phiên bản / cập nhật | **Reviewed — QA PASS implementation + runtime E2E deferred closure (employee 1.1.22 + catalog 1.0.10 + signed URL 9/9)** / 1.18 / 2026-11-01 |
 | Owner / reviewer | QA/QC / Architect + PM |
 | Đầu vào | QA report self-contained — ảnh nhúng trực tiếp trong mục 2.5 và mục 8 |
-| Baseline | Working tree 2026-10-31 (chưa commit) + cutover C6 2026-11-01 |
+| Baseline | commit `52fee05c` + runtime E2E 2026-11-01 |
 
 ## 1. Kết luận điều hành
 
@@ -274,10 +274,25 @@ Chi tiết log: [qa_real_e2e_summary.txt](evidence/s07_qa_real/qa_real_e2e_summa
 
 | Hạng mục | Trạng thái | Ghi chú |
 | :--- | :--- | :--- |
-| Signed URL tải tài liệu | **Hoàn tất 2026-11-01** | HMAC + TTL ngắn hạn (TASK-433 0.3); plugin 18/18 PASS; runtime E2E trên app thật chờ QA build image plugin mới |
-| Core organization backend legacy | **Hoàn tất 2026-11-01** | Cutover C6: `modules/organization` xóa; V7.0.7 drop 4 bảng legacy + permission `core:*` cũ; Core projection-only; **backend suite 254/254 PASS** (PostgreSQL thật) |
-| Catalog `EMPLOYEE_DOCUMENT_TYPE` trên runtime | **Manifest sync 1.0.10 hoàn tất** | root + resource plugin.json đều 1.0.10, `open-erp validate` PASS (entities=5); runtime rebuild/upgrade là bước deployment QA sẽ verify |
-| Runtime E2E signed URL + catalog 1.0.10 | Not Run | Cần rebuild image plugin/catalog; không chặn DoD code |
+| Signed URL tải tài liệu | **PASS runtime 2026-11-01** | E2E 9/9 trên app thật (employee 1.1.22 + gateway signed passthrough): tạo NV → upload → signed-url → tải không cần Bearer → tampered sig 403 → forged/expired exp 403 → replay 200 (TR mục 2.6) |
+| Core organization backend legacy | **Hoàn tất 2026-11-01** | Cutover C6: `modules/organization` xóa; V7.0.7 drop 4 bảng legacy + permission `core:*` cũ; Core projection-only; backend suite 254/254 PASS (PostgreSQL thật); V7.0.7 apply thật trên `openerp_dev` khi deploy backend mới |
+| Catalog `EMPLOYEE_DOCUMENT_TYPE` trên runtime | **PASS runtime 2026-11-01** | catalog 1.0.10 publish + upgrade tenant QA ACTIVE; UI browser hiển thị `Loại tài liệu nhân sự` + danh sách loại, 0 console error (`catalog_1010_document_types.png`) |
+| Signed URL UI tải file từ trình duyệt | PASS (API-level) | Tải file bằng signed URL không kèm Bearer PASS (fetch thuần); WC hiện vẫn tải bằng blob + JWT — UI dùng signed URL là bước tối ưu sau Sprint |
+
+### 2.6. Runtime E2E — deferred closure (2026-11-01, employee 1.1.22 + catalog 1.0.10)
+
+Môi trường: backend `open-erp/backend:dev` (cutover C6 + signed passthrough), employee 1.1.22 + catalog 1.0.10 ACTIVE tenant QA `s7qa-mvv0ge5r`; web dev `:4200`.
+
+| TC | Kịch bản | Kết quả | Evidence |
+| :--- | :--- | :--- | :--- |
+| TC-40.1 | Backend mới deploy: Flyway `V7.0.7` apply thật, `plugin_catalog.org-structure` locked+default-install, 0 permission `core:*` legacy còn lại | **PASS** | backend log `Migrating schema "public" to version 7.0.7` |
+| TC-40.2 | employee 1.1.22 package/publish/upgrade tenant QA — 7 bước lifecycle OK | **PASS** | `PLUGIN_UPGRADE_SUCCESS ACTIVE 1.1.22` |
+| TC-40.3 | catalog 1.0.10 publish + upgrade tenant QA ACTIVE; UI hiển thị `Loại tài liệu nhân sự` | **PASS** | `catalog_1010_document_types.png` |
+| TC-40.4 | Signed URL E2E 9/9 (xem mục 4 hàng 1): upload → signed-url → download không Bearer → tampered 403 → forged/expired 403 → replay 200 | **PASS 9/9** | `signed-url-results.txt` (scratchpad QA) |
+| TC-40.5 | Employee screen 1.1.22 render + 0 overflow + 0 console error | **PASS** | `employee_122_list.png` |
+| TC-40.6 | Catalog screen 1.0.10 render + 0 console error | **PASS** | `catalog_1010_loaded.png`, `catalog_1010_document_types.png` |
+
+> Lưu ý thiết kế (đã verify): gateway có nhánh **signed passthrough** — GET `…/signed-documents/**` với query `sig` + `tenant_id` được forward không cần Bearer; plugin tự verify HMAC + TTL + quyền sở hữu theo tenant context gateway gửi, nên link rò rỉ không vượt tenant và không sống quá TTL. Production bắt buộc cấu hình `EMPLOYEE_DOCUMENT_SIGNED_URL_SECRET` riêng.
 
 ## 5. Rủi ro / khuyến nghị
 
@@ -315,6 +330,7 @@ Chi tiết log: [qa_real_e2e_summary.txt](evidence/s07_qa_real/qa_real_e2e_summa
 | 1.15 | 2026-10-31 | ClamAV scan PASS: EICAR 422, clean CLEAN; compose profile `av` TCP 3310; employee 1.1.18 | QA; app thật 2026-10-31 |
 | 1.16 | 2026-10-31 | Giới hạn node cấu hình duyệt `sm:max-w-48`; hết kéo rộng canvas; employee 1.1.19 | QA; app thật 2026-10-31 |
 | 1.17 | 2026-11-01 | Hoàn tất các mục deferred theo chỉ đạo chủ dự án: cutover C6 (V7.0.7 drop legacy + org-structure always-on, Core projection-only, backend **254/254 PASS**), signed URL HMAC + 3 endpoint (plugin 18/18 PASS), catalog root/resource plugin.json sync 1.0.10 (validate PASS); ScopeProjectionServiceTest/SecurityContextServiceTest/SampleRecordApiTest/SchemaFoundationTest/EntityRegistryServiceTest/ImpersonationApiTest/AuditWiringTest cập nhật theo kiến trúc projection | Developer; chỉ đạo chủ dự án 2026-11-01 |
+| 1.18 | 2026-11-01 | **Runtime E2E deferred closure PASS**: backend mới deploy với V7.0.7 apply thật; employee **1.1.22** (signed URL trả gateway prefix + tenant_id) và catalog **1.0.10** (bundle JAR, UI document types render) upgrade tenant QA ACTIVE; **signed URL E2E 9/9** (tải không Bearer, tampered/forged/expired 403, replay 200) qua gateway signed passthrough (`PluginRuntimeGatewayResource`); browser employee/catalog 0 console error, 0 overflow, ảnh `evidence/s07_qa_real/{employee_122_list,catalog_1010_loaded,catalog_1010_document_types}.png`; plugin 18/18 test lại PASS | QA/QC + Developer; app thật 2026-11-01 |
 
 
 

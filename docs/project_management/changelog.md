@@ -37,6 +37,11 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
   - **Signed URL tài liệu (TASK-433 0.3)**: `POST /documents/{id}/signed-url` + `POST /me/documents/{id}/signed-url` + `GET /signed-documents/{id}` — HMAC-SHA256 + TTL ngắn hạn (mặc định 300s); plugin 18/18 PASS; production cần cấu hình `EMPLOYEE_DOCUMENT_SIGNED_URL_SECRET` riêng.
   - **Catalog 1.0.10 manifest sync**: root + resource `plugin.json` đồng bộ (version/ui/tag); `open-erp validate` PASS; runtime rebuild chờ QA.
   - Items đồng bộ: FEAT-36…38 + TASK-426…438 **Done (QA)**; TR-S07-001 **1.17**; **[REV-S07-001 1.0](../sprints/sprint_07_plugin_employee/09_review/01_REV-S07-001_sprint_07_dod_review.md)** Draft ready — chờ chủ dự án duyệt để đóng Sprint.
+- **Commit `52fee05c` + runtime E2E PASS (TR 1.18 / REV 1.1, 2026-11-01)**:
+  - Commit toàn bộ Sprint 07 (464 file, +74.081/−5.449); backend mới deploy với **V7.0.7 apply thật** trên dev DB.
+  - **employee 1.1.22** (signed URL trả gateway prefix + `tenant_id`), **catalog 1.0.10** (bundle JAR + UI document types) — publish/upgrade tenant QA ACTIVE, lifecycle 7 bước OK.
+  - **Signed URL E2E 9/9**: tải tài liệu KHÔNG cần Bearer qua gateway signed passthrough (`PluginRuntimeGatewayResource` — GET `…/signed-documents/**` với `sig`+`tenant_id`); tampered/forged/expired đều 403, replay trong TTL 200; browser employee/catalog **0 console error**.
+  - TR-S07-001 **1.18** (mục 2.6 runtime E2E), REV-S07-001 **1.1** Ready for review.
 
 ### Sprint 06 — ĐÃ ĐÓNG (2026-10-29): Nền tảng phát triển plugin
 
