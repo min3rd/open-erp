@@ -2,11 +2,11 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / phiên bản / cập nhật | READ-S09-001 / 0.4 / 2026-11-02 |
-| Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — **Scope APPROVED 1.0** (18/18 câu + 37 AC); bước 05 (SOL) mở cho Architect — BA phase hoàn tất |
+| ID / phiên bản / cập nhật | READ-S09-001 / 0.5 / 2026-11-02 |
+| Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — Scope APPROVED 1.0; **SOL-S09-001 + 5 ADR soạn xong (Draft 0.1) — Design In Review, chờ chủ dự án duyệt** |
 | Owner / reviewer | BA Agent / Chủ dự án (duyệt scope tại CONF) |
 | Đầu vào / đọc trước | [RAW-S09-001](01_raw_notes/01_RAW-S09-001_attendance_timesheet_plugin_requirements.md) — yêu cầu trực tiếp chủ dự án 2026-11-02 / [Sprint 08](../sprint_08_plugin_form_workflow/00_READING_GUIDE.md) (Design In Review, chưa đóng), [Sprint 07](../sprint_07_plugin_employee/00_READING_GUIDE.md) (đã đóng) |
-| Đọc tiếp | [ANL-S09-001](02_analysis/01_ANL-S09-001_attendance_timesheet_plugin.md) → [BENCH-S09-001](03_benchmarks/01_BENCH-S09-001_attendance_timesheet_benchmarks.md) → [CONF-S09-001](04_confirmation/01_CONF-S09-001_sprint_09_scope_and_ac.md) |
+| Đọc tiếp | [ANL-S09-001](02_analysis/01_ANL-S09-001_attendance_timesheet_plugin.md) → [BENCH-S09-001](03_benchmarks/01_BENCH-S09-001_attendance_timesheet_benchmarks.md) → [CONF-S09-001](04_confirmation/01_CONF-S09-001_sprint_09_scope_and_ac.md) → [SOL-S09-001](05_solutions/01_SOL-S09-001_attendance_architecture.md) |
 
 ## 1. Đọc để hiểu gì?
 
@@ -42,7 +42,12 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | 02.01 | ANL-S09-001 | [Phân tích plugin attendance](02_analysis/01_ANL-S09-001_attendance_timesheet_plugin.md) | 28 US, scope in/out đề xuất, BR-A01…A14, 10 edge case, ánh xạ câu hỏi CONF | BA |
 | 03.01 | BENCH-S09-001 | [Đối chuẩn attendance/timesheet](03_benchmarks/01_BENCH-S09-001_attendance_timesheet_benchmarks.md) | 10 sản phẩm, 8 chủ đề, 12 bài học, 4 khoảng trống | BA |
 | 04.01 | CONF-S09-001 | [Scope, AC & câu trả lời](04_confirmation/01_CONF-S09-001_sprint_09_scope_and_ac.md) | ✅ **APPROVED 1.0** — 18/18 câu; In/Out scope; 5 luồng; 37 AC + ma trận D/M; 6 rủi ro (Q9/Q18 phụ thuộc Sprint 08, Q14 leave đầy đủ) | BA + Khách hàng |
-| 05.01 | SOL-S09-001 | Chưa tạo | Giải pháp tổng thể, ranh giới, quyết định kiến trúc | Architect |
+| 05.01 | SOL-S09-001 | [Giải pháp tổng thể](05_solutions/01_SOL-S09-001_attendance_architecture.md) | 1 plugin attendance + 1 mảnh Core; ranh giới; 6 luồng chính; rủi ro | Architect |
+| 05.02 | ADR-S09-001 | [Ca làm việc trong plugin](05_solutions/02_ADR-S09-001_shift_structure_in_plugin.md) | ShiftDefinition + template đơn vị + override NV; catalog SHIFT chỉ là nhãn | Architect |
+| 05.03 | ADR-S09-002 | [Đơn từ trên form/workflow Sprint 08](05_solutions/03_ADR-S09-002_request_forms_on_form_workflow.md) | RequestType seed 6 + mapping; fallback duyệt 1 cấp nội bộ | Architect |
+| 05.04 | ADR-S09-003 | [Engine tính công](05_solutions/04_ADR-S09-003_attendance_calculation_engine.md) | 3 tầng dữ liệu; job idempotent; tolerance 2 chiều; OT window | Architect |
+| 05.05 | ADR-S09-004 | [Số dư phép theo ledger](05_solutions/05_ADR-S09-004_leave_balance_ledger.md) | Grant/usage/adjust/expiry append-only; cộng dồn + hạn dùng | Architect |
+| 05.06 | ADR-S09-005 | [Ingestion log đa nguồn](05_solutions/06_ADR-S09-005_multi_source_log_ingestion.md) | 1 lõi log append-only; kiosk PIN; CSV; API push qua Core | Architect |
 | 06.01–06.04 | DES-ARCH/DB/API/UI-S09-001 | Chưa tạo | Kiến trúc, schema, API contract, UI/UX | Architect |
 | 07.01+ | FEAT/TASK | Chưa cấp | Không cấp số trước khi CONF duyệt scope | Developer |
 | 08.01+ | TP/TR-S09-001 | Chưa tạo | Test plan/report | QA |
@@ -55,7 +60,7 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | Gate | Trạng thái | Người quyết định | Nguồn/phiên bản/ngày |
 | :--- | :--- | :--- | :--- |
 | Scope & AC (CONF-S09-001) | ✅ **APPROVED 1.0** — chủ dự án duyệt toàn bộ scope (18/18 câu + 37 AC) qua hội thoại tương tác (đã nêu rõ rủi ro Q9/Q18 phụ thuộc Sprint 08, Q14 leave đầy đủ) | Chủ dự án | CONF-S09-001 1.0, 2026-11-02 |
-| Design ready (SOL/ADR/DES) | ⏳ Pending — bước 05 đã mở; Architect đánh giá phụ thuộc Sprint 08 trước khi thiết kế | Architect + Chủ dự án | — |
+| Design ready (SOL/ADR/DES) | 📝 **In Review** — 1 SOL + 5 ADR Draft 0.1 chờ chủ dự án duyệt (DES bước 06 soạn sau khi ADR review) | Architect + Chủ dự án | SOL/ADR-S09 0.1, 2026-11-02 |
 | Implementation | ⏳ Pending | Developer | — |
 | QA sign-off | ⏳ Pending | QA | — |
 | PM DoD / Customer acceptance | ⏳ Pending | Chủ dự án | — |
@@ -65,12 +70,13 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 
 | TYPE/ID | File hoặc reservation | Owner | Tình trạng cấp số |
 | :--- | :--- | :--- | :--- |
-| READ-S09-001 | [00_READING_GUIDE.md](00_READING_GUIDE.md) | BA | Used — 0.3 |
+| READ-S09-001 | [00_READING_GUIDE.md](00_READING_GUIDE.md) | BA | Used — 0.5 |
 | RAW-S09-001 | [01_raw_notes/](01_raw_notes/) | BA | Used — Draft 0.2 (18/18 câu đã trả lời) |
 | ANL-S09-001 | [02_analysis/](02_analysis/) | BA | Used — Draft 0.2 |
 | BENCH-S09-001 | [03_benchmarks/](03_benchmarks/) | BA | Used — Draft 0.1 |
 | CONF-S09-001 | [04_confirmation/](04_confirmation/) | BA + Khách hàng | Used — **APPROVED 1.0** (18/18 câu trả lời + duyệt scope) |
-| SOL/ADR/DES-S09-001+ | *(chưa cấp)* | Architect | Không cấp trước khi CONF duyệt scope |
+| SOL-S09-001 | [05_solutions/](05_solutions/) | Architect | Used — Draft 0.1/In Review |
+| ADR-S09-001…005 | [05_solutions/](05_solutions/) | Architect | Used — Draft 0.1/In Review |
 | FEAT/TASK/BUG | *(chưa cấp)* | Developer/QA | Không cấp số trước khi CONF duyệt scope |
 
 ## 5. Liên hệ với các Sprint trước
@@ -91,3 +97,4 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | 0.2 | 2026-11-02 | Chủ dự án trả lời **16/16 câu** qua hội thoại tương tác (4 vòng); soạn CONF-S09-001 0.2 (In/Out scope + 5 luồng + 31 AC + ma trận D/M + 5 rủi ro); RAW nâng 0.2; gate vẫn Pending — chờ duyệt scope & AC | BA Agent; hội thoại tương tác chủ dự án |
 | 0.3 | 2026-11-02 | Chủ dự án phản hồi *"sprint 9 còn thiếu phần tạo các loại đơn phù hợp cho nghiệp vụ"* → trả lời thêm Q17/Q18: **module Đơn từ** (6 loại chuẩn + tenant tạo loại mới, form builder + workflow Sprint 08); CONF 0.3 (37 AC + 6 rủi ro), ANL 0.2 (28 US), RAW 0.2; gate vẫn Pending | BA Agent; hội thoại tương tác chủ dự án |
 | 0.4 | 2026-11-02 | **Scope & AC APPROVED 1.0** — chủ dự án chọn "Duyệt toàn bộ scope" sau khi được nêu rủi ro Q9/Q18 (phụ thuộc Sprint 08) và Q14 (leave đầy đủ); CONF nâng 1.0; bước 05 (SOL) mở cho Architect | BA Agent; hội thoại tương tác chủ dự án |
+| 0.5 | 2026-11-02 | Architect khảo sát codebase (Event Hub + Entity Write Proxy đã implement; form/workflow đã scaffold có engine; employee manifest) và soạn **SOL-S09-001 + ADR-S09-001…005** (Draft 0.1); quyết định then chốt: ca trong plugin, đơn từ trên form/workflow có fallback, engine tính công job idempotent, ledger số dư phép, ingestion đa nguồn qua Core; Design **In Review** | Architect; khảo sát repo 2026-11-02 |
