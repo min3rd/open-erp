@@ -18,6 +18,7 @@
         <module>employee</module>
         <module>form</module>
         <module>workflow</module>
+        <module>attendance</module>
     </modules>
 
     <properties>

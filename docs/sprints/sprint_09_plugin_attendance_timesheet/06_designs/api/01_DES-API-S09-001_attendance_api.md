@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | DES-API-S09-001 / Thiết kế API / Sprint 09 |
-| Trạng thái / phiên bản / cập nhật | Draft / 0.1 / 2026-11-02 |
+| Trạng thái / phiên bản / cập nhật | **✅ APPROVED 1.0 / 2026-11-02** — chủ dự án duyệt qua hội thoại tương tác (nội dung 0.1 giữ nguyên) |
 | Owner / reviewer | Solution Architect / Chủ dự án (design review) |
 | Đầu vào | [DES-ARCH-S09-001](../arch/01_DES-ARCH-S09-001_components_and_flows.md), [DES-DB-S09-001](../db/01_DES-DB-S09-001_attendance_schema.md), [api_standards](../../../../../.agents/rules/api_standards.md), [CONF-S09-001](../../04_confirmation/01_CONF-S09-001_sprint_09_scope_and_ac.md) 1.0 |
 | Đọc trước / đọc tiếp | [DES-ARCH-S09-001](../arch/01_DES-ARCH-S09-001_components_and_flows.md) / [DES-UI-S09-001](../ui/01_DES-UI-S09-001_attendance_ui.md) |

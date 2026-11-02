@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | DES-DB-S09-001 / Thiết kế DB / Sprint 09 |
-| Trạng thái / phiên bản / cập nhật | Draft / 0.1 / 2026-11-02 |
+| Trạng thái / phiên bản / cập nhật | **✅ APPROVED 1.0 / 2026-11-02** — chủ dự án duyệt qua hội thoại tương tác (nội dung 0.1 giữ nguyên) |
 | Owner / reviewer | Solution Architect / Chủ dự án (design review) |
 | Đầu vào | [SOL-S09-001](../../05_solutions/01_SOL-S09-001_attendance_architecture.md) APPROVED, [ADR-S09-001…005](../../05_solutions/02_ADR-S09-001_shift_structure_in_plugin.md), [CONF-S09-001](../../04_confirmation/01_CONF-S09-001_sprint_09_scope_and_ac.md) 1.0 |
 | Đọc trước / đọc tiếp | [ADR-S09-001](../../05_solutions/02_ADR-S09-001_shift_structure_in_plugin.md) / [DES-API-S09-001](../api/01_DES-API-S09-001_attendance_api.md) |

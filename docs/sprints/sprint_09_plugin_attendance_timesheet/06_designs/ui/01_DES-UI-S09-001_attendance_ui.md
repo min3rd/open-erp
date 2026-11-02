@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | DES-UI-S09-001 / Thiết kế UI / Sprint 09 |
-| Trạng thái / phiên bản / cập nhật | Draft / 0.1 / 2026-11-02 |
+| Trạng thái / phiên bản / cập nhật | **✅ APPROVED 1.0 / 2026-11-02** — chủ dự án duyệt qua hội thoại tương tác (nội dung 0.1 giữ nguyên) |
 | Owner / reviewer | Solution Architect / Chủ dự án (design review) |
 | Đầu vào | [DES-ARCH-S09-001](../arch/01_DES-ARCH-S09-001_components_and_flows.md), [DES-API-S09-001](../api/01_DES-API-S09-001_attendance_api.md), [ui_ux_standards](../../../../../.agents/rules/ui_ux_standards.md), [CONF-S09-001](../../04_confirmation/01_CONF-S09-001_sprint_09_scope_and_ac.md) Q15 |
 | Đọc trước / đọc tiếp | [DES-API-S09-001](../api/01_DES-API-S09-001_attendance_api.md) / bước 07 FEAT/TASK |
