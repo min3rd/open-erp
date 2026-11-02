@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@shared';
+import { I18nService, TranslatePipe } from '@shared';
 import { FormDocument, FormItem } from './form.model';
 import { FormService } from './form.service';
 
@@ -25,6 +25,7 @@ import { FormService } from './form.service';
 export class FormFillComponent implements OnInit {
   private host = inject<ElementRef<HTMLElement>>(ElementRef);
   private api = inject(FormService);
+  private i18n = inject(I18nService);
 
   @Input() formSlug = '';
   @Input() tenantSlug = '';
@@ -46,17 +47,39 @@ export class FormFillComponent implements OnInit {
     if (!this.pluginToken) {
       this.pluginToken = this.host.nativeElement.getAttribute('plugin-token') ?? '';
     }
-    this.api.publicView(this.formSlug, this.pluginToken).subscribe({
-      next: (result) => {
-        const data = (result.data ?? {}) as Record<string, unknown>;
-        this.title.set(String(data['title'] ?? ''));
-        this.description.set(String(data['description'] ?? ''));
-        const document = (data['document'] ?? { items: [] }) as FormDocument;
-        this.items.set(document.items ?? []);
-        this.recomputeVisibility();
-      },
-      error: () => this.error.set('PLUGIN_FORM_FILL_UNAVAILABLE'),
+    // BUG-177 fix: the public page has no plugin-host i18n bootstrap — load the
+    // dictionary from the plugin runtime path and register it with the shared
+    // service before rendering translated labels.
+    void this.loadDictionary().then(() => {
+      this.api.publicView(this.formSlug, this.pluginToken).subscribe({
+        next: (result) => {
+          const data = (result.data ?? {}) as Record<string, unknown>;
+          this.title.set(String(data['title'] ?? ''));
+          this.description.set(String(data['description'] ?? ''));
+          const document = (data['document'] ?? { items: [] }) as FormDocument;
+          this.items.set(document.items ?? []);
+          this.recomputeVisibility();
+        },
+        error: () => this.error.set('PLUGIN_FORM_FILL_UNAVAILABLE'),
+      });
     });
+  }
+
+  private async loadDictionary(): Promise<void> {
+    const lang = (navigator.language || 'vi').startsWith('vi') ? 'vi' : 'en';
+    try {
+      // The public page is served from the core origin, so a root-relative
+      // runtime path reaches the plugin bundle's dictionaries.
+      const response = await fetch(
+        `/api/v1/plugins/runtime/form/i18n/${lang}.json?plugin_token=${encodeURIComponent(this.pluginToken)}`,
+      );
+      if (response.ok) {
+        this.i18n.setDictionary(lang as never, await response.json());
+        this.i18n.setLanguage(lang as never);
+      }
+    } catch {
+      // Labels fall back to keys; the form stays functional.
+    }
   }
 
   recomputeVisibility(): void {

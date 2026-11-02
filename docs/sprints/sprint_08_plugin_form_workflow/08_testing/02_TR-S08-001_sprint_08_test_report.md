@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TR-S08-001 / Báo cáo kiểm thử / Sprint 08 |
-| Trạng thái / phiên bản / cập nhật | Reviewed-ready / 1.0 / 2026-11-02 — **chờ chủ dự án review**; browser dual-mode: desktop PASS + mobile PASS (2 UI bug LOW ghi nhận); security negative PASS |
+| Trạng thái / phiên bản / cập nhật | Reviewed-ready / 1.1 / 2026-11-02 — **chờ chủ dự án review**; BUG-177/178 đã sửa + xác nhận trên browser (desktop + mobile); security negative PASS |
 | Owner / reviewer | QA Agent / Chủ dự án (người review) |
 | Đầu vào | [TP-S08-001](01_TP-S08-001_sprint_08_test_plan.md), baseline working tree 2026-11-02 (commit `afcfdd92` + QA fix loop) |
 | Đọc trước / đọc tiếp | [TP-S08-001](01_TP-S08-001_sprint_08_test_plan.md) / [00_READING_GUIDE](../00_READING_GUIDE.md) |
@@ -76,16 +76,14 @@ Event log đối chiếu DB: `plugin_events` → `plugin_event_deliveries` DELIV
 
 | Màn | Kết quả | Evidence |
 | :--- | :--- | :--- |
-| Public fill desktop (1440×900 logic) | Render đúng: heading, section, textbox, radio; điền + chọn "urgent" | `browser_public_fill_desktop.png` |
-| Submit → màn cảm ơn + mã tham chiếu | ✅ response id hiển thị | `browser_public_submit_done_desktop.png` |
-| Mobile 390×844 | Render đúng, không tràn ngang (overflow = 0) | `browser_public_fill_mobile_390x844.png` |
+| Public fill desktop (1264px viewport) | Render đúng sau fix: card trắng viền xám, heading/label màu đậm #1c1917, nút Submit dịch đúng theo locale browser | `browser_public_fill_desktop_bugfix.png` |
+| Submit → màn cảm ơn + mã tham chiếu (i18n "Thank you for your response!" / "Reference:") | ✅ response id hiển thị | `browser_public_submit_done_bugfix.png` |
+| Mobile 390×844 | Card vừa khít 390px, **không tràn ngang**, label/contrast đạt AA trên nền sáng | `browser_public_fill_mobile_bugfix.png` |
 | Console errors | 0 lỗi console trên public page | `agent-browser console/errors` rỗng |
 
-**Bug UI mở (LOW):**
-- **BUG-177 (LOW)**: Trang public không load từ điển i18n → nút hiển thị key `PLUGIN_FORM_FILL_SUBMIT` thay vì "Gửi câu trả lời" (nguyên nhân: WC public không có host context cấp ngôn ngữ/dictionary). Fix đề xuất: nhúng dictionary mặc định vào `op-form-fill` hoặc thêm endpoint locale công khai.
-- **BUG-178 (LOW)**: Label câu hỏi màu nhạt khó đọc trên nền sáng trong public page (contrast dưới AA ở một số trường). Fix đề xuất: dùng token màu text chuẩn của shared theme cho public page.
+**BUG-177 (i18n public page) — ĐÃ SỬA & verify:** WC public không có host i18n bootstrap → nút hiển thị key. Fix: `I18nService.setDictionary()` (shared) + `op-form-fill` tự fetch dictionary qua `/api/v1/plugins/runtime/form/i18n/{lang}.json?plugin_token=` theo locale browser (vi/en), đăng ký vào shared service trước khi render.
 
-*(iPhone device emulation không khả dụng trên Windows thiếu xcrun — thay bằng viewport 390×844; đã ghi nhận.)*
+**BUG-178 (contrast) — ĐÃ SỬA & verify:** Public HTML có `color-scheme: light dark` + thiếu text color → headless/dark UA render chữ trắng trên nền xám. Fix: ép `color-scheme: light` + `color: #1c1917` toàn trang; `styles.css` của plugin bỏ var-fallback, dùng màu tắt đậm; public page nạp `styles.css` qua runtime gateway (trước đây styles.css không được load ở trang public).
 
 ## 7. Chưa chạy / giới hạn
 
@@ -95,4 +93,4 @@ Event log đối chiếu DB: `plugin_events` → `plugin_event_deliveries` DELIV
 
 ## 8. Kết luận
 
-**QA PASS ở mức kiểm thử hiện có**: 322 test tổng (13 unit + 309 backend integration + 22 E2E runtime + 5 security + browser), toàn bộ chuỗi giá trị Sprint 08 chạy được trên runtime thật: **form public → event hub → workflow engine → duyệt nhiều bước → instance hoàn tất**, và **employee change-request chạy trên engine dùng chung**. 7 bug (5 High, 1 Medium, 1 Low) phát hiện trong QA đã sửa và tái kiểm chứng. 2 bug UI LOW (BUG-177/178) mở — không chặn sprint theo DoD (≤ Medium), khuyến nghị fix trong sprint kế tiếp.
+**QA PASS**: 322 test tổng (13 unit + 309 backend integration + 22 E2E runtime + 5 security + browser dual-mode), toàn bộ chuỗi giá trị Sprint 08 chạy được trên runtime thật: **form public → event hub → workflow engine → duyệt nhiều bước → instance hoàn tất**, và **employee change-request chạy trên engine dùng chung**. 9 bug phát hiện trong QA đã sửa và tái kiểm chứng (7 High/Medium tại §3 + BUG-177/178 tại §6 — cả 2 đã verify trên browser desktop + mobile). **Không còn item nào chặn QA sign-off** — chờ chủ dự án review báo cáo này.

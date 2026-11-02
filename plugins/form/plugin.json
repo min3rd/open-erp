@@ -3,7 +3,7 @@
   "id": "form",
   "name": "Form Builder",
   "description": "Thiáº¿t káº¿ biá»ƒu máº«u kiá»ƒu Google Forms: sections, nhiá»u loáº¡i cÃ¢u há»i, skip logic, link public, thu vÃ  quáº£n lÃ½ response, map vÃ o entity.",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "template_version": "2.0.0",
   "author": "Open-ERP Plugin Team",
   "core_version_compatibility": ">=1.0.0 <2.0.0",

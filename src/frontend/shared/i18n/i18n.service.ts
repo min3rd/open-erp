@@ -38,6 +38,16 @@ export class I18nService {
     void this.ensureDictionary(lang).then(() => this.dictVersionSignal.update((v: number) => v + 1));
   }
 
+  /**
+   * Registers an externally loaded dictionary (Sprint 08: public plugin pages
+   * cannot rely on the document-relative fetch in `ensureDictionary`, so the
+   * embedded UI loads the dictionary itself and hands it over here).
+   */
+  setDictionary(lang: LangCode, dictionary: Record<string, string>) {
+    this.dictionaries.set(lang, dictionary);
+    this.dictVersionSignal.update((v: number) => v + 1);
+  }
+
   t(code: string, params?: Record<string, any>): string {
     // Read reactive signals to track dependency in effects and computed values
     this.currentLangSignal();
