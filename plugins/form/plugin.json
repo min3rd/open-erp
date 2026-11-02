@@ -1,0 +1,361 @@
+{
+  "schema_version": "2.0",
+  "id": "form",
+  "name": "Form Builder",
+  "description": "Thiết kế biểu mẫu kiểu Google Forms: sections, nhiều loại câu hỏi, skip logic, link public, thu và quản lý response, map vào entity.",
+  "version": "1.0.0",
+  "template_version": "2.0.0",
+  "author": "Open-ERP Plugin Team",
+  "core_version_compatibility": ">=1.0.0 <2.0.0",
+  "migration_policy": "COMPATIBLE",
+  "rollback_strategy": "SNAPSHOT_RESTORE",
+  "dependencies": [],
+  "platforms": {
+    "desktop": {
+      "supported": true,
+      "features": [
+        "form:definition:manage",
+        "form:response:read",
+        "form:response:export"
+      ]
+    },
+    "mobile": {
+      "supported": true,
+      "features": [
+        "form:public:fill"
+      ]
+    }
+  },
+  "permissions": [
+    {
+      "code": "form:definition:manage",
+      "name": "Form definition manage"
+    },
+    {
+      "code": "form:response:read",
+      "name": "Form response read"
+    },
+    {
+      "code": "form:response:export",
+      "name": "Form response export"
+    }
+  ],
+  "entities": [
+    {
+      "name": "FormDefinition",
+      "table": "plg_form_definitions",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "slug", "type": "string", "required": true, "max_length": 64 },
+        { "name": "title_text", "type": "string", "required": true, "max_length": 300 },
+        { "name": "description", "type": "text", "required": false },
+        { "name": "document", "type": "json", "required": true },
+        { "name": "entity_mapping", "type": "json", "required": false },
+        { "name": "publish_status", "type": "enum", "enum_values": ["DRAFT", "PUBLISHED", "CLOSED"], "default": "DRAFT" },
+        { "name": "captcha", "type": "enum", "enum_values": ["none", "recaptcha-v3"], "default": "none" },
+        { "name": "close_at", "type": "datetime", "required": false },
+        { "name": "response_limit", "type": "integer", "required": false },
+        { "name": "accept_responses", "type": "bool", "required": true, "default": true },
+        { "name": "latest_version", "type": "integer", "required": true, "default": 1 },
+        { "name": "created_by", "type": "uuid", "required": false },
+        { "name": "created_at", "type": "datetime", "required": false },
+        { "name": "updated_at", "type": "datetime", "required": false }
+      ],
+      "validators": [
+        { "field": "slug", "rule": "max_length", "value": 64 },
+        { "field": "publish_status", "rule": "enum", "value": ["DRAFT", "PUBLISHED", "CLOSED"] }
+      ]
+    },
+    {
+      "name": "FormDefinitionVersion",
+      "table": "plg_form_definitions_versions",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "definition_id", "type": "uuid", "required": true },
+        { "name": "version", "type": "integer", "required": true },
+        { "name": "document", "type": "json", "required": true },
+        { "name": "entity_mapping", "type": "json", "required": false },
+        { "name": "created_at", "type": "datetime", "required": false }
+      ]
+    },
+    {
+      "name": "FormResponse",
+      "table": "plg_form_responses",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "form_id", "type": "uuid", "required": true },
+        { "name": "form_version", "type": "integer", "required": true },
+        { "name": "answers", "type": "json", "required": true },
+        { "name": "responder_email", "type": "string", "required": false, "max_length": 320 },
+        { "name": "submitted_by_user_id", "type": "uuid", "required": false },
+        { "name": "entity_write_status", "type": "enum", "enum_values": ["SKIPPED", "OK", "FAILED"], "default": "SKIPPED" },
+        { "name": "entity_write_error", "type": "text", "required": false },
+        { "name": "workflow_instance_id", "type": "uuid", "required": false },
+        { "name": "ip_hash", "type": "string", "required": false, "max_length": 64 },
+        { "name": "idempotency_key", "type": "string", "required": true, "max_length": 80 },
+        { "name": "status", "type": "enum", "enum_values": ["SUBMITTED"], "default": "SUBMITTED" },
+        { "name": "submitted_at", "type": "datetime", "required": false }
+      ],
+      "validators": [
+        { "field": "entity_write_status", "rule": "enum", "value": ["SKIPPED", "OK", "FAILED"] }
+      ]
+    },
+    {
+      "name": "FormFile",
+      "table": "plg_form_files",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "form_id", "type": "uuid", "required": true },
+        { "name": "response_id", "type": "uuid", "required": false },
+        { "name": "storage_key", "type": "string", "required": true, "max_length": 400 },
+        { "name": "original_name", "type": "string", "required": true, "max_length": 255 },
+        { "name": "content_type", "type": "string", "required": false, "max_length": 120 },
+        { "name": "size_bytes", "type": "integer", "required": false },
+        { "name": "scan_status", "type": "enum", "enum_values": ["PENDING", "CLEAN", "INFECTED", "ERROR"], "default": "PENDING" },
+        { "name": "scan_error", "type": "text", "required": false },
+        { "name": "created_at", "type": "datetime", "required": false }
+      ],
+      "validators": [
+        { "field": "scan_status", "rule": "enum", "value": ["PENDING", "CLEAN", "INFECTED", "ERROR"] }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "name": "author",
+      "owner_entity": "FormDefinition",
+      "type": "MANY_TO_ONE",
+      "target": "core.user",
+      "storage": "SOFT_REF",
+      "target_display_field": "full_name",
+      "required": false,
+      "on_delete": "SET_NULL"
+    }
+  ],
+  "queries": [
+    {
+      "id": "form.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "FormDefinition",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id", "slug", "title_text", "description", "publish_status", "captcha",
+        "close_at", "response_limit", "accept_responses", "latest_version",
+        "created_by", "created_at", "updated_at"
+      ],
+      "sort": [{ "field": "updated_at", "direction": "DESC" }],
+      "maxRows": 100
+    },
+    {
+      "id": "form.get",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "FormDefinition",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id", "slug", "title_text", "description", "document", "entity_mapping",
+        "publish_status", "captcha", "close_at", "response_limit",
+        "accept_responses", "latest_version", "created_by", "created_at", "updated_at"
+      ],
+      "filters": [{ "field": "id", "op": "EQ", "param": "id", "required": true }],
+      "maxRows": 1
+    },
+    {
+      "id": "form.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "FormDefinition",
+      "tenant_scope": "TENANT",
+      "values": {
+        "slug": { "param": "slug" },
+        "title_text": { "param": "title_text" },
+        "description": { "param": "description", "optional": true, "allow_null": true },
+        "document": { "param": "document" },
+        "entity_mapping": { "param": "entity_mapping", "optional": true, "allow_null": true },
+        "publish_status": { "param": "publish_status", "optional": true },
+        "latest_version": { "param": "latest_version", "optional": true },
+        "created_by": { "param": "created_by", "optional": true, "allow_null": true },
+        "updated_at": { "param": "updated_at" }
+      },
+      "returning": [
+        "id", "slug", "title_text", "publish_status", "latest_version", "created_at"
+      ]
+    },
+    {
+      "id": "form.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "FormDefinition",
+      "tenant_scope": "TENANT",
+      "values": {
+        "title_text": { "param": "title_text" },
+        "description": { "param": "description", "optional": true, "allow_null": true },
+        "document": { "param": "document" },
+        "entity_mapping": { "param": "entity_mapping", "optional": true, "allow_null": true },
+        "latest_version": { "param": "latest_version" },
+        "updated_at": { "param": "updated_at" }
+      },
+      "filters": [{ "field": "id", "op": "EQ", "param": "id", "required": true }],
+      "returning": ["id", "slug", "latest_version", "updated_at"]
+    },
+    {
+      "id": "form.publish",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "FormDefinition",
+      "tenant_scope": "TENANT",
+      "values": {
+        "publish_status": { "param": "publish_status" },
+        "captcha": { "param": "captcha", "optional": true },
+        "close_at": { "param": "close_at", "optional": true, "allow_null": true },
+        "response_limit": { "param": "response_limit", "optional": true, "allow_null": true },
+        "accept_responses": { "param": "accept_responses", "optional": true },
+        "updated_at": { "param": "updated_at" }
+      },
+      "filters": [{ "field": "id", "op": "EQ", "param": "id", "required": true }],
+      "returning": ["id", "slug", "publish_status", "captcha", "close_at", "response_limit", "accept_responses"]
+    },
+    {
+      "id": "form.version.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "FormDefinitionVersion",
+      "tenant_scope": "TENANT",
+      "values": {
+        "definition_id": { "param": "definition_id" },
+        "version": { "param": "version" },
+        "document": { "param": "document" },
+        "entity_mapping": { "param": "entity_mapping", "optional": true, "allow_null": true }
+      },
+      "returning": ["id", "definition_id", "version", "created_at"]
+    },
+    {
+      "id": "form.version.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "FormDefinitionVersion",
+      "tenant_scope": "TENANT",
+      "select": ["id", "definition_id", "version", "document", "entity_mapping", "created_at"],
+      "filters": [{ "field": "definition_id", "op": "EQ", "param": "definition_id", "required": true }],
+      "sort": [{ "field": "version", "direction": "DESC" }],
+      "maxRows": 200
+    },
+    {
+      "id": "form.response.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "FormResponse",
+      "tenant_scope": "TENANT",
+      "values": {
+        "form_id": { "param": "form_id" },
+        "form_version": { "param": "form_version" },
+        "answers": { "param": "answers" },
+        "responder_email": { "param": "responder_email", "optional": true, "allow_null": true },
+        "submitted_by_user_id": { "param": "submitted_by_user_id", "optional": true, "allow_null": true },
+        "entity_write_status": { "param": "entity_write_status", "optional": true },
+        "entity_write_error": { "param": "entity_write_error", "optional": true, "allow_null": true },
+        "ip_hash": { "param": "ip_hash", "optional": true, "allow_null": true },
+        "idempotency_key": { "param": "idempotency_key" }
+      },
+      "returning": ["id", "form_id", "form_version", "entity_write_status", "submitted_at"]
+    },
+    {
+      "id": "form.response.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "FormResponse",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id", "form_id", "form_version", "answers", "responder_email",
+        "submitted_by_user_id", "entity_write_status", "submitted_at"
+      ],
+      "filters": [
+        { "field": "form_id", "op": "EQ", "param": "form_id", "required": true }
+      ],
+      "sort": [{ "field": "submitted_at", "direction": "DESC" }],
+      "maxRows": 200
+    },
+    {
+      "id": "form.response.get",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "FormResponse",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id", "form_id", "form_version", "answers", "responder_email",
+        "submitted_by_user_id", "entity_write_status", "entity_write_error", "submitted_at"
+      ],
+      "filters": [{ "field": "id", "op": "EQ", "param": "id", "required": true }],
+      "maxRows": 1
+    },
+    {
+      "id": "form.file.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "FormFile",
+      "tenant_scope": "TENANT",
+      "values": {
+        "form_id": { "param": "form_id" },
+        "response_id": { "param": "response_id", "optional": true, "allow_null": true },
+        "storage_key": { "param": "storage_key" },
+        "original_name": { "param": "original_name" },
+        "content_type": { "param": "content_type", "optional": true, "allow_null": true },
+        "size_bytes": { "param": "size_bytes", "optional": true, "allow_null": true },
+        "scan_status": { "param": "scan_status", "optional": true }
+      },
+      "returning": ["id", "form_id", "storage_key", "scan_status", "created_at"]
+    },
+    {
+      "id": "form.file.get",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "FormFile",
+      "tenant_scope": "TENANT",
+      "select": ["id", "form_id", "response_id", "storage_key", "original_name", "content_type", "size_bytes", "scan_status", "created_at"],
+      "filters": [{ "field": "id", "op": "EQ", "param": "id", "required": true }],
+      "maxRows": 1
+    }
+  ],
+  "migrations": [
+    {
+      "version": "1.0.0",
+      "file": "V1.0.0__form_schema.sql",
+      "checksum": "sha256:660959d230db627c76bdd5a6783fc189cc943b817fccfb8951f6c14ff3d469fe",
+      "description": "form builder schema"
+    }
+  ],
+  "kafka_events": {
+    "publishes": [],
+    "subscribes": []
+  },
+  "websockets": [],
+  "ui_manifest": {
+    "contract_version": "1.0",
+    "screens": [
+      {
+        "route": "/apps/form",
+        "title_key": "PLUGIN_FORM_MENU",
+        "permission": "form:definition:manage",
+        "render_mode": "WEB_COMPONENT",
+        "entry": "/plugins-runtime/form/main.js",
+        "tag_name": "op-form-app",
+        "order": 130,
+        "platforms": ["desktop"]
+      }
+    ],
+    "contributions": [],
+    "slots": [],
+    "crud": []
+  },
+  "distribution": {
+    "type": "IMAGE_REGISTRY",
+    "registry_url": "",
+    "repository": "open-erp/form",
+    "tag": "1.0.0"
+  }
+}

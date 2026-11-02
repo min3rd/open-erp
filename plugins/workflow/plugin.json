@@ -1,0 +1,506 @@
+{
+  "schema_version": "2.0",
+  "id": "workflow",
+  "name": "Workflow Engine",
+  "description": "Tạo và xử lý công việc theo luồng: định nghĩa versioned, điều kiện rẽ nhánh, bước song song, phê duyệt nhiều chế độ, task inbox, SLA, audit, webhook.",
+  "version": "1.0.0",
+  "template_version": "2.0.0",
+  "author": "Open-ERP Plugin Team",
+  "core_version_compatibility": ">=1.0.0 <2.0.0",
+  "migration_policy": "COMPATIBLE",
+  "rollback_strategy": "SNAPSHOT_RESTORE",
+  "dependencies": [],
+  "platforms": {
+    "desktop": {
+      "supported": true,
+      "features": [
+        "workflow:definition:manage",
+        "workflow:instance:read",
+        "workflow:task:action",
+        "workflow:report:read"
+      ]
+    },
+    "mobile": {
+      "supported": true,
+      "features": [
+        "workflow:task:action",
+        "workflow:instance:read"
+      ]
+    }
+  },
+  "permissions": [
+    {
+      "code": "workflow:definition:manage",
+      "name": "Workflow definition manage"
+    },
+    {
+      "code": "workflow:instance:read",
+      "name": "Workflow instance read"
+    },
+    {
+      "code": "workflow:task:action",
+      "name": "Workflow task action"
+    },
+    {
+      "code": "workflow:report:read",
+      "name": "Workflow report read"
+    }
+  ],
+  "entities": [
+    {
+      "name": "WorkflowDefinition",
+      "table": "plg_workflow_definitions",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "key", "type": "string", "required": true, "max_length": 80 },
+        { "name": "version", "type": "integer", "required": true },
+        { "name": "status", "type": "enum", "enum_values": ["DRAFT", "PUBLISHED", "ARCHIVED"], "default": "DRAFT" },
+        { "name": "document", "type": "json", "required": true },
+        { "name": "created_by", "type": "uuid", "required": false },
+        { "name": "created_at", "type": "datetime", "required": false },
+        { "name": "published_at", "type": "datetime", "required": false }
+      ],
+      "validators": [
+        { "field": "status", "rule": "enum", "value": ["DRAFT", "PUBLISHED", "ARCHIVED"] }
+      ]
+    },
+    {
+      "name": "WorkflowInstance",
+      "table": "plg_workflow_instances",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "definition_id", "type": "uuid", "required": true },
+        { "name": "definition_version", "type": "integer", "required": true },
+        { "name": "status", "type": "enum", "enum_values": ["RUNNING", "COMPLETED", "CANCELLED"], "default": "RUNNING" },
+        { "name": "outcome", "type": "enum", "enum_values": ["APPROVED", "REJECTED", "CANCELLED"], "required": false },
+        { "name": "trigger_type", "type": "enum", "enum_values": ["MANUAL", "API", "EVENT", "WEBHOOK", "BOOTSTRAP"], "required": true },
+        { "name": "source_ref", "type": "json", "required": false },
+        { "name": "context", "type": "json", "required": false },
+        { "name": "idempotency_key", "type": "string", "required": true, "max_length": 120 },
+        { "name": "initiated_by", "type": "uuid", "required": false },
+        { "name": "created_at", "type": "datetime", "required": false },
+        { "name": "completed_at", "type": "datetime", "required": false }
+      ],
+      "validators": [
+        { "field": "status", "rule": "enum", "value": ["RUNNING", "COMPLETED", "CANCELLED"] },
+        { "field": "trigger_type", "rule": "enum", "value": ["MANUAL", "API", "EVENT", "WEBHOOK", "BOOTSTRAP"] }
+      ]
+    },
+    {
+      "name": "WorkflowTask",
+      "table": "plg_workflow_tasks",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "instance_id", "type": "uuid", "required": true },
+        { "name": "node_id", "type": "string", "required": true, "max_length": 80 },
+        { "name": "node_type", "type": "enum", "enum_values": ["APPROVAL", "TASK"], "required": true },
+        { "name": "status", "type": "enum", "enum_values": ["PENDING", "IN_PROGRESS", "COMPLETED", "RETURNED", "SKIPPED", "CANCELLED"], "default": "PENDING" },
+        { "name": "approval_mode", "type": "enum", "enum_values": ["ANY_ONE", "ALL_APPROVE", "VOTE_RATIO"], "default": "ANY_ONE" },
+        { "name": "vote_ratio", "type": "integer", "required": false },
+        { "name": "assignees", "type": "json", "required": true },
+        { "name": "candidates", "type": "json", "required": true },
+        { "name": "claimed_by", "type": "uuid", "required": false },
+        { "name": "action_votes", "type": "json", "required": true },
+        { "name": "due_at", "type": "datetime", "required": false },
+        { "name": "remind_before_hours", "type": "integer", "required": false },
+        { "name": "reminder_slots", "type": "json", "required": true },
+        { "name": "overdue_at", "type": "datetime", "required": false },
+        { "name": "created_at", "type": "datetime", "required": false },
+        { "name": "completed_at", "type": "datetime", "required": false }
+      ],
+      "validators": [
+        { "field": "status", "rule": "enum", "value": ["PENDING", "IN_PROGRESS", "COMPLETED", "RETURNED", "SKIPPED", "CANCELLED"] },
+        { "field": "approval_mode", "rule": "enum", "value": ["ANY_ONE", "ALL_APPROVE", "VOTE_RATIO"] }
+      ]
+    },
+    {
+      "name": "WorkflowEvent",
+      "table": "plg_workflow_events",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "instance_id", "type": "uuid", "required": true },
+        { "name": "task_id", "type": "uuid", "required": false },
+        { "name": "event", "type": "string", "required": true, "max_length": 32 },
+        { "name": "actor_user_id", "type": "uuid", "required": false },
+        { "name": "payload", "type": "json", "required": false },
+        { "name": "created_at", "type": "datetime", "required": false }
+      ]
+    },
+    {
+      "name": "WorkflowTrigger",
+      "table": "plg_workflow_triggers",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "definition_id", "type": "uuid", "required": true },
+        { "name": "source_plugin", "type": "string", "required": true, "max_length": 40 },
+        { "name": "entity", "type": "string", "required": true, "max_length": 80 },
+        { "name": "event_type", "type": "string", "required": true, "max_length": 40 },
+        { "name": "filter", "type": "json", "required": false },
+        { "name": "enabled", "type": "bool", "required": true, "default": true },
+        { "name": "created_at", "type": "datetime", "required": false }
+      ]
+    },
+    {
+      "name": "WorkflowWebhookEndpoint",
+      "table": "plg_workflow_webhook_endpoints",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "name", "type": "string", "required": true, "max_length": 120 },
+        { "name": "path_token", "type": "string", "required": true, "max_length": 48 },
+        { "name": "secret_hash", "type": "string", "required": true, "max_length": 128 },
+        { "name": "enabled", "type": "bool", "required": true, "default": true },
+        { "name": "created_at", "type": "datetime", "required": false },
+        { "name": "rotated_at", "type": "datetime", "required": false }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "name": "initiator",
+      "owner_entity": "WorkflowInstance",
+      "type": "MANY_TO_ONE",
+      "target": "core.user",
+      "storage": "SOFT_REF",
+      "target_display_field": "full_name",
+      "required": false,
+      "on_delete": "SET_NULL"
+    }
+  ],
+  "queries": [
+    {
+      "id": "definition.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "WorkflowDefinition",
+      "tenant_scope": "TENANT",
+      "select": ["id", "key", "version", "status", "created_by", "created_at", "published_at"],
+      "sort": [{ "field": "created_at", "direction": "DESC" }],
+      "maxRows": 100
+    },
+    {
+      "id": "definition.get",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "WorkflowDefinition",
+      "tenant_scope": "TENANT",
+      "select": ["id", "key", "version", "status", "document", "created_by", "created_at", "published_at"],
+      "filters": [{ "field": "id", "op": "EQ", "param": "id", "required": true }],
+      "maxRows": 1
+    },
+    {
+      "id": "definition.latest",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "WorkflowDefinition",
+      "tenant_scope": "TENANT",
+      "select": ["id", "key", "version", "status", "document", "created_at", "published_at"],
+      "filters": [
+        { "field": "key", "op": "EQ", "param": "key", "required": true },
+        { "field": "status", "op": "EQ", "param": "status", "required": true }
+      ],
+      "sort": [{ "field": "version", "direction": "DESC" }],
+      "maxRows": 1
+    },
+    {
+      "id": "definition.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "WorkflowDefinition",
+      "tenant_scope": "TENANT",
+      "values": {
+        "key": { "param": "key" },
+        "version": { "param": "version" },
+        "status": { "param": "status", "optional": true },
+        "document": { "param": "document" },
+        "created_by": { "param": "created_by", "optional": true, "allow_null": true }
+      },
+      "returning": ["id", "key", "version", "status", "created_at"]
+    },
+    {
+      "id": "definition.publish",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "WorkflowDefinition",
+      "tenant_scope": "TENANT",
+      "values": {
+        "status": { "param": "status" },
+        "published_at": { "param": "published_at" }
+      },
+      "filters": [{ "field": "id", "op": "EQ", "param": "id", "required": true }],
+      "returning": ["id", "key", "version", "status", "published_at"]
+    },
+    {
+      "id": "instance.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "WorkflowInstance",
+      "tenant_scope": "TENANT",
+      "values": {
+        "definition_id": { "param": "definition_id" },
+        "definition_version": { "param": "definition_version" },
+        "trigger_type": { "param": "trigger_type" },
+        "source_ref": { "param": "source_ref", "optional": true, "allow_null": true },
+        "context": { "param": "context", "optional": true, "allow_null": true },
+        "idempotency_key": { "param": "idempotency_key" },
+        "initiated_by": { "param": "initiated_by", "optional": true, "allow_null": true }
+      },
+      "returning": ["id", "definition_id", "definition_version", "status", "created_at"]
+    },
+    {
+      "id": "instance.get",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "WorkflowInstance",
+      "tenant_scope": "TENANT",
+      "select": ["id", "definition_id", "definition_version", "status", "outcome", "trigger_type", "source_ref", "context", "initiated_by", "created_at", "completed_at"],
+      "filters": [{ "field": "id", "op": "EQ", "param": "id", "required": true }],
+      "maxRows": 1
+    },
+    {
+      "id": "instance.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "WorkflowInstance",
+      "tenant_scope": "TENANT",
+      "select": ["id", "definition_id", "definition_version", "status", "outcome", "trigger_type", "source_ref", "initiated_by", "created_at", "completed_at"],
+      "sort": [{ "field": "created_at", "direction": "DESC" }],
+      "maxRows": 100
+    },
+    {
+      "id": "instance.complete",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "WorkflowInstance",
+      "tenant_scope": "TENANT",
+      "values": {
+        "status": { "param": "status" },
+        "outcome": { "param": "outcome" },
+        "completed_at": { "param": "completed_at" }
+      },
+      "filters": [{ "field": "id", "op": "EQ", "param": "id", "required": true }],
+      "returning": ["id", "status", "outcome", "completed_at"]
+    },
+    {
+      "id": "task.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "WorkflowTask",
+      "tenant_scope": "TENANT",
+      "values": {
+        "instance_id": { "param": "instance_id" },
+        "node_id": { "param": "node_id" },
+        "node_type": { "param": "node_type" },
+        "approval_mode": { "param": "approval_mode", "optional": true },
+        "vote_ratio": { "param": "vote_ratio", "optional": true, "allow_null": true },
+        "assignees": { "param": "assignees" },
+        "candidates": { "param": "candidates" },
+        "due_at": { "param": "due_at", "optional": true, "allow_null": true },
+        "remind_before_hours": { "param": "remind_before_hours", "optional": true, "allow_null": true }
+      },
+      "returning": ["id", "instance_id", "node_id", "status", "approval_mode", "due_at", "created_at"]
+    },
+    {
+      "id": "task.get",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "WorkflowTask",
+      "tenant_scope": "TENANT",
+      "select": ["id", "instance_id", "node_id", "node_type", "status", "approval_mode", "vote_ratio", "assignees", "candidates", "claimed_by", "action_votes", "due_at", "remind_before_hours", "reminder_slots", "overdue_at", "created_at", "completed_at"],
+      "filters": [{ "field": "id", "op": "EQ", "param": "id", "required": true }],
+      "maxRows": 1
+    },
+    {
+      "id": "task.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "WorkflowTask",
+      "tenant_scope": "TENANT",
+      "values": {
+        "status": { "param": "status", "optional": true },
+        "claimed_by": { "param": "claimed_by", "optional": true, "allow_null": true },
+        "action_votes": { "param": "action_votes", "optional": true },
+        "assignees": { "param": "assignees", "optional": true },
+        "overdue_at": { "param": "overdue_at", "optional": true, "allow_null": true },
+        "reminder_slots": { "param": "reminder_slots", "optional": true },
+        "completed_at": { "param": "completed_at", "optional": true, "allow_null": true }
+      },
+      "filters": [{ "field": "id", "op": "EQ", "param": "id", "required": true }],
+      "returning": ["id", "instance_id", "node_id", "status", "claimed_by", "completed_at"]
+    },
+    {
+      "id": "task.inbox",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "WorkflowTask",
+      "tenant_scope": "TENANT",
+      "select": ["id", "instance_id", "node_id", "node_type", "status", "approval_mode", "assignees", "candidates", "claimed_by", "due_at", "overdue_at", "created_at"],
+      "filters": [
+        { "field": "status", "op": "IN", "param": "statuses", "required": true }
+      ],
+      "sort": [{ "field": "due_at", "direction": "ASC" }],
+      "maxRows": 100
+    },
+    {
+      "id": "task.list_by_instance",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "WorkflowTask",
+      "tenant_scope": "TENANT",
+      "select": ["id", "instance_id", "node_id", "node_type", "status", "approval_mode", "assignees", "candidates", "action_votes", "due_at", "overdue_at", "created_at", "completed_at"],
+      "filters": [{ "field": "instance_id", "op": "EQ", "param": "instance_id", "required": true }],
+      "sort": [{ "field": "created_at", "direction": "ASC" }],
+      "maxRows": 200
+    },
+    {
+      "id": "event.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "WorkflowEvent",
+      "tenant_scope": "TENANT",
+      "values": {
+        "instance_id": { "param": "instance_id" },
+        "task_id": { "param": "task_id", "optional": true, "allow_null": true },
+        "event": { "param": "event" },
+        "actor_user_id": { "param": "actor_user_id", "optional": true, "allow_null": true },
+        "payload": { "param": "payload", "optional": true, "allow_null": true }
+      },
+      "returning": ["id", "instance_id", "event", "created_at"]
+    },
+    {
+      "id": "event.list_by_instance",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "WorkflowEvent",
+      "tenant_scope": "TENANT",
+      "select": ["id", "instance_id", "task_id", "event", "actor_user_id", "payload", "created_at"],
+      "filters": [{ "field": "instance_id", "op": "EQ", "param": "instance_id", "required": true }],
+      "sort": [{ "field": "created_at", "direction": "ASC" }],
+      "maxRows": 500
+    },
+    {
+      "id": "trigger.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "WorkflowTrigger",
+      "tenant_scope": "TENANT",
+      "select": ["id", "definition_id", "source_plugin", "entity", "event_type", "filter", "enabled", "created_at"],
+      "filters": [{ "field": "enabled", "op": "EQ", "param": "enabled", "required": true }],
+      "maxRows": 200
+    },
+    {
+      "id": "trigger.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "WorkflowTrigger",
+      "tenant_scope": "TENANT",
+      "values": {
+        "definition_id": { "param": "definition_id" },
+        "source_plugin": { "param": "source_plugin" },
+        "entity": { "param": "entity" },
+        "event_type": { "param": "event_type" },
+        "filter": { "param": "filter", "optional": true, "allow_null": true },
+        "enabled": { "param": "enabled", "optional": true }
+      },
+      "returning": ["id", "definition_id", "source_plugin", "entity", "event_type", "created_at"]
+    },
+    {
+      "id": "trigger.delete",
+      "mode": "WRITE",
+      "operation": "DELETE",
+      "entity": "WorkflowTrigger",
+      "tenant_scope": "TENANT",
+      "filters": [{ "field": "id", "op": "EQ", "param": "id", "required": true }],
+      "returning": ["id"]
+    },
+    {
+      "id": "webhook.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "WorkflowWebhookEndpoint",
+      "tenant_scope": "TENANT",
+      "values": {
+        "name": { "param": "name" },
+        "path_token": { "param": "path_token" },
+        "secret_hash": { "param": "secret_hash" },
+        "enabled": { "param": "enabled", "optional": true }
+      },
+      "returning": ["id", "name", "path_token", "created_at"]
+    },
+    {
+      "id": "webhook.get_by_path",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "WorkflowWebhookEndpoint",
+      "tenant_scope": "TENANT",
+      "select": ["id", "tenant_id", "name", "path_token", "secret_hash", "enabled", "created_at"],
+      "filters": [{ "field": "path_token", "op": "EQ", "param": "path_token", "required": true }],
+      "maxRows": 1
+    },
+    {
+      "id": "webhook.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "WorkflowWebhookEndpoint",
+      "tenant_scope": "TENANT",
+      "select": ["id", "name", "path_token", "enabled", "created_at", "rotated_at"],
+      "sort": [{ "field": "created_at", "direction": "DESC" }],
+      "maxRows": 100
+    },
+    {
+      "id": "webhook.rotate",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "WorkflowWebhookEndpoint",
+      "tenant_scope": "TENANT",
+      "values": {
+        "secret_hash": { "param": "secret_hash" },
+        "rotated_at": { "param": "rotated_at" }
+      },
+      "filters": [{ "field": "id", "op": "EQ", "param": "id", "required": true }],
+      "returning": ["id", "rotated_at"]
+    }
+  ],
+  "migrations": [
+    {
+      "version": "1.0.0",
+      "file": "V1.0.0__workflow_schema.sql",
+      "checksum": "sha256:bc41a0c5b69e1a08a742cb17bd259f326c584cf448a69c8ab37196e24a9fb256",
+      "description": "workflow engine schema"
+    }
+  ],
+  "kafka_events": {
+    "publishes": [],
+    "subscribes": []
+  },
+  "websockets": [],
+  "ui_manifest": {
+    "contract_version": "1.0",
+    "screens": [
+      {
+        "route": "/apps/workflow",
+        "title_key": "PLUGIN_WORKFLOW_MENU",
+        "permission": "workflow:task:action",
+        "render_mode": "WEB_COMPONENT",
+        "entry": "/plugins-runtime/workflow/main.js",
+        "tag_name": "op-workflow-app",
+        "order": 131,
+        "platforms": ["desktop", "mobile"]
+      }
+    ],
+    "contributions": [],
+    "slots": [],
+    "crud": []
+  },
+  "distribution": {
+    "type": "IMAGE_REGISTRY",
+    "registry_url": "",
+    "repository": "open-erp/workflow",
+    "tag": "1.0.0"
+  }
+}

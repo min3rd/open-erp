@@ -16,6 +16,8 @@
         <module>in-app-notification</module>
         <module>organization</module>
         <module>employee</module>
+        <module>form</module>
+        <module>workflow</module>
     </modules>
 
     <properties>

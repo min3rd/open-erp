@@ -2,8 +2,8 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / phiên bản / cập nhật | READ-S08-001 / 0.4 / 2026-11-02 |
-| Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — Scope APPROVED 1.0; SOL + 4 ADR + 4 DES soạn xong (Draft 0.1) — **Design In Review, chờ chủ dự án duyệt** |
+| ID / phiên bản / cập nhật | READ-S08-001 / 0.6 / 2026-11-02 |
+| Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — Scope APPROVED 1.0; **Design APPROVED 1.0** (SOL + 4 ADR + 4 DES, DES 0.2); bước 07 Implementation đã mở — FEAT-39…42 |
 | Owner / reviewer | BA Agent / Chủ dự án (duyệt scope tại CONF) |
 | Đầu vào / đọc trước | [RAW-S08-001](01_raw_notes/01_RAW-S08-001_form_workflow_plugin_requirements.md) — yêu cầu trực tiếp chủ dự án 2026-11-02 / [Sprint 07](../sprint_07_plugin_employee/00_READING_GUIDE.md) (đã đóng), [Sprint 06](../sprint_06_plugin_dev_platform/00_READING_GUIDE.md) |
 | Đọc tiếp | [ANL-S08-001](02_analysis/01_ANL-S08-001_form_builder_plugin.md) → [ANL-S08-002](02_analysis/02_ANL-S08-002_workflow_plugin.md) → [BENCH-S08-001](03_benchmarks/01_BENCH-S08-001_form_builder_survey_benchmarks.md) → [BENCH-S08-002](03_benchmarks/02_BENCH-S08-002_workflow_engine_benchmark.md) → [CONF-S08-001](04_confirmation/01_CONF-S08-001_sprint_08_scope_and_ac.md) |
@@ -63,7 +63,7 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | Gate | Trạng thái | Người quyết định | Nguồn/phiên bản/ngày |
 | :--- | :--- | :--- | :--- |
 | Scope & AC (CONF-S08-001) | ✅ **APPROVED 1.0** — 16/16 câu trả lời; chủ dự án duyệt qua hội thoại tương tác (đã nhắc rõ rủi ro Q3) | Chủ dự án | CONF-S08-001 1.0, 2026-11-02 |
-| Design ready (SOL/ADR/DES) | 📝 **In Review** — 1 SOL + 4 ADR + 4 DES Draft 0.1 chờ chủ dự án duyệt | Architect + Chủ dự án | SOL/ADR/DES 0.1, 2026-11-02 |
+| Design ready (SOL/ADR/DES) | ✅ **APPROVED 1.0** — duyệt sau khi bổ sung version semantics (DES 0.2) | Architect + Chủ dự án | Design review 2026-11-02 |
 | Implementation | ⏳ Pending | Developer | — |
 | QA sign-off | ⏳ Pending | QA | — |
 | PM DoD / Customer acceptance | ⏳ Pending | Chủ dự án | — |
@@ -78,10 +78,17 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | ANL-S08-001, ANL-S08-002 | [02_analysis/](02_analysis/) | BA | Used — Draft 0.1 |
 | BENCH-S08-001, BENCH-S08-002 | [03_benchmarks/](03_benchmarks/) | BA | Used — Draft 0.1 |
 | CONF-S08-001 | [04_confirmation/](04_confirmation/) | BA + Khách hàng | Used — **APPROVED 1.0** (16/16 câu trả lời + duyệt scope) |
-| SOL-S08-001 | [05_solutions/](05_solutions/) | Architect | Used — Draft 0.1/In Review |
-| ADR-S08-001…004 | [05_solutions/](05_solutions/) | Architect | Used — Draft 0.1/In Review |
-| DES-ARCH/DB/API/UI-S08-001 | [06_designs/](06_designs/) | Architect | Used — Draft 0.1/In Review |
-| FEAT/TASK/BUG | *(chưa cấp)* | Developer/QA | Không cấp số trước khi CONF duyệt scope |
+| SOL-S08-001 | [05_solutions/](05_solutions/) | Architect | Used — **APPROVED 1.0** |
+| ADR-S08-001…004 | [05_solutions/](05_solutions/) | Architect | Used — **APPROVED 1.0** |
+| DES-ARCH/DB/API/UI-S08-001 | [06_designs/](06_designs/) | Architect | Used — **APPROVED 1.0** (DES 0.2) |
+| 07.01 | FEAT-39 | [Plugin form core](07_items/FEAT-39_plugin_form_core.md) | Builder/fill/response/mapping/quiz/file — AC-F01…F15 | Developer |
+| 07.02 | FEAT-40 | [Plugin workflow core](07_items/FEAT-40_plugin_workflow_core.md) | Engine/definition/instance/task/SLA/webhook — AC-W01…W12, W14, W15 | Developer |
+| 07.03 | FEAT-41 | [Nền tảng Event Hub & Public](07_items/FEAT-41_platform_event_hub_public.md) | Core Event Hub/Entity Write Proxy/Public Session/SDK — AC-F04, F14, W04, W12, W14 | Developer |
+| 07.04 | FEAT-42 | [Migration employee](07_items/FEAT-42_employee_migration_workflow.md) | Runtime duyệt sang engine — AC-W13 | Developer |
+| FEAT-39 | [07_items/FEAT-39_plugin_form_core.md](07_items/FEAT-39_plugin_form_core.md) | Developer | Used — To Do (plugin form: builder/fill/response/mapping/quiz/file) |
+| FEAT-40 | [07_items/FEAT-40_plugin_workflow_core.md](07_items/FEAT-40_plugin_workflow_core.md) | Developer | Used — To Do (plugin workflow: engine/definition/instance/task/SLA/webhook) |
+| FEAT-41 | [07_items/FEAT-41_platform_event_hub_public.md](07_items/FEAT-41_platform_event_hub_public.md) | Developer | Used — To Do (Core: Event Hub, Entity Write Proxy, Public Session, SDK storage-support) |
+| FEAT-42 | [07_items/FEAT-42_employee_migration_workflow.md](07_items/FEAT-42_employee_migration_workflow.md) | Developer | Used — To Do (employee migrate runtime sang workflow engine — phương án C) |
 
 ## 5. Liên hệ với các Sprint trước
 
@@ -101,3 +108,5 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | 0.3 | 2026-11-02 | **Scope & AC APPROVED 1.0** — chủ dự án chọn "Duyệt scope" sau khi được nhắc rủi ro Q3; CONF nâng 1.0; bước 05 (SOL) mở cho Architect | BA Agent; hội thoại tương tác chủ dự án |
 | 0.4 | 2026-11-02 | Architect khảo sát codebase (nền tảng plugin + employee approval) và soạn **SOL-S08-001 + ADR-S08-001…004 + DES-ARCH/DB/API/UI-S08-001** (Draft 0.1); key findings: chưa có event hub/scheduler — thêm Plugin Event Hub + Entity Write Proxy + Public Session + Quarkus Scheduler; Design **In Review** | Architect; khảo sát repo 2026-11-02 |
 | 0.5 | 2026-11-02 | Theo phản hồi chủ dự án về **an toàn dữ liệu theo version form**: bổ sung DES-ARCH §6 (7 quy tắc version semantics — snapshot bất biến, pin draft/response, ref+type bất biến sau publish, mapping/logic theo version), làm rõ DES-DB, DES-API (detail kèm snapshot, CSV/summary đa version), DES-UI; 4 DES nâng **0.2**; Design tiếp tục **In Review** | Architect; phản hồi chủ dự án 2026-11-02 |
+| 0.6 | 2026-11-02 | **Design APPROVED 1.0**; cấp **FEAT-39…42** (form / workflow / platform event hub & public / employee migration); bước 07 mở — Developer bắt đầu scaffold + schema + bootstrap trước, item TASK chi tiết cấp khi phân rã | Architect/PM; design review 2026-11-02 |
+| 0.7 | 2026-11-02 | **Scaffold 2 plugin PASS**: `plugins/form` + `plugins/workflow` vào `plugins/pom.xml`; manifest 2.0 (entities/queries/permissions/migrations checksum sha256); migration V1.0.0 5+6 bảng; FormDocumentValidator (forward-only logic 2-pass, ref/type immutable) 7/7 + ExpressionEvaluator 6/6 + definition graph validator PASS; `mvn -pl form,workflow -am test` xanh; FEAT-39/40 → In Progress | Developer; working tree |

@@ -1,0 +1,19 @@
+package com.vn9melody.openerp.plugins.workflow.api;
+
+public final class WorkflowErrorCode {
+
+    private WorkflowErrorCode() {}
+
+    public static final String WORKFLOW_DEFINITION_LIST_SUCCESS = "WORKFLOW_DEFINITION_LIST_SUCCESS";
+    public static final String WORKFLOW_DEFINITION_RETRIEVED = "WORKFLOW_DEFINITION_RETRIEVED";
+    public static final String WORKFLOW_DEFINITION_NOT_FOUND = "WORKFLOW_DEFINITION_NOT_FOUND";
+    public static final String WORKFLOW_DEFINITION_INVALID = "WORKFLOW_DEFINITION_INVALID";
+    public static final String WORKFLOW_DEFINITION_INVALID_CYCLE = "WORKFLOW_DEFINITION_INVALID_CYCLE";
+    public static final String WORKFLOW_NOT_PUBLISHED = "WORKFLOW_NOT_PUBLISHED";
+    public static final String WORKFLOW_TASK_NOT_CURRENT = "WORKFLOW_TASK_NOT_CURRENT";
+    public static final String WORKFLOW_TASK_NOT_ASSIGNEE = "WORKFLOW_TASK_NOT_ASSIGNEE";
+    public static final String WORKFLOW_SELF_APPROVAL_FORBIDDEN = "WORKFLOW_SELF_APPROVAL_FORBIDDEN";
+    public static final String WORKFLOW_REJECT_REASON_REQUIRED = "WORKFLOW_REJECT_REASON_REQUIRED";
+    public static final String WORKFLOW_RETURN_STEP_INVALID = "WORKFLOW_RETURN_STEP_INVALID";
+    public static final String WORKFLOW_WEBHOOK_SECRET_INVALID = "WORKFLOW_WEBHOOK_SECRET_INVALID";
+}
