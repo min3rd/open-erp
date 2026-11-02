@@ -29,6 +29,8 @@
     "web": "docker compose --profile dev up -d web-dev",
     "web:build": "npm --prefix src/frontend/web run build",
     "catalog:ui:build": "node scripts/link-plugin-node-modules.mjs && npm --prefix src/frontend/web exec ng build catalog-plugin",
+    "form:ui:build": "node scripts/link-plugin-node-modules.mjs && npm --prefix src/frontend/web exec ng build form-plugin",
+    "workflow:ui:build": "node scripts/link-plugin-node-modules.mjs && npm --prefix src/frontend/web exec ng build workflow-plugin",
     "mobile": "docker compose --profile dev up -d mobile-dev",
     "mobile:build": "npm --prefix src/frontend/mobile run build",
     "cli": "node tools/open-erp-cli/bin/open-erp.js",

@@ -10,6 +10,9 @@
   "migration_policy": "COMPATIBLE",
   "rollback_strategy": "SNAPSHOT_RESTORE",
   "dependencies": [],
+  "event_subscriptions": [
+    { "source": "*", "event": "*" }
+  ],
   "platforms": {
     "desktop": {
       "supported": true,
@@ -260,6 +263,16 @@
       "tenant_scope": "TENANT",
       "select": ["id", "definition_id", "definition_version", "status", "outcome", "trigger_type", "source_ref", "context", "initiated_by", "created_at", "completed_at"],
       "filters": [{ "field": "id", "op": "EQ", "param": "id", "required": true }],
+      "maxRows": 1
+    },
+    {
+      "id": "instance.by_idem",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "WorkflowInstance",
+      "tenant_scope": "TENANT",
+      "select": ["id", "definition_id", "definition_version", "status", "outcome", "trigger_type", "source_ref", "context", "initiated_by", "created_at", "completed_at"],
+      "filters": [{ "field": "idempotency_key", "op": "EQ", "param": "idempotency_key", "required": true }],
       "maxRows": 1
     },
     {

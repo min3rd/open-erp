@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | FEAT-42 / FEAT / Sprint 08 |
-| Trạng thái / phiên bản / cập nhật | To Do / 0.1 / 2026-11-02 |
+| Trạng thái / phiên bản / cập nhật | In Progress / 0.2 / 2026-11-02 — backend migration xong: employee 1.2.0 (V1.2.0 thêm workflow_instance_id; openChangeRequest mở instance qua engine, approve/reject proxy sang engine kèm mirror step/header, syncFromWorkflow public), WorkflowApprovalClient, EmployeeInternalResource (event receiver workflow.instance.completed), manifest event_subscriptions; 18/18 test PASS; cutover QA + UI read-only config còn lại |
 | Owner | Developer Agent |
 | Đầu vào | [ADR-S08-004](../05_solutions/05_ADR-S08-004_employee_migration_cutover.md), [CONF-S08-001](../04_confirmation/01_CONF-S08-001_sprint_08_scope_and_ac.md) Q3 + §5, [DES-ARCH-S08-001](../06_designs/arch/01_DES-ARCH-S08-001_components_and_flows.md) §2.4, [DES-UI-S08-001](../06_designs/ui/01_DES-UI-S08-001_form_workflow_ui.md) §5 |
 | Phụ thuộc | FEAT-40 (engine), FEAT-41 (event hub); release phối hợp employee 1.2.0 + workflow ≥ 1.0.0 |

@@ -1,0 +1,141 @@
+<div class="op-form-root" [attr.data-theme]="context?.theme ?? ''">
+  <nav class="op-tabs">
+    <button type="button" class="op-btn" (click)="setTab('forms')">{{ 'PLUGIN_FORM_TAB_FORMS' | translate }}</button>
+    <button type="button" class="op-btn" (click)="setTab('builder')" [disabled]="!selected()">{{ 'PLUGIN_FORM_TAB_BUILDER' | translate }}</button>
+    <button type="button" class="op-btn" (click)="setTab('responses')" [disabled]="!selected()">{{ 'PLUGIN_FORM_TAB_RESPONSES' | translate }}</button>
+    <button type="button" class="op-btn" (click)="setTab('summary')" [disabled]="!selected()">{{ 'PLUGIN_FORM_TAB_SUMMARY' | translate }}</button>
+  </nav>
+
+  @if (error()) {
+    <p class="op-error">{{ error() | translate }}</p>
+  }
+
+  @switch (tab()) {
+    @case ('forms') {
+      <section class="op-card">
+        <div class="op-row">
+          <strong>{{ 'PLUGIN_FORM_LIST_TITLE' | translate }}</strong>
+          <button type="button" class="op-btn op-btn--primary" (click)="openBuilder(null)">
+            {{ 'PLUGIN_FORM_CREATE' | translate }}
+          </button>
+        </div>
+        <table class="op-table">
+          <thead>
+            <tr>
+              <th>{{ 'PLUGIN_FORM_SLUG' | translate }}</th>
+              <th>{{ 'PLUGIN_FORM_TITLE' | translate }}</th>
+              <th>{{ 'PLUGIN_FORM_STATUS' | translate }}</th>
+              <th>{{ 'PLUGIN_FORM_VERSION' | translate }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (form of forms(); track form.id) {
+              <tr>
+                <td>{{ form.slug }}</td>
+                <td>{{ form.title_text }}</td>
+                <td><span class="op-badge">{{ form.publish_status }}</span></td>
+                <td>v{{ form.latest_version }}</td>
+                <td>
+                  <button type="button" class="op-btn" (click)="openBuilder(form)">
+                    {{ 'PLUGIN_FORM_OPEN' | translate }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5">{{ 'PLUGIN_FORM_EMPTY' | translate }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    }
+    @case ('builder') {
+      <section class="op-split">
+        <div class="op-card">
+          <label>{{ 'PLUGIN_FORM_SLUG' | translate }}</label>
+          <input class="op-input" [ngModel]="slugInput()" (ngModelChange)="slugInput.set($event)" [readonly]="!!selected()" />
+          <label>{{ 'PLUGIN_FORM_TITLE' | translate }}</label>
+          <input class="op-input" [ngModel]="titleInput()" (ngModelChange)="titleInput.set($event)" />
+          <div class="op-row">
+            <button type="button" class="op-btn op-btn--primary" (click)="save()" [disabled]="busy()">
+              {{ 'PLUGIN_FORM_SAVE' | translate }}
+            </button>
+            @if (selected()) {
+              <button type="button" class="op-btn" (click)="publish()">{{ 'PLUGIN_FORM_PUBLISH' | translate }}</button>
+              <button type="button" class="op-btn" (click)="close()">{{ 'PLUGIN_FORM_CLOSE' | translate }}</button>
+              <span class="op-badge">v{{ selected()?.latest_version }}</span>
+              <span class="op-badge">{{ selected()?.publish_status }}</span>
+            }
+          </div>
+          <p class="op-hint">{{ 'PLUGIN_FORM_BUILDER_HINT' | translate }}</p>
+        </div>
+        <div class="op-card op-grow">
+          <label>{{ 'PLUGIN_FORM_DOCUMENT' | translate }} (JSON)</label>
+          <textarea
+            class="op-textarea op-monospace"
+            rows="24"
+            [ngModel]="builderDocument()"
+            (ngModelChange)="builderDocument.set($event)"
+          ></textarea>
+        </div>
+      </section>
+    }
+    @case ('responses') {
+      <section class="op-card">
+        <table class="op-table">
+          <thead>
+            <tr>
+              <th>{{ 'PLUGIN_FORM_RESPONSE_SUBMITTED' | translate }}</th>
+              <th>{{ 'PLUGIN_FORM_RESPONSE_EMAIL' | translate }}</th>
+              <th>v</th>
+              <th>{{ 'PLUGIN_FORM_RESPONSE_ENTITY' | translate }}</th>
+              <th>{{ 'PLUGIN_FORM_RESPONSE_ANSWERS' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (response of responses(); track response['id']) {
+              <tr>
+                <td>{{ response['submitted_at'] }}</td>
+                <td>{{ response['responder_email'] }}</td>
+                <td>{{ response['form_version'] }}</td>
+                <td>{{ response['entity_write_status'] }}</td>
+                <td><code>{{ response['answers'] | json }}</code></td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5">{{ 'PLUGIN_FORM_RESPONSE_EMPTY' | translate }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    }
+    @case ('summary') {
+      <section class="op-card">
+        <p>{{ 'PLUGIN_FORM_SUMMARY_TOTAL' | translate }}: {{ summary()?.['total_responses'] }}</p>
+        <table class="op-table">
+          <thead>
+            <tr>
+              <th>{{ 'PLUGIN_FORM_SUMMARY_REF' | translate }}</th>
+              <th>{{ 'PLUGIN_FORM_SUMMARY_VALUE' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (entry of summaryEntries(); track entry[0]) {
+              <tr>
+                <td>{{ entry[0] }}</td>
+                <td>{{ entry[1] }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="2">{{ 'PLUGIN_FORM_RESPONSE_EMPTY' | translate }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    }
+  }
+</div>

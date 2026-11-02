@@ -137,6 +137,9 @@ public class EmployeeService {
     @Inject
     OnboardingNotificationClient onboardingNotificationClient;
 
+    @Inject
+    WorkflowApprovalClient approvalClient;
+
     @ConfigProperty(name = "employee.onboarding.expiry-hours", defaultValue = "168")
     int onboardingExpiryHours;
 
@@ -787,7 +790,6 @@ public class EmployeeService {
                 "An open change request already exists for this employee",
                 Map.of("employee_id", employeeId.toString()));
         }
-        List<ApprovalChain.Step> chain = resolveApprovalChain(employeeId, changes.keySet());
 
         Map<String, Object> params = new HashMap<>();
         params.put("employee_id", employeeId);
@@ -798,17 +800,13 @@ public class EmployeeService {
         params.put("submitted_at", Instant.now());
         params.put("version", 0L);
         Map<String, Object> row = writeOne("change_request.insert", params);
-        UUID requestId = requireId(EmployeeChangeRequest.from(row).id, "change_request_id");
+        EmployeeChangeRequest request = EmployeeChangeRequest.from(row);
+        UUID requestId = requireId(request.id, "change_request_id");
 
-        for (ApprovalChain.Step step : chain) {
-            Map<String, Object> stepParams = new HashMap<>();
-            stepParams.put("request_id", requestId);
-            stepParams.put("step_no", step.stepNo());
-            stepParams.put("approver_type", step.approverType());
-            stepParams.put("approver_id", step.approverId());
-            stepParams.put("status", "PENDING");
-            writeOne("change_request_step.insert", stepParams);
-        }
+        // ADR-S08-004 (option C): the approval runtime is the shared workflow
+        // engine. The seeded `employee-profile-change` definition mirrors the
+        // Sprint 07 chain (manager of the initiator -> tenant admin role).
+        ensureWorkflowInstance(request, changes, userId);
 
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("change_request_id", requestId);
@@ -816,6 +814,68 @@ public class EmployeeService {
         payload.put("status", "PENDING");
         emitOutbox("NOTIFICATION", requestId, payload);
         return getChangeRequest(requestId);
+    }
+
+    /** Self-healing: opens the workflow instance if missing (retry-safe by idempotency key). */
+    private void ensureWorkflowInstance(EmployeeChangeRequest request,
+            Map<String, Object> changes, UUID requestedBy) {
+        if (request.workflowInstanceId != null) {
+            return;
+        }
+        UUID managerUserId = primaryManagerUserId(request.employeeId);
+        Map<String, Object> context = new HashMap<>();
+        context.put("entity", changes);
+        context.put("initiator", Map.of(
+                "user_id", String.valueOf(requestedBy),
+                "manager_user_id", managerUserId == null ? "" : managerUserId.toString()));
+        context.put("managers", Map.of(
+                "initiator.manager_user_id", managerUserId == null ? "" : managerUserId.toString()));
+        context.put("role_users_TENANT_ADMIN", approvalClient.tenantAdmins());
+        UUID instanceId = approvalClient.openInstance(requestedBy, context,
+                "employee:change-request:" + request.id,
+                Map.of("employee_id", String.valueOf(request.employeeId),
+                        "change_request_id", String.valueOf(request.id)));
+        writeOne("change_request.set_workflow", Map.of(
+                "id", request.id,
+                "workflow_instance_id", instanceId));
+    }
+
+    /** Manager-of = the primary assignment's manager employee linked to a user account. */
+    private UUID primaryManagerUserId(UUID employeeId) {
+        return assignmentRows(employeeId).stream()
+            .map(EmployeeAssignment::from)
+            .filter(item -> "ACTIVE".equals(item.status))
+            .sorted(Comparator.comparing((EmployeeAssignment item) ->
+                    Boolean.TRUE.equals(item.isPrimary)).reversed()
+                .thenComparing(item -> item.validFrom == null
+                        ? LocalDate.MIN : item.validFrom, Comparator.reverseOrder()))
+            .findFirst()
+            .flatMap(item -> resolveEmployeeUserId(item.managerEmployeeId))
+            .orElse(null);
+    }
+
+    private java.util.Optional<UUID> resolveEmployeeUserId(UUID managerEmployeeId) {
+        if (managerEmployeeId == null) {
+            return java.util.Optional.empty();
+        }
+        var rows = client.query("employee.get", Map.of("id", managerEmployeeId)).rows();
+        if (rows.isEmpty()) {
+            return java.util.Optional.empty();
+        }
+        UUID userId = EmployeeProfile.from(rows.get(0)).userId;
+        return userId == null ? java.util.Optional.empty() : java.util.Optional.of(userId);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> readChanges(EmployeeChangeRequest request) {
+        if (request.changesJson == null || request.changesJson.isBlank()) {
+            return Map.of();
+        }
+        try {
+            return objectMapper.readValue(request.changesJson, Map.class);
+        } catch (JsonProcessingException e) {
+            return Map.of();
+        }
     }
 
     private List<ApprovalChain.Step> resolveApprovalChain(UUID employeeId, Set<String> changedFields) {
@@ -850,46 +910,18 @@ public class EmployeeService {
                 "A requester cannot approve their own change request",
                 Map.of("change_request_id", id.toString()));
         }
-        List<ChangeRequestStep> steps = stepRows(id);
-        ChangeRequestStep current = currentStep(request, steps);
-        Instant now = Instant.now();
-        String comment = body == null ? null : body.comment();
-        ChangeRequestStep next = steps.stream()
-            .filter(item -> "PENDING".equals(item.status))
-            .filter(item -> item.stepNo != null && current.stepNo != null && item.stepNo > current.stepNo)
-            .min((left, right) -> Integer.compare(left.stepNo, right.stepNo))
-            .orElse(null);
-
-        if (next == null) {
-            applyChangeRequest(request);
+        // ADR-S08-004: the engine enforces approver identity, self-approval and
+        // step order; employee only mirrors the outcome for its own views.
+        ensureWorkflowInstance(request, readChanges(request), request.requestedByUserId);
+        WorkflowApprovalClient.Progress progress = approvalClient.progress(request.workflowInstanceId);
+        WorkflowApprovalClient.TaskView current = firstActionable(progress);
+        if (current == null) {
+            throw new ApiException(409, EmployeeErrorCode.EMPLOYEE_APPROVAL_STEP_NOT_CURRENT,
+                "No actionable approval step", Map.of("change_request_id", id.toString()));
         }
-
-        Map<String, Object> stepParams = new HashMap<>();
-        stepParams.put("id", current.id);
-        stepParams.put("status", "APPROVED");
-        stepParams.put("acted_by", userId);
-        stepParams.put("acted_at", now);
-        stepParams.put("comment", comment);
-        stepParams.put("updated_at", now);
-        writeOne("change_request_step.update", stepParams);
-
-        long version = request.version == null ? 1L : request.version + 1;
-        Map<String, Object> requestParams = new HashMap<>();
-        requestParams.put("id", id);
-        requestParams.put("status", next == null ? "APPROVED" : "IN_REVIEW");
-        requestParams.put("current_step", next == null ? current.stepNo : next.stepNo);
-        requestParams.put("reviewed_at", next == null ? now : null);
-        requestParams.put("rejection_reason", null);
-        requestParams.put("version", version);
-        requestParams.put("updated_at", now);
-        writeOne("change_request.update_status", requestParams);
-
-        Map<String, Object> payload = new LinkedHashMap<>();
-        payload.put("change_request_id", id);
-        payload.put("employee_id", request.employeeId);
-        payload.put("status", next == null ? "APPROVED" : "IN_REVIEW");
-        emitOutbox("NOTIFICATION", id, payload);
-        return getChangeRequest(id);
+        String comment = body == null ? null : body.comment();
+        approvalClient.act(UUID.fromString(current.id()), userId, "APPROVE", comment, null, null);
+        return syncFromWorkflow(id);
     }
 
     public ChangeRequestResponse rejectChangeRequest(UUID id, RejectionRequest body) {
@@ -907,34 +939,119 @@ public class EmployeeService {
                 "A requester cannot reject their own change request",
                 Map.of("change_request_id", id.toString()));
         }
-        ChangeRequestStep current = currentStep(request, stepRows(id));
-        Instant now = Instant.now();
+        ensureWorkflowInstance(request, readChanges(request), request.requestedByUserId);
+        WorkflowApprovalClient.Progress progress = approvalClient.progress(request.workflowInstanceId);
+        WorkflowApprovalClient.TaskView current = firstActionable(progress);
+        if (current == null) {
+            throw new ApiException(409, EmployeeErrorCode.EMPLOYEE_APPROVAL_STEP_NOT_CURRENT,
+                "No actionable approval step", Map.of("change_request_id", id.toString()));
+        }
+        approvalClient.act(UUID.fromString(current.id()), userId, "REJECT", normalizedReason, null, null);
+        return syncFromWorkflow(id);
+    }
 
-        Map<String, Object> stepParams = new HashMap<>();
-        stepParams.put("id", current.id);
-        stepParams.put("status", "REJECTED");
-        stepParams.put("acted_by", userId);
-        stepParams.put("acted_at", now);
-        stepParams.put("comment", normalizedReason);
-        stepParams.put("updated_at", now);
-        writeOne("change_request_step.update", stepParams);
+    /** First actionable approval task in engine order (created_at of task rows). */
+    private WorkflowApprovalClient.TaskView firstActionable(
+            WorkflowApprovalClient.Progress progress) {
+        return progress.tasks().stream()
+            .filter(task -> "PENDING".equals(task.status()) || "IN_PROGRESS".equals(task.status()))
+            .findFirst()
+            .orElse(null);
+    }
+
+    /** Mirrors engine progress back onto the employee tables (also used by the
+     * internal event receiver); public because {@code EmployeeInternalResource}
+     * replays `workflow.instance.completed` deliveries. */
+    public ChangeRequestResponse syncFromWorkflow(UUID requestId) {
+        EmployeeChangeRequest request = requireChangeRequest(requestId);
+        WorkflowApprovalClient.Progress progress = approvalClient.progress(request.workflowInstanceId);
+        boolean completed = progress.instance() != null
+            && "COMPLETED".equals(progress.instance().status());
+        String outcome = completed ? progress.instance().outcome() : null;
+
+        List<ChangeRequestStep> legacySteps = stepRows(requestId);
+        long completedCount = progress.tasks().stream()
+            .filter(task -> "COMPLETED".equals(task.status()))
+            .count();
+        for (int i = 0; i < progress.tasks().size(); i++) {
+            WorkflowApprovalClient.TaskView task = progress.tasks().get(i);
+            int stepNo = i + 1;
+            ChangeRequestStep mirror = legacySteps.stream()
+                .filter(step -> step.stepNo != null && step.stepNo == stepNo)
+                .findFirst()
+                .orElse(null);
+            String mirrorStatus = switch (task.status()) {
+                case "COMPLETED" -> "APPROVED";
+                case "CANCELLED" -> "REJECTED";
+                default -> "PENDING";
+            };
+            if (mirror == null) {
+                Map<String, Object> stepParams = new HashMap<>();
+                stepParams.put("request_id", requestId);
+                stepParams.put("step_no", stepNo);
+                stepParams.put("approver_type", task.approvalMode() == null
+                    ? "ROLE" : "ROLE");
+                stepParams.put("approver_id", null);
+                stepParams.put("status", mirrorStatus);
+                stepParams.put("acted_by", null);
+                stepParams.put("acted_at", "COMPLETED".equals(task.status())
+                    ? Instant.now() : null);
+                stepParams.put("comment", lastComment(task));
+                writeOne("change_request_step.insert", stepParams);
+            } else if (!mirrorStatus.equals(mirror.status)) {
+                Map<String, Object> stepParams = new HashMap<>();
+                stepParams.put("id", mirror.id);
+                stepParams.put("status", mirrorStatus);
+                stepParams.put("acted_by", null);
+                stepParams.put("acted_at", "COMPLETED".equals(task.status())
+                    ? Instant.now() : null);
+                stepParams.put("comment", lastComment(task));
+                stepParams.put("updated_at", Instant.now());
+                writeOne("change_request_step.update", stepParams);
+            }
+        }
+
+        String status;
+        Instant now = Instant.now();
+        if (completed && "APPROVED".equals(outcome)) {
+            applyChangeRequest(request);
+            status = "APPROVED";
+        } else if (completed && "REJECTED".equals(outcome)) {
+            status = "REJECTED";
+        } else {
+            status = "IN_REVIEW";
+        }
 
         Map<String, Object> requestParams = new HashMap<>();
-        requestParams.put("id", id);
-        requestParams.put("status", "REJECTED");
-        requestParams.put("current_step", current.stepNo);
-        requestParams.put("reviewed_at", now);
-        requestParams.put("rejection_reason", normalizedReason);
-        requestParams.put("version", request.version == null ? 1L : request.version + 1);
+        requestParams.put("id", requestId);
+        requestParams.put("status", status);
+        requestParams.put("current_step", (int) completedCount + 1);
+        requestParams.put("reviewed_at", completed ? now : null);
+        requestParams.put("rejection_reason", "REJECTED".equals(status)
+            ? lastComment(progress.tasks().stream()
+                .filter(task -> "COMPLETED".equals(task.status()))
+                .reduce((first, second) -> second).orElse(null))
+            : null);
+        requestParams.put("version", (request.version == null ? 0L : request.version) + 1);
         requestParams.put("updated_at", now);
         writeOne("change_request.update_status", requestParams);
 
         Map<String, Object> payload = new LinkedHashMap<>();
-        payload.put("change_request_id", id);
+        payload.put("change_request_id", requestId);
         payload.put("employee_id", request.employeeId);
-        payload.put("status", "REJECTED");
-        emitOutbox("NOTIFICATION", id, payload);
-        return getChangeRequest(id);
+        payload.put("status", status);
+        emitOutbox("NOTIFICATION", requestId, payload);
+        return getChangeRequest(requestId);
+    }
+
+    private String lastComment(WorkflowApprovalClient.TaskView task) {
+        if (task == null || task.actionVotes() == null || task.actionVotes().isEmpty()) {
+            return "";
+        }
+        Map<String, Object> last = task.actionVotes()
+            .get(task.actionVotes().size() - 1);
+        Object comment = last.get("comment");
+        return comment == null ? "" : comment.toString();
     }
 
     // -------------------------------------------------------------------- config

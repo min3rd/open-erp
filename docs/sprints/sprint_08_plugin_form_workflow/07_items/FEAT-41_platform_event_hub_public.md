@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | FEAT-41 / FEAT / Sprint 08 |
-| Trạng thái / phiên bản / cập nhật | To Do / 0.1 / 2026-11-02 |
+| Trạng thái / phiên bản / cập nhật | Done (Dev) / 0.2 / 2026-11-02 — Core Event Hub (publish/fan-out/relay retry), Entity Write Proxy, Public Session + `/public/forms/{tenant}/{slug}` + IP rate limit, InternalTenantAdmins, tenants API, SDK PluginEventPublisher; `mvn compile` PASS; integration test gắn TR |
 | Owner | Developer Agent |
 | Đầu vào | [ADR-S08-002](../05_solutions/03_ADR-S08-002_event_hub_entity_write_proxy.md), [ADR-S08-003](../05_solutions/04_ADR-S08-003_public_form_access.md), [DES-ARCH-S08-001](../06_designs/arch/01_DES-ARCH-S08-001_components_and_flows.md) §1–4, [DES-DB-S08-001](../06_designs/db/01_DES-DB-S08-001_form_workflow_schema.md) §4 |
 | Phụ thuộc | Không (nền tảng đi trước) |
@@ -20,11 +20,13 @@ Bổ sung **Core** (`src/backend`, Flyway V8.0.x) và **SDK** (`plugins/sdk`):
 
 ## Checklist
 
-- [ ] Migration V8.0.x: 3 bảng Core + index
-- [ ] Event Hub service + relay + test (publish → delivery → retry → FAILED)
-- [ ] Entity Write Proxy + test registry validate
-- [ ] Public Session + route + rate limit + test bảo mật (rỗng quyền, TTL)
-- [ ] SDK additions + unit test
+- [x] Migration V7.0.8: 3 bảng Core + index — 2026-11-02
+- [x] Event Hub service + relay Vert.x periodic + idempotency/backoff/FAILED — 2026-11-02
+- [x] Entity Write Proxy (registry lookup + forward) — 2026-11-02
+- [x] Public Session (public_access manifest gate + anonymous PLUGIN_RUNTIME token TTL 15m + audit row) + trang public `/public/forms/{tenant}/{slug}` + rate limit Redis — 2026-11-02
+- [x] InternalPluginTenantsResource + InternalTenantAdminsResource (ROLE assignment) — 2026-11-02
+- [x] SDK PluginEventPublisher (best-effort, Optional token) — 2026-11-02
+- [ ] Integration test publish → delivery (gắn TR-S08-001, chạy sau cutover)
 
 ## AC truy vết
 

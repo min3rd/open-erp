@@ -9,6 +9,7 @@ public class EmployeeChangeRequest {
 
     public UUID id;
     public UUID employeeId;
+    public UUID workflowInstanceId;
     public UUID requestedByUserId;
     public String status;
     public Integer currentStep;
@@ -23,6 +24,7 @@ public class EmployeeChangeRequest {
         EmployeeChangeRequest item = new EmployeeChangeRequest();
         item.id = Rows.uuid(row.get("id"));
         item.employeeId = Rows.uuid(row.get("employee_id"));
+        item.workflowInstanceId = Rows.uuid(row.get("workflow_instance_id"));
         item.requestedByUserId = Rows.uuid(row.get("requested_by_user_id"));
         item.status = Rows.text(row.get("status"));
         item.currentStep = Rows.integer(row.get("current_step"));

@@ -1,0 +1,135 @@
+<div class="op-fill">
+  @if (submitted()) {
+    <div class="op-card op-fill-done">
+      <h2>{{ 'PLUGIN_FORM_FILL_THANKS' | translate }}</h2>
+      <p>{{ 'PLUGIN_FORM_FILL_REFERENCE' | translate }}: <code>{{ submitted() }}</code></p>
+    </div>
+  } @else {
+    <div class="op-card">
+      <h1>{{ title() }}</h1>
+      <p>{{ description() }}</p>
+    </div>
+    @if (error()) {
+      <p class="op-error">{{ error() | translate }}</p>
+    }
+    <div class="op-card">
+      @for (item of items(); track item.ref ?? item.title) {
+        @if (item.type === 'SECTION') {
+          <h2 class="op-section">{{ item.title }}</h2>
+          @if (item.description) {
+            <p class="op-hint">{{ item.description }}</p>
+          }
+        } @else if (isVisible(item)) {
+          <div class="op-question">
+            <label class="op-label">
+              {{ item.label }}
+              @if (item.required) {
+                <span class="op-required">*</span>
+              }
+            </label>
+            @switch (item.type) {
+              @case ('SHORT_TEXT') {
+                <input
+                  class="op-input"
+                  type="text"
+                  [ngModel]="answers()[$any(item.ref)]"
+                  (ngModelChange)="answers()[$any(item.ref)] = $event; recomputeVisibility()"
+                />
+              }
+              @case ('LONG_TEXT') {
+                <textarea
+                  class="op-textarea"
+                  rows="4"
+                  [ngModel]="answers()[$any(item.ref)]"
+                  (ngModelChange)="answers()[$any(item.ref)] = $event"
+                ></textarea>
+              }
+              @case ('NUMBER') {
+                <input
+                  class="op-input"
+                  type="number"
+                  [ngModel]="answers()[$any(item.ref)]"
+                  (ngModelChange)="answers()[$any(item.ref)] = $event"
+                />
+              }
+              @case ('DATE') {
+                <input
+                  class="op-input"
+                  type="date"
+                  [ngModel]="answers()[$any(item.ref)]"
+                  (ngModelChange)="answers()[$any(item.ref)] = $event"
+                />
+              }
+              @case ('RATING') {
+                <input
+                  class="op-input"
+                  type="number"
+                  min="1"
+                  max="5"
+                  [ngModel]="answers()[$any(item.ref)]"
+                  (ngModelChange)="answers()[$any(item.ref)] = $event"
+                />
+              }
+              @case ('SINGLE_CHOICE') {
+                @for (option of item.options ?? []; track option.value) {
+                  <label class="op-choice">
+                    <input
+                      type="radio"
+                      [name]="$any(item.ref)"
+                      [value]="option.value"
+                      [ngModel]="answers()[$any(item.ref)]"
+                      (ngModelChange)="answers()[$any(item.ref)] = $event; recomputeVisibility()"
+                    />
+                    {{ option.label ?? option.value }}
+                  </label>
+                }
+              }
+              @case ('MULTI_CHOICE') {
+                <select
+                  class="op-select"
+                  [ngModel]="answers()[$any(item.ref)]"
+                  (ngModelChange)="answers()[$any(item.ref)] = $event"
+                >
+                  <option value=""></option>
+                  @for (option of item.options ?? []; track option.value) {
+                    <option [value]="option.value">{{ option.label ?? option.value }}</option>
+                  }
+                </select>
+              }
+              @case ('DROPDOWN') {
+                <select
+                  class="op-select"
+                  [ngModel]="answers()[$any(item.ref)]"
+                  (ngModelChange)="answers()[$any(item.ref)] = $event"
+                >
+                  <option value=""></option>
+                  @for (option of item.options ?? []; track option.value) {
+                    <option [value]="option.value">{{ option.label ?? option.value }}</option>
+                  }
+                </select>
+              }
+              @default {
+                <input
+                  class="op-input"
+                  type="text"
+                  [ngModel]="answers()[$any(item.ref)]"
+                  (ngModelChange)="answers()[$any(item.ref)] = $event"
+                />
+              }
+            }
+          </div>
+        }
+      }
+      <div class="op-row">
+        <button
+          type="button"
+          class="op-btn op-btn--primary"
+          (click)="submit()"
+          [disabled]="busy()"
+        >
+          {{ 'PLUGIN_FORM_FILL_SUBMIT' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</div>

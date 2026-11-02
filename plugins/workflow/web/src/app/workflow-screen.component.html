@@ -1,0 +1,190 @@
+<div class="op-workflow-root" [attr.data-theme]="context?.theme ?? ''">
+  <nav class="op-tabs">
+    <button type="button" class="op-btn" (click)="setTab('inbox')">{{ 'PLUGIN_WORKFLOW_TAB_INBOX' | translate }}</button>
+    <button type="button" class="op-btn" (click)="setTab('flows')">{{ 'PLUGIN_WORKFLOW_TAB_FLOWS' | translate }}</button>
+    <button type="button" class="op-btn" (click)="setTab('runs')">{{ 'PLUGIN_WORKFLOW_TAB_RUNS' | translate }}</button>
+  </nav>
+
+  @if (error()) {
+    <p class="op-error">{{ error() | translate }}</p>
+  }
+
+  @switch (tab()) {
+    @case ('inbox') {
+      <section class="op-card">
+        <table class="op-table">
+          <thead>
+            <tr>
+              <th>{{ 'PLUGIN_WORKFLOW_TASK_NODE' | translate }}</th>
+              <th>{{ 'PLUGIN_WORKFLOW_TASK_INSTANCE' | translate }}</th>
+              <th>{{ 'PLUGIN_WORKFLOW_TASK_MODE' | translate }}</th>
+              <th>{{ 'PLUGIN_WORKFLOW_TASK_DUE' | translate }}</th>
+              <th>{{ 'PLUGIN_WORKFLOW_TASK_STATUS' | translate }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (task of tasks(); track task.id) {
+              <tr>
+                <td>{{ task.node_id }}</td>
+                <td><code>{{ task.instance_id.slice(0, 8) }}</code></td>
+                <td>{{ task.approval_mode }}</td>
+                <td>
+                  @if (task.overdue_at) {
+                    <span class="op-badge op-overdue">{{ 'PLUGIN_WORKFLOW_OVERDUE' | translate }}</span>
+                  }
+                  {{ task.due_at ?? '—' }}
+                </td>
+                <td>{{ task.status }}</td>
+                <td>
+                  <button type="button" class="op-btn op-btn--primary" (click)="openTask(task)">
+                    {{ 'PLUGIN_WORKFLOW_OPEN' | translate }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6">{{ 'PLUGIN_WORKFLOW_INBOX_EMPTY' | translate }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+
+      @if (selectedTask(); as task) {
+        <section class="op-card">
+          <h3>{{ 'PLUGIN_WORKFLOW_TASK_NODE' | translate }}: {{ task.node_id }}</h3>
+          <label>{{ 'PLUGIN_WORKFLOW_COMMENT' | translate }}</label>
+          <textarea class="op-textarea" rows="3" [ngModel]="comment()" (ngModelChange)="comment.set($event)"></textarea>
+          <div class="op-row">
+            <button type="button" class="op-btn op-btn--primary" (click)="act('APPROVE')" [disabled]="busy()">
+              {{ 'PLUGIN_WORKFLOW_APPROVE' | translate }}
+            </button>
+            <button type="button" class="op-btn op-btn--danger" (click)="act('REJECT')" [disabled]="busy()">
+              {{ 'PLUGIN_WORKFLOW_REJECT' | translate }}
+            </button>
+            <button type="button" class="op-btn" (click)="act('CLAIM')" [disabled]="busy()">
+              {{ 'PLUGIN_WORKFLOW_CLAIM' | translate }}
+            </button>
+            <button type="button" class="op-btn" (click)="selectedTask.set(null)">
+              {{ 'PLUGIN_WORKFLOW_CANCEL' | translate }}
+            </button>
+          </div>
+          <p class="op-hint">{{ 'PLUGIN_WORKFLOW_REJECT_HINT' | translate }}</p>
+        </section>
+      }
+    }
+    @case ('flows') {
+      <section class="op-card">
+        <table class="op-table">
+          <thead>
+            <tr>
+              <th>{{ 'PLUGIN_WORKFLOW_KEY' | translate }}</th>
+              <th>v</th>
+              <th>{{ 'PLUGIN_WORKFLOW_STATUS' | translate }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (definition of definitions(); track definition.id) {
+              <tr>
+                <td>{{ definition.key }}</td>
+                <td>{{ definition.version }}</td>
+                <td>{{ definition.status }}</td>
+                <td>
+                  <button type="button" class="op-btn" (click)="editFlow(definition)">
+                    {{ 'PLUGIN_WORKFLOW_EDIT' | translate }}
+                  </button>
+                  @if (definition.status !== 'PUBLISHED') {
+                    <button type="button" class="op-btn op-btn--primary" (click)="publishFlow(definition)">
+                      {{ 'PLUGIN_WORKFLOW_PUBLISH' | translate }}
+                    </button>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4">{{ 'PLUGIN_WORKFLOW_FLOWS_EMPTY' | translate }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+      <section class="op-card">
+        <label>{{ 'PLUGIN_WORKFLOW_KEY' | translate }}</label>
+        <input class="op-input" [ngModel]="definitionKey()" (ngModelChange)="definitionKey.set($event)" />
+        <label>{{ 'PLUGIN_WORKFLOW_DOCUMENT' | translate }} (JSON)</label>
+        <textarea class="op-textarea op-monospace" rows="18" [ngModel]="documentDraft()" (ngModelChange)="documentDraft.set($event)"></textarea>
+        <div class="op-row">
+          <button type="button" class="op-btn op-btn--primary" (click)="saveFlow()" [disabled]="busy()">
+            {{ 'PLUGIN_WORKFLOW_SAVE' | translate }}
+          </button>
+        </div>
+        <p class="op-hint">{{ 'PLUGIN_WORKFLOW_BUILDER_HINT' | translate }}</p>
+      </section>
+    }
+    @case ('runs') {
+      <section class="op-card">
+        <table class="op-table">
+          <thead>
+            <tr>
+              <th>{{ 'PLUGIN_WORKFLOW_RUN_ID' | translate }}</th>
+              <th>{{ 'PLUGIN_WORKFLOW_STATUS' | translate }}</th>
+              <th>{{ 'PLUGIN_WORKFLOW_OUTCOME' | translate }}</th>
+              <th>{{ 'PLUGIN_WORKFLOW_TRIGGER' | translate }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (instance of instances(); track instance.id) {
+              <tr>
+                <td><code>{{ instance.id.slice(0, 8) }}</code></td>
+                <td>{{ instance.status }}</td>
+                <td>{{ instance.outcome ?? '—' }}</td>
+                <td>{{ instance.trigger_type }}</td>
+                <td>
+                  <button type="button" class="op-btn" (click)="openRun(instance)">
+                    {{ 'PLUGIN_WORKFLOW_OPEN' | translate }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5">{{ 'PLUGIN_WORKFLOW_RUNS_EMPTY' | translate }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+      @if (selectedRun(); as run) {
+        <section class="op-card">
+          <h3>{{ 'PLUGIN_WORKFLOW_RUN_TIMELINE' | translate }}</h3>
+          <ul class="op-timeline">
+            @for (entry of eventsOf(run); track entry[0]) {
+              <li>{{ entry[0] }}</li>
+            }
+          </ul>
+          <h3>{{ 'PLUGIN_WORKFLOW_TASKS' | translate }}</h3>
+          <table class="op-table">
+            <thead>
+              <tr>
+                <th>{{ 'PLUGIN_WORKFLOW_TASK_NODE' | translate }}</th>
+                <th>{{ 'PLUGIN_WORKFLOW_TASK_STATUS' | translate }}</th>
+                <th>{{ 'PLUGIN_WORKFLOW_TASK_DUE' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (task of run.tasks; track task.id) {
+                <tr>
+                  <td>{{ task.node_id }}</td>
+                  <td>{{ task.status }}</td>
+                  <td>{{ task.due_at ?? '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </section>
+      }
+    }
+  }
+</div>

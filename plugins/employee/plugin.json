@@ -2,14 +2,17 @@
   "schema_version": "2.0",
   "id": "employee",
   "name": "Employee",
-  "description": "Employee profiles, effective-dated assignments, change requests, documents and HR self-service.",
-  "version": "1.1.23",
+  "description": "Hồ sơ nhân sự, tự phục vụ, đề xuất duyệt qua workflow engine dùng chung.",
+  "version": "1.2.0",
   "template_version": "2.0.0",
   "author": "Open-ERP Plugin Team",
   "core_version_compatibility": ">=1.0.0 <2.0.0",
   "migration_policy": "COMPATIBLE",
   "rollback_strategy": "SNAPSHOT_RESTORE",
   "dependencies": [],
+  "event_subscriptions": [
+    { "source": "workflow", "event": "*" }
+  ],
   "platforms": {
     "desktop": {
       "supported": true,
@@ -759,6 +762,11 @@
           "name": "employee_id",
           "type": "uuid",
           "required": true
+        },
+        {
+          "name": "workflow_instance_id",
+          "type": "uuid",
+          "required": false
         },
         {
           "name": "requested_by_user_id",
@@ -2405,6 +2413,11 @@
         "version": {
           "param": "version",
           "optional": true
+        },
+        "workflow_instance_id": {
+          "param": "workflow_instance_id",
+          "optional": true,
+          "allow_null": true
         }
       },
       "returning": [
@@ -2471,6 +2484,30 @@
         "rejection_reason",
         "version",
         "created_at"
+      ]
+    },
+    {
+      "id": "change_request.set_workflow",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "EmployeeChangeRequest",
+      "tenant_scope": "TENANT",
+      "values": {
+        "workflow_instance_id": {
+          "param": "workflow_instance_id"
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id",
+        "workflow_instance_id"
       ]
     },
     {
@@ -4180,6 +4217,12 @@
       "file": "V1.0.2__employee_onboarding_campaign_privacy.sql",
       "checksum": "sha256:5f37c9ac2ec2bbab53e01b683a803320dbfdf39e3244da7c0cb4452ebad15057",
       "description": "onboarding payload, approval scope guard and campaign/privacy indexes"
+    },
+    {
+      "version": "1.2.0",
+      "file": "V1.2.0__employee_workflow_runtime.sql",
+      "checksum": "sha256:b9adf9da7c620215b95b679001a9331aa45ef98d9df3497f38700f78f43c63e0",
+      "description": "workflow engine runtime migration (ADR-S08-004 option C)"
     }
   ],
   "kafka_events": {

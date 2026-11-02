@@ -8,6 +8,7 @@ import com.vn9melody.openerp.plugins.workflow.engine.WorkflowNodeTypes;
 import com.vn9melody.openerp.plugins.workflow.model.WorkflowDefinition;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -27,6 +28,40 @@ public class WorkflowDefinitionService {
 
     public WorkflowDefinitionDto get(UUID id) {
         return WorkflowDefinitionDto.from(load(id));
+    }
+
+    public WorkflowDefinitionDto create(String key, Map<String, Object> document) {
+        if (key == null || key.isBlank()) {
+            throw new ApiException(400, WorkflowErrorCode.WORKFLOW_DEFINITION_INVALID,
+                    "key is required");
+        }
+        validateDocument(document);
+        int nextVersion = 1;
+        var existing = client.query("definition.latest",
+                Map.of("key", key.trim().toLowerCase(), "status", "DRAFT")).rows();
+        if (!existing.isEmpty()) {
+            WorkflowDefinition draft = WorkflowDefinition.from(existing.get(0));
+            nextVersion = draft.version() == null ? 1 : draft.version();
+            client.write("definition.publish", Map.of(
+                    "id", draft.id(), "status", "ARCHIVED",
+                    "published_at", OffsetDateTime.now()));
+        }
+        var result = client.write("definition.insert", Map.of(
+                "key", key.trim().toLowerCase(),
+                "version", nextVersion,
+                "status", "DRAFT",
+                "document", document));
+        return WorkflowDefinitionDto.from(WorkflowDefinition.from(result.first()));
+    }
+
+    public WorkflowDefinitionDto publish(UUID id) {
+        WorkflowDefinition definition = load(id);
+        validateDocument(definition.document());
+        client.write("definition.publish", Map.of(
+                "id", definition.id(),
+                "status", "PUBLISHED",
+                "published_at", OffsetDateTime.now()));
+        return get(id);
     }
 
     /** Validates the definition document graph: node types, single start, forward refs, no cycles. */

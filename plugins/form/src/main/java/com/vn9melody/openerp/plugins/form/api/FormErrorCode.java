@@ -12,6 +12,8 @@ public final class FormErrorCode {
     public static final String FORM_PUBLISHED = "FORM_PUBLISHED";
     public static final String FORM_CLOSED = "FORM_CLOSED";
     public static final String FORM_NOT_FOUND = "FORM_NOT_FOUND";
+    public static final String FORM_NOT_PUBLISHED = "FORM_NOT_PUBLISHED";
+    public static final String FORM_RESPONSE_CLOSED = "FORM_RESPONSE_CLOSED";
     public static final String FORM_SLUG_REQUIRED = "FORM_SLUG_REQUIRED";
     public static final String FORM_SLUG_EXISTS = "FORM_SLUG_EXISTS";
     public static final String FORM_TITLE_REQUIRED = "FORM_TITLE_REQUIRED";

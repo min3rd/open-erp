@@ -10,6 +10,10 @@
   "migration_policy": "COMPATIBLE",
   "rollback_strategy": "SNAPSHOT_RESTORE",
   "dependencies": [],
+  "public_access": true,
+  "event_publications": [
+    { "event": "form.response.submitted", "entity": "FormResponse" }
+  ],
   "platforms": {
     "desktop": {
       "supported": true,
@@ -166,6 +170,20 @@
       "maxRows": 1
     },
     {
+      "id": "form.get_by_slug",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "FormDefinition",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id", "slug", "title_text", "description", "document", "entity_mapping",
+        "publish_status", "captcha", "close_at", "response_limit",
+        "accept_responses", "latest_version"
+      ],
+      "filters": [{ "field": "slug", "op": "EQ", "param": "slug", "required": true }],
+      "maxRows": 1
+    },
+    {
       "id": "form.insert",
       "mode": "WRITE",
       "operation": "INSERT",
@@ -292,6 +310,29 @@
       ],
       "filters": [{ "field": "id", "op": "EQ", "param": "id", "required": true }],
       "maxRows": 1
+    },
+    {
+      "id": "form.response.by_key",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "FormResponse",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id", "form_id", "form_version", "answers", "responder_email",
+        "entity_write_status", "submitted_at"
+      ],
+      "filters": [{ "field": "idempotency_key", "op": "EQ", "param": "idempotency_key", "required": true }],
+      "maxRows": 1
+    },
+    {
+      "id": "form.response.count",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "FormResponse",
+      "tenant_scope": "TENANT",
+      "select": ["id"],
+      "filters": [{ "field": "form_id", "op": "EQ", "param": "form_id", "required": true }],
+      "maxRows": 1000
     },
     {
       "id": "form.file.insert",

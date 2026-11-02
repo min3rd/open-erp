@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | FEAT-40 / FEAT / Sprint 08 |
-| Trạng thái / phiên bản / cập nhật | In Progress / 0.2 / 2026-11-02 — scaffold PASS (module + manifest 2.0 + V1.0.0 schema + WorkflowNodeTypes + ExpressionEvaluator + definition graph validator 6/6 test xanh) |
+| Trạng thái / phiên bản / cập nhật | In Progress / 0.3 / 2026-11-02 — backend hoàn tất: WorkflowEngineService (open idempotent, walk START/CONDITION/PARALLEL/CC/AUTO, 3 chế độ duyệt, RETURN/REASSIGN/CLAIM, chặn self-approval, SLA scan, event log + publish instance.completed), TriggerService, WorkflowInternalResource (events/instances/tasks/sla-scan/bootstrap seed `employee-profile-change`), WorkflowResource (definitions CRUD/publish, instances, inbox, actions); WC bundle build PASS; integration test gắn TR |
 | Owner | Developer Agent |
 | Đầu vào | [CONF-S08-001](../04_confirmation/01_CONF-S08-001_sprint_08_scope_and_ac.md) AC-W01…W15, [ADR-S08-001](../05_solutions/02_ADR-S08-001_workflow_engine_state_machine.md), [DES-DB-S08-001](../06_designs/db/01_DES-DB-S08-001_form_workflow_schema.md) §3, [DES-API-S08-001](../06_designs/api/01_DES-API-S08-001_form_workflow_api.md) §4–5, [DES-UI-S08-001](../06_designs/ui/01_DES-UI-S08-001_form_workflow_ui.md) §4 |
 | Phụ thuộc | FEAT-41 (Event Hub internal endpoints, tenants internal API, SDK) |

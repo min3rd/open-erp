@@ -6,8 +6,10 @@ import com.vn9melody.openerp.plugin.sdk.api.ListData;
 import com.vn9melody.openerp.plugin.sdk.runtime.RequirePermission;
 import com.vn9melody.openerp.plugins.form.api.FormErrorCode;
 import com.vn9melody.openerp.plugins.form.dto.FormDefinitionDto;
+import com.vn9melody.openerp.plugins.form.dto.FormResponseDto;
 import com.vn9melody.openerp.plugins.form.dto.SaveFormRequest;
 import com.vn9melody.openerp.plugins.form.service.FormDefinitionService;
+import com.vn9melody.openerp.plugins.form.service.FormResponseService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -20,6 +22,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @Path("/api/v1/form")
@@ -29,6 +32,9 @@ public class FormResource {
 
     @Inject
     FormDefinitionService service;
+
+    @Inject
+    FormResponseService responseService;
 
     @GET
     @Path("/forms")
@@ -102,6 +108,44 @@ public class FormResource {
                 FormErrorCode.FORM_CLOSED,
                 "Form closed.",
                 service.close(id));
+    }
+
+    @GET
+    @Path("/forms/{id}/responses")
+    @RequirePermission("form:response:read")
+    public ApiResponse<ListData<FormResponseDto>> responses(@PathParam("id") UUID id) {
+        return ApiResponse.successList(
+                FormErrorCode.FORM_RESPONSE_LIST_SUCCESS,
+                "Responses retrieved.",
+                responseService.list(id));
+    }
+
+    @GET
+    @Path("/responses/{id}")
+    @RequirePermission("form:response:read")
+    public ApiResponse<FormResponseDto> response(@PathParam("id") UUID id) {
+        return ApiResponse.success(
+                FormErrorCode.FORM_RESPONSE_DETAIL_SUCCESS,
+                "Response retrieved.",
+                responseService.get(id));
+    }
+
+    @GET
+    @Path("/forms/{id}/summary")
+    @RequirePermission("form:response:read")
+    public ApiResponse<Map<String, Object>> summary(@PathParam("id") UUID id) {
+        return ApiResponse.success(
+                "FORM_RESPONSE_SUMMARY_SUCCESS",
+                "Response summary retrieved.",
+                responseService.summary(id));
+    }
+
+    @GET
+    @Path("/forms/{id}/responses/export")
+    @RequirePermission("form:response:export")
+    @Produces("text/csv")
+    public String exportCsv(@PathParam("id") UUID id) {
+        return responseService.exportCsv(id);
     }
 
     private OffsetDateTime parseTime(String value) {
