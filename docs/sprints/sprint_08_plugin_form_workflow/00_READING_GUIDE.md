@@ -2,8 +2,8 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / phiên bản / cập nhật | READ-S08-001 / 0.2 / 2026-11-02 |
-| Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — Bước 01–04 hoàn tất; **Scope & AC ✅ APPROVED 1.0** (CONF-S08-001, hội thoại tương tác 2026-11-02); bước 05–09 chờ Architect triển khai |
+| ID / phiên bản / cập nhật | READ-S08-001 / 0.4 / 2026-11-02 |
+| Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — Scope APPROVED 1.0; SOL + 4 ADR + 4 DES soạn xong (Draft 0.1) — **Design In Review, chờ chủ dự án duyệt** |
 | Owner / reviewer | BA Agent / Chủ dự án (duyệt scope tại CONF) |
 | Đầu vào / đọc trước | [RAW-S08-001](01_raw_notes/01_RAW-S08-001_form_workflow_plugin_requirements.md) — yêu cầu trực tiếp chủ dự án 2026-11-02 / [Sprint 07](../sprint_07_plugin_employee/00_READING_GUIDE.md) (đã đóng), [Sprint 06](../sprint_06_plugin_dev_platform/00_READING_GUIDE.md) |
 | Đọc tiếp | [ANL-S08-001](02_analysis/01_ANL-S08-001_form_builder_plugin.md) → [ANL-S08-002](02_analysis/02_ANL-S08-002_workflow_plugin.md) → [BENCH-S08-001](03_benchmarks/01_BENCH-S08-001_form_builder_survey_benchmarks.md) → [BENCH-S08-002](03_benchmarks/02_BENCH-S08-002_workflow_engine_benchmark.md) → [CONF-S08-001](04_confirmation/01_CONF-S08-001_sprint_08_scope_and_ac.md) |
@@ -46,7 +46,15 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | 03.01 | BENCH-S08-001 | [Đối chuẩn form builder](03_benchmarks/01_BENCH-S08-001_form_builder_survey_benchmarks.md) | 10 sản phẩm, 12 bài học, khoảng trống cần kiểm chứng thêm | BA |
 | 03.02 | BENCH-S08-002 | [Đối chuẩn workflow engine](03_benchmarks/02_BENCH-S08-002_workflow_engine_benchmark.md) | 10 nhóm sản phẩm, bảng tổng hợp, 12 bài học, nguồn đã đọc | BA |
 | 04.01 | CONF-S08-001 | [Scope, AC & câu trả lời](04_confirmation/01_CONF-S08-001_sprint_08_scope_and_ac.md) | ✅ **APPROVED 1.0** — 16/16 câu; 15 AC-F + 15 AC-W + ma trận D/M; rủi ro Q2/Q3/Q4/Q12 | BA + Khách hàng |
-| 05–09 | SOL/DES/ITEM/TP-TR/REV | *(chưa soạn — scope đã duyệt, Architect bắt đầu bước 05)* | Nghiên cứu giải pháp, thiết kế DB/API/UI, items, kiểm thử, nghiệm thu | Architect/Developer/QA/PM |
+| 05.01 | SOL-S08-001 | [Giải pháp tổng thể](05_solutions/01_SOL-S08-001_form_workflow_architecture.md) | 2 plugin + 3 mảnh nền tảng mới; ranh giới; luồng chính; rủi ro | Architect |
+| 05.02 | ADR-S08-001 | [Engine state machine](05_solutions/02_ADR-S08-001_workflow_engine_state_machine.md) | Tự viết engine (không BPMN); node/condition/parallel/SLA; Quarkus Scheduler | Architect |
+| 05.03 | ADR-S08-002 | [Event Hub & Entity Write Proxy](05_solutions/03_ADR-S08-002_event_hub_entity_write_proxy.md) | Event fan-out qua Core manifest-driven; proxy ghi entity; webhook in/out | Architect |
+| 05.04 | ADR-S08-003 | [Form public anonymous](05_solutions/04_ADR-S08-003_public_form_access.md) | Route /public + anonymous session + rate limit + captcha | Architect |
+| 05.05 | ADR-S08-004 | [Migration employee (C)](05_solutions/05_ADR-S08-004_employee_migration_cutover.md) | UI giữ nguyên, runtime chuyển engine; import config; cutover/rollback | Architect |
+| 06.01 | DES-ARCH-S08-001 | [Kiến trúc thành phần & luồng](06_designs/arch/01_DES-ARCH-S08-001_components_and_flows.md) | Module mới, sequence, phân quyền, SDK bổ sung, multi-tenant, chiến lược test | Architect |
+| 06.02 | DES-DB-S08-001 | [Schema DB](06_designs/db/01_DES-DB-S08-001_form_workflow_schema.md) | 5 bảng form, 6 bảng workflow, 3 bảng Core, migration employee | Architect |
+| 06.03 | DES-API-S08-001 | [API contract](06_designs/api/01_DES-API-S08-001_form_workflow_api.md) | API quản trị/public/internal; 4 mẫu response; error codes | Architect |
+| 06.04 | DES-UI-S08-001 | [UI/UX](06_designs/ui/01_DES-UI-S08-001_form_workflow_ui.md) | Route map, builder, fill public, inbox, reports; ma trận D/M | Architect |
 
 > Bảng đọc là snapshot. Không tạo link giả cho artifact chưa tồn tại; khi tạo file phải cập nhật index trước khi giao việc.
 
@@ -55,7 +63,7 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | Gate | Trạng thái | Người quyết định | Nguồn/phiên bản/ngày |
 | :--- | :--- | :--- | :--- |
 | Scope & AC (CONF-S08-001) | ✅ **APPROVED 1.0** — 16/16 câu trả lời; chủ dự án duyệt qua hội thoại tương tác (đã nhắc rõ rủi ro Q3) | Chủ dự án | CONF-S08-001 1.0, 2026-11-02 |
-| Design ready (SOL/ADR/DES) | ⏳ Pending | Architect + Chủ dự án | — |
+| Design ready (SOL/ADR/DES) | 📝 **In Review** — 1 SOL + 4 ADR + 4 DES Draft 0.1 chờ chủ dự án duyệt | Architect + Chủ dự án | SOL/ADR/DES 0.1, 2026-11-02 |
 | Implementation | ⏳ Pending | Developer | — |
 | QA sign-off | ⏳ Pending | QA | — |
 | PM DoD / Customer acceptance | ⏳ Pending | Chủ dự án | — |
@@ -70,6 +78,9 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | ANL-S08-001, ANL-S08-002 | [02_analysis/](02_analysis/) | BA | Used — Draft 0.1 |
 | BENCH-S08-001, BENCH-S08-002 | [03_benchmarks/](03_benchmarks/) | BA | Used — Draft 0.1 |
 | CONF-S08-001 | [04_confirmation/](04_confirmation/) | BA + Khách hàng | Used — **APPROVED 1.0** (16/16 câu trả lời + duyệt scope) |
+| SOL-S08-001 | [05_solutions/](05_solutions/) | Architect | Used — Draft 0.1/In Review |
+| ADR-S08-001…004 | [05_solutions/](05_solutions/) | Architect | Used — Draft 0.1/In Review |
+| DES-ARCH/DB/API/UI-S08-001 | [06_designs/](06_designs/) | Architect | Used — Draft 0.1/In Review |
 | FEAT/TASK/BUG | *(chưa cấp)* | Developer/QA | Không cấp số trước khi CONF duyệt scope |
 
 ## 5. Liên hệ với các Sprint trước
@@ -88,3 +99,4 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | 0.1 | 2026-11-02 | Khởi tạo Sprint-Pack 08: RAW (R1–R3 + 12 câu hỏi mở), ANL-S08-001 (form builder), ANL-S08-002 (workflow), BENCH-S08-001 (10 sản phẩm form), BENCH-S08-002 (10 nhóm sản phẩm workflow); gate Pending; CONF reserved | BA Agent; yêu cầu trực tiếp chủ dự án 2026-11-02 |
 | 0.2 | 2026-11-02 | Chủ dự án trả lời **16/16 câu** qua hội thoại tương tác (4 vòng); soạn CONF-S08-001 0.1 (scope + 30 AC + ma trận D/M + rủi ro Q2/Q3/Q4/Q12); RAW nâng 0.2 ghi nhận; gate vẫn Pending — chờ duyệt scope & AC | BA Agent; hội thoại tương tác chủ dự án |
 | 0.3 | 2026-11-02 | **Scope & AC APPROVED 1.0** — chủ dự án chọn "Duyệt scope" sau khi được nhắc rủi ro Q3; CONF nâng 1.0; bước 05 (SOL) mở cho Architect | BA Agent; hội thoại tương tác chủ dự án |
+| 0.4 | 2026-11-02 | Architect khảo sát codebase (nền tảng plugin + employee approval) và soạn **SOL-S08-001 + ADR-S08-001…004 + DES-ARCH/DB/API/UI-S08-001** (Draft 0.1); key findings: chưa có event hub/scheduler — thêm Plugin Event Hub + Entity Write Proxy + Public Session + Quarkus Scheduler; Design **In Review** | Architect; khảo sát repo 2026-11-02 |
