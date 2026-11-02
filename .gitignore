@@ -58,3 +58,20 @@ desktop.ini
 
 # Docker Volume / Local Data directories
 docker/data/
+
+# Local Backups (DB dumps / cutover snapshots — không bao giờ commit)
+backups/
+
+# Local Tool State (Command Code)
+.commandcode/
+
+# Local Side Projects (không thuộc repo chính)
+tools/affiliate-auto/
+tools/facebook-affiliate/
+
+# Local Helper Scripts (không đưa vào repo)
+scripts/ops/compile-backend.ps1
+
+# Stray Shell Redirect Artifacts
+l.includes('signed')
+$null
