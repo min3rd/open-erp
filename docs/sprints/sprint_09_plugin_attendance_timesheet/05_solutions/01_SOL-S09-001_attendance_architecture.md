@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | SOL-S09-001 / Giải pháp tổng thể / Sprint 09 |
-| Trạng thái / phiên bản / cập nhật | Draft / 0.1 / 2026-11-02 |
+| Trạng thái / phiên bản / cập nhật | **✅ APPROVED 1.0 / 2026-11-02** — chủ dự án duyệt qua hội thoại tương tác (nội dung 0.1 giữ nguyên) |
 | Owner / reviewer | Solution Architect / Chủ dự án (design review) |
 | Đầu vào | [CONF-S09-001](../04_confirmation/01_CONF-S09-001_sprint_09_scope_and_ac.md) 1.0 (APPROVED), [BENCH-S09-001](../03_benchmarks/01_BENCH-S09-001_attendance_timesheet_benchmarks.md), [ANL-S09-001](../02_analysis/01_ANL-S09-001_attendance_timesheet_plugin.md), khảo sát codebase 2026-11-02 |
 | Đọc trước / đọc tiếp | [CONF-S09-001](../04_confirmation/01_CONF-S09-001_sprint_09_scope_and_ac.md) / [ADR-S09-001](02_ADR-S09-001_shift_structure_in_plugin.md) |

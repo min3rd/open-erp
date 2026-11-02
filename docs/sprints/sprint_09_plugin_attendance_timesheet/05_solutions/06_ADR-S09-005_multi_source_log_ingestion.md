@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | ADR-S09-005 / Quyết định kiến trúc / Sprint 09 |
-| Trạng thái / phiên bản / cập nhật | Draft / 0.1 / 2026-11-02 |
+| Trạng thái / phiên bản / cập nhật | **✅ APPROVED 1.0 / 2026-11-02** — chủ dự án duyệt qua hội thoại tương tác (nội dung 0.1 giữ nguyên) |
 | Owner / reviewer | Solution Architect / Chủ dự án (design review) |
 | Đầu vào | [CONF-S09-001](../04_confirmation/01_CONF-S09-001_sprint_09_scope_and_ac.md) Q1/Q2/Q4/Q13 (APPROVED, rủi ro §5.5), [BENCH-S09-001](../03_benchmarks/01_BENCH-S09-001_attendance_timesheet_benchmarks.md) §3.2/§3.8, khảo sát pattern auth Core (`JwtTokenService`, signed passthrough, `PluginPublicRateLimiter`) |
 | Đọc trước / đọc tiếp | [SOL-S09-001](01_SOL-S09-001_attendance_architecture.md) / bước 06 DES-DB/API |

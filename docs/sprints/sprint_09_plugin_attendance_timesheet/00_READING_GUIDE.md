@@ -2,8 +2,8 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / phiên bản / cập nhật | READ-S09-001 / 0.5 / 2026-11-02 |
-| Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — Scope APPROVED 1.0; **SOL-S09-001 + 5 ADR soạn xong (Draft 0.1) — Design In Review, chờ chủ dự án duyệt** |
+| ID / phiên bản / cập nhật | READ-S09-001 / 0.6 / 2026-11-02 |
+| Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — Scope APPROVED 1.0; **SOL + 5 ADR APPROVED 1.0**; bước 06 (DES-ARCH/DB/API/UI) mở cho Architect |
 | Owner / reviewer | BA Agent / Chủ dự án (duyệt scope tại CONF) |
 | Đầu vào / đọc trước | [RAW-S09-001](01_raw_notes/01_RAW-S09-001_attendance_timesheet_plugin_requirements.md) — yêu cầu trực tiếp chủ dự án 2026-11-02 / [Sprint 08](../sprint_08_plugin_form_workflow/00_READING_GUIDE.md) (Design In Review, chưa đóng), [Sprint 07](../sprint_07_plugin_employee/00_READING_GUIDE.md) (đã đóng) |
 | Đọc tiếp | [ANL-S09-001](02_analysis/01_ANL-S09-001_attendance_timesheet_plugin.md) → [BENCH-S09-001](03_benchmarks/01_BENCH-S09-001_attendance_timesheet_benchmarks.md) → [CONF-S09-001](04_confirmation/01_CONF-S09-001_sprint_09_scope_and_ac.md) → [SOL-S09-001](05_solutions/01_SOL-S09-001_attendance_architecture.md) |
@@ -60,7 +60,7 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | Gate | Trạng thái | Người quyết định | Nguồn/phiên bản/ngày |
 | :--- | :--- | :--- | :--- |
 | Scope & AC (CONF-S09-001) | ✅ **APPROVED 1.0** — chủ dự án duyệt toàn bộ scope (18/18 câu + 37 AC) qua hội thoại tương tác (đã nêu rõ rủi ro Q9/Q18 phụ thuộc Sprint 08, Q14 leave đầy đủ) | Chủ dự án | CONF-S09-001 1.0, 2026-11-02 |
-| Design ready (SOL/ADR/DES) | 📝 **In Review** — 1 SOL + 5 ADR Draft 0.1 chờ chủ dự án duyệt (DES bước 06 soạn sau khi ADR review) | Architect + Chủ dự án | SOL/ADR-S09 0.1, 2026-11-02 |
+| Design ready (SOL/ADR/DES) | 📝 **SOL/ADR APPROVED 1.0** (1 SOL + 5 ADR — hội thoại tương tác 2026-11-02); bước 06 DES đang soạn | Architect + Chủ dự án | SOL/ADR-S09 1.0, 2026-11-02 |
 | Implementation | ⏳ Pending | Developer | — |
 | QA sign-off | ⏳ Pending | QA | — |
 | PM DoD / Customer acceptance | ⏳ Pending | Chủ dự án | — |
@@ -75,8 +75,8 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | ANL-S09-001 | [02_analysis/](02_analysis/) | BA | Used — Draft 0.2 |
 | BENCH-S09-001 | [03_benchmarks/](03_benchmarks/) | BA | Used — Draft 0.1 |
 | CONF-S09-001 | [04_confirmation/](04_confirmation/) | BA + Khách hàng | Used — **APPROVED 1.0** (18/18 câu trả lời + duyệt scope) |
-| SOL-S09-001 | [05_solutions/](05_solutions/) | Architect | Used — Draft 0.1/In Review |
-| ADR-S09-001…005 | [05_solutions/](05_solutions/) | Architect | Used — Draft 0.1/In Review |
+| SOL-S09-001 | [05_solutions/](05_solutions/) | Architect | Used — **APPROVED 1.0** |
+| ADR-S09-001…005 | [05_solutions/](05_solutions/) | Architect | Used — **APPROVED 1.0** |
 | FEAT/TASK/BUG | *(chưa cấp)* | Developer/QA | Không cấp số trước khi CONF duyệt scope |
 
 ## 5. Liên hệ với các Sprint trước
@@ -98,3 +98,4 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | 0.3 | 2026-11-02 | Chủ dự án phản hồi *"sprint 9 còn thiếu phần tạo các loại đơn phù hợp cho nghiệp vụ"* → trả lời thêm Q17/Q18: **module Đơn từ** (6 loại chuẩn + tenant tạo loại mới, form builder + workflow Sprint 08); CONF 0.3 (37 AC + 6 rủi ro), ANL 0.2 (28 US), RAW 0.2; gate vẫn Pending | BA Agent; hội thoại tương tác chủ dự án |
 | 0.4 | 2026-11-02 | **Scope & AC APPROVED 1.0** — chủ dự án chọn "Duyệt toàn bộ scope" sau khi được nêu rủi ro Q9/Q18 (phụ thuộc Sprint 08) và Q14 (leave đầy đủ); CONF nâng 1.0; bước 05 (SOL) mở cho Architect | BA Agent; hội thoại tương tác chủ dự án |
 | 0.5 | 2026-11-02 | Architect khảo sát codebase (Event Hub + Entity Write Proxy đã implement; form/workflow đã scaffold có engine; employee manifest) và soạn **SOL-S09-001 + ADR-S09-001…005** (Draft 0.1); quyết định then chốt: ca trong plugin, đơn từ trên form/workflow có fallback, engine tính công job idempotent, ledger số dư phép, ingestion đa nguồn qua Core; Design **In Review** | Architect; khảo sát repo 2026-11-02 |
+| 0.6 | 2026-11-02 | **SOL + 5 ADR APPROVED 1.0** — chủ dự án duyệt qua hội thoại tương tác ("ok duyệt"); bước 06 (DES) mở | Architect; hội thoại tương tác chủ dự án |
