@@ -102,8 +102,10 @@ that are not provisioned in the tenant allowlist.
   objects. Max size defaults to 10 MiB (`EMPLOYEE_DOCUMENT_MAX_BYTES`); accepted MIME types are PDF,
   PNG/JPEG/WEBP images, Word, Excel, CSV and plain text. Downloads are blocked while `scan_status`
   is `INFECTED` or `FAILED`; scan results arrive through the internal callback. Self-service upload/
-  download uses `/me/documents` and only serves the caller's own profile. There is no signed-URL
-  provider, retention job or worker-level virus scanner in this slice.
+  download uses `/me/documents` and only serves the caller's own profile. Short-lived signed download
+  URLs (`POST /documents/{id}/signed-url`, `/me/documents/{id}/signed-url`, public
+  `GET /signed-documents/{id}` passthrough, HMAC-SHA256 + TTL) ship since TASK-433; the WC downloads
+  documents through them (TASK-442). No retention job or worker-level virus scanner in this slice.
 - **Approval chain resolution is deterministic but simple.** It uses the primary active assignment
   for branch/department scope and selects one row per configured step (scope specificity wins, then
   the alphabetically first field group); there is no delegation, reminder, approver-identity

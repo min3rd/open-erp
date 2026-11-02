@@ -2,6 +2,17 @@
 
 Tài liệu này ghi nhận lại toàn bộ tiến độ thực hiện từng công đoạn của các Agent theo thời gian thực. Phụ trách: **PM Agent**.
 
+## 2026-11-02 — Sprint 07 CLOSED (REV-S07-001 1.3) + TASK-442 WC signed URL download
+
+- **TASK-442 (deferred cuối của Sprint 07, chỉ đạo chủ dự án "Deferred làm luôn đi")**: WC employee tải tài liệu qua **signed URL** thay blob + JWT.
+  - Code: `employee.model.ts` thêm `SignedUrlResponse`; `employee.service.ts` thêm `documentSignedUrl`/`myDocumentSignedUrl` + `resolveSignedUrl` (prefix origin runtime cho URL gateway-relative), xóa 2 hàm tải blob; `employee-screen.component.ts` đổi `downloadDocument`/`downloadMyDocument` sang flow signed-url (anchor + `download` attribute + `rel="noopener"`).
+  - Build: `ng build employee-plugin` PASS → bundle `META-INF/resources` (main.js 452 kB); plugin.json bump **1.1.23**; `open-erp package` → `dist/bundle.zip` 35.756.362 bytes; manifest validate PASS (`entities=16, permissions=23`).
+  - Runtime QA: Docker local (backend 8088, web 4200); upload artifact + đăng ký version + PUBLISH + install employee **1.1.23** cho tenant QA mới `s7-signed-mvv02` — `PLUGIN_INSTALL_SUCCESS status=ACTIVE` đủ 9 bước; seed employee + document. Browser desktop: nhánh HR (`POST /documents/{id}/signed-url` → `GET /signed-documents/{id}?exp&sig&tenant_id` Document 200, không Bearer) và nhánh self-service (`POST /me/documents/{id}/signed-url` → signed download 200) đều PASS; **0 console error**. Ảnh `evidence/s07_qa_signed_url/`.
+  - API sanity: `EMPLOYEE_DOCUMENT_SIGNED_URL_CREATED`; GET không Bearer trả 200 `application/pdf` đúng nội dung.
+  - Vận hành: khởi động Docker Desktop + `npm run infra` (PostgreSQL/Redis) + `npm run backend` + `npm run web` phục vụ QA, đã tắt container dev nặng sau khi xong (giữ infra tối thiểu).
+- **Docs đồng bộ**: [TASK-442](../sprints/sprint_07_plugin_employee/07_items/TASK-442_employee_wc_signed_url_download.md) Done (QA); TASK-430/432 sync stale → Done (QA); FEAT-37 0.7; DES-API-S07-001 **1.1** (mục 4.4 bổ sung 3 endpoint signed-url — contract đã có từ TASK-433 0.3); TR-S07-001 **1.19** (mục 2.7 + mục 4); REV-S07-001 **1.2**; reading guide 1.21; plugin README bỏ ghi chú stale "no signed-URL provider"; `check-docs` PASS (48 file, 360 link, 0 lỗi).
+- **SPRINT 07 CLOSED**: chủ dự án duyệt PM DoD + nghiệm thu trực tiếp qua hội thoại ("ok đóng sprint 7 tại đây, commit sạch sẽ nhé"). REV-S07-001 **1.3 CLOSED**; task board + changelog + docs README đồng bộ trạng thái; commit baseline đóng Sprint. 0 Critical/High; **0 item deferred còn mở**.
+
 ## 2026-11-01 — Sprint 07 commit `52fee05c` + runtime E2E PASS (TR-S07-001 1.18, REV 1.1)
 
 - **Commit**: `52fee05c feat(sprint07): employee/org plugins, cutover C6 and deferred closure` — 464 file, +74.081/−5.449 (loại `.commandcode/`, `backups/`, `tools/affiliate-*` khỏi commit).

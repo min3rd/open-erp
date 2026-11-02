@@ -22,6 +22,7 @@ import {
   OnboardingInvite,
   OrgChartNode,
   PrivacyRequest,
+  SignedUrlResponse,
 } from './employee.model';
 
 @Injectable({ providedIn: 'root' })
@@ -215,9 +216,9 @@ export class EmployeeService {
       this.url(`/api/v1/employee/employees/${employeeId}/documents`), form);
   }
 
-  downloadDocument(documentId: string): Observable<Blob> {
-    return this.http.get(this.url(`/api/v1/employee/documents/${documentId}/download`),
-      { responseType: 'blob' });
+  documentSignedUrl(documentId: string): Observable<ApiResponse<SignedUrlResponse>> {
+    return this.api.post<SignedUrlResponse>(
+      this.url(`/api/v1/employee/documents/${documentId}/signed-url`), {});
   }
 
   myDocuments(): Observable<ApiResponse<ListData<EmployeeDocument>>> {
@@ -232,9 +233,17 @@ export class EmployeeService {
     return this.api.postForm<EmployeeDocument>(this.url('/api/v1/employee/me/documents'), form);
   }
 
-  downloadMyDocument(documentId: string): Observable<Blob> {
-    return this.http.get(this.url(`/api/v1/employee/me/documents/${documentId}/download`),
-      { responseType: 'blob' });
+  myDocumentSignedUrl(documentId: string): Observable<ApiResponse<SignedUrlResponse>> {
+    return this.api.post<SignedUrlResponse>(
+      this.url(`/api/v1/employee/me/documents/${documentId}/signed-url`), {});
+  }
+
+  /** Signed URLs are gateway-relative paths; resolve them against the runtime origin. */
+  resolveSignedUrl(url: string): string {
+    if (!url.startsWith('/')) {
+      return url;
+    }
+    return `${this.staticBase || this.runtimeOrigin()}${url}`;
   }
 
   assignments(employeeId: string): Observable<ApiResponse<ListData<Assignment>>> {

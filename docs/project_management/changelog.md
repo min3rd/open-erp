@@ -6,6 +6,14 @@ Tất cả các thay đổi quan trọng trong dự án sẽ được ghi nhận
 
 ## [Unreleased]
 
+### Sprint 07 — ĐÓNG SPRINT (2026-11-02): Plugin Employee
+
+- **Sprint 07 CLOSED 2026-11-02** — [REV-S07-001 1.3](../sprints/sprint_07_plugin_employee/09_review/01_REV-S07-001_sprint_07_dod_review.md): PM DoD PASS + khách hàng nghiệm thu trực tiếp ("ok đóng sprint 7 tại đây"), **0 Critical/High, 0 item deferred còn mở**.
+- **TASK-442** (hạng mục deferred cuối): WC employee **1.1.23** tải tài liệu qua **signed URL** thay blob + JWT (cả nhánh HR và self-service, không Bearer); DES-API-S07-001 **1.1** bổ sung 3 endpoint signed-url vào mục 4.4; plugin README bỏ ghi chú stale.
+- Bàn giao Sprint 07: plugin `employee` (hồ sơ, phân công effective-dated, hợp đồng, self-service allowlist, duyệt nhiều cấp dạng node, tài liệu + ClamAV scan + signed URL, org chart/danh bạ, self-onboarding + notification, campaign, privacy consent/DSAR), plugin `org-structure` 1.1.3 always-on, tenant switcher web/mobile, **cutover C6** (Core projection-only, `V7.0.7` drop legacy), catalog `EMPLOYEE_DOCUMENT_TYPE` 1.0.10.
+- Kiểm chứng: backend **254/254 PASS** (PostgreSQL + Redis thật), signed URL E2E **9/9**, plugin employee 18/18; browser desktop 12/12 + Ionic 7/7 + 64 ảnh 4 role; WC signed URL download PASS 2026-11-02 (TR-S07-001 **1.19** mục 2.7); BUG-161…176 Resolved.
+- Ghi chú production: cấu hình `EMPLOYEE_DOCUMENT_SIGNED_URL_SECRET` riêng; staging chạy `org-cutover.mjs backup/copy/verify` + rollback drill trước deploy.
+
 ### Sprint 07 — KHỞI TẠO DISCOVERY (2026-10-29): Plugin Employee
 
 - Tạo Sprint-Pack [sprint_07_plugin_employee](../sprints/sprint_07_plugin_employee/00_READING_GUIDE.md) bước 00–04: RAW, 2 ANL, BENCH, CONF.

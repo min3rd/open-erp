@@ -2,13 +2,13 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / phiên bản / cập nhật | READ-S07-001 / 1.1 / 2026-11-01 |
-| Trạng thái tài liệu / sprint | **Scope APPROVED 1.0; Design APPROVED 1.0; Implementation Done (QA); Deferred closure hoàn tất — Ready for PM/customer review (REV-S07-001)** |
+| ID / phiên bản / cập nhật | READ-S07-001 / 1.3 / 2026-11-02 |
+| Trạng thái tài liệu / sprint | **✅ SPRINT 07 CLOSED 2026-11-02** — Scope APPROVED 1.0; Design APPROVED 1.0; Implementation + deferred closure Done (QA); PM DoD PASS + khách hàng nghiệm thu (REV-S07-001 1.3) |
 | Owner / reviewer | BA + Architect / Chủ dự án (review design) |
 | Đầu vào / đọc trước | Yêu cầu trực tiếp của chủ dự án 2026-10-29 / [Sprint 06](../sprint_06_plugin_dev_platform/00_READING_GUIDE.md) (đã đóng), [Sprint 05](../sprint_05_catalog_plugin/00_READING_GUIDE.md), [Sprint 02](../sprint_02_superadmin_rbac/00_READING_GUIDE.md) |
 | Đọc tiếp | [RAW-S07-001](01_raw_notes/01_RAW-S07-001_employee_plugin_requirements.md) → [CONF-S07-001](04_confirmation/01_CONF-S07-001_sprint_07_scope_and_questions.md) |
 
-> **Trạng thái 2026-11-01 — Deferred closure + runtime E2E PASS (Ready for PM/customer review):** backend **254/254 PASS** sau cutover C6 (V7.0.7 apply thật khi deploy backend mới); **employee 1.1.22** + **catalog 1.0.10** upgrade tenant QA ACTIVE; **signed URL E2E 9/9** (tải không Bearer, tampered/forged 403, replay 200) qua gateway signed passthrough; browser employee/catalog 0 console error (TR 1.18 mục 2.6). BUG-161…176 resolved. PM/customer review [REV-S07-001 1.1](09_review/01_REV-S07-001_sprint_07_dod_review.md) — **Sprint chưa đóng, chờ chủ dự án duyệt**.
+> **Trạng thái 2026-11-02 — SPRINT 07 CLOSED (đã đóng, nghiệm thu bởi chủ dự án):** backend **254/254 PASS** sau cutover C6; **employee 1.1.22** + **catalog 1.0.10** upgrade tenant QA ACTIVE; **signed URL E2E 9/9** (tải không Bearer, tampered/forged 403, replay 200) qua gateway signed passthrough; **WC signed URL download PASS** (2026-11-02, employee **1.1.23**, TASK-442 — hạng mục deferred cuối theo chỉ đạo chủ dự án, TR mục 2.7); browser 0 console error. BUG-161…176 resolved; **0 item deferred còn mở**. [REV-S07-001 1.3](09_review/01_REV-S07-001_sprint_07_dod_review.md) — **PM DoD PASS + khách hàng nghiệm thu + Sprint closure 2026-11-02** ("ok đóng sprint 7 tại đây" — hội thoại chủ dự án).
 
 ## 1. Đọc để hiểu gì?
 
@@ -68,9 +68,9 @@ Khách hàng đọc **01 → 04**; developer đọc **01–04** trước, sau kh
 | Scope & AC (CONF-S07-001) | ✅ **APPROVED 1.0** — 55/55 câu; chủ dự án duyệt | Chủ dự án | CONF-S07-001 1.0, 2026-10-30 |
 | Design ready (SOL/ADR/DES) | ✅ **APPROVED 1.0** — 1 SOL, 3 ADR, 4 DES; UI U1–U8 | Architect + Chủ dự án | Design review 2026-10-30 |
 | Implementation | ✅ **Done (QA)** — app thật E2E + cutover C6 | Developer + QA | HANDOFF/TR 1.17, 2026-11-01 |
-| QA sign-off | ✅ **PASS implementation + runtime E2E deferred closure** — backend 254/254; signed URL 9/9; 0 Critical/High | QA | TR-S07-001 1.18, 2026-11-01 |
-| PM DoD / Customer acceptance | ⏳ **Pending** — REV-S07-001 1.1 Draft ready | PM + Chủ dự án | REV-S07-001 1.1, 2026-11-01 |
-| Sprint closure | ⏳ **Pending** | PM | Chưa có |
+| QA sign-off | ✅ **PASS implementation + runtime E2E deferred closure** — backend 254/254; signed URL 9/9; WC signed URL download PASS; 0 Critical/High | QA | TR-S07-001 1.19, 2026-11-02 |
+| PM DoD / Customer acceptance | ✅ **PASS** — chủ dự án duyệt + nghiệm thu trực tiếp | Chủ dự án | REV-S07-001 1.3, hội thoại 2026-11-02 |
+| Sprint closure | ✅ **CLOSED 2026-11-02** | PM | REV-S07-001 1.3 |
 
 ## 4. Danh mục ID và việc chuyển tiếp
 
@@ -89,9 +89,10 @@ Khách hàng đọc **01 → 04**; developer đọc **01–04** trước, sau kh
 | DES-UI-S07-001 | [06_designs/ui/](06_designs/ui/) | Architect | Used — Draft/In Review |
 | FEAT-36…38 | [07_items/](07_items/) | Developer | Used — Done (QA) |
 | TASK-426…438 | [07_items/](07_items/) | Developer | Used — Done (QA) |
-| TR-S07-001 | [08_testing/](08_testing/) | QA | Used — TR-S07-001 1.18 (self-contained + runtime E2E) |
+| TASK-442 | [07_items/](07_items/TASK-442_employee_wc_signed_url_download.md) | Developer | Used — Done (QA) 2026-11-02 (WC signed URL download; deferred closure cuối) |
+| TR-S07-001 | [08_testing/](08_testing/) | QA | Used — TR-S07-001 1.19 (self-contained + runtime E2E + WC signed URL) |
 | BUG-161…176 | [07_items/](07_items/) | QA/Developer | Used — Resolved (QA) |
-| REV-S07-001 | [09_review/](09_review/) | PM | Used — Draft 1.1, Ready for PM/customer review |
+| REV-S07-001 | [09_review/](09_review/) | PM | Used — **CLOSED 1.3, 2026-11-02** (PM DoD + nghiệm thu + closure) |
 
 > Không dùng số task/bug dự kiến trước khi scope được duyệt; tránh cấp số cho item chưa tồn tại.
 
@@ -175,3 +176,5 @@ Chi tiết đầy đủ tại [CONF-S07-001 §5](04_confirmation/01_CONF-S07-001
 | 1.18 | 2026-10-31 | ClamAV INSTREAM scan + profile `av`; image local socket nên chưa e2e; employee 1.1.18 | QA; TR-S07-001 1.15 |
 | 1.19 | 2026-11-01 | **Deferred closure hoàn tất** theo chỉ đạo chủ dự án: cutover C6 (V7.0.7 drop legacy + permission cũ, Core projection-only, xóa modules/organization; backend 254/254 PASS), signed URL HMAC + 3 endpoint (TASK-433 0.3, plugin 18/18), catalog 1.0.10 manifest sync validate PASS; FEAT-36…38 + TASK-426…438 Done (QA); TR 1.17; REV-S07-001 1.0 Draft ready | Developer/PM; chỉ đạo chủ dự án |
 | 1.20 | 2026-11-01 | **Runtime E2E PASS**: commit `52fee05c`; backend mới deploy (V7.0.7 apply thật); employee **1.1.22** + catalog **1.0.10** upgrade tenant QA ACTIVE; **signed URL E2E 9/9** qua gateway signed passthrough; browser 0 console error; TR **1.18**; REV **1.1** | QA/QC + Developer; app thật |
+| 1.21 | 2026-11-02 | **Hoàn tất hạng mục deferred cuối (TASK-442) theo chỉ đạo chủ dự án**: WC tải tài liệu qua signed URL thay blob+JWT; employee **1.1.23** publish + install tenant QA đủ 9 bước; QA runtime PASS cả 2 nhánh HR + self, 0 console error; DES-API **1.1** (mục 4.4 bổ sung 3 endpoint signed-url); TASK-430/432 đồng bộ Done (QA); TR **1.19**; REV **1.2** — không còn item deferred nào | Developer + QA/QC; chỉ đạo chủ dự án 2026-11-02 |
+| 1.22 | 2026-11-02 | **SPRINT 07 CLOSED**: chủ dự án duyệt PM DoD + nghiệm thu trực tiếp ("ok đóng sprint 7 tại đây, commit sạch sẽ nhé"); REV **1.3** CLOSED; đồng bộ task board/changelog/work log/docs README; commit baseline đóng Sprint | PM; chỉ đạo chủ dự án 2026-11-02 |

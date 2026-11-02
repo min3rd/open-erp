@@ -3,11 +3,11 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | REV-S07-001 / Sprint review & DoD / Sprint 07 |
-| Trạng thái / phiên bản / ngày | **Draft — Ready for PM/customer review (runtime E2E PASS)** / 1.1 / 2026-11-01 |
+| Trạng thái / phiên bản / ngày | **CLOSED — PM DoD PASS + khách hàng nghiệm thu + Sprint closure (chủ dự án 2026-11-02)** / 1.3 / 2026-11-02 |
 | Owner / reviewer | PM / Chủ dự án (Product Owner) + Architect + QA |
-| Phạm vi | 37 AC của [CONF-S07-001](../04_confirmation/01_CONF-S07-001_sprint_07_scope_and_questions.md) 1.0; FEAT-36…38 (TASK-426…438) + BUG-161…176 |
-| Baseline | commit `52fee05c` + runtime E2E 2026-11-01 (employee 1.1.22, catalog 1.0.10 ACTIVE) |
-| Evidence | [TR-S07-001](../08_testing/03_TR-S07-001_sprint_07_test_report.md) 1.18 (64 ảnh inline + runtime E2E mục 2.6); backend suite 254/254 PASS 2026-11-01; plugin employee 18/18 PASS; signed URL E2E 9/9 |
+| Phạm vi | 37 AC của [CONF-S07-001](../04_confirmation/01_CONF-S07-001_sprint_07_scope_and_questions.md) 1.0; FEAT-36…38 (TASK-426…438, TASK-442) + BUG-161…176 |
+| Baseline | commit `52fee05c` + runtime E2E 2026-11-01 (employee 1.1.22, catalog 1.0.10 ACTIVE) + runtime QA 2026-11-02 (employee 1.1.23 WC signed URL download) |
+| Evidence | [TR-S07-001](../08_testing/03_TR-S07-001_sprint_07_test_report.md) 1.19 (64 ảnh inline + runtime E2E mục 2.6 + WC signed URL download mục 2.7); backend suite 254/254 PASS 2026-11-01; plugin employee 18/18 PASS; signed URL E2E 9/9 |
 
 ## 1. Tóm tắt điều hành
 
@@ -17,6 +17,7 @@
 - **Catalog `EMPLOYEE_DOCUMENT_TYPE` 1.0.10**: root + resource `plugin.json` đã sync; `open-erp validate` PASS.
 - **0 bug Critical/High mở**; 16 bug BUG-161…176 đã Resolved (QA).
 - Backend suite **254/254 PASS** (PostgreSQL + Redis thật, không H2) sau cutover C6; app thật desktop 12/12 + mobile Ionic 7/7 + tenant minhvv 4/4, 0 console error; 64 ảnh 4 role inline trong TR mục 8.
+- **Hạng mục deferred cuối cùng đã hoàn tất (2026-11-02, theo chỉ đạo chủ dự án)**: WC employee **1.1.23** tải tài liệu qua **signed URL** thay vì blob + JWT — QA runtime PASS cả 2 nhánh HR + self-service, không Bearer, 0 console error (TR mục 2.7, TASK-442). Không còn item deferred nào của Sprint 07.
 
 ## 2. Trace AC (tóm tắt theo FEAT)
 
@@ -37,32 +38,36 @@ Chi tiết truy vết từng AC: [FEAT-36](../07_items/FEAT-36_organization_extr
 | Backend tests PostgreSQL/Redis thật | **254/254 PASS** (2026-11-01, sau cutover C6) | `mvn -f src/backend/pom.xml test` BUILD SUCCESS; plugin employee 18/18 | ✅ PASS |
 | Browser Web Desktop / Mobile Ionic | Desktop 12/12 + Ionic 7/7 + minhvv 4/4, 0 console error | TR-S07-001 1.17 mục 2.3/2.5/8 (64 ảnh) | ✅ PASS |
 | AC coverage, docs/link | 37 AC PASS theo FEAT trace; `check-docs` chạy sau cập nhật | TR/TP; FEAT-36/37/38 | ✅ PASS (chạy check-docs lần cuối trước closure) |
-| Medium/Low chuyển tiếp có owner/đích | 0 item deferred còn mở | Signed URL/legacy cutover/catalog manifest đã hoàn tất 2026-11-01 (TR mục 4) | ✅ PASS |
-| PM DoD | Pending — chờ chủ dự án duyệt REV này | Mục 5 | ⏳ PENDING |
-| Khách hàng nghiệm thu | Pending — chờ ký chủ dự án | Mục 5 | ⏳ PENDING |
-| Sprint closure | Pending — sau PM DoD + nghiệm thu | Mục 5 | ⏳ PENDING |
+| Medium/Low chuyển tiếp có owner/đích | 0 item deferred còn mở | Signed URL/legacy cutover/catalog manifest hoàn tất 2026-11-01 (TR mục 4); **WC signed URL download hoàn tất 2026-11-02 (TASK-442, TR mục 2.7)** | ✅ PASS |
+| PM DoD | ✅ **PASS** — chủ dự án duyệt | Mục 5 | ✅ CLOSED |
+| Khách hàng nghiệm thu | ✅ **PASS** — chủ dự án ký nghiệm thu trực tiếp | Mục 5 | ✅ CLOSED |
+| Sprint closure | ✅ **CLOSED 2026-11-02** | Mục 5 | ✅ CLOSED |
 
 ## 4. Backlog chuyển tiếp
 
-Không còn item Medium deferred mở. Ghi chú production (không phải item sprint):
+Không còn item deferred mở — hạng mục cuối (WC signed URL download) đã hoàn tất 2026-11-02 theo chỉ đạo
+chủ dự án ([TASK-442](../07_items/TASK-442_employee_wc_signed_url_download.md), TR mục 2.7). Ghi chú
+production (không phải item sprint):
 
 - Production: cấu hình `EMPLOYEE_DOCUMENT_SIGNED_URL_SECRET` riêng; staging chạy `org-cutover.mjs backup/copy/verify` + rollback drill trước khi deploy (V7.0.7 tự drop bảng legacy khi deploy).
-- Signed URL WC UI có thể chuyển tải file qua signed URL (hiện blob + JWT) — tối ưu vận hành cho sprint sau, không chặn DoD.
 
 ## 5. Quyết định và xác nhận
 
 | Quyết định | Trạng thái | Người/ngày/nguồn |
 | :--- | :--- | :--- |
-| QA sign-off implementation | ✅ **PASS implementation + deferred closure** | QA / TR-S07-001 1.17 / 2026-11-01 |
-| PM DoD | ⏳ **PENDING** — chờ chủ dự án duyệt | PM / REV-S07-001 1.0 |
-| Customer acceptance | ⏳ **PENDING** — chờ chỉ đạo chủ dự án ("hoàn tất tất cả, không đẩy sprint sau" đã được ghi nhận làm đầu vào) | Chủ dự án |
-| Sprint closure | ⏳ **PENDING** | PM |
+| QA sign-off implementation | ✅ **PASS implementation + deferred closure** | QA / TR-S07-001 1.19 / 2026-11-02 |
+| PM DoD | ✅ **PASS** — chủ dự án duyệt biên bản | Chủ dự án / REV-S07-001 1.2→1.3 / hội thoại 2026-11-02 |
+| Customer acceptance | ✅ **PASS** — chủ dự án nghiệm thu trực tiếp ("ok đóng sprint 7 tại đây") | Chủ dự án / hội thoại 2026-11-02 |
+| Sprint closure | ✅ **CLOSED 2026-11-02** | PM; chỉ đạo chủ dự án |
 
-> Theo quy trình SDLC, PM không tự ký nghiệm thu thay chủ dự án. Biên bản này sẵn sàng để chủ dự án duyệt — sau khi duyệt, PM cập nhật trạng thái CLOSED và cập nhật task board/reading guide.
+> Theo quy trình SDLC, PM không tự ký nghiệm thu thay chủ dự án. Biên bản này được chủ dự án duyệt và
+> nghiệm thu trực tiếp qua hội thoại 2026-11-02 ("ok đóng sprint 7 tại đây, commit sạch sẽ nhé") —
+> PM cập nhật trạng thái **CLOSED**, đồng bộ task board/reading guide/changelog và commit baseline.
 
 ## 6. Release notes
 
 - **Plugin `employee` 1.1.19**: hồ sơ + phân công/contract drawer, self-service allowlist, duyệt nhiều cấp dạng node (BUG-176 fixed), tài liệu 9 loại catalog + ClamAV scan + **signed URL ngắn hạn**, org chart/danh bạ/import-export, self-onboarding + in-app notification, campaign, privacy consent/DSAR.
+- **Plugin `employee` 1.1.23 (TASK-442)**: WC tải tài liệu qua signed URL (thay blob + JWT) cả 2 nhánh HR + self-service.
 - **Plugin `org-structure` 1.1.3**: always-on, WC org CRUD/members/branch access, bootstrap HQ + 8 phòng ban + luồng duyệt 2 bước; outbox → Core projection.
 - **Cutover C6**: Core projection-only; xóa `modules/organization`; `V7.0.7` drop legacy tables/permissions; org-structure locked default-install.
 - **Tenant switcher**: shared component + employee header contribution + unsaved guard; `POST /auth/switch-tenant` + rate limit.

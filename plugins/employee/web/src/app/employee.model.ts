@@ -185,6 +185,12 @@ export interface EmployeeDocument {
   created_at?: string;
 }
 
+export interface SignedUrlResponse {
+  document_id: string;
+  url: string;
+  expires_at: string;
+}
+
 export interface Assignment {
   id: string;
   employee_id: string;

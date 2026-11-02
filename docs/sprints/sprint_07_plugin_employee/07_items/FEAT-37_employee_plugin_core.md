@@ -36,13 +36,14 @@ Xây plugin `employee` always-on: hồ sơ nhân sự, đa phân công effective
 
 | ID/link | Owner | depends_on | Write scope | Trạng thái |
 | :--- | :--- | :--- | :--- | :--- |
-| [TASK-430](TASK-430_employee_plugin_scaffold_schema.md) | Developer | FEAT-36/428 | `plugins/employee/**` | **Done (dev)** — schema/build/test |
+| [TASK-430](TASK-430_employee_plugin_scaffold_schema.md) | Developer | FEAT-36/428 | `plugins/employee/**` | **Done (QA)** — schema/build/test; migration runtime PASS (TR mục 2.6) |
 | [TASK-431](TASK-431_employee_admin_api_assignment_contract.md) | Developer | 430 | `plugins/employee/**` | **Done (QA)** — admin API + last-admin/owner/platform guard |
 | [TASK-432](TASK-432_employee_self_service_approval_config.md) | Developer | 431 | `plugins/employee/**` | **Done (QA)** — self/withdraw/approval chain |
 | [TASK-433](TASK-433_employee_documents_storage_scan.md) | Developer | 430 | `plugins/employee/**`, storage config | **Done (QA)** — upload/download/scan/self docs |
 | [TASK-434](TASK-434_employee_orgchart_directory_import_onboarding_privacy.md) | Developer | 431/433 | `plugins/employee/**` | **Done (QA)** — directory/org-chart/import-export/onboarding/campaign/privacy |
 | [TASK-435](TASK-435_employee_web_ui_admin_self_config.md) | Developer | 431/432/433/434 | `plugins/employee/web/**`, `src/frontend/shared/**` | **Done (QA)** — app thật 12/12 |
 | [TASK-436](TASK-436_employee_mobile_self_service.md) | Developer | 435/438 | `src/frontend/mobile/**`, plugin web | **Done (QA)** — Ionic 390×844 7/7 |
+| [TASK-442](TASK-442_employee_wc_signed_url_download.md) | Developer | 433 | `plugins/employee/web/**` | **Done (QA)** — WC tải tài liệu qua signed URL (deferred closure theo chỉ đạo chủ dự án) |
 
 ## 4. Bàn giao
 
@@ -61,3 +62,4 @@ Xây plugin `employee` always-on: hồ sơ nhân sự, đa phân công effective
 | 0.4 | 2026-10-30 | Last-owner guard, org chart/import-export, HR tools UI; QA harness 12/12 PASS | Developer/QA |
 | 0.5 | 2026-10-30 | App thật E2E 12/12, last-admin 409, tenant switch PASS; QA PASS implementation | QA; TR-S07-001 1.2 |
 | 0.6 | 2026-11-01 | Signed URL hoàn tất (TASK-433 0.3, plugin 18/18); các AC Partial chuyển PASS theo bằng chứng TR 1.13/1.14 | Developer; TR-S07-001 1.17 |
+| 0.7 | 2026-11-02 | TASK-442: WC tải tài liệu qua signed URL (deferred cuối theo chỉ đạo chủ dự án); QA runtime PASS, 0 console error | Developer/QA; TR-S07-001 1.19 mục 2.7 |

@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | DES-API-S07-001 / Thiết kế API / Sprint 07 |
-| Trạng thái / phiên bản / cập nhật | Approved / 1.0 / 2026-10-30 |
+| Trạng thái / phiên bản / cập nhật | Approved / 1.1 / 2026-11-02 |
 | Owner / reviewer | Architect Agent / Chủ dự án + BA |
 | Đầu vào | [CONF-S07-001 1.0](../../04_confirmation/01_CONF-S07-001_sprint_07_scope_and_questions.md), [DES-DB-S07-001](../db/01_DES-DB-S07-001_employee_organization_schema.md), [ADR-S07-003](../../05_solutions/04_ADR-S07-003_tenant_switcher_header.md) |
 | Đọc trước / đọc tiếp | DES-DB-S07-001 / [DES-UI-S07-001](../ui/01_DES-UI-S07-001_employee_organization_ui.md) |
@@ -145,12 +145,18 @@ Codes: `EMPLOYEE_REPORTING_*`, `EMPLOYEE_REPORTING_SELF_FORBIDDEN`, `EMPLOYEE_RE
 | GET | `/employee/employees/{id}/documents` | `employee:document:read` | Non-Paginated List |
 | POST | `/employee/employees/{id}/documents` | `employee:document:manage` | Single Resource (upload multipart) |
 | GET | `/employee/documents/{docId}/download` | `employee:document:read` | Binary (signed URL/stream) |
+| POST | `/employee/documents/{docId}/signed-url` | `employee:document:read` | Single Resource (`{document_id, url, expires_at}`, HMAC-SHA256 + TTL ngắn hạn) |
+| GET | `/employee/signed-documents/{docId}?exp&sig&tenant_id` | Public qua gateway passthrough (không Bearer; HMAC + TTL, tenant context từ query) | Binary |
 | DELETE | `/employee/documents/{docId}` | `employee:document:manage` | Single Resource (archive) |
 | GET | `/employee/me/documents` | `employee:self:read` | Non-Paginated List |
 | POST | `/employee/me/documents` | `employee:self:update` | Single Resource (upload của mình) |
 | GET | `/employee/me/documents/{docId}/download` | `employee:self:read` | Binary (của mình) |
+| POST | `/employee/me/documents/{docId}/signed-url` | `employee:self:read` | Single Resource (signed URL của mình) |
 
-Codes: `EMPLOYEE_DOCUMENT_*`, `EMPLOYEE_DOCUMENT_SCAN_FAILED`, `EMPLOYEE_DOCUMENT_TOO_LARGE`, `EMPLOYEE_DOCUMENT_TYPE_NOT_ALLOWED`, `EMPLOYEE_DOCUMENT_FORBIDDEN`.
+Codes: `EMPLOYEE_DOCUMENT_*`, `EMPLOYEE_DOCUMENT_SCAN_FAILED`, `EMPLOYEE_DOCUMENT_TOO_LARGE`,
+`EMPLOYEE_DOCUMENT_TYPE_NOT_ALLOWED`, `EMPLOYEE_DOCUMENT_FORBIDDEN`, `EMPLOYEE_DOCUMENT_SIGNED_URL_CREATED`,
+`EMPLOYEE_DOCUMENT_SIGNED_URL_INVALID`. WC tải tài liệu qua signed URL (TASK-442); link hết hạn/giả mạo trả 403
+`EMPLOYEE_DOCUMENT_SIGNED_URL_INVALID`.
 
 ### 4.5. Self-service
 
@@ -275,3 +281,4 @@ AC-01…AC-37; đặc biệt AC-06 self, AC-08 approval, AC-13 pagination, AC-14
 | 0.1 | 2026-10-30 | Contract auth/org/employee/internal; 4 response templates; error/permission mapping | Architect; CONF 1.0 |
 | 0.2 | 2026-10-30 | Thêm reporting relationship API, self documents, scan callback; U7 | Architect; UI interactive |
 | 1.0 | 2026-10-30 | Approved cùng Design review | Chủ dự án; design review 2026-10-30 |
+| 1.1 | 2026-11-02 | Mục 4.4: bổ sung 2 endpoint signed-url + GET signed-documents passthrough (contract đã triển khai TASK-433 0.3; WC dùng tại TASK-442 theo chỉ đạo chủ dự án) | Developer; REV-S07-001 1.1 mục 4 |

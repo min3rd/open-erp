@@ -33,6 +33,7 @@ import {
   OnboardingInvite,
   OrgChartNode,
   PrivacyRequest,
+  SignedUrlResponse,
 } from './employee.model';
 import { EmployeeService } from './employee.service';
 
@@ -1249,8 +1250,8 @@ export class EmployeeScreenComponent implements OnInit, OnDestroy {
   }
 
   downloadDocument(item: EmployeeDocument): void {
-    this.service.downloadDocument(item.id).subscribe({
-      next: (blob) => this.saveBlob(blob, item.file_name || item.document_type),
+    this.service.documentSignedUrl(item.id).subscribe({
+      next: (res) => this.openSignedDownload(res.data, item),
       error: (err) => this.actionError.set(this.code(err)),
     });
   }
@@ -1280,10 +1281,22 @@ export class EmployeeScreenComponent implements OnInit, OnDestroy {
   }
 
   downloadMyDocument(item: EmployeeDocument): void {
-    this.service.downloadMyDocument(item.id).subscribe({
-      next: (blob) => this.saveBlob(blob, item.file_name || item.document_type),
+    this.service.myDocumentSignedUrl(item.id).subscribe({
+      next: (res) => this.openSignedDownload(res.data, item),
       error: (err) => this.actionError.set(this.code(err)),
     });
+  }
+
+  private openSignedDownload(signed: SignedUrlResponse | undefined, item: EmployeeDocument): void {
+    if (!signed?.url) {
+      this.actionError.set('COMMON_LOAD_ERROR');
+      return;
+    }
+    const link = window.document.createElement('a');
+    link.href = this.service.resolveSignedUrl(signed.url);
+    link.download = item.file_name || item.document_type;
+    link.rel = 'noopener';
+    link.click();
   }
 
   private saveBlob(blob: Blob, fileName: string): void {

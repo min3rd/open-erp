@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TR-S07-001 / Test Report / Sprint 07 |
-| Trạng thái / phiên bản / cập nhật | **Reviewed — QA PASS implementation + runtime E2E deferred closure (employee 1.1.22 + catalog 1.0.10 + signed URL 9/9)** / 1.18 / 2026-11-01 |
+| Trạng thái / phiên bản / cập nhật | **Reviewed — QA PASS implementation + runtime E2E deferred closure (employee 1.1.22 + catalog 1.0.10 + signed URL 9/9 + WC signed URL download 2026-11-02)** / 1.19 / 2026-11-02 |
 | Owner / reviewer | QA/QC / Architect + PM |
 | Đầu vào | QA report self-contained — ảnh nhúng trực tiếp trong mục 2.5 và mục 8 |
 | Baseline | commit `52fee05c` + runtime E2E 2026-11-01 |
@@ -277,7 +277,7 @@ Chi tiết log: [qa_real_e2e_summary.txt](evidence/s07_qa_real/qa_real_e2e_summa
 | Signed URL tải tài liệu | **PASS runtime 2026-11-01** | E2E 9/9 trên app thật (employee 1.1.22 + gateway signed passthrough): tạo NV → upload → signed-url → tải không cần Bearer → tampered sig 403 → forged/expired exp 403 → replay 200 (TR mục 2.6) |
 | Core organization backend legacy | **Hoàn tất 2026-11-01** | Cutover C6: `modules/organization` xóa; V7.0.7 drop 4 bảng legacy + permission `core:*` cũ; Core projection-only; backend suite 254/254 PASS (PostgreSQL thật); V7.0.7 apply thật trên `openerp_dev` khi deploy backend mới |
 | Catalog `EMPLOYEE_DOCUMENT_TYPE` trên runtime | **PASS runtime 2026-11-01** | catalog 1.0.10 publish + upgrade tenant QA ACTIVE; UI browser hiển thị `Loại tài liệu nhân sự` + danh sách loại, 0 console error (`catalog_1010_document_types.png`) |
-| Signed URL UI tải file từ trình duyệt | PASS (API-level) | Tải file bằng signed URL không kèm Bearer PASS (fetch thuần); WC hiện vẫn tải bằng blob + JWT — UI dùng signed URL là bước tối ưu sau Sprint |
+| Signed URL UI tải file từ trình duyệt | **PASS runtime 2026-11-02** | WC employee 1.1.23 tải tài liệu qua signed URL cả 2 nhánh HR + self-service, không Bearer, 0 console error (TR mục 2.7; TASK-442) |
 
 ### 2.6. Runtime E2E — deferred closure (2026-11-01, employee 1.1.22 + catalog 1.0.10)
 
@@ -293,6 +293,26 @@ Môi trường: backend `open-erp/backend:dev` (cutover C6 + signed passthrough)
 | TC-40.6 | Catalog screen 1.0.10 render + 0 console error | **PASS** | `catalog_1010_loaded.png`, `catalog_1010_document_types.png` |
 
 > Lưu ý thiết kế (đã verify): gateway có nhánh **signed passthrough** — GET `…/signed-documents/**` với query `sig` + `tenant_id` được forward không cần Bearer; plugin tự verify HMAC + TTL + quyền sở hữu theo tenant context gateway gửi, nên link rò rỉ không vượt tenant và không sống quá TTL. Production bắt buộc cấu hình `EMPLOYEE_DOCUMENT_SIGNED_URL_SECRET` riêng.
+
+### 2.7. Runtime E2E — WC signed URL download (2026-11-02, employee 1.1.23, TASK-442)
+
+Môi trường: Docker local (backend `:8088`, web `:4200`), employee **1.1.23** publish + install tenant QA
+`s7-signed-mvv02` — `PLUGIN_INSTALL_SUCCESS ACTIVE` đủ 9 bước (PRE_FLIGHT, LEDGER, PROVISION_DATASOURCE,
+MIGRATE, DEPLOY, HEALTH, TENANT_BOOTSTRAP, SEED_PERMISSIONS, ACTIVATE). Desktop ≥1280px.
+
+| TC | Kịch bản | Kết quả | Evidence |
+| :--- | :--- | :--- | :--- |
+| TC-41.1 | Bundle WC mới build (`ng build employee-plugin`) → package 1.1.23 | **PASS** | `dist/bundle.zip` 35,756,362 bytes; checksums.txt |
+| TC-41.2 | employee 1.1.23 upload artifact + đăng ký version + PUBLISH + install tenant QA | **PASS** | `PLUGIN_INSTALL_SUCCESS status=ACTIVE` 9 bước |
+| TC-41.3 | WC nhánh HR: drawer Nhân sự → Tài liệu → Tải xuống | **PASS** | network: `POST /documents/{id}/signed-url` 200 → `GET /signed-documents/{id}?exp&sig&tenant_id` (Document) 200 mở PDF viewer, không kèm Bearer |
+| TC-41.4 | WC nhánh self-service: Hồ sơ của tôi → Tải xuống | **PASS** | network: `POST /me/documents/{id}/signed-url` 200 → signed download (Document) 200 |
+| TC-41.5 | Signed URL tạo bằng API rồi tải không Bearer | **PASS** | `EMPLOYEE_DOCUMENT_SIGNED_URL_CREATED`; GET 200 `application/pdf`, nội dung khớp file upload |
+| TC-41.6 | Console browser trong toàn bộ phiên | **0 error** | chỉ vite debug + Angular dev mode log |
+| TC-41.7 | Ảnh minh chứng | — | [evidence/s07_qa_signed_url/](evidence/s07_qa_signed_url/) — `wc_hr_documents_before_download.png`, `wc_self_signed_url_download.png` |
+
+> Ghi chú môi trường (không phải bug của TASK-442): trên web dev Vite, chuyển tab giữa các màn plugin đôi khi
+> remount iframe ở trạng thái Error — full reload hoạt động chuẩn, đã xuất hiện ở các lần QA trước. Thay đổi
+> TASK-442 chỉ nằm ở handler download trong plugin component.
 
 ## 5. Rủi ro / khuyến nghị
 
@@ -331,6 +351,7 @@ Môi trường: backend `open-erp/backend:dev` (cutover C6 + signed passthrough)
 | 1.16 | 2026-10-31 | Giới hạn node cấu hình duyệt `sm:max-w-48`; hết kéo rộng canvas; employee 1.1.19 | QA; app thật 2026-10-31 |
 | 1.17 | 2026-11-01 | Hoàn tất các mục deferred theo chỉ đạo chủ dự án: cutover C6 (V7.0.7 drop legacy + org-structure always-on, Core projection-only, backend **254/254 PASS**), signed URL HMAC + 3 endpoint (plugin 18/18 PASS), catalog root/resource plugin.json sync 1.0.10 (validate PASS); ScopeProjectionServiceTest/SecurityContextServiceTest/SampleRecordApiTest/SchemaFoundationTest/EntityRegistryServiceTest/ImpersonationApiTest/AuditWiringTest cập nhật theo kiến trúc projection | Developer; chỉ đạo chủ dự án 2026-11-01 |
 | 1.18 | 2026-11-01 | **Runtime E2E deferred closure PASS**: backend mới deploy với V7.0.7 apply thật; employee **1.1.22** (signed URL trả gateway prefix + tenant_id) và catalog **1.0.10** (bundle JAR, UI document types render) upgrade tenant QA ACTIVE; **signed URL E2E 9/9** (tải không Bearer, tampered/forged/expired 403, replay 200) qua gateway signed passthrough (`PluginRuntimeGatewayResource`); browser employee/catalog 0 console error, 0 overflow, ảnh `evidence/s07_qa_real/{employee_122_list,catalog_1010_loaded,catalog_1010_document_types}.png`; plugin 18/18 test lại PASS | QA/QC + Developer; app thật 2026-11-01 |
+| 1.19 | 2026-11-02 | **WC signed URL download PASS (TASK-442)**: employee **1.1.23** publish + install tenant QA mới đủ 9 bước; WC desktop tải tài liệu qua signed URL cả 2 nhánh HR + self-service, không Bearer, 0 console error; mục 4 cập nhật; ảnh `evidence/s07_qa_signed_url/` | QA/QC + Developer; app thật 2026-11-02; chỉ đạo chủ dự án |
 
 
 
