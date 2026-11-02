@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | DES-DB-S08-001 / Thiết kế DB / Sprint 08 |
-| Trạng thái / phiên bản / cập nhật | Draft / 0.1 / 2026-11-02 |
+| Trạng thái / phiên bản / cập nhật | Draft / 0.2 / 2026-11-02 — làm rõ append-only snapshot + pin response theo phản hồi chủ dự án |
 | Owner / reviewer | Solution Architect / Chủ dự án (design review) |
 | Đầu vào | [SOL-S08-001](../../05_solutions/01_SOL-S08-001_form_workflow_architecture.md), [ADR-S08-001](../../05_solutions/02_ADR-S08-001_workflow_engine_state_machine.md), [ADR-S08-002](../../05_solutions/03_ADR-S08-002_event_hub_entity_write_proxy.md), [DES-ARCH-S08-001](../arch/01_DES-ARCH-S08-001_components_and_flows.md) |
 | Đọc trước / đọc tiếp | [DES-ARCH-S08-001](../arch/01_DES-ARCH-S08-001_components_and_flows.md) / [DES-API-S08-001](../api/01_DES-API-S08-001_form_workflow_api.md) |
@@ -32,9 +32,9 @@
 
 Indexes: `(tenant_id, slug)` unique; `(tenant_id, publish->>'status')`.
 
-### 2.2. `plg_form_definitions_versions` (bản ghi lịch sử version — AC-F13)
+### 2.2. `plg_form_definitions_versions` (snapshot bất biến — AC-F13, nền của version semantics)
 
-`id, tenant_id, definition_id, version INTEGER, document JSONB, entity_mapping JSONB, created_at` — unique `(tenant_id, definition_id, version)`.
+`id, tenant_id, definition_id, version INTEGER, document JSONB, entity_mapping JSONB, created_at` — unique `(tenant_id, definition_id, version)`; **append-only**: mỗi lần sửa form đã PUBLISHED hoặc đã có response → insert snapshot mới, không UPDATE/DELETE row; response và draft pin `version` này (xem DES-ARCH §6 — dữ liệu cũ luôn render/export theo snapshot của version của nó).
 
 ### 2.3. `plg_form_responses`
 
@@ -42,7 +42,7 @@ Indexes: `(tenant_id, slug)` unique; `(tenant_id, publish->>'status')`.
 | :--- | :--- | :--- |
 | id, tenant_id | UUID | |
 | form_id | UUID | NOT NULL |
-| form_version | INTEGER | pin version lúc submit |
+| form_version | INTEGER | **pin snapshot** lúc submit/draft (resolve document từ `plg_form_definitions_versions`) |
 | answers | JSONB | `{ref: value}` (file ref chứa file_id) |
 | responder_email | VARCHAR(320) | nhập tay (anonymous) |
 | submitted_by_user_id | UUID NULL | chỉ khi member tenant điền |

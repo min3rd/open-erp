@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | DES-UI-S08-001 / Thiết kế UI / Sprint 08 |
-| Trạng thái / phiên bản / cập nhật | Draft / 0.1 / 2026-11-02 |
+| Trạng thái / phiên bản / cập nhật | Draft / 0.2 / 2026-11-02 — render response theo snapshot version; confirm tạo version khi sửa form đã publish |
 | Owner / reviewer | Solution Architect / Chủ dự án (design review) |
 | Đầu vào | [DES-ARCH-S08-001](../arch/01_DES-ARCH-S08-001_components_and_flows.md), [DES-API-S08-001](../api/01_DES-API-S08-001_form_workflow_api.md), [CONF-S08-001](../../04_confirmation/01_CONF-S08-001_sprint_08_scope_and_ac.md) ma trận D/M, [ui_ux_standards](../../../../../.agents/rules/ui_ux_standards.md) |
 | Đọc trước / đọc tiếp | [DES-API-S08-001](../api/01_DES-API-S08-001_form_workflow_api.md) / [00_READING_GUIDE](../../00_READING_GUIDE.md) |
@@ -18,10 +18,10 @@
 | :--- | :--- | :--- | :-: | :-: |
 | `forms` | Bảng form (slug, trạng thái publish, số response, updated) + Drawer tạo/sửa | `form:definition:manage` | ✔ | — |
 | `builder` | Split-view: trái = canvas sections/câu hỏi (kéo thứ tự), phải = panel thuộc tính câu hỏi (type, required, validation, options, logic, file limits, matrix, grading quiz); thanh trên: entity mapping (chọn plugin/entity/field từ Entity Registry qua API `entity-mapping-check`), preview | `form:definition:manage` | ✔ | — |
-| `responses` | Split-view: bảng response + filter thời gian/trạng thái | trái, phải = chi tiết 1 response (answers, file download signed URL, entity_write_status) | `form:response:read` | ✔ | — |
-| `summary` | Thẻ tổng hợp từng câu (count/avg, mini-chart thuần CSS/SVG) + nút Export CSV | `form:response:read` | ✔ | — |
+| `responses` | Split-view: bảng response + filter thời gian/trạng thái | trái, phải = chi tiết 1 response (answers render **theo document snapshot của `form_version` của response** — câu hỏi đã xoá vẫn hiện đúng label cũ; file download signed URL; entity_write_status) | `form:response:read` | ✔ | — |
+| `summary` | Thẻ tổng hợp từng câu theo `ref` xuyên version (count/avg, mini-chart thuần CSS/SVG; ref không có trong version nào → không tính; label theo version mới nhất) + nút Export CSV | `form:response:read` | ✔ | — |
 
-Builder chỉ Desktop (CONF Q13). Publish/close + captcha + close_at + response_limit đặt trong Drawer publish.
+Builder chỉ Desktop (CONF Q13). Publish/close + captcha + close_at + response_limit đặt trong Drawer publish. Khi lưu thay đổi trên form đã PUBLISHED/đã có response → confirm "sẽ tạo version mới, dữ liệu cũ giữ nguyên theo version của nó"; sau lưu hiện version timeline (`version-timeline` từ `@shared`).
 
 ## 3. Public fill — `op-form-fill` (route `/public/forms/{slug}`, không đăng nhập)
 

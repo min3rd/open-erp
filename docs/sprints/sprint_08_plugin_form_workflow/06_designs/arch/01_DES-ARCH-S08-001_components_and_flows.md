@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | DES-ARCH-S08-001 / Thiết kế / Sprint 08 |
-| Trạng thái / phiên bản / cập nhật | Draft / 0.1 / 2026-11-02 |
+| Trạng thái / phiên bản / cập nhật | Draft / 0.2 / 2026-11-02 — bổ sung §6 version semantics theo phản hồi chủ dự án |
 | Owner / reviewer | Solution Architect / Chủ dự án (design review) |
 | Đầu vào | [SOL-S08-001](../../05_solutions/01_SOL-S08-001_form_workflow_architecture.md), [ADR-S08-001…004](../../05_solutions/02_ADR-S08-001_workflow_engine_state_machine.md) |
 | Đọc trước / đọc tiếp | [DES-DB-S08-001](../db/01_DES-DB-S08-001_form_workflow_schema.md) / [DES-API-S08-001](../api/01_DES-API-S08-001_form_workflow_api.md) |
@@ -103,7 +103,21 @@ Data scope: response/report lọc theo tenant (gateway); branch scope áp cho re
 
 Mọi bảng có `tenant_id` + descriptor `tenant_scope: TENANT`; scheduler chạy từng tenant trong context riêng; webhook inbound xác định tenant từ endpoint record (không từ header client); event hub delivering theo `tenant_id` của event; test isolation là hạng mục nghiệm thu (AC-W14).
 
-## 6. Chiến lược kiểm thử (design-level)
+## 6. Version semantics của form — an toàn dữ liệu khi form thay đổi (AC-F02, AC-F13)
+
+Nguyên tắc gốc: **response luôn tự đóng gói (self-contained) theo snapshot form mà nó sinh ra** — form đổi bao nhiêu lần thì dữ liệu cũ vẫn đọc/hiểu/xuất được.
+
+1. **Snapshot bất biến**: mỗi lần lưu thay đổi trên form đã PUBLISHED (hoặc đã có ≥1 response) → sinh version mới: ghi nguyên `document + entity_mapping` vào `plg_form_definitions_versions` (append-only), `latest_version++`. Sửa khi DRAFT và chưa có response không sinh version.
+2. **Pin khi fill**: người điền bắt đầu draft → draft pin `form_version` ngay lúc tạo; publish version mới giữa chừng **không ảnh hưởng** draft đang đi (draft submit thành công theo version của nó — validate theo snapshot đã pin).
+3. **Response pin**: `plg_form_responses.form_version` bắt buộc; mọi đường đọc (detail, CSV, summary, drawer trong workflow task) resolve document từ **snapshot của version đó**, tuyệt đối không render theo document mới nhất.
+4. **Câu hỏi bị xoá/việc đổi label**: answer cũ vẫn render đúng vì label/option lấy từ snapshot version của response; xoá câu hỏi chỉ ảnh hưởng fill sau này.
+5. **`ref` bất biến, `type` bất biến sau publish**: đổi `ref` bị chặn khi có response (AC-F02); **đổi type của một `ref` đã publish cũng bị chặn** (`FORM_REF_TYPE_IMMUTABLE`) — muốn khác loại phải dùng `ref` mới. Nhờ đó CSV (cột theo `ref`) và summary (group by `ref`) ổn định xuyên version; label hiển thị lấy từ version mới nhất chứa ref đó.
+6. **Entity mapping theo version**: submit chạy mapping của snapshot version của response; đổi mapping sau đó không tái áp lên response cũ (trạng thái `entity_write_status` giữ nguyên — retry tay nếu cần).
+7. **Logic/skip**: chỉ áp dụng lúc fill theo snapshot của version đang đi; không tái đánh giá trên dữ liệu cũ.
+
+Điểm 1–7 trở thành test case bắt buộc của `FormDefinitionValidator` + integration test (đổi form sau khi có response → response cũ render/export đúng; draft xuyên version submit thành công).
+
+## 7. Chiến lược kiểm thử (design-level)
 
 1. **Engine unit thuần** (không DB): transition matrix toàn diện — tuần tự/điều kiện/fork-join/3 chế độ duyệt/return/reassign/fallback assignment — đây là bộ test bắt buộc trước khi ghép resource.
 2. **Integration plugin**: PostgreSQL thật (No H2) — REST + DB theo pattern employee (`quarkus-junit5` + rest-assured).

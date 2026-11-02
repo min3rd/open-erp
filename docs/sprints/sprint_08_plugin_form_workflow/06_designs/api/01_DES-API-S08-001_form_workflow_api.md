@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | DES-API-S08-001 / Thiết kế API / Sprint 08 |
-| Trạng thái / phiên bản / cập nhật | Draft / 0.1 / 2026-11-02 |
+| Trạng thái / phiên bản / cập nhật | Draft / 0.2 / 2026-11-02 — response detail kèm snapshot; CSV/summary đa version; thêm FORM_REF_TYPE_IMMUTABLE |
 | Owner / reviewer | Solution Architect / Chủ dự án (design review) |
 | Đầu vào | [DES-ARCH-S08-001](../arch/01_DES-ARCH-S08-001_components_and_flows.md), [DES-DB-S08-001](../db/01_DES-DB-S08-001_form_workflow_schema.md), chuẩn [api_standards](../../../../../.agents/rules/api_standards.md) |
 | Đọc trước / đọc tiếp | [DES-DB-S08-001](../db/01_DES-DB-S08-001_form_workflow_schema.md) / [DES-UI-S08-001](../ui/01_DES-UI-S08-001_form_workflow_ui.md) |
@@ -27,9 +27,9 @@
 | POST | `/forms/{id}/publish` / `/close` | `form:definition:manage` | `{captcha?, close_at?, response_limit?}` | Single `FORM_PUBLISH_SUCCESS` / `FORM_CLOSE_SUCCESS` |
 | GET | `/forms/{id}/versions` | `form:definition:manage` | — | List `FORM_VERSIONS_SUCCESS` |
 | GET | `/responses?form_id&from&to&status&page&size` | `form:response:read` | — | Paged `FORM_RESPONSE_LIST_SUCCESS` |
-| GET | `/responses/{id}` | `form:response:read` | — | Single `FORM_RESPONSE_DETAIL_SUCCESS` |
-| GET | `/forms/{id}/summary` | `form:response:read` | — | Single `FORM_RESPONSE_SUMMARY_SUCCESS` (per-question count/avg) |
-| GET | `/forms/{id}/responses/export` | `form:response:export` | — | CSV stream (cột theo `ref`) |
+| GET | `/responses/{id}` | `form:response:read` | — | Single `FORM_RESPONSE_DETAIL_SUCCESS` — **kèm `form_version` + `document` snapshot của version đó** để render self-contained |
+| GET | `/forms/{id}/summary` | `form:response:read` | — | Single `FORM_RESPONSE_SUMMARY_SUCCESS` — group theo `ref` xuyên version (label lấy từ version mới nhất chứa ref; type bất biến sau publish) |
+| GET | `/forms/{id}/responses/export` | `form:response:export` | — | CSV stream — cột = **union các `ref`** trong phạm vi xuất; mỗi dòng giá trị theo answers JSON; dòng header ghi label theo version mới nhất chứa ref |
 | GET | `/forms/{id}/entity-mapping-check` | `form:definition:manage` | — | Single — kiểm tra registry + validate field |
 
 ## 3. Plugin `form` — API public (ẩn danh, không permission user)
@@ -75,7 +75,7 @@ Plugin nhận event: `POST /api/v1/internal/events` (SDK convention) — payload
 
 ## 7. Error codes chính (ví dụ — đầy đủ khi implement)
 
-`FORM_DEFINITION_INVALID`, `FORM_SLUG_EXISTS`, `FORM_NOT_PUBLISHED`, `FORM_REF_IMMUTABLE`, `FORM_RESPONSE_CLOSED`, `FORM_PUBLIC_CAPTCHA_INVALID`, `FORM_FILE_TOO_LARGE`, `FORM_MAPPING_TARGET_INVALID`; `WORKFLOW_DEFINITION_INVALID_CYCLE`, `WORKFLOW_NOT_PUBLISHED`, `WORKFLOW_TASK_NOT_CURRENT`, `WORKFLOW_TASK_NOT_ASSIGNEE`, `WORKFLOW_SELF_APPROVAL_FORBIDDEN`, `WORKFLOW_REJECT_REASON_REQUIRED`, `WORKFLOW_RETURN_STEP_INVALID`, `WORKFLOW_WEBHOOK_SECRET_INVALID`.
+`FORM_DEFINITION_INVALID`, `FORM_SLUG_EXISTS`, `FORM_NOT_PUBLISHED`, `FORM_REF_IMMUTABLE`, `FORM_REF_TYPE_IMMUTABLE` (đổi type của ref đã publish — phải dùng ref mới), `FORM_RESPONSE_CLOSED`, `FORM_PUBLIC_CAPTCHA_INVALID`, `FORM_FILE_TOO_LARGE`, `FORM_MAPPING_TARGET_INVALID`, `FORM_DRAFT_VERSION_PINNED`; `WORKFLOW_DEFINITION_INVALID_CYCLE`, `WORKFLOW_NOT_PUBLISHED`, `WORKFLOW_TASK_NOT_CURRENT`, `WORKFLOW_TASK_NOT_ASSIGNEE`, `WORKFLOW_SELF_APPROVAL_FORBIDDEN`, `WORKFLOW_REJECT_REASON_REQUIRED`, `WORKFLOW_RETURN_STEP_INVALID`, `WORKFLOW_WEBHOOK_SECRET_INVALID`.
 
 ## 8. Kiểm chứng
 
