@@ -1,9 +1,13 @@
 package com.vn9melody.openerp.plugins.form.dto;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.vn9melody.openerp.plugins.form.model.FormResponse;
 import java.util.Map;
 import java.util.UUID;
 
+/** Serialized snake_case per the API contract (DES-API-S08-001). */
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record FormResponseDto(
         UUID id,
         UUID formId,

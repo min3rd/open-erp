@@ -34,6 +34,13 @@ public class EntityWriteProxyClient {
     @ConfigProperty(name = "plugin.data.service-token", defaultValue = "")
     java.util.Optional<String> serviceToken;
 
+    @Inject
+    @ConfigProperty(name = "plugin.fanout.token", defaultValue = "")
+    java.util.Optional<String> fanoutToken;
+
+    @Inject
+    com.vn9melody.openerp.plugin.sdk.runtime.TenantContext tenantContext;
+
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(5))
             .build();
@@ -42,7 +49,8 @@ public class EntityWriteProxyClient {
 
     public WriteResult write(String targetPlugin, String entityName,
             Map<String, Object> record, String idempotencyKey) {
-        if (serviceToken == null || serviceToken.isEmpty()) {
+        if ((serviceToken == null || serviceToken.isEmpty())
+                && (fanoutToken == null || fanoutToken.isEmpty())) {
             return new WriteResult(false, null, "NO_SERVICE_TOKEN");
         }
         try {
@@ -51,6 +59,9 @@ public class EntityWriteProxyClient {
                     .timeout(Duration.ofSeconds(10))
                     .header("Content-Type", "application/json")
                     .header("X-Plugin-Service-Token", serviceToken.orElse(""))
+                    .header("X-Plugin-Fanout-Token", fanoutToken.orElse(""))
+                    .header("X-Tenant-Id", tenantContext.tenantId() == null
+                            ? "" : tenantContext.tenantId().toString())
                     .POST(HttpRequest.BodyPublishers.ofByteArray(objectMapper.writeValueAsBytes(Map.of(
                             "entity_name", entityName,
                             "record", record,

@@ -83,20 +83,32 @@ public class WorkflowEngineService {
     private WorkflowInstance insertAndStart(WorkflowDefinition definition,
             Map<String, Object> context, String triggerType, String idempotencyKey,
             Map<String, Object> sourceRef, UUID initiatedBy) {
-        var result = client.write("instance.insert", Map.of(
-                "definition_id", definition.id(),
-                "definition_version", definition.version(),
-                "trigger_type", triggerType,
-                "source_ref", sourceRef == null ? Map.of() : sourceRef,
-                "context", context == null ? Map.of() : context,
-                "idempotency_key", idempotencyKey,
-                "initiated_by", initiatedBy));
+        // Optional values may be null — java.util.Map.of would NPE.
+        Map<String, Object> params = new java.util.HashMap<>();
+        params.put("definition_id", definition.id());
+        params.put("definition_version", definition.version());
+        params.put("trigger_type", triggerType);
+        params.put("source_ref", writeJson(sourceRef));
+        params.put("context", writeJson(context));
+        params.put("idempotency_key", idempotencyKey);
+        params.put("initiated_by", initiatedBy);
+        var result = client.write("instance.insert", params);
         WorkflowInstance instance = WorkflowInstance.from(result.first());
         logEvent(instance.id(), null, "INSTANCE_STARTED", null,
                 Map.of("definition_key", definition.key(),
                         "definition_version", definition.version()));
         activate(instance, definition, List.of(WorkflowGraph.startNodeId(definition.document())));
         return reload(instance.id());
+    }
+
+    /** jsonb descriptor params expect a pre-serialized JSON string. */
+    private String writeJson(Object value) {
+        try {
+            return new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(
+                    value == null ? Map.of() : value);
+        } catch (Exception e) {
+            return "{}";
+        }
     }
 
     // ------------------------------------------------------------------
@@ -130,8 +142,10 @@ public class WorkflowEngineService {
         switch (action == null ? "" : action) {
             case "APPROVE" -> {
                 addVote(task, actor, "APPROVE", comment);
-                if (approvalComplete(task)) {
-                    completeTask(task, actor);
+                // Reload: addVote persists the new vote; the local snapshot is stale.
+                WorkflowTask updated = loadTask(task.id());
+                if (approvalComplete(updated)) {
+                    completeTask(updated, actor);
                     logEvent(instance.id(), task.id(), "TASK_ACTION", actor,
                             Map.of("action", "APPROVE", "comment", comment == null ? "" : comment));
                     continueFrom(instance, definition, task.nodeId(), actor);
@@ -169,7 +183,7 @@ public class WorkflowEngineService {
                 client.write("task.update", Map.of(
                         "id", task.id(),
                         "status", "IN_PROGRESS",
-                        "assignees", List.of(targetUser.toString())));
+                        "assignees", writeJson(List.of(targetUser.toString()))));
                 logEvent(instance.id(), task.id(), "REASSIGNED", actor,
                         Map.of("from", actor.toString(), "to", targetUser.toString(),
                                 "comment", comment == null ? "" : comment));
@@ -297,18 +311,20 @@ public class WorkflowEngineService {
                 ? OffsetDateTime.now().plusHours(hours.longValue()) : null;
         Integer remindBefore = sla.get("remind_before_hours") instanceof Number remind
                 ? remind.intValue() : null;
-        var result = client.write("task.insert", Map.of(
-                "instance_id", instance.id(),
-                "node_id", nodeId,
-                "node_type", String.valueOf(node.get("type")),
-                "approval_mode", node.getOrDefault("approval_mode",
-                        WorkflowNodeTypes.APPROVAL_ANY_ONE),
-                "vote_ratio", node.get("vote_ratio"),
-                "assignees", assignees,
-                "candidates", assignees,
-                "due_at", dueAt,
-                "remind_before_hours", remindBefore));
-        WorkflowTask task = WorkflowTask.from(result.first());
+        // Optional values may be null — java.util.Map.of would NPE.
+        Map<String, Object> taskParams = new java.util.HashMap<>();
+        taskParams.put("instance_id", instance.id());
+        taskParams.put("node_id", nodeId);
+        taskParams.put("node_type", String.valueOf(node.get("type")));
+        taskParams.put("approval_mode", node.getOrDefault("approval_mode",
+                WorkflowNodeTypes.APPROVAL_ANY_ONE));
+        taskParams.put("assignees", writeJson(assignees));
+        taskParams.put("candidates", writeJson(assignees));
+        taskParams.put("vote_ratio", node.get("vote_ratio"));
+        taskParams.put("due_at", dueAt);
+        taskParams.put("remind_before_hours", remindBefore);
+        var taskResult = client.write("task.insert", taskParams);
+        WorkflowTask task = WorkflowTask.from(taskResult.first());
         logEvent(instance.id(), task.id(), "TASK_ASSIGNED", null,
                 Map.of("node_id", nodeId, "assignees", assignees));
     }
@@ -391,7 +407,7 @@ public class WorkflowEngineService {
         client.write("task.update", Map.of(
                 "id", task.id(),
                 "status", "IN_PROGRESS",
-                "action_votes", votes));
+                "action_votes", writeJson(votes)));
     }
 
     private boolean approvalComplete(WorkflowTask task) {
@@ -462,12 +478,14 @@ public class WorkflowEngineService {
 
     private void logEvent(UUID instanceId, UUID taskId, String event, UUID actor,
             Map<String, Object> payload) {
-        client.write("event.insert", Map.of(
-                "instance_id", instanceId,
-                "task_id", taskId,
-                "event", event,
-                "actor_user_id", actor,
-                "payload", payload == null ? Map.of() : payload));
+        // taskId/actor may be null (system events) — Map.of would NPE.
+        Map<String, Object> params = new java.util.HashMap<>();
+        params.put("instance_id", instanceId);
+        params.put("task_id", taskId);
+        params.put("event", event);
+        params.put("actor_user_id", actor);
+        params.put("payload", writeJson(payload));
+        client.write("event.insert", params);
     }
 
     private WorkflowTask loadTask(UUID taskId) {

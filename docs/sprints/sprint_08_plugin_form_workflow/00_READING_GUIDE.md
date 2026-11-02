@@ -2,8 +2,8 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / phiên bản / cập nhật | READ-S08-001 / 0.9 / 2026-11-02 |
-| Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — Implementation **Done (Dev)**: 309/309 test unit+integration PASS; **chưa sign-off**: cutover E2E tenant thật, browser Desktop/Mobile, security public (TR §2) |
+| ID / phiên bản / cập nhật | READ-S08-001 / 1.0 / 2026-11-02 |
+| Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — Implementation Done (Dev); **QA: TC-E 22/22 + TC-S 5/5 + TC-B PASS trên runtime thật; 7 bug đã sửa; 2 bug UI LOW mở**; TR 1.0 **chờ chủ dự án review** |
 | Owner / reviewer | BA Agent / Chủ dự án (duyệt scope tại CONF) |
 | Đầu vào / đọc trước | [RAW-S08-001](01_raw_notes/01_RAW-S08-001_form_workflow_plugin_requirements.md) — yêu cầu trực tiếp chủ dự án 2026-11-02 / [Sprint 07](../sprint_07_plugin_employee/00_READING_GUIDE.md) (đã đóng), [Sprint 06](../sprint_06_plugin_dev_platform/00_READING_GUIDE.md) |
 | Đọc tiếp | [ANL-S08-001](02_analysis/01_ANL-S08-001_form_builder_plugin.md) → [ANL-S08-002](02_analysis/02_ANL-S08-002_workflow_plugin.md) → [BENCH-S08-001](03_benchmarks/01_BENCH-S08-001_form_builder_survey_benchmarks.md) → [BENCH-S08-002](03_benchmarks/02_BENCH-S08-002_workflow_engine_benchmark.md) → [CONF-S08-001](04_confirmation/01_CONF-S08-001_sprint_08_scope_and_ac.md) |
@@ -71,8 +71,8 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | :--- | :--- | :--- | :--- |
 | Scope & AC (CONF-S08-001) | ✅ **APPROVED 1.0** — 16/16 câu trả lời; chủ dự án duyệt qua hội thoại tương tác (đã nhắc rõ rủi ro Q3) | Chủ dự án | CONF-S08-001 1.0, 2026-11-02 |
 | Design ready (SOL/ADR/DES) | ✅ **APPROVED 1.0** — duyệt sau khi bổ sung version semantics (DES 0.2) | Architect + Chủ dự án | Design review 2026-11-02 |
-| Implementation | ✅ **Done (Dev)** — 309/309 test unit+integration PASS; deferred: cutover E2E, browser, security public | Developer | TR-S08-001 0.1, 2026-11-02 |
-| QA sign-off | ⏳ Pending — chờ TC-E/B/S | QA | — |
+| Implementation | ✅ **Done (QA-ready)** — 322 test PASS (13 unit + 278 core + 31 plugin + 22 E2E runtime) | Developer + QA | TR-S08-001 1.0, 2026-11-02 |
+| QA sign-off | 📝 **Reviewed-ready** — TC-E/S/B PASS; 2 bug UI LOW mở (BUG-177/178); chờ chủ dự án review TR | QA + Chủ dự án | TR-S08-001 1.0, 2026-11-02 |
 | PM DoD / Customer acceptance | ⏳ Pending | Chủ dự án | — |
 | Sprint closure | ⏳ Pending | PM | — |
 
@@ -119,3 +119,4 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | 0.7 | 2026-11-02 | **Scaffold 2 plugin PASS**: `plugins/form` + `plugins/workflow` vào `plugins/pom.xml`; manifest 2.0 (entities/queries/permissions/migrations checksum sha256); migration V1.0.0 5+6 bảng; FormDocumentValidator (forward-only logic 2-pass, ref/type immutable) 7/7 + ExpressionEvaluator 6/6 + definition graph validator PASS; `mvn -pl form,workflow -am test` xanh; FEAT-39/40 → In Progress | Developer; working tree |
 | 0.8 | 2026-11-02 | **Implementation milestone (backend + WC)**: FEAT-41 Done(Dev) — Core Event Hub (V7.0.8, relay Vert.x), Entity Write Proxy, Public Session + trang public, InternalTenantAdmins, SDK PluginEventPublisher; FEAT-39 backend + WC `op-form-app`/`op-form-fill` build PASS; FEAT-40 engine + services + internal API + WC build PASS; FEAT-42 employee 1.2.0 runtime chuyển engine (V1.2.0, client, event receiver, mirror sync) 18/18 PASS; i18n merge 13 locale; angular.json +2 project; `npm run infra` + full backend test trong TR | Developer; working tree |
 | 0.9 | 2026-11-02 | **Test run**: Core **278/278 PASS** (PostgreSQL thật) + employee 18/18 + form 7/7 + workflow 6/6 = **309/309**; soạn TP-S08-001 + TR-S08-001 0.1 — **chưa sign-off** (cutover E2E, browser 2 chế độ, security public còn lại); gate Implementation = Done (Dev) | QA/Developer; npm run infra + mvn test |
+| 1.0 | 2026-11-02 | **QA runtime E2E hoàn tất (22/22 + security 5/5 + browser PASS)**: deploy thật 3 plugin (JAR_BUNDLE → runtime deployer), tenant QA sạch mỗi lượt; **7 bug phát hiện & sửa** (relay/publish transaction, jsonb binding, snake_case contract, Map.of NPE, stale-vote approval, bootstrap contract/route/core-url); TR-S08-001 **1.0** chờ review; 2 bug UI LOW mở (BUG-177 i18n public page, BUG-178 contrast); evidence: `evidence/s08_qa_real/` (4 ảnh + e2e_results.json) | QA Agent; scripts/qa/sprint08-e2e.mjs |

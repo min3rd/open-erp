@@ -42,16 +42,17 @@ public class FormDefinitionService {
         requireTitle(request);
         String slug = requireSlug(request);
         requireDocumentValid(request.document());
-        var result = client.write("form.insert", Map.of(
-                "slug", slug,
-                "title_text", request.title(),
-                "description", request.description(),
-                "document", request.document(),
-                "entity_mapping", request.entityMapping(),
-                "publish_status", "DRAFT",
-                "latest_version", 1,
-                "created_by", context.userId(),
-                "updated_at", OffsetDateTime.now()));
+        Map<String, Object> params = new java.util.HashMap<>();
+        params.put("slug", slug);
+        params.put("title_text", request.title());
+        params.put("description", request.description());
+        params.put("document", writeJson(request.document()));
+        params.put("entity_mapping", writeJson(request.entityMapping()));
+        params.put("publish_status", "DRAFT");
+        params.put("latest_version", 1);
+        params.put("created_by", context.userId());
+        params.put("updated_at", OffsetDateTime.now());
+        var result = client.write("form.insert", params);
         return FormDefinitionDto.from(FormDefinition.from(result.first()));
     }
 
@@ -66,20 +67,22 @@ public class FormDefinitionService {
                 && !"DRAFT".equals(existing.publishStatus());
         if (versioned) {
             nextVersion = existing.latestVersion() + 1;
-            client.write("form.version.insert", Map.of(
-                    "definition_id", existing.id(),
-                    "version", nextVersion,
-                    "document", request.document(),
-                    "entity_mapping", request.entityMapping()));
+            Map<String, Object> versionParams = new java.util.HashMap<>();
+            versionParams.put("definition_id", existing.id());
+            versionParams.put("version", nextVersion);
+            versionParams.put("document", writeJson(request.document()));
+            versionParams.put("entity_mapping", writeJson(request.entityMapping()));
+            client.write("form.version.insert", versionParams);
         }
-        client.write("form.update", Map.of(
-                "id", existing.id(),
-                "title_text", request.title(),
-                "description", request.description(),
-                "document", request.document(),
-                "entity_mapping", request.entityMapping(),
-                "latest_version", nextVersion,
-                "updated_at", OffsetDateTime.now()));
+        Map<String, Object> updateParams = new java.util.HashMap<>();
+        updateParams.put("id", existing.id());
+        updateParams.put("title_text", request.title());
+        updateParams.put("description", request.description());
+        updateParams.put("document", writeJson(request.document()));
+        updateParams.put("entity_mapping", writeJson(request.entityMapping()));
+        updateParams.put("latest_version", nextVersion);
+        updateParams.put("updated_at", OffsetDateTime.now());
+        client.write("form.update", updateParams);
         return get(id);
     }
 
@@ -127,6 +130,19 @@ public class FormDefinitionService {
             throw new ApiException(404, FormErrorCode.FORM_NOT_FOUND, "Form was not found");
         }
         return FormDefinition.from(rows.get(0));
+    }
+
+    /** jsonb descriptor params expect a pre-serialized JSON string. */
+    private String writeJson(Object value) {
+        if (value == null) {
+            return null;
+        }
+        try {
+            return new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(value);
+        } catch (Exception e) {
+            throw new ApiException(400, FormErrorCode.FORM_DOCUMENT_INVALID,
+                    "Cannot serialize JSON value");
+        }
     }
 
     private void requireTitle(SaveFormRequest request) {

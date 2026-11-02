@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@com.fasterxml.jackson.databind.annotation.JsonNaming(com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record WorkflowTask(
         UUID id,
         UUID instanceId,
@@ -76,18 +77,37 @@ public record WorkflowTask(
 
     @SuppressWarnings("unchecked")
     private static List<String> strList(Object value) {
-        if (!(value instanceof List<?> list)) {
-            return List.of();
+        if (value instanceof List<?> list) {
+            return list.stream().map(String::valueOf).toList();
         }
-        return list.stream().map(String::valueOf).toList();
+        if (value instanceof String s && !s.isBlank()) {
+            try {
+                return ((List<Object>) new com.fasterxml.jackson.databind.ObjectMapper()
+                        .readValue(s, List.class)).stream().map(String::valueOf).toList();
+            } catch (Exception e) {
+                return List.of();
+            }
+        }
+        return List.of();
     }
 
     @SuppressWarnings("unchecked")
     private static List<Map<String, Object>> voteList(Object value) {
-        if (!(value instanceof List<?> list)) {
+        List<?> items = null;
+        if (value instanceof List<?> list) {
+            items = list;
+        } else if (value instanceof String s && !s.isBlank()) {
+            try {
+                items = new com.fasterxml.jackson.databind.ObjectMapper()
+                        .readValue(s, List.class);
+            } catch (Exception e) {
+                items = null;
+            }
+        }
+        if (items == null) {
             return List.of();
         }
-        return list.stream()
+        return items.stream()
                 .filter(item -> item instanceof Map<?, ?>)
                 .map(item -> (Map<String, Object>) item)
                 .toList();

@@ -35,7 +35,10 @@ public class InternalEntityWriteProxyResource {
     JwtTokenService jwtTokenService;
 
     @Inject
-    EntityRegistryService entityRegistryService;
+    com.vn9melody.openerp.modules.eventhub.service.InternalCallAuthService callAuth;
+
+    @Inject
+    com.vn9melody.openerp.core.registry.EntityRegistryService entityRegistryService;
 
     @Inject
     PluginRuntimeGatewayService gatewayService;
@@ -43,14 +46,18 @@ public class InternalEntityWriteProxyResource {
     @Inject
     ObjectMapper objectMapper;
 
-    public record EntityWriteRequest(String entityName, Map<String, Object> record,
-            String idempotencyKey) {}
+    public record EntityWriteRequest(
+            @com.fasterxml.jackson.annotation.JsonProperty("entity_name") String entityName,
+            Map<String, Object> record,
+            @com.fasterxml.jackson.annotation.JsonProperty("idempotency_key") String idempotencyKey) {}
 
     @POST
     @Path("/{pluginId}")
     public ApiResponse<Object> write(@HeaderParam("X-Plugin-Service-Token") String token,
+            @HeaderParam("X-Plugin-Fanout-Token") String fanoutToken,
+            @HeaderParam("X-Tenant-Id") String tenantHeader,
             @PathParam("pluginId") String pluginId, EntityWriteRequest request) {
-        UUID tenantId = authenticate(token);
+        UUID tenantId = authenticate(token, fanoutToken, tenantHeader);
         if (request == null || request.entityName() == null || request.entityName().isBlank()) {
             throw new ApiException(400, "ENTITY_NAME_REQUIRED", "entity_name is required");
         }
@@ -94,7 +101,17 @@ public class InternalEntityWriteProxyResource {
         }
     }
 
-    private UUID authenticate(String token) {
+    private UUID authenticate(String token, String fanoutToken, String tenantHeader) {
+        if (fanoutToken != null && !fanoutToken.isBlank()) {
+            if (!callAuth.fanoutTokenValid(fanoutToken)) {
+                throw new ApiException(401, "UNAUTHORIZED", "Invalid fanout token");
+            }
+            if (tenantHeader == null || tenantHeader.isBlank()) {
+                throw new ApiException(400, "TENANT_HEADER_REQUIRED",
+                        "X-Tenant-Id is required with the fanout token");
+            }
+            return UUID.fromString(tenantHeader);
+        }
         if (token == null || token.isBlank()) {
             throw new ApiException(401, "UNAUTHORIZED", "Service token is required");
         }

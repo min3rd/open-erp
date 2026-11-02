@@ -46,12 +46,17 @@ public class PluginPublicSessionResource {
     @Inject
     JwtTokenService jwtTokenService;
 
-    public record PublicSessionRequest(String tenantSlug, String ref) {}
+    public record PublicSessionRequest(
+            @com.fasterxml.jackson.annotation.JsonProperty("tenant_slug") String tenantSlug,
+            @com.fasterxml.jackson.annotation.JsonProperty("ref") String ref) {}
 
-    public record PublicSession(String token, long expiresInSeconds, String pluginKey) {}
+    public record PublicSession(String token,
+            @com.fasterxml.jackson.annotation.JsonProperty("expires_in") long expiresInSeconds,
+            @com.fasterxml.jackson.annotation.JsonProperty("plugin_key") String pluginKey) {}
 
     @POST
     @Path("/{pluginKey}")
+    @jakarta.transaction.Transactional
     public ApiResponse<PublicSession> issue(@PathParam("pluginKey") String pluginKey,
             @Context RoutingContext routingContext, PublicSessionRequest request) {
         rateLimiter.check(clientIp(routingContext));

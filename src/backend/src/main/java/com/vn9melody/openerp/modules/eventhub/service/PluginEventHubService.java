@@ -70,13 +70,17 @@ public class PluginEventHubService {
             event.eventType = eventType;
             event.entity = entity;
             event.aggregateId = aggregateId;
-            event.payload = payload;
+            event.payload = payload == null ? "{}"
+                    : objectMapper.writeValueAsString(payload);
             event.idempotencyKey = idempotencyKey;
             event.persist();
             return new PublishResult(event.id, true);
         } catch (PersistenceException e) {
             PluginEvent raced = PluginEvent.find("idempotencyKey", idempotencyKey).firstResult();
             return new PublishResult(raced != null ? raced.id : null, false);
+        } catch (Exception e) {
+            LOG.errorf("Event publish failed: %s", e.getMessage());
+            return new PublishResult(null, false);
         }
     }
 
@@ -184,10 +188,11 @@ public class PluginEventHubService {
                     "source_plugin", event.sourcePlugin,
                     "entity", event.entity == null ? "" : event.entity,
                     "aggregate_id", event.aggregateId == null ? "" : event.aggregateId,
-                    "payload", event.payload == null ? Map.of() : event.payload));
+                    "payload", objectMapper.readTree(
+                            event.payload == null ? "{}" : event.payload)));
             PluginRuntimeGatewayService.GatewayResponse response = gatewayService.forward(
                     event.tenantId, null, Set.of(), Set.of(), Set.of(),
-                    target, null, "POST", "/api/v1/internal/events", null,
+                    target, null, "POST", "/api/v1/" + target + "/internal-events", null,
                     "application/json", body);
             if (response.status() >= 200 && response.status() < 300) {
                 delivery.status = PluginEventDelivery.STATUS_DELIVERED;

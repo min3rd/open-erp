@@ -65,16 +65,17 @@ public class FormResponseService {
             entityWriteError = writeResult.getValue();
         }
 
-        var result = client.write("form.response.insert", Map.of(
-                "form_id", form.id(),
-                "form_version", form.latestVersion(),
-                "answers", answers,
-                "responder_email", responderEmail,
-                "submitted_by_user_id", authenticatedUserId,
-                "entity_write_status", entityWriteStatus,
-                "entity_write_error", entityWriteError,
-                "ip_hash", ipHash,
-                "idempotency_key", idempotencyKey));
+        Map<String, Object> params = new java.util.HashMap<>();
+        params.put("form_id", form.id());
+        params.put("form_version", form.latestVersion());
+        params.put("answers", writeJson(answers));
+        params.put("responder_email", responderEmail);
+        params.put("submitted_by_user_id", authenticatedUserId);
+        params.put("entity_write_status", entityWriteStatus);
+        params.put("entity_write_error", entityWriteError);
+        params.put("ip_hash", ipHash);
+        params.put("idempotency_key", idempotencyKey);
+        var result = client.write("form.response.insert", params);
         FormResponse response = FormResponse.from(result.first());
 
         eventPublisher.publish(EVENT_RESPONSE_SUBMITTED, "FormResponse",
@@ -179,6 +180,19 @@ public class FormResponseService {
             return '"' + value.replace("\"", "\"\"") + '"';
         }
         return value;
+    }
+
+    /** jsonb descriptor params expect a pre-serialized JSON string. */
+    private String writeJson(Object value) {
+        if (value == null) {
+            return null;
+        }
+        try {
+            return new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(value);
+        } catch (Exception e) {
+            throw new ApiException(400, FormErrorCode.FORM_DOCUMENT_INVALID,
+                    "Cannot serialize answers");
+        }
     }
 
     private void requireAccepting(FormDefinition form) {

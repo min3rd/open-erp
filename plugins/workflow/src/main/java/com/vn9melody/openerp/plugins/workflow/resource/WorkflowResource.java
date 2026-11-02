@@ -114,8 +114,11 @@ public class WorkflowResource {
                 Map.of("instance", rows.get(0), "tasks", tasks));
     }
 
-    public record TaskActionRequest(UUID actorUserId, String action, String comment,
-            String targetStepNodeId, UUID targetUserId) {}
+    public record TaskActionRequest(
+            @com.fasterxml.jackson.annotation.JsonProperty("actor_user_id") UUID actorUserId,
+            String action, String comment,
+            @com.fasterxml.jackson.annotation.JsonProperty("target_step_node_id") String targetStepNodeId,
+            @com.fasterxml.jackson.annotation.JsonProperty("target_user_id") UUID targetUserId) {}
 
     @GET
     @Path("/tasks/inbox")
@@ -151,5 +154,41 @@ public class WorkflowResource {
         WorkflowTask task = engineService.act(id, request.actorUserId(), request.action(),
                 request.comment(), request.targetStepNodeId(), request.targetUserId());
         return ApiResponse.success("WORKFLOW_TASK_ACTION_SUCCESS", "Action applied.", task);
+    }
+
+    public record SaveTriggerRequest(
+            @com.fasterxml.jackson.annotation.JsonProperty("definition_id") String definitionId,
+            @com.fasterxml.jackson.annotation.JsonProperty("source_plugin") String sourcePlugin,
+            String entity,
+            @com.fasterxml.jackson.annotation.JsonProperty("event_type") String eventType) {}
+
+    @POST
+    @Path("/triggers")
+    @RequirePermission("workflow:definition:manage")
+    public ApiResponse<Map<String, Object>> createTrigger(SaveTriggerRequest request) {
+        if (request == null || request.definitionId() == null || request.definitionId().isBlank()
+                || request.eventType() == null || request.eventType().isBlank()) {
+            throw new ApiException(400, "WORKFLOW_TRIGGER_INVALID",
+                    "definition_id and event_type are required");
+        }
+        var result = client.write("trigger.insert", Map.of(
+                "definition_id", UUID.fromString(request.definitionId()),
+                "source_plugin", request.sourcePlugin() == null || request.sourcePlugin().isBlank()
+                        ? "*" : request.sourcePlugin(),
+                "entity", request.entity() == null || request.entity().isBlank()
+                        ? "*" : request.entity(),
+                "event_type", request.eventType(),
+                "enabled", true));
+        return ApiResponse.success("WORKFLOW_TRIGGER_CREATED", "Trigger created.",
+                result.first());
+    }
+
+    @GET
+    @Path("/triggers")
+    @RequirePermission("workflow:definition:manage")
+    public ApiResponse<ListData<Map<String, Object>>> triggers() {
+        return ApiResponse.successList("WORKFLOW_TRIGGER_LIST_SUCCESS",
+                "Triggers retrieved.",
+                client.query("trigger.list", Map.of("enabled", true)).rows());
     }
 }

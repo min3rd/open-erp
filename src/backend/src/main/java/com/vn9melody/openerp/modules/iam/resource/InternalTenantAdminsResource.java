@@ -29,11 +29,16 @@ public class InternalTenantAdminsResource {
     @Inject
     EntityManager entityManager;
 
+    @Inject
+    com.vn9melody.openerp.modules.eventhub.service.InternalCallAuthService internalCallAuth;
+
     public record TenantAdmins(List<String> userIds) {}
 
     @GET
-    public ApiResponse<TenantAdmins> list(@HeaderParam("X-Plugin-Service-Token") String token) {
-        UUID tenantId = authenticate(token);
+    public ApiResponse<TenantAdmins> list(@HeaderParam("X-Plugin-Service-Token") String token,
+            @HeaderParam("X-Plugin-Fanout-Token") String fanoutToken,
+            @HeaderParam("X-Tenant-Id") String tenantHeader) {
+        UUID tenantId = authenticate(token, fanoutToken, tenantHeader);
         List<String> userIds = entityManager.createNativeQuery("""
                 SELECT ur.user_id::text
                 FROM user_roles ur
@@ -52,7 +57,17 @@ public class InternalTenantAdminsResource {
                 "Tenant admins retrieved.", new TenantAdmins(userIds));
     }
 
-    private UUID authenticate(String token) {
+    private UUID authenticate(String token, String fanoutToken, String tenantHeader) {
+        if (fanoutToken != null && !fanoutToken.isBlank()) {
+            if (!internalCallAuth.fanoutTokenValid(fanoutToken)) {
+                throw new ApiException(401, "UNAUTHORIZED", "Invalid fanout token");
+            }
+            if (tenantHeader == null || tenantHeader.isBlank()) {
+                throw new ApiException(400, "TENANT_HEADER_REQUIRED",
+                        "X-Tenant-Id is required with the fanout token");
+            }
+            return UUID.fromString(tenantHeader);
+        }
         if (token == null || token.isBlank()) {
             throw new ApiException(401, "UNAUTHORIZED", "Service token is required");
         }

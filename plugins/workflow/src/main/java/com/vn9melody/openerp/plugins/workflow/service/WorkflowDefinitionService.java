@@ -50,7 +50,7 @@ public class WorkflowDefinitionService {
                 "key", key.trim().toLowerCase(),
                 "version", nextVersion,
                 "status", "DRAFT",
-                "document", document));
+                "document", writeJson(document)));
         return WorkflowDefinitionDto.from(WorkflowDefinition.from(result.first()));
     }
 
@@ -62,6 +62,16 @@ public class WorkflowDefinitionService {
                 "status", "PUBLISHED",
                 "published_at", OffsetDateTime.now()));
         return get(id);
+    }
+
+    /** jsonb descriptor params expect a pre-serialized JSON string. */
+    private String writeJson(Object value) {
+        try {
+            return new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(value);
+        } catch (Exception e) {
+            throw new ApiException(400, WorkflowErrorCode.WORKFLOW_DEFINITION_INVALID,
+                    "Cannot serialize definition document");
+        }
     }
 
     /** Validates the definition document graph: node types, single start, forward refs, no cycles. */

@@ -36,8 +36,13 @@ public class PluginEventRelayJob {
             return;
         }
         vertx.setPeriodic(intervalSeconds * 1000L, id -> vertx.executeBlocking(() -> {
+            // Panache needs an active transaction: same pattern as
+            // AuditMaintenanceJob (BUG-82) — open it on the worker thread.
             try {
-                return hubService.relayPending();
+                return io.quarkus.narayana.jta.QuarkusTransaction.requiringNew().call(() -> {
+                    hubService.relayPending();
+                    return 0;
+                });
             } catch (Exception e) {
                 LOG.errorf("Event hub relay pass failed: %s", e.getMessage());
                 return 0;

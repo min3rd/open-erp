@@ -31,19 +31,29 @@ public class InternalPluginEventResource {
     @Inject
     PluginEventHubService hubService;
 
+    @Inject
+    com.vn9melody.openerp.modules.eventhub.service.InternalCallAuthService callAuth;
+
     public record PublishEventRequest(
             String event,
             String entity,
-            String aggregateId,
+            @com.fasterxml.jackson.annotation.JsonProperty("aggregate_id") String aggregateId,
             Object payload,
-            String idempotencyKey) {}
+            @com.fasterxml.jackson.annotation.JsonProperty("idempotency_key") String idempotencyKey) {}
 
-    public record PublishResult(UUID eventId, boolean created) {}
+    public record PublishResult(
+            @com.fasterxml.jackson.annotation.JsonProperty("event_id") UUID eventId,
+            boolean created) {}
 
     @POST
+    @jakarta.transaction.Transactional
     public ApiResponse<PublishResult> publish(@HeaderParam("X-Plugin-Service-Token") String token,
+            @HeaderParam("X-Plugin-Fanout-Token") String fanoutToken,
+            @HeaderParam("X-Plugin-Key") String pluginKeyHeader,
+            @HeaderParam("X-Tenant-Id") String tenantHeader,
             PublishEventRequest request) {
-        String sourcePlugin = authenticate(token);
+        UUID tenantId = authenticate(token, fanoutToken, tenantHeader);
+        String sourcePlugin = sourcePluginOf(token, pluginKeyHeader);
         if (request == null || request.event() == null || request.event().isBlank()) {
             throw new ApiException(400, "EVENT_TYPE_REQUIRED", "event is required");
         }
@@ -52,7 +62,7 @@ public class InternalPluginEventResource {
                     "idempotency_key is required");
         }
         PluginEventHubService.PublishResult result = hubService.publish(
-                tenantIdOf(token),
+                tenantId,
                 sourcePlugin,
                 request.event(),
                 request.entity(),
@@ -64,17 +74,38 @@ public class InternalPluginEventResource {
                 new PublishResult(result.eventId(), result.created()));
     }
 
-    private String authenticate(String token) {
-        JsonWebToken jwt = parseServiceToken(token);
-        Object pluginKey = jwt.getClaim("plugin_key");
-        if (pluginKey == null || pluginKey.toString().isBlank()) {
-            throw new ApiException(401, "UNAUTHORIZED", "Service token is missing plugin_key");
+    private String sourcePluginOf(String token, String pluginKeyHeader) {
+        if (pluginKeyHeader != null && !pluginKeyHeader.isBlank()) {
+            return pluginKeyHeader;
         }
-        return pluginKey.toString();
+        if (token == null || token.isBlank()) {
+            return "unknown";
+        }
+        try {
+            JsonWebToken jwt = jwtTokenService.parseToken(token);
+            Object pluginKey = jwt.getClaim("plugin_key");
+            return pluginKey == null ? "unknown" : pluginKey.toString();
+        } catch (Exception e) {
+            return "unknown";
+        }
     }
 
-    private UUID tenantIdOf(String token) {
-        Object tenantId = parseServiceToken(token).getClaim("tenant_id");
+    private UUID authenticate(String token, String fanoutToken, String tenantHeader) {
+        // Shared fanout identity: tenant comes from the X-Tenant-Id header the
+        // plugin copies from its own TenantContext.
+        if (fanoutToken != null && !fanoutToken.isBlank()) {
+            if (!callAuth.fanoutTokenValid(fanoutToken)) {
+                throw new ApiException(401, "UNAUTHORIZED", "Invalid fanout token");
+            }
+            if (tenantHeader == null || tenantHeader.isBlank()) {
+                throw new ApiException(400, "TENANT_HEADER_REQUIRED",
+                        "X-Tenant-Id is required with the fanout token");
+            }
+            return UUID.fromString(tenantHeader);
+        }
+        JsonWebToken jwt = parseServiceToken(token);
+        Object pluginKey = jwt.getClaim("plugin_key");
+        Object tenantId = jwt.getClaim("tenant_id");
         if (tenantId == null) {
             throw new ApiException(401, "UNAUTHORIZED", "Service token tenant is missing");
         }

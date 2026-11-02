@@ -1,0 +1,131 @@
+{
+  "generated_at": "2026-11-02T13:28:49.138Z",
+  "base": "http://127.0.0.1:8088",
+  "tenant": "qa-s08-mvzantur",
+  "total": 22,
+  "passed": 22,
+  "failed": 0,
+  "results": [
+    {
+      "id": "E-workflow",
+      "name": "install workflow@1.0.10 ACTIVE via runtime deployer",
+      "pass": true
+    },
+    {
+      "id": "E-form",
+      "name": "install form@1.0.6 ACTIVE via runtime deployer",
+      "pass": true
+    },
+    {
+      "id": "E-employee",
+      "name": "install employee@1.2.2 ACTIVE via runtime deployer",
+      "pass": true
+    },
+    {
+      "id": "TC-E0",
+      "name": "bootstrap seeded employee-profile-change PUBLISHED",
+      "pass": true,
+      "detail": "[\"employee-profile-change:PUBLISHED\"]"
+    },
+    {
+      "id": "TC-E2.1",
+      "name": "form created via runtime gateway",
+      "pass": true,
+      "detail": "id=765c2325-2b18-400a-900c-f8d9c60d459d"
+    },
+    {
+      "id": "TC-E2.2",
+      "name": "form published",
+      "pass": true
+    },
+    {
+      "id": "TC-E2.3",
+      "name": "form-intake-approval definition published",
+      "pass": true
+    },
+    {
+      "id": "TC-E2.4",
+      "name": "trigger registered form.response.submitted",
+      "pass": true
+    },
+    {
+      "id": "TC-E2.5",
+      "name": "anonymous public session issued",
+      "pass": true
+    },
+    {
+      "id": "TC-E2.6",
+      "name": "anonymous view returns published document",
+      "pass": true
+    },
+    {
+      "id": "TC-E2.7",
+      "name": "anonymous submit accepted (idempotent first)",
+      "pass": true,
+      "detail": "entity_write=SKIPPED"
+    },
+    {
+      "id": "TC-S1",
+      "name": "duplicate idempotency_key returns same response (no duplicate row)",
+      "pass": true
+    },
+    {
+      "id": "TC-E2.8",
+      "name": "form response triggered workflow instance via event hub",
+      "pass": true,
+      "detail": "id=fa4522b1-abf7-443a-aa97-625cc2250ddb status=RUNNING"
+    },
+    {
+      "id": "TC-E2.9",
+      "name": "approval task assigned to configured user",
+      "pass": true,
+      "detail": "node=triage assignees=[\"9b120a8f-58bc-4641-91b1-46e4f93fc1ab\"]"
+    },
+    {
+      "id": "TC-E2.10",
+      "name": "approval action applied",
+      "pass": true
+    },
+    {
+      "id": "TC-E2.11",
+      "name": "instance completed APPROVED after approval",
+      "pass": true,
+      "detail": "outcome=APPROVED"
+    },
+    {
+      "id": "TC-E1.1",
+      "name": "self change request opened",
+      "pass": true,
+      "detail": "code=EMPLOYEE_CHANGE_REQUEST_CREATED id=eff4a35c-91f9-4f49-9331-08d4c22d8f22"
+    },
+    {
+      "id": "TC-E1.2",
+      "name": "change request bound to workflow instance",
+      "pass": true,
+      "detail": "6dc7cb66-edb6-4f26-8675-c98b29c12228"
+    },
+    {
+      "id": "TC-S2",
+      "name": "engine rejects approver outside assignee list (new enforcement)",
+      "pass": true,
+      "detail": "code=WORKFLOW_TASK_NOT_ASSIGNEE"
+    },
+    {
+      "id": "TC-S3",
+      "name": "public session for unknown tenant rejected",
+      "pass": true,
+      "detail": "code=PUBLIC_TENANT_NOT_FOUND"
+    },
+    {
+      "id": "TC-S4",
+      "name": "anonymous token cannot read admin response data (empty permission set)",
+      "pass": true,
+      "detail": "code=UNAUTHORIZED"
+    },
+    {
+      "id": "TC-S5",
+      "name": "public session rate limited (429) after burst",
+      "pass": true
+    }
+  ]
+}

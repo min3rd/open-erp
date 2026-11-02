@@ -36,6 +36,13 @@ public class WorkflowApprovalClient {
     @ConfigProperty(name = "plugin.data.service-token", defaultValue = "")
     java.util.Optional<String> serviceToken;
 
+    @Inject
+    @ConfigProperty(name = "plugin.fanout.token", defaultValue = "")
+    java.util.Optional<String> fanoutToken;
+
+    @Inject
+    com.vn9melody.openerp.plugin.sdk.runtime.TenantContext tenantContext;
+
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(5))
             .build();
@@ -110,6 +117,9 @@ public class WorkflowApprovalClient {
             HttpRequest request = HttpRequest.newBuilder(URI.create(coreInternalUrl + path))
                     .timeout(Duration.ofSeconds(10))
                     .header("X-Plugin-Service-Token", serviceToken.orElse(""))
+                    .header("X-Plugin-Fanout-Token", fanoutToken.orElse(""))
+                    .header("X-Tenant-Id", tenantContext.tenantId() == null
+                            ? "" : tenantContext.tenantId().toString())
                     .GET()
                     .build();
             HttpResponse<byte[]> response = httpClient.send(request,
@@ -134,6 +144,9 @@ public class WorkflowApprovalClient {
                     .timeout(Duration.ofSeconds(10))
                     .header("Content-Type", "application/json")
                     .header("X-Plugin-Service-Token", serviceToken.orElse(""))
+                    .header("X-Plugin-Fanout-Token", fanoutToken.orElse(""))
+                    .header("X-Tenant-Id", tenantContext.tenantId() == null
+                            ? "" : tenantContext.tenantId().toString())
                     .POST(HttpRequest.BodyPublishers.ofByteArray(objectMapper.writeValueAsBytes(body)))
                     .build();
             HttpResponse<byte[]> response = httpClient.send(request,

@@ -55,6 +55,17 @@ public record FormResponse(
 
     @SuppressWarnings("unchecked")
     private static Map<String, Object> map(Object value) {
-        return value instanceof Map<?, ?> m ? (Map<String, Object>) m : null;
+        if (value instanceof Map<?, ?> m) {
+            return (Map<String, Object>) m;
+        }
+        if (value instanceof String s && !s.isBlank()) {
+            try {
+                return (Map<String, Object>) new com.fasterxml.jackson.databind.ObjectMapper()
+                        .readValue(s, Map.class);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
     }
 }

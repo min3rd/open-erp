@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@com.fasterxml.jackson.databind.annotation.JsonNaming(com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record WorkflowDefinition(
         UUID id,
         String key,
@@ -52,6 +53,17 @@ public record WorkflowDefinition(
 
     @SuppressWarnings("unchecked")
     private static Map<String, Object> map(Object value) {
-        return value instanceof Map<?, ?> m ? (Map<String, Object>) m : null;
+        if (value instanceof Map<?, ?> m) {
+            return (Map<String, Object>) m;
+        }
+        if (value instanceof String s && !s.isBlank()) {
+            try {
+                return (Map<String, Object>) new com.fasterxml.jackson.databind.ObjectMapper()
+                        .readValue(s, Map.class);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
     }
 }

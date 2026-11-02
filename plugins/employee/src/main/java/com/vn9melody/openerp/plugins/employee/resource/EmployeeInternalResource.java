@@ -16,7 +16,7 @@ import java.util.UUID;
  * through webhook/automation paths, so the change-request mirror syncs on
  * `workflow.instance.completed` in addition to the synchronous approve path.
  */
-@Path("/api/v1/employee/internal")
+@Path("/api/v1/employee/internal-events")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class EmployeeInternalResource {
@@ -24,11 +24,15 @@ public class EmployeeInternalResource {
     @Inject
     EmployeeService employeeService;
 
-    public record EventDelivery(String eventDeliveryId, String event, String sourcePlugin,
-            String entity, String aggregateId, Map<String, Object> payload) {}
+    public record EventDelivery(
+            @com.fasterxml.jackson.annotation.JsonProperty("event_delivery_id") String eventDeliveryId,
+            String event,
+            @com.fasterxml.jackson.annotation.JsonProperty("source_plugin") String sourcePlugin,
+            String entity,
+            @com.fasterxml.jackson.annotation.JsonProperty("aggregate_id") String aggregateId,
+            Map<String, Object> payload) {}
 
     @POST
-    @Path("/events")
     public ApiResponse<Map<String, Object>> receive(EventDelivery delivery) {
         int synced = 0;
         if (delivery != null && delivery.payload() != null

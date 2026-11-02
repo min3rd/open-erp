@@ -3,7 +3,7 @@
   "id": "employee",
   "name": "Employee",
   "description": "Hồ sơ nhân sự, tự phục vụ, đề xuất duyệt qua workflow engine dùng chung.",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "template_version": "2.0.0",
   "author": "Open-ERP Plugin Team",
   "core_version_compatibility": ">=1.0.0 <2.0.0",
@@ -11,7 +11,10 @@
   "rollback_strategy": "SNAPSHOT_RESTORE",
   "dependencies": [],
   "event_subscriptions": [
-    { "source": "workflow", "event": "*" }
+    {
+      "source": "workflow",
+      "event": "*"
+    }
   ],
   "platforms": {
     "desktop": {

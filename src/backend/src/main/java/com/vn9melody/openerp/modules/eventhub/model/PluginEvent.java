@@ -32,8 +32,9 @@ public class PluginEvent extends PanacheEntityBase {
     @Column(name = "aggregate_id", length = 80)
     public String aggregateId;
 
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    public Object payload;
+    public String payload;
 
     @Column(name = "idempotency_key", nullable = false, length = 120)
     public String idempotencyKey;
