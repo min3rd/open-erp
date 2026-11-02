@@ -48,7 +48,10 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | 05.04 | ADR-S09-003 | [Engine tính công](05_solutions/04_ADR-S09-003_attendance_calculation_engine.md) | 3 tầng dữ liệu; job idempotent; tolerance 2 chiều; OT window | Architect |
 | 05.05 | ADR-S09-004 | [Số dư phép theo ledger](05_solutions/05_ADR-S09-004_leave_balance_ledger.md) | Grant/usage/adjust/expiry append-only; cộng dồn + hạn dùng | Architect |
 | 05.06 | ADR-S09-005 | [Ingestion log đa nguồn](05_solutions/06_ADR-S09-005_multi_source_log_ingestion.md) | 1 lõi log append-only; kiosk PIN; CSV; API push qua Core | Architect |
-| 06.01–06.04 | DES-ARCH/DB/API/UI-S09-001 | Chưa tạo | Kiến trúc, schema, API contract, UI/UX | Architect |
+| 06.01 | DES-ARCH-S09-001 | [Kiến trúc thành phần & luồng](06_designs/arch/01_DES-ARCH-S09-001_components_and_flows.md) | Thành phần, sequence 4 luồng, phân quyền, tương tác plugin, test | Architect |
+| 06.02 | DES-DB-S09-001 | [Schema DB](06_designs/db/01_DES-DB-S09-001_attendance_schema.md) | 19 bảng/cột/index/ràng buộc, registry, manifest, outbox | Architect |
+| 06.03 | DES-API-S09-001 | [API contract](06_designs/api/01_DES-API-S09-001_attendance_api.md) | Endpoint nhóm chấm/ca/đơn/leave/timesheet/báo cáo; 4 mẫu response; error codes | Architect |
+| 06.04 | DES-UI-S09-001 | [UI/UX](06_designs/ui/01_DES-UI-S09-001_attendance_ui.md) | Route map, kiosk, 4 bước timesheet, shared components, mobile 390×844 | Architect |
 | 07.01+ | FEAT/TASK | Chưa cấp | Không cấp số trước khi CONF duyệt scope | Developer |
 | 08.01+ | TP/TR-S09-001 | Chưa tạo | Test plan/report | QA |
 | 09.01 | REV-S09-001 | Chưa tạo | DoD + closure | PM |
@@ -60,7 +63,7 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | Gate | Trạng thái | Người quyết định | Nguồn/phiên bản/ngày |
 | :--- | :--- | :--- | :--- |
 | Scope & AC (CONF-S09-001) | ✅ **APPROVED 1.0** — chủ dự án duyệt toàn bộ scope (18/18 câu + 37 AC) qua hội thoại tương tác (đã nêu rõ rủi ro Q9/Q18 phụ thuộc Sprint 08, Q14 leave đầy đủ) | Chủ dự án | CONF-S09-001 1.0, 2026-11-02 |
-| Design ready (SOL/ADR/DES) | 📝 **SOL/ADR APPROVED 1.0** (1 SOL + 5 ADR — hội thoại tương tác 2026-11-02); bước 06 DES đang soạn | Architect + Chủ dự án | SOL/ADR-S09 1.0, 2026-11-02 |
+| Design ready (SOL/ADR/DES) | 📝 **SOL/ADR APPROVED 1.0**; DES-ARCH/DB/API/UI-S09-001 soạn xong (Draft 0.1) — **Design In Review, chờ chủ dự án duyệt** | Architect + Chủ dự án | DES-S09 0.1, 2026-11-02 |
 | Implementation | ⏳ Pending | Developer | — |
 | QA sign-off | ⏳ Pending | QA | — |
 | PM DoD / Customer acceptance | ⏳ Pending | Chủ dự án | — |
@@ -77,6 +80,10 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | CONF-S09-001 | [04_confirmation/](04_confirmation/) | BA + Khách hàng | Used — **APPROVED 1.0** (18/18 câu trả lời + duyệt scope) |
 | SOL-S09-001 | [05_solutions/](05_solutions/) | Architect | Used — **APPROVED 1.0** |
 | ADR-S09-001…005 | [05_solutions/](05_solutions/) | Architect | Used — **APPROVED 1.0** |
+| DES-ARCH-S09-001 | [06_designs/arch/](06_designs/arch/) | Architect | Used — Draft 0.1/In Review |
+| DES-DB-S09-001 | [06_designs/db/](06_designs/db/) | Architect | Used — Draft 0.1/In Review |
+| DES-API-S09-001 | [06_designs/api/](06_designs/api/) | Architect | Used — Draft 0.1/In Review |
+| DES-UI-S09-001 | [06_designs/ui/](06_designs/ui/) | Architect | Used — Draft 0.1/In Review |
 | FEAT/TASK/BUG | *(chưa cấp)* | Developer/QA | Không cấp số trước khi CONF duyệt scope |
 
 ## 5. Liên hệ với các Sprint trước
@@ -99,3 +106,4 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | 0.4 | 2026-11-02 | **Scope & AC APPROVED 1.0** — chủ dự án chọn "Duyệt toàn bộ scope" sau khi được nêu rủi ro Q9/Q18 (phụ thuộc Sprint 08) và Q14 (leave đầy đủ); CONF nâng 1.0; bước 05 (SOL) mở cho Architect | BA Agent; hội thoại tương tác chủ dự án |
 | 0.5 | 2026-11-02 | Architect khảo sát codebase (Event Hub + Entity Write Proxy đã implement; form/workflow đã scaffold có engine; employee manifest) và soạn **SOL-S09-001 + ADR-S09-001…005** (Draft 0.1); quyết định then chốt: ca trong plugin, đơn từ trên form/workflow có fallback, engine tính công job idempotent, ledger số dư phép, ingestion đa nguồn qua Core; Design **In Review** | Architect; khảo sát repo 2026-11-02 |
 | 0.6 | 2026-11-02 | **SOL + 5 ADR APPROVED 1.0** — chủ dự án duyệt qua hội thoại tương tác ("ok duyệt"); bước 06 (DES) mở | Architect; hội thoại tương tác chủ dự án |
+| 0.7 | 2026-11-02 | Architect soạn **DES-ARCH/DB/API/UI-S09-001** (Draft 0.1): 19 bảng schema, API contract 4 khuôn mẫu + 31 error codes, sequence 4 luồng, route map Web + 5 tab Mobile; Design **In Review** chờ duyệt | Architect |
