@@ -83,18 +83,27 @@ export class FormScreenComponent implements OnInit {
   }
 
   openBuilder(form: FormDefinition | null): void {
-    if (form) {
-      this.selected.set(form);
-      this.slugInput.set(form.slug);
-      this.titleInput.set(form.title_text);
-      this.builderDocument.set(JSON.stringify(form.document ?? { items: [] }, null, 2));
-    } else {
+    if (!form) {
       this.selected.set(null);
       this.slugInput.set('');
       this.titleInput.set('');
       this.builderDocument.set(JSON.stringify({ items: [blankSection()] }, null, 2));
+      this.setTab('builder');
+      return;
     }
-    this.setTab('builder');
+    // The list payload omits the document — fetch the full definition so the
+    // builder never shows (or worse, saves over) an empty items array.
+    this.api.get(form.id).subscribe({
+      next: (result) => {
+        const full = result.data ?? form;
+        this.selected.set(full);
+        this.slugInput.set(full.slug);
+        this.titleInput.set(full.title_text ?? '');
+        this.builderDocument.set(JSON.stringify(full.document ?? { items: [] }, null, 2));
+        this.setTab('builder');
+      },
+      error: () => this.error.set('PLUGIN_FORM_ERROR_LOAD'),
+    });
   }
 
   save(): void {

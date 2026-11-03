@@ -12,7 +12,7 @@ import java.util.UUID;
 public record FormDefinitionDto(
         UUID id,
         String slug,
-        String title,
+        String titleText,
         String description,
         Map<String, Object> document,
         Map<String, Object> entityMapping,

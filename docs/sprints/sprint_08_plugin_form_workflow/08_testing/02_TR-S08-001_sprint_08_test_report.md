@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TR-S08-001 / Báo cáo kiểm thử / Sprint 08 |
-| Trạng thái / phiên bản / cập nhật | Reviewed-ready / 1.1 / 2026-11-02 — **chờ chủ dự án review**; BUG-177/178 đã sửa + xác nhận trên browser (desktop + mobile); security negative PASS |
+| Trạng thái / phiên bản / cập nhật | Reviewed-ready / 1.2 / 2026-11-03 — **chờ chủ dự án review**; toàn bộ màn hình đã test qua browser (§6b); BUG-177/178/180 đã sửa + verify; BUG-179/182 ghi nhận |
 | Owner / reviewer | QA Agent / Chủ dự án (người review) |
 | Đầu vào | [TP-S08-001](01_TP-S08-001_sprint_08_test_plan.md), baseline working tree 2026-11-02 (commit `afcfdd92` + QA fix loop) |
 | Đọc trước / đọc tiếp | [TP-S08-001](01_TP-S08-001_sprint_08_test_plan.md) / [00_READING_GUIDE](../00_READING_GUIDE.md) |
@@ -85,6 +85,41 @@ Event log đối chiếu DB: `plugin_events` → `plugin_event_deliveries` DELIV
 
 **BUG-178 (contrast) — ĐÃ SỬA & verify:** Public HTML có `color-scheme: light dark` + thiếu text color → headless/dark UA render chữ trắng trên nền xám. Fix: ép `color-scheme: light` + `color: #1c1917` toàn trang; `styles.css` của plugin bỏ var-fallback, dùng màu tắt đậm; public page nạp `styles.css` qua runtime gateway (trước đây styles.css không được load ở trang public).
 
+## 6b. TC-B mở rộng — Ma trận màn hình đã test (browser walkthrough đăng nhập thật)
+
+Môi trường: Chrome qua agent-browser, host `localhost:4200`, tenant `qa-s08-mvzantur` (TENANT_ADMIN), plugins: form 1.0.8 + workflow 1.0.13 + employee 1.2.2. Stack `npm run dev` — một lần chết trước đó do backend OOM (Exit 137) sau áp lực container, đã restart sạch.
+
+| # | Màn hình | Đã test | Kết quả | Evidence |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | Login + workspace | Đăng nhập bằng form UI (email/mật khẩu), chuyển hướng đúng workspace | ✅ | `browser_01_login_workspace.png` |
+| 2 | `/apps/form` — tab Biểu mẫu | Bảng form: slug/tiêu đề/trạng thái/version; nút Mở, Tạo biểu mẫu | ✅ | `browser_02_form_tab_forms.png` |
+| 3 | `/apps/form` — tab Thiết kế (builder) | Mở form PUBLISHED: slug + **title + document JSON đầy đủ** (sau fix BUG-181); nút Lưu/Phát hành/Đóng thu | ✅ | `browser_03_form_tab_builder_fixed.png` |
+| 4 | `/apps/form` — tab Câu trả lời | Bảng responses: 4 lượt (browser submit + E2E), answers JSON, entity_write, version | ✅ | `browser_04_form_tab_responses.png` |
+| 5 | `/apps/form` — tab Tổng hợp | Summary per-question | ✅ | `browser_05_form_tab_summary.png` |
+| 6 | `/apps/workflow` — tab Việc của tôi | Inbox: 2 task triage PENDING từ instance EVENT; mở drawer duyệt | ✅ | `browser_06_workflow_inbox.png` |
+| 7 | Drawer xử lý task | Textbox Ý kiến + nút Đồng ý/Từ chối/Nhận việc/Đóng | ✅ | `browser_07_workflow_approve_drawer.png` |
+| 8 | **Duyệt task qua UI** | Điền ý kiến + Đồng ý → task COMPLETED → instance COMPLETED APPROVED | ✅ | `browser_09_workflow_approve_ui_success.png` |
+| 9 | `/apps/workflow` — tab Lượt chạy | 4 instance: 2 COMPLETED APPROVED + 2 RUNNING; trigger EVENT/API hiển thị | ✅ | `browser_10_workflow_run_timeline.png` |
+| 10 | Public fill desktop | Điền + submit + màn cảm ơn i18n | ✅ | `browser_public_*_bugfix.png` |
+| 11 | Public fill mobile 390×844 | Không tràn ngang, contrast AA | ✅ | `browser_public_fill_mobile_bugfix.png` |
+
+Console: 0 lỗi console trên toàn bộ màn hình (chỉ vite debug noise của ng serve).
+
+### Bugs phát hiện trong walkthrough (đã sửa hoặc ghi nhận)
+
+| # | Bug | Mức | Trạng thái |
+| :--- | :--- | :--- | :--- |
+| BUG-181 | **Mở form từ danh sách nạp builder rỗng** (list payload không có document + DTO `title` ≠ model `title_text`) — admin bấm Lưu sẽ **xóa sổ document PUBLISHED** | HIGH | **Đã sửa**: `openBuilder` fetch full definition qua GET trước khi render; DTO đổi `titleText` (snake `title_text`); verify: builder nạp đủ items |
+| BUG-180 | Workflow WC đọc `context.userId` (host không có field này) → nút Đồng ý/Từ chối silently no-op | MEDIUM | **Đã sửa**: đọc `context.user.id`; verify: duyệt qua UI hoàn tất instance COMPLETED APPROVED |
+| BUG-179 | Core JWT hết hạn 15 phút giữa phiên → mọi API 401 `UNAUTHORIZED` mà không redirect về login (host-wide, ảnh hưởng mọi plugin) | MEDIUM | Ghi nhận — workaround: đăng nhập lại; đề xuất shared ApiService thêm 401-redirect-to-login (host-wide, sprint sau) |
+| BUG-182 | Sidebar host hiển thị key `PLUGIN_FORM_MENU`/`PLUGIN_WORKFLOW_MENU` thay vì bản dịch — web-dev container copy i18n lúc build, file merge sau đó không propagate vào container | LOW | Ghi nhận — chỉ env dev (rebuild web-dev image sẽ hết); production build chứa đủ keys |
+
+### Plugins đã nâng cấp trong walkthrough
+
+- form **1.0.8** (BUG-181 fix) — upgrade qua `POST /tenant/plugins/form/upgrade {target_version}` → container mới ACTIVE
+- workflow **1.0.13** (BUG-180 fix) — upgrade tương tự → ACTIVE
+- employee 1.2.2 giữ nguyên
+
 ## 7. Chưa chạy / giới hạn
 
 1. **Khởi tạo instance song song (fork/join)** và **VOTE_RATIO/countersign** có unit test (engine thuần) nhưng chưa có E2E riêng — đề xuất bổ sung khi có nghiệp vụ thật dùng đến.
@@ -93,4 +128,6 @@ Event log đối chiếu DB: `plugin_events` → `plugin_event_deliveries` DELIV
 
 ## 8. Kết luận
 
-**QA PASS**: 322 test tổng (13 unit + 309 backend integration + 22 E2E runtime + 5 security + browser dual-mode), toàn bộ chuỗi giá trị Sprint 08 chạy được trên runtime thật: **form public → event hub → workflow engine → duyệt nhiều bước → instance hoàn tất**, và **employee change-request chạy trên engine dùng chung**. 9 bug phát hiện trong QA đã sửa và tái kiểm chứng (7 High/Medium tại §3 + BUG-177/178 tại §6 — cả 2 đã verify trên browser desktop + mobile). **Không còn item nào chặn QA sign-off** — chờ chủ dự án review báo cáo này.
+**QA PASS**: toàn bộ nhóm test xanh — 13 unit + 278 core + 31 plugin + 22 E2E runtime + 5 security + browser walkthrough 11 màn hình (đăng nhập thật, cả desktop lẫn mobile). Chuỗi giá trị Sprint 08 chạy được end-to-end trên runtime thật: **form public → event hub → workflow engine → duyệt qua UI → instance COMPLETED APPROVED**, và **employee change-request chạy trên engine dùng chung**.
+
+**Tổng cộng 11 bug phát hiện trong QA**: 9 đã sửa + verify (BUG-177/178/180/181 + 5 bug nền tảng ở §3), 2 ghi nhận không chặn (BUG-179 MEDIUM host-wide — đề xuất sprint sau; BUG-182 LOW dev-env). **Không còn item chặn QA sign-off** — chờ chủ dự án review báo cáo này.

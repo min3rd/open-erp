@@ -20,6 +20,7 @@ interface PluginContext {
   theme?: string;
   language?: string;
   permissions?: string[];
+  user?: { id: string; name: string; email: string } | null;
   userId?: string;
   notify?: (message: string) => void;
 }
@@ -99,7 +100,7 @@ export class WorkflowScreenComponent implements OnInit {
 
   act(action: 'APPROVE' | 'REJECT' | 'CLAIM'): void {
     const task = this.selectedTask();
-    const userId = this.context?.userId;
+    const userId = this.context?.user?.id;
     if (!task || !userId) {
       this.error.set('PLUGIN_WORKFLOW_ERROR_NO_USER');
       return;
