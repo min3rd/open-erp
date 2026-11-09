@@ -1196,7 +1196,7 @@
         (valueChange)="patchDraft({ description: $event })"
       />
     </div>
-    <div drawer-footer class="flex justify-end gap-2 border-t border-default bg-surface p-3">
+    <div drawer-footer class="flex items-center gap-2">
       <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="closeFormDrawer()">
         {{ 'COMMON_CANCEL' | translate }}
       </app-sharp-button>
@@ -1241,7 +1241,7 @@
         </div>
       }
     </div>
-    <div drawer-footer class="flex justify-end gap-2 border-t border-default bg-surface p-3">
+    <div drawer-footer class="flex items-center gap-2">
       <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="publishOpen.set(false)">
         {{ 'COMMON_CANCEL' | translate }}
       </app-sharp-button>
@@ -1286,7 +1286,7 @@
         </div>
       }
     </div>
-    <div drawer-footer class="flex justify-end border-t border-default bg-surface p-3">
+    <div drawer-footer class="flex items-center">
       <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="previewOpen.set(false)">
         {{ 'COMMON_CLOSE' | translate }}
       </app-sharp-button>
