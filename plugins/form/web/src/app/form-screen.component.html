@@ -648,22 +648,24 @@
                                     </div>
                                   }
                                   @case ('MATRIX') {
-                                    <div class="overflow-x-auto border border-default">
+                                    <div class="overflow-x-auto border border-default bg-surface">
                                       <table class="w-full border-collapse text-[10px]">
                                         <thead class="bg-surface-muted">
                                           <tr>
-                                            <th class="border border-default px-1 py-0.5 text-start"></th>
-                                            @for (col of entry.item.columns ?? []; track col) {
-                                              <th class="border border-default px-1 py-0.5 text-center">{{ col }}</th>
+                                            <th class="border border-default px-2 py-1 text-start font-medium text-muted"></th>
+                                            @for (col of (entry.item.columns && entry.item.columns.length ? entry.item.columns : [('PLUGIN_FORM_MATRIX_COLUMN_DEFAULT' | translate) + ' 1', ('PLUGIN_FORM_MATRIX_COLUMN_DEFAULT' | translate) + ' 2']); track col) {
+                                              <th class="border border-default px-2 py-1 text-center font-medium">{{ col }}</th>
                                             }
                                           </tr>
                                         </thead>
                                         <tbody>
-                                          @for (row of entry.item.rows ?? []; track row) {
-                                            <tr>
-                                              <td class="border border-default px-1 py-0.5">{{ row }}</td>
-                                              @for (col of entry.item.columns ?? []; track col) {
-                                                <td class="border border-default px-1 py-0.5 text-center">○</td>
+                                          @for (row of (entry.item.rows && entry.item.rows.length ? entry.item.rows : [('PLUGIN_FORM_MATRIX_ROW_DEFAULT' | translate) + ' 1', ('PLUGIN_FORM_MATRIX_ROW_DEFAULT' | translate) + ' 2']); track row) {
+                                            <tr class="hover:bg-surface-muted/50">
+                                              <td class="border border-default px-2 py-1 font-medium">{{ row }}</td>
+                                              @for (col of (entry.item.columns && entry.item.columns.length ? entry.item.columns : [('PLUGIN_FORM_MATRIX_COLUMN_DEFAULT' | translate) + ' 1', ('PLUGIN_FORM_MATRIX_COLUMN_DEFAULT' | translate) + ' 2']); track col) {
+                                                <td class="border border-default px-2 py-1 text-center text-muted">
+                                                  <input type="radio" [disabled]="true" class="h-3 w-3 accent-accent cursor-not-allowed" />
+                                                </td>
                                               }
                                             </tr>
                                           }
@@ -1279,7 +1281,76 @@
                     <span class="text-red-600">*</span>
                   }
                 </p>
-                <app-sharp-input [placeholder]="entry.item.placeholder || ''" [disabled]="true" />
+                @switch (entry.item.type) {
+                  @case ('LONG_TEXT') {
+                    <app-sharp-textarea [rows]="2" [placeholder]="entry.item.placeholder || ''" [disabled]="true" />
+                  }
+                  @case ('SINGLE_CHOICE') {
+                    <div class="space-y-1">
+                      @for (opt of entry.item.options ?? []; track $index) {
+                        <div class="flex items-center gap-2 border border-default bg-surface px-2 py-1 text-[11px]">
+                          <input type="radio" [disabled]="true" />
+                          <span>{{ opt.label || opt.value }}</span>
+                        </div>
+                      }
+                    </div>
+                  }
+                  @case ('MULTI_CHOICE') {
+                    <div class="space-y-1">
+                      @for (opt of entry.item.options ?? []; track $index) {
+                        <div class="flex items-center gap-2 border border-default bg-surface px-2 py-1 text-[11px]">
+                          <input type="checkbox" [disabled]="true" />
+                          <span>{{ opt.label || opt.value }}</span>
+                        </div>
+                      }
+                    </div>
+                  }
+                  @case ('DROPDOWN') {
+                    <div class="border border-default bg-surface px-2 py-1.5 text-[11px] text-muted">
+                      ▾ {{ (entry.item.options?.[0]?.label || entry.item.options?.[0]?.value) ?? ('COMMON_SELECT' | translate) }}
+                    </div>
+                  }
+                  @case ('RATING') {
+                    <div class="flex items-center gap-1 text-base text-accent">
+                      <span>★ ★ ★ ★ ☆</span>
+                      <span class="ms-1 font-mono text-[10px] text-muted">({{ entry.item.grading?.points ?? 5 }} pts)</span>
+                    </div>
+                  }
+                  @case ('MATRIX') {
+                    <div class="overflow-x-auto border border-default bg-surface">
+                      <table class="w-full border-collapse text-[10px]">
+                        <thead class="bg-surface-muted">
+                          <tr>
+                            <th class="border border-default px-2 py-1 text-start font-medium text-muted"></th>
+                            @for (col of (entry.item.columns && entry.item.columns.length ? entry.item.columns : [('PLUGIN_FORM_MATRIX_COLUMN_DEFAULT' | translate) + ' 1', ('PLUGIN_FORM_MATRIX_COLUMN_DEFAULT' | translate) + ' 2']); track col) {
+                              <th class="border border-default px-2 py-1 text-center font-medium">{{ col }}</th>
+                            }
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (row of (entry.item.rows && entry.item.rows.length ? entry.item.rows : [('PLUGIN_FORM_MATRIX_ROW_DEFAULT' | translate) + ' 1', ('PLUGIN_FORM_MATRIX_ROW_DEFAULT' | translate) + ' 2']); track row) {
+                            <tr class="hover:bg-surface-muted/50">
+                              <td class="border border-default px-2 py-1 font-medium">{{ row }}</td>
+                              @for (col of (entry.item.columns && entry.item.columns.length ? entry.item.columns : [('PLUGIN_FORM_MATRIX_COLUMN_DEFAULT' | translate) + ' 1', ('PLUGIN_FORM_MATRIX_COLUMN_DEFAULT' | translate) + ' 2']); track col) {
+                                <td class="border border-default px-2 py-1 text-center text-muted">
+                                  <input type="radio" [disabled]="true" class="h-3 w-3 accent-accent cursor-not-allowed" />
+                                </td>
+                              }
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
+                  @case ('FILE_UPLOAD') {
+                    <div class="border border-dashed border-default bg-surface-muted px-2 py-2 text-center text-[10px] text-muted">
+                      {{ 'PLUGIN_FORM_FILE_PREVIEW' | translate }} (≤{{ entry.item.file_limits?.max_files ?? 3 }} files · {{ entry.item.file_limits?.max_size_mb ?? 10 }}MB)
+                    </div>
+                  }
+                  @default {
+                    <app-sharp-input [placeholder]="entry.item.placeholder || ''" [disabled]="true" />
+                  }
+                }
               </div>
             }
           </div>

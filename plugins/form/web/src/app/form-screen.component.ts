@@ -1037,6 +1037,41 @@ export class FormScreenComponent implements OnInit {
     const next = [...this.items()];
     const current = next[index];
     const updated = { ...current, ...patch };
+
+    // When switching type to MATRIX, ensure default rows and columns exist if empty
+    if (patch.type === 'MATRIX') {
+      if (!updated.rows || updated.rows.length === 0) {
+        updated.rows = [
+          `${this.i18n.t('PLUGIN_FORM_MATRIX_ROW_DEFAULT')} 1`,
+          `${this.i18n.t('PLUGIN_FORM_MATRIX_ROW_DEFAULT')} 2`,
+        ];
+      }
+      if (!updated.columns || updated.columns.length === 0) {
+        updated.columns = [
+          `${this.i18n.t('PLUGIN_FORM_MATRIX_COLUMN_DEFAULT')} 1`,
+          `${this.i18n.t('PLUGIN_FORM_MATRIX_COLUMN_DEFAULT')} 2`,
+        ];
+      }
+      if (!updated.col_span || updated.col_span < 2) {
+        updated.col_span = 2;
+      }
+    } else if (patch.type && CHOICE_TYPES.includes(patch.type as FormItemType)) {
+      if (!updated.options || updated.options.length === 0) {
+        updated.options = [
+          { value: 'option_1', label: `${this.i18n.t('PLUGIN_FORM_OPTION_DEFAULT')} 1` },
+          { value: 'option_2', label: `${this.i18n.t('PLUGIN_FORM_OPTION_DEFAULT')} 2` },
+        ];
+      }
+    } else if (patch.type === 'FILE_UPLOAD') {
+      if (!updated.file_limits) {
+        updated.file_limits = { max_files: 3, max_size_mb: 10 };
+      }
+    } else if (patch.type === 'RATING') {
+      if (!updated.grading) {
+        updated.grading = { points: 5, correct: [] };
+      }
+    }
+
     next[index] = updated;
     this.items.set(next);
     this.dirty.set(true);
