@@ -19,7 +19,7 @@ QA/QC Agent chịu trách nhiệm kiểm thử và đảm bảo chất lượng 
      - **Safe-area Insets**: Đảm bảo khoảng đệm trên/dưới bảo vệ nội dung khỏi tai thỏ, dynamic island và thanh điều hướng ảo.
      - **Side Menu & Điều hướng**: Nút menu mở `ion-menu` mượt mà, tự đóng khi chọn mục; điều hướng `NavController` (forward/back/root) giữ đúng lịch sử và không giật trang.
    - **Ràng Buộc Zero Console Errors**: 100% các màn hình kiểm thử không được có lỗi JavaScript console (`console.error`).
-   - **Phương Thức Tự Động Hóa**: Sử dụng Browser Subagent, Chrome DevTools hoặc script tự động (Puppeteer/Playwright headless/browser) để duyệt qua toàn bộ kịch bản nghiệm thu và chụp ảnh minh chứng cho báo cáo kiểm thử cùng Hướng dẫn sử dụng (`docs/06_user_guides/`).
+   - **Phương Thức Tự Động Hóa**: Sử dụng CLI chuyên biệt agent-browser (kiểm thử trình duyệt web, snapshot accessibility -i, click/fill qua @eN, set viewport Desktop/Mobile, chụp ảnh) và agent-desktop (kiểm thử ứng dụng native trên máy tính, tương tác cửa sổ hệ điều hành và accessibility native) hoặc script tự động để duyệt qua toàn bộ kịch bản nghiệm thu và chụp ảnh minh chứng cho báo cáo kiểm thử cùng Hướng dẫn sử dụng (`docs/06_user_guides/`).
 4. **Quản Lý Lỗi (Bug Reporting)**:
    - Khi phát hiện lỗi, tạo ngay file `07_items/BUG-xxx_<tên_lỗi>.md` có ID, mức độ ưu tiên (`Critical`, `High`, `Medium`, `Low`), các bước tái hiện (Steps to Reproduce), kết quả mong muốn vs thực tế, và gán cho Developer Agent sửa lỗi.
 5. **Tổng Kết Báo Cáo Kiểm Thử**:
