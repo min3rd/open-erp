@@ -24,5 +24,6 @@ Thư mục này chứa toàn bộ các tài liệu hướng dẫn sử dụng d�
 | **2** | **UG-02** | [Sprint 02 - Super Admin, Phân quyền chức năng & Phân quyền dữ liệu](sprint_02_superadmin_rbac_user_guide.md) | [`assets/sprint_02_superadmin_rbac/`](assets/sprint_02_superadmin_rbac/) (27 ảnh) |
 | **3** | **UG-03** | [Sprint 03 - Plugin Manager, Marketplace & Plugin Host](sprint_03_plugin_manager_user_guide.md) | [`assets/sprint_03_plugin_manager/`](assets/sprint_03_plugin_manager/) (21 ảnh) |
 | **6** | **UG-06** | [Sprint 06 - Plugin UI extension & Catalog Web Component](sprint_06_plugin_ui_extension_user_guide.md) | [`assets/sprint_06/`](assets/sprint_06/) (13 ảnh desktop + mobile) |
+| **8** | **UG-08** | [Sprint 08 - Biểu mẫu động (Form Builder) & Quy trình phê duyệt (Workflow Engine)](sprint_08_form_workflow_user_guide.md) | [`assets/sprint_08/`](assets/sprint_08/) (12 ảnh desktop + mobile) |
 
 > Các Sprint tiếp theo sẽ được bổ sung với tiền tố `sprint_04_`, `sprint_05_`... để giữ đúng thứ tự đọc tuần tự.

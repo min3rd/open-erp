@@ -1,76 +1,18 @@
-:host {
-  display: block;
-  color: var(--op-text, #171717);
-  font-size: 13px;
-}
+@import '../../../../src/frontend/web/src/styles.css';
 
-.op-card {
-  background: var(--op-surface, #ffffff);
-  border: 1px solid var(--op-border, #e5e5e5);
-  padding: 8px;
-  margin-bottom: 8px;
-}
+/* Plugin-owned Tailwind entry: scan this plugin's sources only. Shared UI is
+   scanned by the imported core entry; the core never scans plugin paths. */
+@source './';
 
-.op-input,
-.op-select,
-.op-textarea {
-  width: 100%;
-  border: 1px solid var(--op-border, #d4d4d4);
-  padding: 4px 6px;
-  font-size: 12px;
-  background: var(--op-surface, #fff);
-  color: inherit;
+/* Workflow run timeline connector */
+.op-wf-timeline {
+  position: relative;
 }
-
-.op-btn {
-  border: 1px solid var(--op-border, #d4d4d4);
-  background: var(--op-surface, #fff);
-  padding: 4px 10px;
-  font-size: 12px;
-  cursor: pointer;
-  color: inherit;
-}
-
-.op-btn--primary {
-  background: var(--op-primary, #171717);
-  color: #fff;
-  border-color: var(--op-primary, #171717);
-}
-
-.op-btn--danger {
-  border-color: #b91c1c;
-  color: #b91c1c;
-}
-
-.op-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-
-.op-table th,
-.op-table td {
-  border: 1px solid var(--op-border, #e5e5e5);
-  padding: 3px 6px;
-  text-align: left;
-}
-
-.op-badge {
-  display: inline-block;
-  border: 1px solid var(--op-border, #d4d4d4);
-  padding: 0 6px;
-  font-size: 11px;
-}
-
-.op-overdue {
-  border-color: #b91c1c;
-  color: #b91c1c;
-}
-
-.op-timeline {
-  list-style: none;
-  margin: 4px 0;
-  padding: 0 0 0 10px;
-  border-left: 2px solid var(--op-border, #e5e5e5);
-  font-size: 12px;
+.op-wf-timeline::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 11px;
+  width: 1px;
+  background: var(--op-border);
 }

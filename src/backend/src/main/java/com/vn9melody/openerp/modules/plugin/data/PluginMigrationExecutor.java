@@ -184,11 +184,26 @@ public class PluginMigrationExecutor {
     /** Reads the declared migration files from the mounted plugin migration directory. */
     private Map<String, byte[]> readDirectory(String pluginKey, List<String> wanted) {
         String root = migrationsDir.orElse("").trim();
-        if (root.isEmpty()) {
+        Path base = null;
+        if (!root.isEmpty()) {
+            Path candidate = Path.of(root, pluginKey).toAbsolutePath().normalize();
+            if (Files.isDirectory(candidate)) {
+                base = candidate;
+            }
+        }
+        if (base == null) {
+            Path candidate1 = Path.of("plugins", pluginKey, "migrations").toAbsolutePath().normalize();
+            Path candidate2 = Path.of("..", "..", "plugins", pluginKey, "migrations").toAbsolutePath().normalize();
+            if (Files.isDirectory(candidate1)) {
+                base = candidate1;
+            } else if (Files.isDirectory(candidate2)) {
+                base = candidate2;
+            }
+        }
+        if (base == null) {
             throw new PluginDataException(PluginDataException.Code.INVALID_QUERY,
                     "PLUGIN_DATA_MIGRATION_BUNDLE_MISSING");
         }
-        Path base = Path.of(root, pluginKey).toAbsolutePath().normalize();
         Map<String, byte[]> files = new HashMap<>();
         for (String name : wanted) {
             Path file = base.resolve(name).normalize();

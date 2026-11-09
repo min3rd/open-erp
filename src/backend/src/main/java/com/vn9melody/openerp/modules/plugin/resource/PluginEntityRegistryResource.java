@@ -36,4 +36,23 @@ public class PluginEntityRegistryResource {
         return ApiResponse.success("PLUGIN_ENTITY_REGISTRY_SUCCESS",
                 "Entity registry entry retrieved.", dto);
     }
+
+    @GET
+    @Path("/list")
+    @RequirePermission("core:plugin:read")
+    public jakarta.ws.rs.core.Response listAll() {
+        java.util.List<PluginResponses.EntityRegistryEntry> items = entityRegistryService.listAll().stream()
+                .map(found -> {
+                    PluginResponses.EntityRegistryEntry dto = new PluginResponses.EntityRegistryEntry();
+                    dto.pluginId = found.pluginId();
+                    dto.entityName = found.entityName();
+                    dto.table = found.table();
+                    dto.storageType = found.storageType();
+                    dto.schemaDefinition = found.schemaDefinition();
+                    return dto;
+                })
+                .toList();
+        return jakarta.ws.rs.core.Response.ok(ApiResponse.successList("PLUGIN_ENTITY_REGISTRY_LIST_SUCCESS",
+                "Entity registry list retrieved.", items)).build();
+    }
 }

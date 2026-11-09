@@ -47,10 +47,7 @@ public class EntityRegistryServiceTest {
         // core-organization entities to the org plugin: clear stale rows from
         // earlier runs so the core count reflects the current Jandex scan.
         entityManager.createNativeQuery(
-                "DELETE FROM sys_entity_registry WHERE plugin_id = 'catalog'")
-            .executeUpdate();
-        entityManager.createNativeQuery(
-                "DELETE FROM sys_entity_registry WHERE plugin_id = 'core-organization'")
+                "DELETE FROM sys_entity_registry WHERE plugin_id IN ('catalog', 'core-organization', 'org-structure', 'employee', 'in-app-notification', 'form', 'workflow')")
             .executeUpdate();
         List<Object[]> rows = registryRows();
         Assertions.assertEquals(21, rows.size(), "Phải đăng ký đúng 21 entity core (12 core-iam + 3 platform + 1 core + 5 plugin manager); organization entity thuộc plugin org-structure, catalog do plugin tự đăng ký");

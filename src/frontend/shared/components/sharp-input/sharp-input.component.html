@@ -18,6 +18,7 @@
     [placeholder]="placeholder()"
     [disabled]="disabled()"
     [required]="required()"
+    [attr.list]="list() || null"
     [(ngModel)]="value"
     [ngModelOptions]="{ standalone: true }"
     class="h-8 w-full px-2.5 py-1.5 text-xs bg-surface border rounded-control text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent transition-colors"

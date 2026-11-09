@@ -1,137 +1,15 @@
-:host {
-  display: block;
-  color: #1c1917;
-  font-size: 13px;
-  color-scheme: light;
+@import '../../../../src/frontend/web/src/styles.css';
+
+/* Plugin-owned Tailwind entry: scan this plugin's sources only. Shared UI is
+   scanned by the imported core entry; the core never scans plugin paths. */
+@source './';
+
+/* Form builder outline drag state (native HTML5 drag) */
+.op-form-drag-over {
+  outline: 1px dashed var(--op-accent);
+  outline-offset: -1px;
 }
 
-.op-fill,
-.op-form-root {
-  color: #1c1917;
-}
-
-.op-card {
-  background: #ffffff;
-  border: 1px solid #e5e5e5;
-  padding: 8px;
-  margin-bottom: 8px;
-}
-
-.op-fill-done h2 {
-  color: #15803d;
-}
-
-.op-section {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1c1917;
-  margin: 12px 0 4px;
-}
-
-.op-question {
-  margin: 10px 0;
-}
-
-.op-label {
-  display: block;
-  font-weight: 600;
-  color: #1c1917;
-  margin-bottom: 4px;
-}
-
-.op-required {
-  color: #b91c1c;
-}
-
-.op-choice {
-  display: block;
-  color: #1c1917;
-  margin: 4px 0;
-}
-
-.op-row {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  margin-top: 8px;
-  flex-wrap: wrap;
-}
-
-.op-hint {
-  color: #57534e;
-  font-size: 12px;
-}
-
-.op-error {
-  color: #b91c1c;
-  font-size: 12px;
-}
-
-.op-monospace {
-  font-family: ui-monospace, monospace;
-}
-
-.op-input,
-.op-select,
-.op-textarea {
-  width: 100%;
-  border: 1px solid #d4d4d4;
-  padding: 4px 6px;
-  font-size: 13px;
-  background: #ffffff;
-  color: #1c1917;
-  box-sizing: border-box;
-}
-
-.op-btn {
-  border: 1px solid #d4d4d4;
-  background: #ffffff;
-  padding: 4px 10px;
-  font-size: 12px;
-  cursor: pointer;
-  color: #1c1917;
-}
-
-.op-btn--primary {
-  background: #171717;
-  color: #ffffff;
-  border-color: #171717;
-}
-
-.op-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-
-.op-table th,
-.op-table td {
-  border: 1px solid #e5e5e5;
-  padding: 3px 6px;
-  text-align: left;
-  color: #1c1917;
-}
-
-.op-badge {
-  display: inline-block;
-  border: 1px solid #d4d4d4;
-  padding: 0 6px;
-  font-size: 11px;
-  color: #1c1917;
-}
-
-.op-tabs {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 8px;
-}
-
-.op-split {
-  display: grid;
-  grid-template-columns: minmax(280px, 5fr) 7fr;
-  gap: 8px;
-}
-
-.op-grow {
-  grid-column: auto;
+.op-form-dragging {
+  opacity: 0.5;
 }

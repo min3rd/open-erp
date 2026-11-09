@@ -2,7 +2,7 @@
   "schema_version": "2.0",
   "id": "workflow",
   "name": "Workflow Engine",
-  "description": "Táº¡o vÃ  xá»­ lÃ½ cÃ´ng viá»‡c theo luá»“ng: Ä‘á»‹nh nghÄ©a versioned, Ä‘iá»u kiá»‡n ráº½ nhÃ¡nh, bÆ°á»›c song song, phÃª duyá»‡t nhiá»u cháº¿ Ä‘á»™, task inbox, SLA, audit, webhook.",
+  "description": "Tạo và xử lý công việc theo luồng: định nghĩa versioned, điều kiện rẽ nhánh, bước song song, phê duyệt nhiều chế độ, task inbox, SLA, audit, webhook.",
   "version": "1.0.13",
   "template_version": "2.0.0",
   "author": "Open-ERP Plugin Team",
@@ -522,6 +522,7 @@
         "key",
         "version",
         "status",
+        "document",
         "created_by",
         "created_at",
         "published_at"
@@ -1316,8 +1317,7 @@
     "screens": [
       {
         "route": "/apps/workflow",
-        "title_key": "PLUGIN_WORKFLOW_MENU",
-        "permission": "workflow:task:action",
+        "title_key": "PLUGIN_WORKFLOW_TITLE",
         "render_mode": "WEB_COMPONENT",
         "entry": "/plugins-runtime/workflow/main.js",
         "tag_name": "op-workflow-app",
@@ -1328,7 +1328,25 @@
         ]
       }
     ],
-    "contributions": [],
+    "contributions": [
+      {
+        "id": "workflow-my-tasks-item",
+        "slot": "core.layout.user-menu.items",
+        "title_key": "PLUGIN_WORKFLOW_MY_TASKS",
+        "render_mode": "WEB_COMPONENT",
+        "entry": "/plugins-runtime/workflow/main.js",
+        "tag_name": "op-workflow-menu-item",
+        "permission": "workflow:task:action",
+        "order": 20,
+        "contract_version": "1.0",
+        "platforms": [
+          "desktop",
+          "mobile"
+        ],
+        "isolation": "light",
+        "icon": "bell"
+      }
+    ],
     "slots": [],
     "crud": []
   },

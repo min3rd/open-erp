@@ -22,18 +22,27 @@ public class PublicFormPageResource {
             @PathParam("formSlug") String formSlug) {
         String safeTenant = tenantSlug.replaceAll("[^a-z0-9-]", "");
         String safeForm = formSlug.replaceAll("[^a-z0-9_-]", "");
+        // BUG-178: force light color-scheme + explicit text colors so dark-mode
+        // headless/user agents cannot wash out labels on the light background.
         return """
                 <!DOCTYPE html>
                 <html lang="vi">
                 <head>
                   <meta charset="utf-8" />
                   <meta name="viewport" content="width=device-width, initial-scale=1" />
+                  <meta name="color-scheme" content="light" />
                   <title>Form</title>
                   <style>
-                    :root { color-scheme: light dark; }
-                    body { margin: 0; font-family: system-ui, sans-serif; background: #f5f5f4; }
+                    :root { color-scheme: light; }
+                    html, body {
+                      margin: 0;
+                      background: #f5f5f4;
+                      color: #1c1917;
+                      font-family: system-ui, sans-serif;
+                      font-size: 14px;
+                    }
                     #fill { max-width: 720px; margin: 0 auto; padding: 16px; }
-                    #status { padding: 48px 16px; text-align: center; color: #525252; font-size: 14px; }
+                    #status { padding: 48px 16px; text-align: center; color: #44403c; font-size: 14px; }
                   </style>
                 </head>
                 <body>
@@ -53,6 +62,10 @@ public class PublicFormPageResource {
                         throw new Error(sessionBody.code || 'SESSION_FAILED');
                       }
                       const token = sessionBody.data.token;
+                      const link = document.createElement('link');
+                      link.rel = 'stylesheet';
+                      link.href = '/api/v1/plugins/runtime/form/styles.css?plugin_token=' + encodeURIComponent(token);
+                      document.head.appendChild(link);
                       const script = document.createElement('script');
                       script.type = 'module';
                       script.src = '/api/v1/plugins/runtime/form/main.js?plugin_token=' + encodeURIComponent(token);

@@ -15,6 +15,7 @@ export class SharpInputComponent {
   type = input<string>('text');
   placeholder = input<string>('');
   hint = input<string>('');
+  list = input<string>('');
   error = input<string | null>(null);
   disabled = input<boolean>(false);
   required = input<boolean>(false);

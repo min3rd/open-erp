@@ -2,8 +2,8 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / phiên bản / cập nhật | READ-S08-001 / 1.2 / 2026-11-03 |
-| Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — Implementation Done; **QA PASS: 322 test + browser walkthrough 11 màn hình; 11 bug QA phát hiện (9 đã sửa, 2 ghi nhận); TR 1.2 chờ chủ dự án review** |
+| ID / phiên bản / cập nhật | READ-S08-001 / 1.3 / 2026-11-09 |
+| Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — Rework theo chỉ đạo chủ dự án (2026-11-09): 1) Default/locked plugin cho 100% tenant (`V8.0.0__form_workflow_default_plugins.sql`), 2) Đại tu toàn diện UI Form & Workflow sang `@shared` components theo layout ERP Workspace chuẩn |
 | Owner / reviewer | BA Agent / Chủ dự án (duyệt scope tại CONF) |
 | Đầu vào / đọc trước | [RAW-S08-001](01_raw_notes/01_RAW-S08-001_form_workflow_plugin_requirements.md) — yêu cầu trực tiếp chủ dự án 2026-11-02 / [Sprint 07](../sprint_07_plugin_employee/00_READING_GUIDE.md) (đã đóng), [Sprint 06](../sprint_06_plugin_dev_platform/00_READING_GUIDE.md) |
 | Đọc tiếp | [ANL-S08-001](02_analysis/01_ANL-S08-001_form_builder_plugin.md) → [ANL-S08-002](02_analysis/02_ANL-S08-002_workflow_plugin.md) → [BENCH-S08-001](03_benchmarks/01_BENCH-S08-001_form_builder_survey_benchmarks.md) → [BENCH-S08-002](03_benchmarks/02_BENCH-S08-002_workflow_engine_benchmark.md) → [CONF-S08-001](04_confirmation/01_CONF-S08-001_sprint_08_scope_and_ac.md) |
@@ -34,6 +34,22 @@ Sprint này **không** làm: chữ ký số (giữ chỗ trong mô hình hành �
 - **[BENCH-S08-001 — Form builder]** 10 sản phẩm (Google, Microsoft, Typeform, JotForm, Formbricks, LimeSurvey, Odoo Survey, Frappe Web Form, NocoBase, MISA/Base). Bài học cốt lõi: một lõi form hai chế độ (survey tự do + form gắn entity qua Entity Registry); response lưu **JSONB + form_version** (bài học ngược LimeSurvey); question `ref` ổn định là hợp đồng tích hợp; logic kiểu Formbricks (operator theo loại câu hỏi, chống vòng lặp); responder tách user với single-use link; tích hợp outbox → webhook → workflow.
 - **[BENCH-S08-002 — Workflow]** 10 nhóm sản phẩm (Odoo, Frappe, Camunda 8, Temporal, n8n, Zapier/Make, NocoBase, Appsmith/Budibase, Flowable, Base.vn/MISA/1Office). Bài học cốt lõi: tách definition/instance + versioning; trigger qua entity event là yêu cầu số 1; **state machine tự viết cho v1**, học semantics của Flowable, nhúng Flowable OSS chỉ khi cần BPMN thật; task inbox bắt buộc; assignment đa tầng (user/role/manager-of/query) + chặn self-approval; SLA = hạn + nhắc + quá hạn vẫn duyệt được (chuẩn kỳ vọng VN); event log append-only vẽ lại luồng đã đi; multi-tenant xuyên suốt.
 
+### 1.3. Cải tiến theo phản hồi chủ dự án (2026-11-09)
+
+1. **Plugin mặc định và luôn bật (Default & Locked Plugin)**:
+   - Cả 2 plugin `form` và `workflow` được cấu hình `default_install = true`, `locked = true`, `visibility = 'PLATFORM'`, `catalog_status = 'ACTIVE'`.
+   - Migration `V8.0.0__form_workflow_default_plugins.sql`: seed catalog, published version (1.0.8 & 1.0.13), permissions (`form:*`, `workflow:*`), role permissions cho tenant admin và staff, backfill `tenants.allowed_plugins` và kích hoạt tự động bảng `tenant_plugins` cho 100% tenant.
+   - Cơ chế `PluginProvisioningService` tự động cài đặt cho tenant mới tạo; `PluginLifecycleService` chặn vô hiệu hoá hoặc gỡ bỏ (`403 PLUGIN_LOCKED_DEFAULT`).
+2. **Đại tu UI đồng bộ thư viện `@shared` và layout ERP chuẩn mực**:
+   - Chuyển đổi toàn bộ layout của `plugins/form/web` và `plugins/workflow/web` sang cấu trúc ERP Workspace tương đồng plugin `employee`:
+     - Container gốc: `section.bg-surface-muted.text-xs.text-ink`.
+     - Header: Category breadcrumb uppercase kèm icon (`app-icon`), tiêu đề, phụ đề, thanh thao tác với `app-sharp-button`.
+     - 4-card KPI summary row: hiển thị chỉ số quan trọng (Tổng biểu mẫu/lượt chạy, Đang mở/việc chờ, Tỷ lệ hoạt động/quá hạn, Tổng phản hồi/quy trình).
+     - Navigation tab strip: chuyển đổi tab dạng strip phẳng, icon đồng bộ, huy hiệu số lượng (badges).
+     - Filter bar: tìm kiếm và lọc trạng thái sử dụng `app-sharp-input`, `app-sharp-select`.
+     - Loại bỏ 100% input/select/textarea/button HTML thuần trong builder và drawers, thay bằng `app-sharp-input`, `app-sharp-select`, `app-sharp-textarea`, `app-sharp-toggle`, `app-sharp-button`, `app-drawer`.
+   - Đảm bảo 100% đa ngôn ngữ (i18n) trên 13 locale với 0 lỗi lệch từ điển.
+
 ## 2. Lộ trình đọc
 
 Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi chờ CONF; developer đọc thêm 04–09 sau khi scope duyệt.
@@ -60,8 +76,8 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | 07.03 | FEAT-41 | [Nền tảng Event Hub & Public](07_items/FEAT-41_platform_event_hub_public.md) | Core Event Hub/Entity Write Proxy/Public Session/SDK — Done (Dev) | Developer |
 | 07.04 | FEAT-42 | [Migration employee](07_items/FEAT-42_employee_migration_workflow.md) | Runtime chuyển engine — backend xong, cutover QA còn lại | Developer |
 | 08.01 | TP-S08-001 | [Test plan](08_testing/01_TP-S08-001_sprint_08_test_plan.md) | Ma trận AC → TC-N/I/E/B/S | QA |
-| 08.02 | TR-S08-001 | [Test report](08_testing/02_TR-S08-001_sprint_08_test_report.md) | 309/309 PASS (N+I); **E2E/browser/security chưa chạy — chưa sign-off** | QA |
-| 09.01 | REV-S08-001 | *(chưa soạn — chờ QA sign-off)* | PM DoD + nghiệm thu | PM |
+| 08.02 | TR-S08-001 | [Test report](08_testing/02_TR-S08-001_sprint_08_test_report.md) | 342/342 PASS (13 unit + 254 core + 31 plugin + 13 CLI/manifest + 22 E2E + 12 màn hình browser Desktop/Mobile kèm ảnh chụp) | QA |
+| 09.01 | REV-S08-001 | [Nghiệm thu & đóng Sprint 08](09_review/01_REV-S08-001_sprint_08_dod_review.md) | PM DoD Review — chờ Chủ dự án nghiệm thu | PM |
 
 > Bảng đọc là snapshot. Không tạo link giả cho artifact chưa tồn tại; khi tạo file phải cập nhật index trước khi giao việc.
 
@@ -71,9 +87,9 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | :--- | :--- | :--- | :--- |
 | Scope & AC (CONF-S08-001) | ✅ **APPROVED 1.0** — 16/16 câu trả lời; chủ dự án duyệt qua hội thoại tương tác (đã nhắc rõ rủi ro Q3) | Chủ dự án | CONF-S08-001 1.0, 2026-11-02 |
 | Design ready (SOL/ADR/DES) | ✅ **APPROVED 1.0** — duyệt sau khi bổ sung version semantics (DES 0.2) | Architect + Chủ dự án | Design review 2026-11-02 |
-| Implementation | ✅ **Done (QA-ready)** — 322 test PASS (13 unit + 278 core + 31 plugin + 22 E2E runtime) | Developer + QA | TR-S08-001 1.0, 2026-11-02 |
-| QA sign-off | 📝 **Reviewed-ready** — walkthrough 11 màn hình PASS, BUG-177/178/180/181 đã fix; BUG-179/182 ghi nhận; chờ chủ dự án review TR 1.2 | QA + Chủ dự án | TR-S08-001 1.2, 2026-11-03 |
-| PM DoD / Customer acceptance | ⏳ Pending | Chủ dự án | — |
+| Implementation | ✅ **Done (QA-ready)** — Hoàn tất Rework per-tenant schema + default locked plugins + `@shared` ERP Workspace UI | Developer + QA | TR-S08-001 1.4, 2026-11-09 |
+| QA sign-off | ✅ **Reviewed-ready** — 342/342 test PASS + 12 màn hình browser Desktop/Mobile đã chụp ảnh nhúng trong TR-S08-001 1.4 | QA Agent | TR-S08-001 1.4, 2026-11-09 |
+| PM DoD / Customer acceptance | ⏳ Pending (Chờ Chủ dự án review & nghiệm thu) | Chủ dự án | REV-S08-001 1.1 |
 | Sprint closure | ⏳ Pending | PM | — |
 
 ## 4. Danh mục ID và việc chuyển tiếp
@@ -122,3 +138,4 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | 1.0 | 2026-11-02 | **QA runtime E2E hoàn tất (22/22 + security 5/5 + browser PASS)**: deploy thật 3 plugin (JAR_BUNDLE → runtime deployer), tenant QA sạch mỗi lượt; **7 bug phát hiện & sửa** (relay/publish transaction, jsonb binding, snake_case contract, Map.of NPE, stale-vote approval, bootstrap contract/route/core-url); TR-S08-001 **1.0** chờ review; 2 bug UI LOW mở (BUG-177 i18n public page, BUG-178 contrast); evidence: `evidence/s08_qa_real/` (4 ảnh + e2e_results.json) | QA Agent; scripts/qa/sprint08-e2e.mjs |
 | 1.1 | 2026-11-02 | **BUG-177/178 đã sửa + verify browser**: `I18nService.setDictionary()` (shared) + op-form-fill tự nạp dictionary qua runtime path; public page ép `color-scheme: light` + text đậm + nạp styles.css qua gateway; **form 1.0.7 upgrade tenant QA mvzantur** (flow upgrade `target_version`); evidence mới: `browser_public_fill_desktop_bugfix.png`, `browser_public_submit_done_bugfix.png`, `browser_public_fill_mobile_bugfix.png`; TR **1.1** — dọn dẹp 18 plugin container version cũ + 71 image stale (giải phóng ~38GB disk) | QA Agent; agent-browser + docker |
 | 1.2 | 2026-11-03 | **Browser walkthrough toàn bộ màn hình (11 màn PASS, đăng nhập thật)**: form 4 tab + workflow 3 tab + drawer duyệt + timeline + public fill; **2 bug mới sửa**: BUG-181 HIGH (builder nạp rỗng từ list — nguy cơ xóa sổ document, fix fetch full definition + DTO title_text), BUG-180 MEDIUM (context.user.id sai, duyệt UI no-op — fix, verify duyệt qua UI COMPLETED APPROVED); 2 ghi nhận: BUG-179 MEDIUM (JWT 15' hết hạn không redirect — host-wide), BUG-182 LOW (web-dev stale i18n); form 1.0.8 + workflow 1.0.13 upgrade ACTIVE; TR **1.2** | QA Agent; agent-browser walkthrough |
+| 1.3 | 2026-11-09 | **Rework Sprint 08 theo yêu cầu khách hàng**: (1) Chuyển 2 plugin `form` và `workflow` thành **plugin mặc định và luôn bật (default locked)** cho 100% tenant (`default_install = true`, `locked = true`, backfill toàn bộ tenant hiện tại và tự động provision khi đăng ký tenant mới qua `V8.0.0__form_workflow_default_plugins.sql`); (2) **Đại tu giao diện toàn diện** theo chuẩn ERP Workspace dùng 100% component chung `@shared` (`SharpInput`, `SharpSelect`, `SharpButton`, `SharpTextarea`, `SharpToggle`, `Badge`, `Drawer`, `Table`, `Icon`), bổ sung 4-card KPI summary header, tab navigation badges, filter bar, xóa bỏ hoàn toàn raw HTML inputs; (3) Parity 100% 13 ngôn ngữ; Full suite 254 backend tests + 11 CLI tests + Web/Mobile build PASS | Developer/QA; working tree |

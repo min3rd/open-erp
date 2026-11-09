@@ -274,6 +274,11 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./plugins/catalog/migrations:/deploy/plugin-migrations/catalog:ro
+      - ./plugins/organization/migrations:/deploy/plugin-migrations/org-structure:ro
+      - ./plugins/employee/migrations:/deploy/plugin-migrations/employee:ro
+      - ./plugins/in-app-notification/migrations:/deploy/plugin-migrations/in-app-notification:ro
+      - ./plugins/form/migrations:/deploy/plugin-migrations/form:ro
+      - ./plugins/workflow/migrations:/deploy/plugin-migrations/workflow:ro
       - plugin_certs:/deploy/certs:ro
       - backend_storage:/tmp/openerp-object-storage
     # The socket is root:root 0660 on Docker Desktop; grant the dev user the

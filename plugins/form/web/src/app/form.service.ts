@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL, ApiResponse, ApiService, ListData } from '@shared';
-import { FormDefinition, FormResponse, FormSummary } from './form.model';
+import { EntityRegistryEntry, FormDefinition, FormResponse, FormSummary } from './form.model';
 
 @Injectable({ providedIn: 'root' })
 export class FormService {
@@ -67,6 +67,19 @@ export class FormService {
     return this.api.get<FormSummary>(this.url(`/api/v1/form/forms/${formId}/summary`));
   }
 
+  exportCsv(formId: string): Observable<Blob> {
+    return this.http.get(this.url(`/api/v1/form/forms/${formId}/responses/export`), {
+      responseType: 'blob',
+    });
+  }
+
+  listRegisteredEntities(): Observable<ApiResponse<ListData<EntityRegistryEntry>>> {
+    const base = this.runtimeOrigin() || this.staticBase || '';
+    return this.api.get<ListData<EntityRegistryEntry>>(
+      `${base}/api/v1/plugins/entity-registry/list`,
+    );
+  }
+
   // ---- Public (anonymous) fill surface -----------------------------
 
   publicView(slug: string, token: string): Observable<ApiResponse<Record<string, unknown>>> {
@@ -85,6 +98,22 @@ export class FormService {
     return this.http.post<ApiResponse<FormResponse>>(
       `${base}/api/v1/plugins/runtime/form/api/v1/form/public/forms/${slug}/responses?plugin_token=${encodeURIComponent(token)}`,
       payload,
+    );
+  }
+
+  publicUpload(
+    slug: string,
+    token: string,
+    file: File,
+  ): Observable<ApiResponse<{ file_id: string; url: string; original_name: string }>> {
+    const base = this.runtimeOrigin() || this.staticBase || '';
+    const body = new FormData();
+    body.append('file', file, file.name);
+    body.append('file_name', file.name);
+    body.append('content_type', file.type || 'application/octet-stream');
+    return this.http.post<ApiResponse<{ file_id: string; url: string; original_name: string }>>(
+      `${base}/api/v1/plugins/runtime/form/api/v1/form/public/forms/${slug}/files?plugin_token=${encodeURIComponent(token)}`,
+      body,
     );
   }
 }

@@ -2,7 +2,7 @@
   "schema_version": "2.0",
   "id": "form",
   "name": "Form Builder",
-  "description": "ThiÃ¡ÂºÂ¿t kÃ¡ÂºÂ¿ biÃ¡Â»Æ’u mÃ¡ÂºÂ«u kiÃ¡Â»Æ’u Google Forms: sections, nhiÃ¡Â»Âu loÃ¡ÂºÂ¡i cÃƒÂ¢u hÃ¡Â»Âi, skip logic, link public, thu vÃƒÂ  quÃ¡ÂºÂ£n lÃƒÂ½ response, map vÃƒÂ o entity.",
+  "description": "Thiết kế biểu mẫu kiểu Google Forms: sections, nhiều loại câu hỏi, skip logic, link public, thu và quản lý response, map vào entity.",
   "version": "1.0.8",
   "template_version": "2.0.0",
   "author": "Open-ERP Plugin Team",
@@ -932,8 +932,7 @@
     "screens": [
       {
         "route": "/apps/form",
-        "title_key": "PLUGIN_FORM_MENU",
-        "permission": "form:definition:manage",
+        "title_key": "PLUGIN_FORM_TITLE",
         "render_mode": "WEB_COMPONENT",
         "entry": "/plugins-runtime/form/main.js",
         "tag_name": "op-form-app",

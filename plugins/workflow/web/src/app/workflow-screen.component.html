@@ -1,190 +1,1196 @@
-<div class="op-workflow-root" [attr.data-theme]="context?.theme ?? ''">
-  <nav class="op-tabs">
-    <button type="button" class="op-btn" (click)="setTab('inbox')">{{ 'PLUGIN_WORKFLOW_TAB_INBOX' | translate }}</button>
-    <button type="button" class="op-btn" (click)="setTab('flows')">{{ 'PLUGIN_WORKFLOW_TAB_FLOWS' | translate }}</button>
-    <button type="button" class="op-btn" (click)="setTab('runs')">{{ 'PLUGIN_WORKFLOW_TAB_RUNS' | translate }}</button>
+<section class="flex min-h-full flex-col bg-surface-muted text-xs text-ink">
+  <!-- Workspace Header -->
+  <header class="border-b border-default bg-surface px-4 py-4 sm:px-6">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div class="min-w-0">
+        <div class="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted">
+          <app-icon name="grid" size="sm" [decorative]="true" />
+          <span>{{ 'PLUGIN_WORKFLOW_WORKSPACE' | translate }}</span>
+        </div>
+        <h1 class="mt-1 text-lg font-semibold tracking-tight text-ink">{{ 'PLUGIN_WORKFLOW_TITLE' | translate }}</h1>
+        <p class="mt-1 max-w-2xl text-xs leading-relaxed text-muted">{{ 'PLUGIN_WORKFLOW_SUBTITLE' | translate }}</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        @if (canManageFlows()) {
+          <app-sharp-button size="sm" shape="sharp" (clicked)="startCreateFlow()">
+            <span class="inline-flex items-center gap-1"><app-icon name="plus" size="sm" [decorative]="true" />{{ 'PLUGIN_WORKFLOW_NEW_FLOW' | translate }}</span>
+          </app-sharp-button>
+        }
+        <app-sharp-button variant="ghost" size="sm" shape="sharp" (clicked)="loadInbox(); loadFlows(); loadRuns()">
+          <span class="inline-flex items-center gap-1"><app-icon name="refresh-cw" size="sm" [decorative]="true" />{{ 'COMMON_REFRESH' | translate }}</span>
+        </app-sharp-button>
+      </div>
+    </div>
+
+    <!-- 4-Card KPI Row -->
+    <div class="mt-4 grid grid-cols-2 gap-2 xl:grid-cols-4">
+      <div class="border border-default bg-surface p-3">
+        <div class="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
+          <span>{{ 'PLUGIN_WORKFLOW_KPI_TOTAL' | translate }}</span>
+          <app-icon name="refresh-cw" size="sm" [decorative]="true" />
+        </div>
+        <p class="mt-1 text-2xl font-semibold leading-none">{{ instances().length }}</p>
+        <p class="mt-1 text-[11px] text-muted">{{ 'PLUGIN_WORKFLOW_KPI_TOTAL_HINT' | translate }}</p>
+      </div>
+      <div class="border border-default bg-surface p-3">
+        <div class="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
+          <span>{{ 'PLUGIN_WORKFLOW_KPI_MY_TASKS' | translate }}</span>
+          <app-icon name="bell" size="sm" [decorative]="true" />
+        </div>
+        <p class="mt-1 text-2xl font-semibold leading-none text-accent">{{ pendingTaskCount() }}</p>
+        <p class="mt-1 text-[11px] text-muted">{{ 'PLUGIN_WORKFLOW_KPI_MY_TASKS_HINT' | translate }}</p>
+      </div>
+      <div class="border border-default bg-surface p-3">
+        <div class="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
+          <span>{{ 'PLUGIN_WORKFLOW_KPI_OVERDUE' | translate }}</span>
+          <app-icon name="alert-triangle" size="sm" [decorative]="true" />
+        </div>
+        <p class="mt-1 text-2xl font-semibold leading-none" [class.text-rose-600]="reportStats().overdue > 0">{{ reportStats().overdue }}</p>
+        <p class="mt-1 text-[11px] text-muted">{{ 'PLUGIN_WORKFLOW_KPI_OVERDUE_HINT' | translate }}</p>
+      </div>
+      <div class="border border-default bg-surface p-3">
+        <div class="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
+          <span>{{ 'PLUGIN_WORKFLOW_KPI_FLOWS' | translate }}</span>
+          <app-icon name="grid" size="sm" [decorative]="true" />
+        </div>
+        <p class="mt-1 text-2xl font-semibold leading-none text-emerald-600 dark:text-emerald-400">{{ activeFlowCount() }}</p>
+        <p class="mt-1 text-[11px] text-muted">{{ 'PLUGIN_WORKFLOW_KPI_FLOWS_HINT' | translate }}</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tab Strip -->
+  <nav class="flex gap-1 overflow-x-auto border-b border-default bg-surface px-3 sm:px-5" [attr.aria-label]="'PLUGIN_WORKFLOW_TITLE' | translate">
+    @for (item of screenTabs; track item.key) {
+      <button
+        type="button"
+        class="inline-flex min-h-10 shrink-0 items-center gap-1.5 border-b-2 px-2.5 text-[11px] font-medium transition-colors"
+        [class.border-accent]="tab() === item.key"
+        [class.text-ink]="tab() === item.key"
+        [class.border-transparent]="tab() !== item.key"
+        [class.text-muted]="tab() !== item.key"
+        [class.hover:text-ink]="tab() !== item.key"
+        (click)="selectTab(item.key)"
+      >
+        <app-icon [name]="item.icon" size="sm" [decorative]="true" />
+        <span>{{ item.labelKey | translate }}</span>
+        @if (item.count !== undefined && item.count > 0) {
+          <span class="min-w-5 border border-default bg-surface-muted px-1 text-center text-[10px] font-semibold text-muted">{{ item.count }}</span>
+        }
+      </button>
+    }
   </nav>
 
-  @if (error()) {
-    <p class="op-error">{{ error() | translate }}</p>
-  }
-
-  @switch (tab()) {
-    @case ('inbox') {
-      <section class="op-card">
-        <table class="op-table">
-          <thead>
-            <tr>
-              <th>{{ 'PLUGIN_WORKFLOW_TASK_NODE' | translate }}</th>
-              <th>{{ 'PLUGIN_WORKFLOW_TASK_INSTANCE' | translate }}</th>
-              <th>{{ 'PLUGIN_WORKFLOW_TASK_MODE' | translate }}</th>
-              <th>{{ 'PLUGIN_WORKFLOW_TASK_DUE' | translate }}</th>
-              <th>{{ 'PLUGIN_WORKFLOW_TASK_STATUS' | translate }}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (task of tasks(); track task.id) {
-              <tr>
-                <td>{{ task.node_id }}</td>
-                <td><code>{{ task.instance_id.slice(0, 8) }}</code></td>
-                <td>{{ task.approval_mode }}</td>
-                <td>
-                  @if (task.overdue_at) {
-                    <span class="op-badge op-overdue">{{ 'PLUGIN_WORKFLOW_OVERDUE' | translate }}</span>
-                  }
-                  {{ task.due_at ?? '—' }}
-                </td>
-                <td>{{ task.status }}</td>
-                <td>
-                  <button type="button" class="op-btn op-btn--primary" (click)="openTask(task)">
-                    {{ 'PLUGIN_WORKFLOW_OPEN' | translate }}
-                  </button>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="6">{{ 'PLUGIN_WORKFLOW_INBOX_EMPTY' | translate }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </section>
-
-      @if (selectedTask(); as task) {
-        <section class="op-card">
-          <h3>{{ 'PLUGIN_WORKFLOW_TASK_NODE' | translate }}: {{ task.node_id }}</h3>
-          <label>{{ 'PLUGIN_WORKFLOW_COMMENT' | translate }}</label>
-          <textarea class="op-textarea" rows="3" [ngModel]="comment()" (ngModelChange)="comment.set($event)"></textarea>
-          <div class="op-row">
-            <button type="button" class="op-btn op-btn--primary" (click)="act('APPROVE')" [disabled]="busy()">
-              {{ 'PLUGIN_WORKFLOW_APPROVE' | translate }}
-            </button>
-            <button type="button" class="op-btn op-btn--danger" (click)="act('REJECT')" [disabled]="busy()">
-              {{ 'PLUGIN_WORKFLOW_REJECT' | translate }}
-            </button>
-            <button type="button" class="op-btn" (click)="act('CLAIM')" [disabled]="busy()">
-              {{ 'PLUGIN_WORKFLOW_CLAIM' | translate }}
-            </button>
-            <button type="button" class="op-btn" (click)="selectedTask.set(null)">
-              {{ 'PLUGIN_WORKFLOW_CANCEL' | translate }}
-            </button>
-          </div>
-          <p class="op-hint">{{ 'PLUGIN_WORKFLOW_REJECT_HINT' | translate }}</p>
-        </section>
-      }
-    }
-    @case ('flows') {
-      <section class="op-card">
-        <table class="op-table">
-          <thead>
-            <tr>
-              <th>{{ 'PLUGIN_WORKFLOW_KEY' | translate }}</th>
-              <th>v</th>
-              <th>{{ 'PLUGIN_WORKFLOW_STATUS' | translate }}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (definition of definitions(); track definition.id) {
-              <tr>
-                <td>{{ definition.key }}</td>
-                <td>{{ definition.version }}</td>
-                <td>{{ definition.status }}</td>
-                <td>
-                  <button type="button" class="op-btn" (click)="editFlow(definition)">
-                    {{ 'PLUGIN_WORKFLOW_EDIT' | translate }}
-                  </button>
-                  @if (definition.status !== 'PUBLISHED') {
-                    <button type="button" class="op-btn op-btn--primary" (click)="publishFlow(definition)">
-                      {{ 'PLUGIN_WORKFLOW_PUBLISH' | translate }}
-                    </button>
-                  }
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="4">{{ 'PLUGIN_WORKFLOW_FLOWS_EMPTY' | translate }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </section>
-      <section class="op-card">
-        <label>{{ 'PLUGIN_WORKFLOW_KEY' | translate }}</label>
-        <input class="op-input" [ngModel]="definitionKey()" (ngModelChange)="definitionKey.set($event)" />
-        <label>{{ 'PLUGIN_WORKFLOW_DOCUMENT' | translate }} (JSON)</label>
-        <textarea class="op-textarea op-monospace" rows="18" [ngModel]="documentDraft()" (ngModelChange)="documentDraft.set($event)"></textarea>
-        <div class="op-row">
-          <button type="button" class="op-btn op-btn--primary" (click)="saveFlow()" [disabled]="busy()">
-            {{ 'PLUGIN_WORKFLOW_SAVE' | translate }}
-          </button>
+  <!-- Main Content Body -->
+  <main class="flex-1 space-y-3 p-3 sm:p-5">
+    @if (error(); as code) {
+      <div class="flex items-start justify-between gap-2 border border-red-300 bg-red-50 p-2.5 text-[11px] text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200" role="alert">
+        <div class="flex items-center gap-2">
+          <app-icon name="alert-triangle" size="sm" [decorative]="true" />
+          <span>{{ code | translate }}</span>
         </div>
-        <p class="op-hint">{{ 'PLUGIN_WORKFLOW_BUILDER_HINT' | translate }}</p>
-      </section>
+        <button type="button" class="underline" (click)="error.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+      </div>
     }
-    @case ('runs') {
-      <section class="op-card">
-        <table class="op-table">
-          <thead>
-            <tr>
-              <th>{{ 'PLUGIN_WORKFLOW_RUN_ID' | translate }}</th>
-              <th>{{ 'PLUGIN_WORKFLOW_STATUS' | translate }}</th>
-              <th>{{ 'PLUGIN_WORKFLOW_OUTCOME' | translate }}</th>
-              <th>{{ 'PLUGIN_WORKFLOW_TRIGGER' | translate }}</th>
-              <th></th>
+    @if (success(); as msg) {
+      <div class="flex items-start justify-between gap-2 border border-emerald-300 bg-emerald-50 p-2.5 text-[11px] text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200" role="status">
+        <div class="flex items-center gap-2">
+          <app-icon name="check" size="sm" [decorative]="true" />
+          <span>{{ msg | translate }}</span>
+        </div>
+        <button type="button" class="underline" (click)="success.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+      </div>
+    }
+
+    @switch (tab()) {
+      <!-- ============================ INBOX TAB ============================ -->
+      @case ('inbox') {
+        <div class="flex flex-wrap items-center justify-between gap-2 border border-default bg-surface p-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="inline-flex">
+              <app-sharp-button
+                size="sm"
+                [variant]="inboxScope() === 'MINE' ? 'primary' : 'outline'"
+                [shape]="'sharp'"
+                (clicked)="setScope('MINE')"
+              >
+                {{ 'PLUGIN_WORKFLOW_SCOPE_MINE' | translate }}
+              </app-sharp-button>
+              <app-sharp-button
+                size="sm"
+                [variant]="inboxScope() === 'ALL' ? 'primary' : 'outline'"
+                [shape]="'sharp'"
+                (clicked)="setScope('ALL')"
+              >
+                {{ 'PLUGIN_WORKFLOW_SCOPE_ALL' | translate }}
+              </app-sharp-button>
+            </div>
+            <div class="w-64 max-w-full">
+              <app-sharp-input
+                [placeholder]="'PLUGIN_WORKFLOW_SEARCH_TASKS' | translate"
+                [value]="taskSearch()"
+                (valueChange)="taskSearch.set($event)"
+              />
+            </div>
+            <div class="w-44">
+              <app-sharp-select
+                [options]="statusOptions"
+                [value]="statusFilter()"
+                (valueChange)="statusFilter.set($event)"
+              />
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="font-mono text-[10px] uppercase tracking-wider text-muted">
+              {{ filteredTasks().length }} / {{ tasks().length }}
+            </span>
+            <span class="text-[10px] text-muted">
+              {{ 'PLUGIN_WORKFLOW_SIGNED_IN_AS' | translate }}:
+              <strong class="text-ink">{{ context?.user?.name || context?.user?.email || userLabel(actorId()) }}</strong>
+            </span>
+          </div>
+        </div>
+
+        <app-table
+          [columns]="taskColumns"
+          [rows]="filteredTasks()"
+          [loading]="inboxLoading()"
+          emptyKey="PLUGIN_WORKFLOW_INBOX_EMPTY"
+        >
+          <ng-template let-task>
+            <tr class="hover:bg-surface-muted/60">
+              <td class="px-2 py-1.5">
+                <div class="flex min-w-0 flex-col">
+                  <span class="truncate font-medium">{{ taskNodeLabel(task) }}</span>
+                  <span class="truncate font-mono text-[10px] text-muted">{{ task.node_id }} · {{ ('PLUGIN_WORKFLOW_NODE_' + task.node_type) | translate }}</span>
+                </div>
+              </td>
+              <td class="px-2 py-1.5">
+                <div class="flex flex-col">
+                  <span class="font-mono text-[10px]">#{{ shortId(task.instance_id) }}</span>
+                  @if (task.assignees?.length) {
+                    <span class="truncate text-[10px] text-muted">{{ userLabel(task.assignees[0]) }}</span>
+                  }
+                </div>
+              </td>
+              <td class="px-2 py-1.5">{{ modeLabel(task.approval_mode) }}</td>
+              <td class="px-2 py-1.5">
+                <span [class.text-red-600]="isOverdue(task)">{{ formatDate(task.due_at) }}</span>
+                @if (isOverdue(task)) {
+                  <app-badge variant="danger" [shape]="'sharp'">{{ 'PLUGIN_WORKFLOW_OVERDUE' | translate }}</app-badge>
+                }
+              </td>
+              <td class="px-2 py-1.5">
+                <app-badge [variant]="taskVariant(task)" [shape]="'sharp'">
+                  {{ statusLabel(task.status) }}
+                </app-badge>
+              </td>
+              <td class="px-2 py-1.5 text-end">
+                <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="openTask(task)">
+                  {{ 'PLUGIN_WORKFLOW_OPEN' | translate }}
+                </app-sharp-button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            @for (instance of instances(); track instance.id) {
-              <tr>
-                <td><code>{{ instance.id.slice(0, 8) }}</code></td>
-                <td>{{ instance.status }}</td>
-                <td>{{ instance.outcome ?? '—' }}</td>
-                <td>{{ instance.trigger_type }}</td>
-                <td>
-                  <button type="button" class="op-btn" (click)="openRun(instance)">
+          </ng-template>
+        </app-table>
+      }
+
+      <!-- ============================ FLOWS TAB ============================ -->
+      @case ('flows') {
+        <div class="flex flex-wrap items-center justify-between gap-2 border border-default bg-surface p-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="w-64 max-w-full">
+              <app-sharp-input
+                [placeholder]="'PLUGIN_WORKFLOW_SEARCH_FLOWS' | translate"
+                [value]="flowSearch()"
+                (valueChange)="flowSearch.set($event)"
+              />
+            </div>
+            <div class="w-44">
+              <app-sharp-select
+                [options]="flowStatusOptions"
+                [value]="statusFilter()"
+                (valueChange)="statusFilter.set($event)"
+              />
+            </div>
+            <app-sharp-button size="sm" variant="ghost" [shape]="'sharp'" (clicked)="loadFlows()">
+              <span class="inline-flex items-center gap-1"><app-icon name="refresh-cw" [size]="'sm'" [decorative]="true" />{{ 'COMMON_REFRESH' | translate }}</span>
+            </app-sharp-button>
+          </div>
+          <span class="font-mono text-[10px] uppercase tracking-wider text-muted">
+            {{ filteredDefinitions().length }} / {{ definitions().length }}
+          </span>
+        </div>
+
+        <app-table
+          [columns]="flowColumns"
+          [rows]="filteredDefinitions()"
+          [loading]="flowsLoading()"
+          emptyKey="PLUGIN_WORKFLOW_FLOWS_EMPTY"
+        >
+          <ng-template let-definition>
+            <tr class="hover:bg-surface-muted/60">
+              <td class="px-2 py-1.5">
+                <div class="flex min-w-0 flex-col">
+                  <span class="truncate font-mono font-medium">{{ definition.key }}</span>
+                  <span class="truncate text-[10px] text-muted">#{{ shortId(definition.id) }}</span>
+                </div>
+              </td>
+              <td class="px-2 py-1.5 font-mono">v{{ definition.version }}</td>
+              <td class="px-2 py-1.5">
+                <app-badge [variant]="flowVariant(definition.status)" [shape]="'sharp'">
+                  {{ statusLabel(definition.status) }}
+                </app-badge>
+              </td>
+              <td class="px-2 py-1.5 font-mono">{{ nodeCount(definition) }}</td>
+              <td class="px-2 py-1.5 text-muted">{{ formatDate(definition.published_at ?? definition.created_at) }}</td>
+              <td class="px-2 py-1.5">
+                <div class="flex flex-wrap items-center justify-end gap-1">
+                  @if (pendingPublishId() === definition.id) {
+                    <span class="text-[10px] text-muted">{{ 'PLUGIN_WORKFLOW_PUBLISH_CONFIRM' | translate }}</span>
+                    <app-sharp-button size="sm" variant="primary" [shape]="'sharp'" [loading]="busy()" (clicked)="confirmPublish(definition)">
+                      {{ 'PLUGIN_WORKFLOW_PUBLISH' | translate }}
+                    </app-sharp-button>
+                    <app-sharp-button size="sm" variant="ghost" [shape]="'sharp'" (clicked)="cancelPublish()">
+                      {{ 'COMMON_CANCEL' | translate }}
+                    </app-sharp-button>
+                  } @else {
+                    @if (canManageFlows()) {
+                      <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="editFlow(definition)">
+                        <span class="inline-flex items-center gap-1"><app-icon name="edit-2" [size]="'sm'" [decorative]="true" />{{ 'PLUGIN_WORKFLOW_EDIT' | translate }}</span>
+                      </app-sharp-button>
+                      @if (definition.status !== 'PUBLISHED') {
+                        <app-sharp-button size="sm" variant="primary" [shape]="'sharp'" (clicked)="requestPublish(definition)">
+                          {{ 'PLUGIN_WORKFLOW_PUBLISH' | translate }}
+                        </app-sharp-button>
+                      }
+                    }
+                  }
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </app-table>
+      }
+
+      <!-- ============================ BUILDER TAB (VISUAL NODE GRAPH STUDIO) ============================ -->
+      @case ('builder') {
+        <div class="flex min-h-0 flex-col gap-2">
+          <!-- Top Studio Bar -->
+          <div class="flex flex-wrap items-end justify-between gap-2 border border-default bg-surface p-2">
+            <div class="flex flex-wrap items-end gap-2">
+              <div class="w-56">
+                <app-sharp-input
+                  [label]="'PLUGIN_WORKFLOW_KEY' | translate"
+                  [value]="flowKey()"
+                  (valueChange)="flowKey.set($event); dirty.set(true)"
+                />
+              </div>
+              <div class="w-44">
+                <app-sharp-select
+                  [label]="'PLUGIN_WORKFLOW_NODE_TYPE' | translate"
+                  [options]="typeOptions"
+                  [value]="addNodeType()"
+                  (valueChange)="addNodeType.set($any($event))"
+                />
+              </div>
+              <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="addNode(addNodeType())">
+                <span class="inline-flex items-center gap-1"><app-icon name="plus" [size]="'sm'" [decorative]="true" />{{ 'PLUGIN_WORKFLOW_ADD_NODE' | translate }}</span>
+              </app-sharp-button>
+
+              <!-- Graph Orientation & Auto-Align Controls -->
+              <div class="inline-flex border border-default bg-surface-muted p-0.5">
+                <app-sharp-button
+                  size="sm"
+                  [variant]="graphDirection() === 'LR' ? 'primary' : 'ghost'"
+                  [shape]="'sharp'"
+                  (clicked)="graphDirection.set('LR'); autoAlignGraph()"
+                >
+                  {{ 'PLUGIN_WORKFLOW_GRAPH_LR' | translate }}
+                </app-sharp-button>
+                <app-sharp-button
+                  size="sm"
+                  [variant]="graphDirection() === 'TB' ? 'primary' : 'ghost'"
+                  [shape]="'sharp'"
+                  (clicked)="graphDirection.set('TB'); autoAlignGraph()"
+                >
+                  {{ 'PLUGIN_WORKFLOW_GRAPH_TB' | translate }}
+                </app-sharp-button>
+              </div>
+              <app-sharp-button size="sm" variant="ghost" [shape]="'sharp'" (clicked)="autoAlignGraph()">
+                <span class="inline-flex items-center gap-1"><app-icon name="refresh-cw" size="sm" [decorative]="true" />{{ 'PLUGIN_WORKFLOW_AUTO_ALIGN' | translate }}</span>
+              </app-sharp-button>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-1">
+              @if (savedDefinitionId()) {
+                <app-badge variant="info" [shape]="'sharp'">{{ 'PLUGIN_WORKFLOW_SAVED_DRAFT' | translate }}</app-badge>
+              }
+              @if (dirty()) {
+                <app-badge variant="warning" [shape]="'sharp'">{{ 'PLUGIN_WORKFLOW_UNSAVED' | translate }}</app-badge>
+              }
+              <app-sharp-button size="sm" variant="ghost" [shape]="'sharp'" (clicked)="setTab('flows')">
+                {{ 'PLUGIN_WORKFLOW_BACK_TO_FLOWS' | translate }}
+              </app-sharp-button>
+              <app-sharp-button size="sm" variant="primary" [shape]="'sharp'" [loading]="busy()" (clicked)="saveFlow()">
+                <span class="inline-flex items-center gap-1"><app-icon name="check" size="sm" [decorative]="true" />{{ 'COMMON_SAVE' | translate }}</span>
+              </app-sharp-button>
+              <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" [disabled]="!savedDefinitionId()" (clicked)="publishSaved()">
+                <span class="inline-flex items-center gap-1"><app-icon name="upload" size="sm" [decorative]="true" />{{ 'PLUGIN_WORKFLOW_PUBLISH' | translate }}</span>
+              </app-sharp-button>
+            </div>
+          </div>
+
+          <!-- Split Studio: [Visual Node Flowchart Canvas with SVG Connectors] | [Right Step Property & User/Role Picker Inspector] -->
+          <div class="grid min-h-0 flex-1 gap-2 xl:grid-cols-[minmax(0,1fr)_24rem]">
+            <!-- 1. VISUAL FLOWCHART GRAPH CANVAS -->
+            <section class="flex min-h-0 flex-col border border-default bg-surface">
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-default bg-surface-muted px-3 py-1.5">
+                <div class="flex items-center gap-2">
+                  <app-icon name="grid" size="sm" [decorative]="true" />
+                  <h2 class="text-[10px] font-semibold uppercase tracking-wider">{{ 'PLUGIN_WORKFLOW_GRAPH_TITLE' | translate }}</h2>
+                  <app-badge variant="info" [shape]="'sharp'">{{ nodes().length }} {{ 'PLUGIN_WORKFLOW_NODES' | translate }}</app-badge>
+                  <app-badge variant="default" [shape]="'sharp'">{{ graphLayout().edges.length }} {{ 'PLUGIN_WORKFLOW_EDGES' | translate }}</app-badge>
+                </div>
+                @if (linkingFromIndex() !== null) {
+                  <div class="flex items-center gap-2 bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-900 dark:bg-amber-950/60 dark:text-amber-200">
+                    <span>{{ 'PLUGIN_WORKFLOW_LINKING_HINT' | translate }}: <strong>{{ nodes()[linkingFromIndex()!]?.id }}</strong></span>
+                    <button type="button" class="underline" (click)="linkingFromIndex.set(null)">{{ 'COMMON_CANCEL' | translate }}</button>
+                  </div>
+                } @else {
+                  <span class="text-[10px] text-muted">{{ 'PLUGIN_WORKFLOW_GRAPH_HINT' | translate }}</span>
+                }
+              </div>
+
+              <!-- Interactive SVG + Node Canvas -->
+              <div
+                class="relative min-h-[420px] flex-1 overflow-auto bg-surface-muted/40 select-none"
+                style="background-image: radial-gradient(rgba(120, 120, 128, 0.22) 1px, transparent 1px); background-size: 18px 18px;"
+                (mousemove)="onGraphMouseMove($event)"
+                (mouseup)="onGraphMouseUp()"
+                (mouseleave)="onGraphMouseUp()"
+              >
+                <div
+                  class="relative"
+                  [style.width.px]="graphLayout().width"
+                  [style.height.px]="graphLayout().height"
+                >
+                  <!-- SVG Connector Lines Layer -->
+                  <svg
+                    class="pointer-events-none absolute inset-0"
+                    [attr.width]="graphLayout().width"
+                    [attr.height]="graphLayout().height"
+                  >
+                    <defs>
+                      <marker
+                        id="wf-arrow"
+                        viewBox="0 0 10 10"
+                        refX="8"
+                        refY="5"
+                        markerWidth="6"
+                        markerHeight="6"
+                        orient="auto-start-reverse"
+                      >
+                        <path d="M 0 1 L 9 5 L 0 9 z" fill="#64748b" />
+                      </marker>
+                      <marker
+                        id="wf-arrow-active"
+                        viewBox="0 0 10 10"
+                        refX="8"
+                        refY="5"
+                        markerWidth="7"
+                        markerHeight="7"
+                        orient="auto-start-reverse"
+                      >
+                        <path d="M 0 1 L 9 5 L 0 9 z" fill="#2563eb" />
+                      </marker>
+                    </defs>
+
+                    @for (edge of graphLayout().edges; track edge.id) {
+                      <g>
+                        <!-- Shadow / Halo Path -->
+                        <path
+                          [attr.d]="edge.path"
+                          fill="none"
+                          stroke="rgba(15, 23, 42, 0.15)"
+                          stroke-width="4"
+                        />
+                        <!-- Main Directed Connector Curve -->
+                        <path
+                          [attr.d]="edge.path"
+                          fill="none"
+                          [attr.stroke]="edge.active ? '#2563eb' : '#64748b'"
+                          [attr.stroke-width]="edge.active ? '2.5' : '2'"
+                          [attr.stroke-dasharray]="edge.active ? 'none' : 'none'"
+                          [attr.marker-end]="edge.active ? 'url(#wf-arrow-active)' : 'url(#wf-arrow)'"
+                        />
+                      </g>
+                    }
+                  </svg>
+
+                  <!-- Edge Midpoint Badges (Unlink / Condition Label) -->
+                  @for (edge of graphLayout().edges; track edge.id) {
+                    <div
+                      class="absolute -translate-x-1/2 -translate-y-1/2 flex items-center gap-1 border border-default bg-surface px-1.5 py-0.5 text-[9px] font-mono shadow-xs"
+                      [style.left.px]="edge.midX"
+                      [style.top.px]="edge.midY"
+                    >
+                      <span class="text-muted">{{ edge.label || (edge.fromId + ' → ' + edge.toId) }}</span>
+                      <button
+                        type="button"
+                        class="text-muted hover:text-red-600"
+                        [title]="'PLUGIN_WORKFLOW_UNLINK_EDGE' | translate"
+                        (click)="removeEdge(edge.fromId, edge.toId)"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  }
+
+                  <!-- Positioned Visual Node Cards -->
+                  @for (view of graphLayout().nodes; track view.node.id) {
+                    <div
+                      class="absolute flex flex-col justify-between border bg-surface shadow-sm transition-shadow cursor-pointer"
+                      [class.border-accent]="selectedNodeIndex() === view.index"
+                      [class.ring-2]="selectedNodeIndex() === view.index || linkingFromIndex() === view.index"
+                      [class.ring-accent]="selectedNodeIndex() === view.index"
+                      [class.ring-amber-500]="linkingFromIndex() === view.index"
+                      [class.border-default]="selectedNodeIndex() !== view.index"
+                      [style.left.px]="view.x"
+                      [style.top.px]="view.y"
+                      [style.width.px]="view.width"
+                      [style.height.px]="view.height"
+                      (mousedown)="onGraphNodeMouseDown($event, view.index)"
+                      (click)="onNodeCardClick(view.index)"
+                    >
+                      <!-- Input Connector Port Dot -->
+                      @if (view.node.type !== 'START') {
+                        <span
+                          class="absolute h-3 w-3 rounded-full border-2 border-white bg-slate-500 dark:border-slate-900"
+                          [class.-left-1.5]="graphDirection() === 'LR'"
+                          [class.top-1/2]="graphDirection() === 'LR'"
+                          [class.-translate-y-1/2]="graphDirection() === 'LR'"
+                          [class.left-1/2]="graphDirection() === 'TB'"
+                          [class.-top-1.5]="graphDirection() === 'TB'"
+                          [class.-translate-x-1/2]="graphDirection() === 'TB'"
+                        ></span>
+                      }
+
+                      <!-- Output Connector Port Dot -->
+                      @if (view.node.type !== 'END') {
+                        <span
+                          class="absolute h-3 w-3 rounded-full border-2 border-white bg-blue-600 dark:border-slate-900"
+                          [class.-right-1.5]="graphDirection() === 'LR'"
+                          [class.top-1/2]="graphDirection() === 'LR'"
+                          [class.-translate-y-1/2]="graphDirection() === 'LR'"
+                          [class.left-1/2]="graphDirection() === 'TB'"
+                          [class.-bottom-1.5]="graphDirection() === 'TB'"
+                          [class.-translate-x-1/2]="graphDirection() === 'TB'"
+                        ></span>
+                      }
+
+                      <!-- Node Header Strip -->
+                      <div class="flex items-center justify-between gap-1 px-2 py-1 text-[10px] font-semibold" [ngClass]="nodeHeaderClass(view.node.type)">
+                        <div class="flex min-w-0 items-center gap-1">
+                          <app-icon
+                            [name]="isHuman(view.node) ? 'user' : (view.node.type === 'END' ? 'check' : 'grid')"
+                            size="sm"
+                            [decorative]="true"
+                          />
+                          <span class="truncate uppercase tracking-wider">{{ ('PLUGIN_WORKFLOW_NODE_' + view.node.type) | translate }}</span>
+                        </div>
+                        <span class="font-mono text-[9px] opacity-85">#{{ view.level + 1 }}</span>
+                      </div>
+
+                      <!-- Node Body: Title, Human Assignee & SLA -->
+                      <div class="flex-1 space-y-0.5 px-2.5 py-1.5">
+                        <div class="flex items-baseline justify-between gap-1">
+                          <p class="truncate text-xs font-semibold text-ink">{{ view.node.name || view.node.id }}</p>
+                          <span class="shrink-0 font-mono text-[9px] text-muted">{{ view.node.id }}</span>
+                        </div>
+                        <p class="truncate text-[10px] text-muted" [title]="view.assigneeSummary">
+                          {{ view.assigneeSummary }}
+                        </p>
+                        @if (view.slaSummary) {
+                          <p class="truncate font-mono text-[9px] text-accent">{{ view.slaSummary }}</p>
+                        }
+                      </div>
+
+                      <!-- Node Quick Action Footer -->
+                      <div
+                        class="flex items-center justify-between border-t border-default bg-surface-muted/70 px-2 py-1 text-[9px]"
+                        (click)="$event.stopPropagation()"
+                      >
+                        <div class="flex items-center gap-1">
+                          @if (view.node.type !== 'END') {
+                            <button
+                              type="button"
+                              class="border border-default bg-surface px-1 py-0.5 font-medium hover:border-accent hover:text-accent"
+                              [title]="'PLUGIN_WORKFLOW_APPEND_STEP' | translate"
+                              (click)="appendConnectedStep(view.index)"
+                            >
+                              + {{ 'PLUGIN_WORKFLOW_STEP_SHORT' | translate }}
+                            </button>
+                            <button
+                              type="button"
+                              class="border border-default bg-surface px-1 py-0.5 font-medium hover:border-accent"
+                              [class.border-amber-500]="linkingFromIndex() === view.index"
+                              [class.text-amber-600]="linkingFromIndex() === view.index"
+                              [title]="'PLUGIN_WORKFLOW_LINK_STEP' | translate"
+                              (click)="startLinkingFrom(view.index, $event)"
+                            >
+                              🔗 {{ 'PLUGIN_WORKFLOW_LINK_SHORT' | translate }}
+                            </button>
+                          }
+                        </div>
+                        @if (view.node.type !== 'START') {
+                          <button
+                            type="button"
+                            class="text-muted hover:text-red-600"
+                            [title]="'COMMON_DELETE' | translate"
+                            (click)="deleteNode(view.index)"
+                          >
+                            <app-icon name="trash-2" size="sm" [decorative]="true" />
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </section>
+
+            <!-- 2. RIGHT INSPECTOR: Step Properties & Searchable User / Role / Step Pickers (Zero Raw UUIDs) -->
+            <section class="min-h-0 overflow-y-auto border border-default bg-surface">
+              @if (selectedNode(); as node) {
+                <div class="flex items-center justify-between gap-2 border-b border-default bg-surface-muted px-2.5 py-1.5">
+                  <h2 class="text-[10px] font-semibold uppercase tracking-wider">{{ 'PLUGIN_WORKFLOW_PROPERTIES' | translate }}</h2>
+                  <app-badge variant="info" [shape]="'sharp'">{{ ('PLUGIN_WORKFLOW_NODE_' + node.type) | translate }}</app-badge>
+                </div>
+
+                <div class="space-y-3 p-2.5">
+                  <app-sharp-input
+                    [label]="'PLUGIN_WORKFLOW_NODE_NAME' | translate"
+                    [value]="node.name ?? ''"
+                    (valueChange)="updateNode({ name: $event })"
+                  />
+
+                  <div class="flex items-end gap-1">
+                    <div class="min-w-0 flex-1">
+                      <app-sharp-input
+                        [label]="'PLUGIN_WORKFLOW_NODE_ID' | translate"
+                        [value]="node.id"
+                        [required]="true"
+                        (valueChange)="renameNodeId(node.id, $event)"
+                      />
+                    </div>
+                    <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="autoGenerateNodeIdFromName()">
+                      {{ 'PLUGIN_WORKFLOW_AUTO_ID' | translate }}
+                    </app-sharp-button>
+                  </div>
+
+                  <app-sharp-select
+                    [label]="'PLUGIN_WORKFLOW_NODE_TYPE' | translate"
+                    [options]="typeOptions"
+                    [value]="node.type"
+                    (valueChange)="updateNode({ type: $any($event) })"
+                  />
+
+                  <!-- Interactive Next Steps Connector Picker (Chips + Select Dropdown) -->
+                  @if (node.type !== 'END') {
+                    <div class="space-y-1.5 border-t border-default pt-2">
+                      <label class="block text-[10px] font-semibold uppercase tracking-wider text-muted">
+                        {{ 'PLUGIN_WORKFLOW_NEXT_NODES' | translate }}
+                      </label>
+                      <div class="flex flex-wrap gap-1">
+                        @for (targetId of nextIds(node); track targetId) {
+                          <span class="inline-flex items-center gap-1 border border-accent/60 bg-surface-muted px-2 py-0.5 text-[11px] font-medium">
+                            <span>→ {{ nodeLabelById(targetId) }}</span>
+                            <button
+                              type="button"
+                              class="text-muted hover:text-red-600"
+                              (click)="removeNextTargetFromSelected(targetId)"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        } @empty {
+                          <span class="text-[11px] text-muted">{{ 'PLUGIN_WORKFLOW_NO_NEXT_STEP' | translate }}</span>
+                        }
+                      </div>
+                      @if (nextOptions().length > 1) {
+                        <app-sharp-select
+                          [options]="nextOptions()"
+                          [value]="''"
+                          (valueChange)="addNextTargetToSelected($event)"
+                        />
+                      }
+                    </div>
+                  }
+
+                  @if (node.type === 'END') {
+                    <app-sharp-select
+                      [label]="'PLUGIN_WORKFLOW_OUTCOME' | translate"
+                      [options]="outcomeOptions"
+                      [value]="node.outcome ?? 'APPROVED'"
+                      (valueChange)="updateNode({ outcome: $event })"
+                    />
+                  }
+
+                  @if (isHuman(node)) {
+                    <div class="space-y-2.5 border-t border-default pt-2">
+                      @if (node.type === 'APPROVAL') {
+                        <app-sharp-select
+                          [label]="'PLUGIN_WORKFLOW_TASK_MODE' | translate"
+                          [options]="approvalModeOptions"
+                          [value]="node.approval_mode ?? 'ANY_ONE'"
+                          (valueChange)="updateNode({ approval_mode: $event })"
+                        />
+                        @if (node.approval_mode === 'VOTE_RATIO') {
+                          <app-sharp-input
+                            [label]="'PLUGIN_WORKFLOW_VOTE_RATIO' | translate"
+                            type="number"
+                            [value]="numText(node.vote_ratio ?? 0.5)"
+                            (valueChange)="updateNode({ vote_ratio: +$event })"
+                          />
+                        }
+                      }
+
+                      <app-sharp-select
+                        [label]="'PLUGIN_WORKFLOW_ASSIGN_KIND' | translate"
+                        [options]="assignmentKindOptions"
+                        [value]="nodeAssignment(node).kind"
+                        (valueChange)="updateAssignment({ kind: $event })"
+                      />
+
+                      <!-- SEARCHABLE USER PICKER (Replaces Raw UUID Input!) -->
+                      @if (nodeAssignment(node).kind === 'USER') {
+                        <div class="space-y-1.5 border border-default bg-surface-muted/40 p-2">
+                          <div class="flex items-center justify-between gap-2">
+                            <span class="text-[10px] font-semibold uppercase tracking-wider text-muted">
+                              {{ 'PLUGIN_WORKFLOW_ASSIGN_USER' | translate }}
+                            </span>
+                            <button
+                              type="button"
+                              class="text-[10px] font-medium text-accent underline"
+                              (click)="userPickerOpen.set(!userPickerOpen())"
+                            >
+                              {{ (userPickerOpen() ? 'COMMON_CLOSE' : 'PLUGIN_WORKFLOW_CHANGE_USER') | translate }}
+                            </button>
+                          </div>
+
+                          <!-- Selected User Display Card -->
+                          <div class="flex items-center justify-between gap-2 border border-default bg-surface px-2.5 py-1.5">
+                            <div class="flex min-w-0 items-center gap-2">
+                              <span class="inline-flex h-6 w-6 shrink-0 items-center justify-center bg-accent text-[10px] font-bold text-white">
+                                <app-icon name="user" size="sm" [decorative]="true" />
+                              </span>
+                              <div class="min-w-0">
+                                <p class="truncate text-[11px] font-semibold text-ink">
+                                  {{ userLabel(nodeAssignment(node).user_id) }}
+                                </p>
+                                <p class="truncate font-mono text-[9px] text-muted">
+                                  {{ nodeAssignment(node).user_id ? ('ID: #' + shortId(nodeAssignment(node).user_id)) : ('PLUGIN_WORKFLOW_SELECT_USER_PROMPT' | translate) }}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Searchable User Directory Dropdown -->
+                          @if (userPickerOpen() || !nodeAssignment(node).user_id) {
+                            <div class="space-y-1 pt-1">
+                              <app-sharp-input
+                                [placeholder]="'PLUGIN_WORKFLOW_SEARCH_USER_PLACEHOLDER' | translate"
+                                [value]="userPickerSearch()"
+                                (valueChange)="userPickerSearch.set($event)"
+                              />
+                              <div class="max-h-40 overflow-y-auto border border-default bg-surface divide-y divide-default">
+                                @for (u of filteredAssigneeUsers(); track uidOf(u)) {
+                                  <button
+                                    type="button"
+                                    class="flex w-full items-center justify-between gap-2 px-2 py-1.5 text-start text-[11px] hover:bg-surface-muted"
+                                    [class.bg-surface-muted]="uidOf(u) === nodeAssignment(node).user_id"
+                                    (click)="selectAssigneeUser(u)"
+                                  >
+                                    <div class="min-w-0">
+                                      <p class="truncate font-medium text-ink">{{ u.full_name || u.name || u.email }}</p>
+                                      <p class="truncate text-[10px] text-muted">{{ u.email }}</p>
+                                    </div>
+                                    @if (uidOf(u) === nodeAssignment(node).user_id) {
+                                      <app-badge variant="success" [shape]="'sharp'">✓</app-badge>
+                                    }
+                                  </button>
+                                } @empty {
+                                  <p class="p-2 text-center text-[10px] text-muted">{{ 'COMMON_NO_DATA' | translate }}</p>
+                                }
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      } @else if (nodeAssignment(node).kind === 'ROLE') {
+                        <!-- SEARCHABLE ROLE PICKER -->
+                        <app-sharp-select
+                          [label]="'PLUGIN_WORKFLOW_ASSIGN_ROLE' | translate"
+                          [options]="roleOptions()"
+                          [value]="nodeAssignment(node).role"
+                          (valueChange)="updateAssignment({ role: $event })"
+                        />
+                      } @else if (nodeAssignment(node).kind === 'FIELD_REF') {
+                        <!-- SEARCHABLE FIELD REFERENCE PICKER -->
+                        <app-sharp-select
+                          [label]="'PLUGIN_WORKFLOW_ASSIGN_FIELD' | translate"
+                          [options]="fieldRefOptions()"
+                          [value]="nodeAssignment(node).field_ref"
+                          (valueChange)="updateAssignment({ field_ref: $event })"
+                        />
+                      }
+
+                      <div class="grid grid-cols-2 gap-2">
+                        <app-sharp-input
+                          [label]="'PLUGIN_WORKFLOW_DUE_HOURS' | translate"
+                          type="number"
+                          [value]="nodeDueHours(node)"
+                          (valueChange)="updateSla('due_hours', $event)"
+                        />
+                        <app-sharp-input
+                          [label]="'PLUGIN_WORKFLOW_REMIND_HOURS' | translate"
+                          type="number"
+                          [value]="nodeRemindHours(node)"
+                          (valueChange)="updateSla('remind_before_hours', $event)"
+                        />
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Collapsible Advanced JSON (Hidden by default so non-technical users see clean visual controls) -->
+                  <div class="border-t border-default pt-2">
+                    <button
+                      type="button"
+                      class="flex w-full items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-muted hover:text-ink"
+                      (click)="showAdvancedJson.set(!showAdvancedJson())"
+                    >
+                      <span>{{ 'PLUGIN_WORKFLOW_ADVANCED_JSON' | translate }}</span>
+                      <span>{{ showAdvancedJson() ? '▾' : '▸' }}</span>
+                    </button>
+                    @if (showAdvancedJson()) {
+                      <div class="mt-1.5 space-y-1.5">
+                        <app-sharp-textarea
+                          [rows]="6"
+                          [value]="nodeJson()"
+                          (valueChange)="nodeJson.set($event)"
+                        />
+                        <div class="flex items-center justify-between gap-2">
+                          <p class="text-[10px] text-muted">{{ 'PLUGIN_WORKFLOW_ADVANCED_HINT' | translate }}</p>
+                          <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="applyNodeJson()">
+                            {{ 'PLUGIN_WORKFLOW_APPLY_JSON' | translate }}
+                          </app-sharp-button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              } @else {
+                <div class="flex h-full min-h-40 flex-col items-center justify-center gap-2 p-6 text-center text-muted">
+                  <app-icon name="grid" [size]="'lg'" [decorative]="true" />
+                  <p class="text-[11px]">{{ 'PLUGIN_WORKFLOW_NO_NODE_SELECTED' | translate }}</p>
+                </div>
+              }
+            </section>
+          </div>
+        </div>
+      }
+
+      <!-- ============================ RUNS TAB ============================ -->
+      @case ('runs') {
+        <div class="flex flex-wrap items-center justify-between gap-2 border border-default bg-surface p-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="w-64 max-w-full">
+              <app-sharp-input
+                [placeholder]="'PLUGIN_WORKFLOW_SEARCH_RUNS' | translate"
+                [value]="runSearch()"
+                (valueChange)="runSearch.set($event)"
+              />
+            </div>
+            <app-sharp-button size="sm" variant="ghost" [shape]="'sharp'" (clicked)="loadRuns()">
+              <span class="inline-flex items-center gap-1"><app-icon name="refresh-cw" [size]="'sm'" [decorative]="true" />{{ 'COMMON_REFRESH' | translate }}</span>
+            </app-sharp-button>
+          </div>
+          <span class="font-mono text-[10px] uppercase tracking-wider text-muted">
+            {{ filteredRuns().length }} / {{ instances().length }}
+          </span>
+        </div>
+
+        <div class="grid min-h-0 gap-2 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+          <app-table
+            [columns]="runColumns"
+            [rows]="filteredRuns()"
+            [loading]="runsLoading()"
+            emptyKey="PLUGIN_WORKFLOW_RUNS_EMPTY"
+          >
+            <ng-template let-instance>
+              <tr
+                class="cursor-pointer hover:bg-surface-muted/60"
+                [class.bg-surface-muted]="selectedRun()?.instance?.id === instance.id"
+                (click)="openRun(instance)"
+              >
+                <td class="px-2 py-1.5">
+                  <div class="flex flex-col">
+                    <span class="font-medium">{{ definitionLabel(instance.definition_id) }}</span>
+                    <span class="font-mono text-[10px] text-muted">#{{ shortId(instance.id) }}</span>
+                  </div>
+                </td>
+                <td class="px-2 py-1.5">
+                  <app-badge [variant]="instanceVariant(instance.status)" [shape]="'sharp'">
+                    {{ statusLabel(instance.status) }}
+                  </app-badge>
+                </td>
+                <td class="px-2 py-1.5">
+                  @if (instance.outcome) {
+                    <app-badge [variant]="instance.outcome === 'REJECTED' ? 'danger' : 'success'" [shape]="'sharp'">
+                      {{ instance.outcome }}
+                    </app-badge>
+                  } @else {
+                    —
+                  }
+                </td>
+                <td class="px-2 py-1.5">{{ instance.trigger_type }}</td>
+                <td class="px-2 py-1.5 text-muted">{{ formatDate(instance.created_at) }}</td>
+                <td class="px-2 py-1.5 text-end">
+                  <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="$event.stopPropagation(); openRun(instance)">
                     {{ 'PLUGIN_WORKFLOW_OPEN' | translate }}
-                  </button>
+                  </app-sharp-button>
                 </td>
               </tr>
-            } @empty {
-              <tr>
-                <td colspan="5">{{ 'PLUGIN_WORKFLOW_RUNS_EMPTY' | translate }}</td>
-              </tr>
+            </ng-template>
+          </app-table>
+
+          <section class="min-h-0 border border-default bg-surface">
+            @if (runLoading()) {
+              <p class="p-4 text-center text-[11px] text-muted">{{ 'COMMON_LOADING' | translate }}</p>
+            } @else if (selectedRun(); as run) {
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-default bg-surface-muted px-2 py-1.5">
+                <div class="min-w-0">
+                  <h2 class="text-[10px] font-semibold uppercase tracking-wider">{{ 'PLUGIN_WORKFLOW_RUN_TIMELINE' | translate }}</h2>
+                  <p class="font-mono text-[10px] text-muted">{{ definitionLabel(run.instance.definition_id) }} · #{{ shortId(run.instance.id) }}</p>
+                </div>
+                <div class="flex items-center gap-1">
+                  <app-badge [variant]="instanceVariant(run.instance.status)" [shape]="'sharp'">
+                    {{ statusLabel(run.instance.status) }}
+                  </app-badge>
+                  @if (run.instance.outcome) {
+                    <app-badge variant="info" [shape]="'sharp'">{{ run.instance.outcome }}</app-badge>
+                  }
+                </div>
+              </div>
+              <div class="space-y-3 p-2">
+                <dl class="grid grid-cols-2 gap-1.5 text-[11px] sm:grid-cols-4">
+                  <div>
+                    <dt class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_TRIGGER' | translate }}</dt>
+                    <dd>{{ run.instance.trigger_type }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_CREATED_AT' | translate }}</dt>
+                    <dd>{{ formatDate(run.instance.created_at) }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_COMPLETED_AT' | translate }}</dt>
+                    <dd>{{ formatDate(run.instance.completed_at) }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_DEFINITION_VERSION' | translate }}</dt>
+                    <dd class="font-mono">v{{ run.instance.definition_version }}</dd>
+                  </div>
+                </dl>
+
+                <div>
+                  <h3 class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_TASKS' | translate }}</h3>
+                  <div class="overflow-x-auto border border-default">
+                    <table class="w-full border-collapse text-[11px]">
+                      <thead class="bg-surface-muted">
+                        <tr>
+                          <th class="border-b border-default px-1.5 py-1 text-start font-semibold">{{ 'PLUGIN_WORKFLOW_TASK_NODE' | translate }}</th>
+                          <th class="border-b border-default px-1.5 py-1 text-start font-semibold">{{ 'PLUGIN_WORKFLOW_STATUS' | translate }}</th>
+                          <th class="border-b border-default px-1.5 py-1 text-start font-semibold">{{ 'PLUGIN_WORKFLOW_TASK_DUE' | translate }}</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-default">
+                        @for (task of run.tasks; track task.id) {
+                          <tr>
+                            <td class="px-1.5 py-1 font-mono text-[10px]">{{ task.node_id }}</td>
+                            <td class="px-1.5 py-1">
+                              <app-badge [variant]="taskVariant(task)" [shape]="'sharp'">{{ statusLabel(task.status) }}</app-badge>
+                            </td>
+                            <td class="px-1.5 py-1" [class.text-red-600]="isOverdue(task)">{{ formatDate(task.due_at) }}</td>
+                          </tr>
+                        } @empty {
+                          <tr>
+                            <td colspan="3" class="px-2 py-3 text-center text-muted">{{ 'COMMON_NO_DATA' | translate }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_EVENTS' | translate }}</h3>
+                  <ol class="space-y-1.5 border-s-2 border-default ps-2">
+                    @for (event of timeline(run); track event.id) {
+                      <li class="relative">
+                        <div class="flex flex-wrap items-center gap-1">
+                          <app-badge [variant]="eventVariant(event)" [shape]="'sharp'">{{ eventLabel(event) }}</app-badge>
+                          <span class="font-mono text-[10px] text-muted">{{ formatDate(event.created_at) }}</span>
+                          @if (event.actor_user_id) {
+                            <span class="text-[10px] font-medium text-ink">· {{ userLabel(event.actor_user_id) }}</span>
+                          }
+                        </div>
+                        @if (eventDetail(event)) {
+                          <p class="mt-0.5 break-words text-[10px] text-muted">{{ eventDetail(event) }}</p>
+                        }
+                      </li>
+                    } @empty {
+                      <li class="text-[11px] text-muted">{{ 'PLUGIN_WORKFLOW_NO_EVENTS' | translate }}</li>
+                    }
+                  </ol>
+                </div>
+              </div>
+            } @else {
+              <div class="flex h-full min-h-40 flex-col items-center justify-center gap-2 p-6 text-center text-muted">
+                <app-icon name="grid" [size]="'lg'" [decorative]="true" />
+                <p class="text-[11px]">{{ 'PLUGIN_WORKFLOW_SELECT_RUN' | translate }}</p>
+              </div>
             }
-          </tbody>
-        </table>
-      </section>
-      @if (selectedRun(); as run) {
-        <section class="op-card">
-          <h3>{{ 'PLUGIN_WORKFLOW_RUN_TIMELINE' | translate }}</h3>
-          <ul class="op-timeline">
-            @for (entry of eventsOf(run); track entry[0]) {
-              <li>{{ entry[0] }}</li>
-            }
-          </ul>
-          <h3>{{ 'PLUGIN_WORKFLOW_TASKS' | translate }}</h3>
-          <table class="op-table">
-            <thead>
-              <tr>
-                <th>{{ 'PLUGIN_WORKFLOW_TASK_NODE' | translate }}</th>
-                <th>{{ 'PLUGIN_WORKFLOW_TASK_STATUS' | translate }}</th>
-                <th>{{ 'PLUGIN_WORKFLOW_TASK_DUE' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (task of run.tasks; track task.id) {
-                <tr>
-                  <td>{{ task.node_id }}</td>
-                  <td>{{ task.status }}</td>
-                  <td>{{ task.due_at ?? '—' }}</td>
-                </tr>
+          </section>
+        </div>
+      }
+
+      <!-- ============================ REPORTS TAB ============================ -->
+      @case ('reports') {
+        <div class="flex flex-wrap items-center justify-between gap-2 border border-default bg-surface p-2">
+          <div class="flex items-center gap-2">
+            <app-sharp-button size="sm" variant="ghost" [shape]="'sharp'" (clicked)="loadReports()">
+              <span class="inline-flex items-center gap-1"><app-icon name="refresh-cw" [size]="'sm'" [decorative]="true" />{{ 'COMMON_REFRESH' | translate }}</span>
+            </app-sharp-button>
+          </div>
+          @if (reportsLoading()) {
+            <span class="text-[11px] text-muted">{{ 'COMMON_LOADING' | translate }}</span>
+          }
+        </div>
+
+        <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          <div class="border border-default bg-surface p-2">
+            <p class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_REPORT_TOTAL' | translate }}</p>
+            <p class="font-mono text-2xl font-semibold">{{ reportStats().total }}</p>
+          </div>
+          <div class="border border-default bg-surface p-2">
+            <p class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_REPORT_COMPLETION' | translate }}</p>
+            <p class="font-mono text-2xl font-semibold">{{ reportStats().completionRate }}%</p>
+            <div class="mt-1 h-1.5 bg-surface-muted">
+              <div class="h-1.5 bg-accent" [style.width.%]="reportStats().completionRate"></div>
+            </div>
+          </div>
+          <div class="border border-default bg-surface p-2">
+            <p class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_REPORT_PENDING' | translate }}</p>
+            <p class="font-mono text-2xl font-semibold">{{ reportStats().pending }}</p>
+          </div>
+          <div class="border border-default bg-surface p-2">
+            <p class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_REPORT_OVERDUE' | translate }}</p>
+            <p class="font-mono text-2xl font-semibold" [class.text-rose-600]="reportStats().overdue > 0">{{ reportStats().overdue }}</p>
+            <div class="mt-1 h-1.5 bg-surface-muted">
+              <div class="h-1.5 bg-red-500" [style.width.%]="reportStats().overdueRate"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-2 lg:grid-cols-3">
+          <div class="border border-default bg-surface p-2">
+            <h3 class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_RUNS' | translate }}</h3>
+            <dl class="space-y-1 text-[11px]">
+              <div class="flex items-center justify-between"><dt>{{ 'PLUGIN_WORKFLOW_STATUS_RUNNING' | translate }}</dt><dd class="font-mono">{{ reportStats().running }}</dd></div>
+              <div class="flex items-center justify-between"><dt>{{ 'PLUGIN_WORKFLOW_STATUS_COMPLETED' | translate }}</dt><dd class="font-mono">{{ reportStats().completed }}</dd></div>
+              <div class="flex items-center justify-between"><dt>{{ 'PLUGIN_WORKFLOW_OUTCOME_REJECTED' | translate }}</dt><dd class="font-mono">{{ reportStats().rejected }}</dd></div>
+              <div class="flex items-center justify-between"><dt>{{ 'PLUGIN_WORKFLOW_STATUS_CANCELLED' | translate }}</dt><dd class="font-mono">{{ reportStats().cancelled }}</dd></div>
+              <div class="flex items-center justify-between border-t border-default pt-1"><dt>{{ 'PLUGIN_WORKFLOW_REPORT_AVG_HOURS' | translate }}</dt><dd class="font-mono">{{ reportStats().avgHours }} h</dd></div>
+            </dl>
+          </div>
+
+          <div class="border border-default bg-surface p-2">
+            <h3 class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_TASK_STATUS' | translate }}</h3>
+            <div class="space-y-1.5">
+              @for (entry of taskStatusCounts(); track entry[0]) {
+                <div>
+                  <div class="flex items-center justify-between text-[11px]">
+                    <span>{{ statusLabel(entry[0]) }}</span>
+                    <span class="font-mono text-muted">{{ entry[1] }}</span>
+                  </div>
+                  <div class="mt-0.5 h-1.5 bg-surface-muted">
+                    <div class="h-1.5 bg-accent" [style.width.%]="percentOf(entry[1], reportStats().pending)"></div>
+                  </div>
+                </div>
+              } @empty {
+                <p class="text-[11px] text-muted">{{ 'PLUGIN_WORKFLOW_NO_TASKS' | translate }}</p>
               }
-            </tbody>
-          </table>
-        </section>
+            </div>
+          </div>
+
+          <div class="border border-default bg-surface p-2">
+            <h3 class="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_REPORT_NOTES' | translate }}</h3>
+            <ul class="list-disc space-y-1 ps-4 text-[11px] text-muted">
+              <li>{{ 'PLUGIN_WORKFLOW_REPORT_NOTE_SLA' | translate }}</li>
+              <li>{{ 'PLUGIN_WORKFLOW_REPORT_NOTE_OUTCOME' | translate }}</li>
+              <li>{{ 'PLUGIN_WORKFLOW_REPORT_NOTE_SCOPE' | translate }}</li>
+            </ul>
+          </div>
+        </div>
       }
     }
-  }
-</div>
+  </main>
+
+  <!-- Task drawer -->
+  <app-drawer
+    [isOpen]="taskDrawerOpen()"
+    [title]="'PLUGIN_WORKFLOW_TASK_DETAIL' | translate"
+    [subtitle]="selectedTask() ? (taskNodeLabel(selectedTask()) + ' · #' + shortId(selectedTask()?.instance_id)) : ''"
+    [width]="'w-screen max-w-lg'"
+    [zIndex]="60"
+    (close)="closeTask()"
+  >
+    @if (selectedTask(); as task) {
+      <div class="space-y-3 p-4">
+        <dl class="grid grid-cols-2 gap-1.5 text-[11px]">
+          <div>
+            <dt class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_TASK_NODE' | translate }}</dt>
+            <dd class="font-medium">{{ taskNodeLabel(task) }} ({{ task.node_id }})</dd>
+          </div>
+          <div>
+            <dt class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_NODE_TYPE' | translate }}</dt>
+            <dd>{{ ('PLUGIN_WORKFLOW_NODE_' + task.node_type) | translate }}</dd>
+          </div>
+          <div>
+            <dt class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_ASSIGN_USER' | translate }}</dt>
+            <dd class="truncate">{{ task.assignees.length ? userLabel(task.assignees[0]) : '—' }}</dd>
+          </div>
+          <div>
+            <dt class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_TASK_MODE' | translate }}</dt>
+            <dd>{{ modeLabel(task.approval_mode) }}</dd>
+          </div>
+          <div>
+            <dt class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_TASK_DUE' | translate }}</dt>
+            <dd [class.text-red-600]="isOverdue(task)">{{ formatDate(task.due_at) }}</dd>
+          </div>
+          <div>
+            <dt class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_TASK_STATUS' | translate }}</dt>
+            <dd>
+              <app-badge [variant]="taskVariant(task)" [shape]="'sharp'">{{ statusLabel(task.status) }}</app-badge>
+            </dd>
+          </div>
+        </dl>
+
+        @if (taskRun(); as run) {
+          <div class="border-t border-default pt-2">
+            <h3 class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_TASK_PROGRESS' | translate }}</h3>
+            <ol class="space-y-1 border-s-2 border-default ps-2">
+              @for (event of timeline(run); track event.id) {
+                <li>
+                  <div class="flex flex-wrap items-center gap-1">
+                    <app-badge [variant]="eventVariant(event)" [shape]="'sharp'">{{ eventLabel(event) }}</app-badge>
+                    <span class="font-mono text-[10px] text-muted">{{ formatDate(event.created_at) }}</span>
+                  </div>
+                </li>
+              } @empty {
+                <li class="text-[11px] text-muted">{{ 'PLUGIN_WORKFLOW_NO_EVENTS' | translate }}</li>
+              }
+            </ol>
+          </div>
+        }
+
+        <div class="border-t border-default pt-2">
+          <app-sharp-textarea
+            [label]="'PLUGIN_WORKFLOW_COMMENT' | translate"
+            [rows]="3"
+            [value]="comment()"
+            (valueChange)="comment.set($event)"
+          />
+          <p class="mt-0.5 text-[10px] text-muted">{{ 'PLUGIN_WORKFLOW_REJECT_HINT' | translate }}</p>
+        </div>
+
+        <div class="border-t border-default pt-2">
+          <h3 class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_WORKFLOW_MORE_ACTIONS' | translate }}</h3>
+          <div class="grid gap-2 md:grid-cols-2">
+            <!-- Return Step Select (No Raw Input) -->
+            <div class="space-y-1.5 border border-default p-2">
+              <app-sharp-select
+                [label]="'PLUGIN_WORKFLOW_RETURN_TARGET' | translate"
+                [options]="taskReturnTargets()"
+                [value]="returnTarget()"
+                (valueChange)="returnTarget.set($event)"
+              />
+              <div class="pt-1">
+                <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" [loading]="busy()" (clicked)="act('RETURN')">
+                  {{ 'PLUGIN_WORKFLOW_RETURN' | translate }}
+                </app-sharp-button>
+              </div>
+            </div>
+
+            <!-- Reassign User Searchable Picker (No Raw UUID Input) -->
+            <div class="space-y-1.5 border border-default p-2">
+              <label class="block text-[11px] font-medium">{{ 'PLUGIN_WORKFLOW_REASSIGN_USER' | translate }}</label>
+              <div class="flex items-center justify-between border border-default bg-surface-muted px-2 py-1 text-[11px]">
+                <span class="truncate">{{ reassignUser() ? userLabel(reassignUser()) : ('PLUGIN_WORKFLOW_SELECT_USER_PROMPT' | translate) }}</span>
+                <button
+                  type="button"
+                  class="text-[10px] font-medium text-accent underline"
+                  (click)="reassignPickerOpen.set(!reassignPickerOpen())"
+                >
+                  {{ 'COMMON_SELECT' | translate }}
+                </button>
+              </div>
+              @if (reassignPickerOpen()) {
+                <div class="space-y-1">
+                  <app-sharp-input
+                    [placeholder]="'PLUGIN_WORKFLOW_SEARCH_USER_PLACEHOLDER' | translate"
+                    [value]="reassignPickerSearch()"
+                    (valueChange)="reassignPickerSearch.set($event)"
+                  />
+                  <div class="max-h-32 overflow-y-auto border border-default bg-surface divide-y divide-default">
+                    @for (u of filteredReassignUsers(); track uidOf(u)) {
+                      <button
+                        type="button"
+                        class="flex w-full items-center justify-between px-2 py-1 text-start text-[10px] hover:bg-surface-muted"
+                        (click)="selectReassignUser(u)"
+                      >
+                        <span class="truncate font-medium">{{ u.full_name || u.name || u.email }}</span>
+                        <span class="truncate text-muted">{{ u.email }}</span>
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+              <div class="pt-1">
+                <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" [loading]="busy()" (clicked)="act('REASSIGN')">
+                  {{ 'PLUGIN_WORKFLOW_REASSIGN' | translate }}
+                </app-sharp-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+    <div drawer-footer class="flex justify-end gap-2 border-t border-default bg-surface p-3">
+      <app-sharp-button size="sm" variant="ghost" [shape]="'sharp'" (clicked)="closeTask()">
+        {{ 'COMMON_CLOSE' | translate }}
+      </app-sharp-button>
+      @if (selectedTask()?.status === 'PENDING') {
+        <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" [loading]="busy()" (clicked)="act('CLAIM')">
+          {{ 'PLUGIN_WORKFLOW_CLAIM' | translate }}
+        </app-sharp-button>
+      }
+      <app-sharp-button size="sm" variant="danger" [shape]="'sharp'" [loading]="busy()" (clicked)="act('REJECT')">
+        {{ 'PLUGIN_WORKFLOW_REJECT' | translate }}
+      </app-sharp-button>
+      <app-sharp-button size="sm" variant="primary" [shape]="'sharp'" [loading]="busy()" (clicked)="act('APPROVE')">
+        {{ 'PLUGIN_WORKFLOW_APPROVE' | translate }}
+      </app-sharp-button>
+    </div>
+  </app-drawer>
+</section>

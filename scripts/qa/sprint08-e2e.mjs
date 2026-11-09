@@ -103,6 +103,12 @@ if (!platformToken) {
 
 // ------------------------------------------------- install the 3 plugins
 async function installPlugin(key, version) {
+  const currentList = await api('GET', '/api/v1/tenant/plugins', { token });
+  const existing = (currentList.json?.data?.items ?? []).find((p) => p.plugin_key === key);
+  if (existing && existing.status === 'ACTIVE' && existing.installed_version === version) {
+    console.log(`plugin ${key}@${version} already ACTIVE via default provisioning (locked=${existing.locked})`);
+    return true;
+  }
   const catalog = await api('POST', '/api/v1/platform/plugins', {
     token: platformToken,
     body: { plugin_key: key, name_key: `PLUGIN_${key.toUpperCase()}_NAME`,
@@ -148,6 +154,9 @@ async function installPlugin(key, version) {
     body: { version },
   });
   console.log(`install ${key}:`, install.status, install.json?.code ?? '');
+  if (install.status === 409 && install.json?.code === 'PLUGIN_ALREADY_INSTALLED') {
+    return true;
+  }
   const operationId = install.json?.data?.operation_id;
   for (let i = 0; i < 80; i++) {
     await sleep(3000);

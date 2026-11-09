@@ -87,4 +87,18 @@ class FormDocumentValidatorTest {
         Map<String, Object> next = Map.of("items", List.of(textQuestion("name")));
         assertTrue(validator.validateRefStability(previous, next).isEmpty());
     }
+
+    @Test
+    void acceptsPageAndStepContainersWithGridResponsiveMetadata() {
+        Map<String, Object> document = Map.of(
+                "layout", Map.of("mode", "STEP", "columns", 2, "mobile_columns", 1),
+                "items", List.of(
+                        Map.of("type", "STEP", "title", "Step 1: Identity", "grid_columns", 2, "mobile_columns", 1),
+                        Map.of("type", "SHORT_TEXT", "ref", "full_name", "label", "Full Name", "col_span", 1, "mobile_span", 1),
+                        choiceQuestion("account_type", List.of(
+                                Map.of("value", "personal", "logic", Map.of("action", "NEXT_STEP")),
+                                Map.of("value", "enterprise", "logic", Map.of("action", "NEXT_PAGE")))),
+                        Map.of("type", "PAGE", "title", "Page 2: Enterprise Details", "grid_columns", 3)));
+        assertTrue(validator.validate(document).isEmpty());
+    }
 }

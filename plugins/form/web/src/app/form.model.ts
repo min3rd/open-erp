@@ -14,12 +14,26 @@ export interface FormDefinition {
   updated_at?: string;
 }
 
+export type FormStructureMode = 'SECTION' | 'PAGE' | 'STEP';
+
+export interface FormLayoutConfig {
+  mode?: FormStructureMode;
+  columns?: 1 | 2 | 3 | 4;
+  mobile_columns?: 1 | 2;
+  row_gap?: 'compact' | 'normal' | 'relaxed';
+}
+
 export interface FormDocument {
+  layout?: FormLayoutConfig;
   items: FormItem[];
 }
 
+export type FormContainerType = 'SECTION' | 'PAGE' | 'STEP';
+
 export type FormItemType =
   | 'SECTION'
+  | 'PAGE'
+  | 'STEP'
   | 'SHORT_TEXT'
   | 'LONG_TEXT'
   | 'SINGLE_CHOICE'
@@ -44,18 +58,42 @@ export interface FormItem {
   columns?: string[];
   file_limits?: { max_files?: number; max_size_mb?: number };
   grading?: { points: number; correct: string[]; feedback?: string };
+  // Container grid config (for SECTION / PAGE / STEP)
+  grid_columns?: 1 | 2 | 3 | 4;
+  mobile_columns?: 1 | 2;
+  // Field layout & responsive config
+  col_span?: 1 | 2 | 3 | 4;
+  row_span?: 1 | 2 | 3;
+  mobile_span?: 1 | 2;
+  row_break?: boolean;
+  hide_on_mobile?: boolean;
 }
+
+export type FormLogicAction =
+  | 'GOTO_REF'
+  | 'NEXT_SECTION'
+  | 'NEXT_PAGE'
+  | 'NEXT_STEP'
+  | 'SUBMIT_FORM';
 
 export interface FormOption {
   value: string;
   label?: string;
-  logic?: { action: 'GOTO_REF' | 'NEXT_SECTION' | 'SUBMIT_FORM'; goto_ref?: string };
+  logic?: { action: FormLogicAction; goto_ref?: string };
 }
 
 export interface FormEntityMapping {
   target_plugin: string;
   target_entity: string;
   target_field: string;
+}
+
+export interface EntityRegistryEntry {
+  pluginId: string;
+  entityName: string;
+  table: string;
+  storageType: string;
+  schemaDefinition?: { fields?: string[] } | null;
 }
 
 export interface FormResponse {

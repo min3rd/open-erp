@@ -100,6 +100,24 @@ public class EntityRegistryService {
                 String.valueOf(row[2]), String.valueOf(row[3]), schema));
     }
 
+    public java.util.List<Lookup> listAll() {
+        @SuppressWarnings("unchecked")
+        java.util.List<Object[]> rows = entityManager.createNativeQuery("""
+                SELECT plugin_id, entity_name, table_or_collection, storage_type, schema_definition::text
+                FROM sys_entity_registry
+                ORDER BY plugin_id, entity_name
+                """).getResultList();
+        return rows.stream().map(row -> {
+            JsonNode schema = null;
+            try {
+                schema = objectMapper.readTree(String.valueOf(row[4]));
+            } catch (Exception ignored) {
+            }
+            return new Lookup(String.valueOf(row[0]), String.valueOf(row[1]),
+                    String.valueOf(row[2]), String.valueOf(row[3]), schema);
+        }).toList();
+    }
+
     public record Lookup(String pluginId, String entityName, String table,
                          String storageType, JsonNode schemaDefinition) {}
 

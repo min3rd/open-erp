@@ -82,12 +82,16 @@ public class PluginPermissionSeeder {
                 WHERE r.tenant_id IS NULL AND (
                     (r.code = 'GENERAL_MANAGER' AND p.code IN (
                         'employee:profile:read', 'employee:self:read', 'employee:self:update',
-                        'employee:document:read', 'employee:directory:read', 'employee:org-chart:read'))
+                        'employee:document:read', 'employee:directory:read', 'employee:org-chart:read',
+                        'form:response:read', 'form:response:export',
+                        'workflow:task:action', 'workflow:instance:read', 'workflow:report:read'))
                     OR (r.code = 'STAFF' AND p.code IN (
                         'employee:self:read', 'employee:self:update', 'employee:document:read',
-                        'employee:directory:read', 'employee:org-chart:read'))
+                        'employee:directory:read', 'employee:org-chart:read',
+                        'form:response:read', 'workflow:task:action', 'workflow:instance:read'))
                     OR (r.code = 'VIEWER' AND p.code IN (
-                        'employee:profile:read', 'employee:directory:read', 'employee:org-chart:read'))
+                        'employee:profile:read', 'employee:directory:read', 'employee:org-chart:read',
+                        'form:response:read', 'workflow:instance:read', 'workflow:report:read'))
                     OR (r.code IN ('GENERAL_MANAGER', 'STAFF', 'VIEWER')
                         AND p.code = 'in-app-notification:notification:read')
                 )

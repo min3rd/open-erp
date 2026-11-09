@@ -109,9 +109,11 @@ public class WorkflowResource {
                 Map.of("instance_id", id)).rows().stream()
                 .map(WorkflowTask::from)
                 .toList();
+        List<Map<String, Object>> events = client.query("event.list_by_instance",
+                Map.of("instance_id", id)).rows();
         return ApiResponse.success("WORKFLOW_INSTANCE_PROGRESS",
                 "Instance progress retrieved.",
-                Map.of("instance", rows.get(0), "tasks", tasks));
+                Map.of("instance", rows.get(0), "tasks", tasks, "events", events));
     }
 
     public record TaskActionRequest(

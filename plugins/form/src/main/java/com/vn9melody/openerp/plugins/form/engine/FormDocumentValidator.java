@@ -14,14 +14,16 @@ import java.util.Set;
  */
 public final class FormDocumentValidator {
 
+    public static final Set<String> CONTAINER_TYPES = Set.of("SECTION", "PAGE", "STEP");
+
     public static final Set<String> ITEM_TYPES = Set.of(
-            "SECTION", "SHORT_TEXT", "LONG_TEXT", "SINGLE_CHOICE", "MULTI_CHOICE",
+            "SECTION", "PAGE", "STEP", "SHORT_TEXT", "LONG_TEXT", "SINGLE_CHOICE", "MULTI_CHOICE",
             "DROPDOWN", "DATE", "NUMBER", "RATING", "FILE_UPLOAD", "MATRIX");
 
     public static final Set<String> CHOICE_TYPES = Set.of("SINGLE_CHOICE", "MULTI_CHOICE", "DROPDOWN");
 
     private static final String REF_PATTERN = "[a-zA-Z0-9_-]+";
-    private static final Set<String> GOTO_ACTIONS = Set.of("NEXT_SECTION", "SUBMIT_FORM");
+    private static final Set<String> GOTO_ACTIONS = Set.of("NEXT_SECTION", "NEXT_PAGE", "NEXT_STEP", "SUBMIT_FORM");
 
     public record Violation(String code, String detail) {}
 
@@ -73,10 +75,14 @@ public final class FormDocumentValidator {
                     "items[" + index + "].type '" + type + "' is not supported"));
             return;
         }
-        if ("SECTION".equals(type)) {
+        if (CONTAINER_TYPES.contains(type)) {
             if (str(item.get("title")) == null || str(item.get("title")).isBlank()) {
                 violations.add(new Violation("FORM_DOCUMENT_INVALID",
-                        "items[" + index + "] SECTION requires title"));
+                        "items[" + index + "] " + type + " requires title"));
+            }
+            String containerRef = str(item.get("ref"));
+            if (containerRef != null && !containerRef.isBlank() && containerRef.matches(REF_PATTERN)) {
+                refIndex.putIfAbsent(containerRef, index);
             }
             return;
         }

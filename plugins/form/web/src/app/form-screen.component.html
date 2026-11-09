@@ -1,141 +1,1295 @@
-<div class="op-form-root" [attr.data-theme]="context?.theme ?? ''">
-  <nav class="op-tabs">
-    <button type="button" class="op-btn" (click)="setTab('forms')">{{ 'PLUGIN_FORM_TAB_FORMS' | translate }}</button>
-    <button type="button" class="op-btn" (click)="setTab('builder')" [disabled]="!selected()">{{ 'PLUGIN_FORM_TAB_BUILDER' | translate }}</button>
-    <button type="button" class="op-btn" (click)="setTab('responses')" [disabled]="!selected()">{{ 'PLUGIN_FORM_TAB_RESPONSES' | translate }}</button>
-    <button type="button" class="op-btn" (click)="setTab('summary')" [disabled]="!selected()">{{ 'PLUGIN_FORM_TAB_SUMMARY' | translate }}</button>
+<section class="flex min-h-full flex-col bg-surface-muted text-xs text-ink">
+  <!-- Workspace Header -->
+  <header class="border-b border-default bg-surface px-4 py-4 sm:px-6">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div class="min-w-0">
+        <div class="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted">
+          <app-icon name="file-text" size="sm" [decorative]="true" />
+          <span>{{ 'PLUGIN_FORM_WORKSPACE' | translate }}</span>
+        </div>
+        <h1 class="mt-1 text-lg font-semibold tracking-tight text-ink">{{ 'PLUGIN_FORM_TITLE' | translate }}</h1>
+        <p class="mt-1 max-w-2xl text-xs leading-relaxed text-muted">{{ 'PLUGIN_FORM_SUBTITLE' | translate }}</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        @if (canManage()) {
+          <app-sharp-button size="sm" shape="sharp" (clicked)="openCreate()">
+            <span class="inline-flex items-center gap-1"><app-icon name="plus" size="sm" [decorative]="true" />{{ 'PLUGIN_FORM_NEW' | translate }}</span>
+          </app-sharp-button>
+        }
+        <app-sharp-button variant="ghost" size="sm" shape="sharp" (clicked)="loadForms()">
+          <span class="inline-flex items-center gap-1"><app-icon name="refresh-cw" size="sm" [decorative]="true" />{{ 'COMMON_REFRESH' | translate }}</span>
+        </app-sharp-button>
+      </div>
+    </div>
+
+    <!-- 4-Card KPI Row -->
+    <div class="mt-4 grid grid-cols-2 gap-2 xl:grid-cols-4">
+      <div class="border border-default bg-surface p-3">
+        <div class="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
+          <span>{{ 'PLUGIN_FORM_KPI_TOTAL' | translate }}</span>
+          <app-icon name="file-text" size="sm" [decorative]="true" />
+        </div>
+        <p class="mt-1 text-2xl font-semibold leading-none">{{ forms().length }}</p>
+        <p class="mt-1 text-[11px] text-muted">{{ 'PLUGIN_FORM_KPI_TOTAL_HINT' | translate }}</p>
+      </div>
+      <div class="border border-default bg-surface p-3">
+        <div class="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
+          <span>{{ 'PLUGIN_FORM_KPI_PUBLISHED' | translate }}</span>
+          <app-icon name="check" size="sm" [decorative]="true" />
+        </div>
+        <p class="mt-1 text-2xl font-semibold leading-none text-emerald-600 dark:text-emerald-400">{{ publishedCount() }}</p>
+        <p class="mt-1 text-[11px] text-muted">{{ 'PLUGIN_FORM_KPI_PUBLISHED_HINT' | translate }}</p>
+      </div>
+      <div class="border border-default bg-surface p-3">
+        <div class="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
+          <span>{{ 'PLUGIN_FORM_KPI_DRAFTS' | translate }}</span>
+          <app-icon name="edit-2" size="sm" [decorative]="true" />
+        </div>
+        <p class="mt-1 text-2xl font-semibold leading-none">{{ forms().length - publishedCount() }}</p>
+        <p class="mt-1 text-[11px] text-muted">{{ 'PLUGIN_FORM_KPI_DRAFTS_HINT' | translate }}</p>
+      </div>
+      <div class="border border-default bg-surface p-3">
+        <div class="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
+          <span>{{ (selected() ? 'PLUGIN_FORM_KPI_RESPONSES' : 'PLUGIN_FORM_KPI_INTAKE') | translate }}</span>
+          <app-icon name="grid" size="sm" [decorative]="true" />
+        </div>
+        <p class="mt-1 text-2xl font-semibold leading-none text-accent">{{ selected() ? responses().length : intakeRate() }}</p>
+        <p class="mt-1 text-[11px] text-muted">{{ (selected() ? 'PLUGIN_FORM_KPI_RESPONSES_HINT' : 'PLUGIN_FORM_KPI_INTAKE_HINT') | translate }}</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tab Strip -->
+  <nav class="flex gap-1 overflow-x-auto border-b border-default bg-surface px-3 sm:px-5" [attr.aria-label]="'PLUGIN_FORM_TITLE' | translate">
+    @for (item of screenTabs; track item.key) {
+      <button
+        type="button"
+        class="inline-flex min-h-10 shrink-0 items-center gap-1.5 border-b-2 px-2.5 text-[11px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+        [class.border-accent]="tab() === item.key"
+        [class.text-ink]="tab() === item.key"
+        [class.border-transparent]="tab() !== item.key"
+        [class.text-muted]="tab() !== item.key"
+        [class.hover:text-ink]="tab() !== item.key && !item.disabled"
+        [disabled]="item.disabled"
+        (click)="selectTab(item.key)"
+      >
+        <app-icon [name]="item.icon" size="sm" [decorative]="true" />
+        <span>{{ item.labelKey | translate }}</span>
+        @if (item.count !== undefined && item.count > 0) {
+          <span class="min-w-5 border border-default bg-surface-muted px-1 text-center text-[10px] font-semibold text-muted">{{ item.count }}</span>
+        }
+      </button>
+    }
   </nav>
 
-  @if (error()) {
-    <p class="op-error">{{ error() | translate }}</p>
-  }
-
-  @switch (tab()) {
-    @case ('forms') {
-      <section class="op-card">
-        <div class="op-row">
-          <strong>{{ 'PLUGIN_FORM_LIST_TITLE' | translate }}</strong>
-          <button type="button" class="op-btn op-btn--primary" (click)="openBuilder(null)">
-            {{ 'PLUGIN_FORM_CREATE' | translate }}
-          </button>
+  <!-- Main Content Body -->
+  <main class="flex-1 space-y-3 p-3 sm:p-5">
+    @if (error(); as code) {
+      <div class="flex items-start justify-between gap-2 border border-red-300 bg-red-50 p-2.5 text-[11px] text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200" role="alert">
+        <div class="flex items-center gap-2">
+          <app-icon name="alert-triangle" size="sm" [decorative]="true" />
+          <span>{{ code | translate }}</span>
         </div>
-        <table class="op-table">
-          <thead>
-            <tr>
-              <th>{{ 'PLUGIN_FORM_SLUG' | translate }}</th>
-              <th>{{ 'PLUGIN_FORM_TITLE' | translate }}</th>
-              <th>{{ 'PLUGIN_FORM_STATUS' | translate }}</th>
-              <th>{{ 'PLUGIN_FORM_VERSION' | translate }}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (form of forms(); track form.id) {
-              <tr>
-                <td>{{ form.slug }}</td>
-                <td>{{ form.title_text }}</td>
-                <td><span class="op-badge">{{ form.publish_status }}</span></td>
-                <td>v{{ form.latest_version }}</td>
-                <td>
-                  <button type="button" class="op-btn" (click)="openBuilder(form)">
+        <button type="button" class="underline" (click)="error.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+      </div>
+    }
+    @if (success(); as msg) {
+      <div class="flex items-start justify-between gap-2 border border-emerald-300 bg-emerald-50 p-2.5 text-[11px] text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200" role="status">
+        <div class="flex items-center gap-2">
+          <app-icon name="check" size="sm" [decorative]="true" />
+          <span>{{ msg | translate }}</span>
+        </div>
+        <button type="button" class="underline" (click)="success.set('')">{{ 'COMMON_CLOSE' | translate }}</button>
+      </div>
+    }
+
+    @switch (tab()) {
+      <!-- ============================ FORMS LIST ============================ -->
+      @case ('forms') {
+        <div class="flex flex-wrap items-center justify-between gap-2 border border-default bg-surface p-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="w-64 max-w-full">
+              <app-sharp-input
+                [placeholder]="'PLUGIN_FORM_SEARCH' | translate"
+                [value]="listSearch()"
+                (valueChange)="listSearch.set($event)"
+              />
+            </div>
+            <div class="w-44">
+              <app-sharp-select
+                [options]="statusOptions"
+                [value]="statusFilter()"
+                (valueChange)="statusFilter.set($event)"
+              />
+            </div>
+            <app-sharp-button size="sm" variant="ghost" [shape]="'sharp'" (clicked)="loadForms()">
+              <span class="inline-flex items-center gap-1"><app-icon name="refresh-cw" [size]="'sm'" [decorative]="true" />{{ 'COMMON_REFRESH' | translate }}</span>
+            </app-sharp-button>
+          </div>
+          <span class="font-mono text-[10px] uppercase tracking-wider text-muted">
+            {{ filteredForms().length }} / {{ forms().length }}
+          </span>
+        </div>
+
+        <app-table
+          [columns]="listColumns"
+          [rows]="filteredForms()"
+          [loading]="listLoading()"
+          emptyKey="PLUGIN_FORM_EMPTY"
+        >
+          <ng-template let-form>
+            <tr class="hover:bg-surface-muted/60">
+              <td class="px-2 py-1.5">
+                <div class="flex min-w-0 flex-col">
+                  <span class="truncate font-medium">{{ form.title_text }}</span>
+                  <span class="truncate font-mono text-[10px] text-muted">/{{ form.slug }}</span>
+                </div>
+              </td>
+              <td class="px-2 py-1.5">
+                <app-badge [variant]="statusVariant(form.publish_status)" [shape]="'sharp'">
+                  {{ ('PLUGIN_FORM_STATUS_' + form.publish_status) | translate }}
+                </app-badge>
+              </td>
+              <td class="px-2 py-1.5 font-mono">v{{ form.latest_version }}</td>
+              <td class="px-2 py-1.5 text-muted">{{ formatDate(form.updated_at) }}</td>
+              <td class="px-2 py-1.5">
+                <div class="flex flex-wrap items-center justify-end gap-1">
+                  <app-sharp-button
+                    size="sm"
+                    variant="outline"
+                    [shape]="'sharp'"
+                    (clicked)="openForm(form, 'builder')"
+                  >
                     {{ 'PLUGIN_FORM_OPEN' | translate }}
-                  </button>
+                  </app-sharp-button>
+                  @if (canReadResponses()) {
+                    <app-sharp-button
+                      size="sm"
+                      variant="ghost"
+                      [shape]="'sharp'"
+                      (clicked)="openForm(form, 'responses')"
+                    >
+                      {{ 'PLUGIN_FORM_TAB_RESPONSES' | translate }}
+                    </app-sharp-button>
+                  }
+                  @if (canManage()) {
+                    <app-sharp-button size="sm" variant="ghost" [shape]="'sharp'" (clicked)="editMeta(form)">
+                      <app-icon name="edit-2" [size]="'sm'" [decorative]="true" />
+                      {{ 'COMMON_EDIT' | translate }}
+                    </app-sharp-button>
+                  }
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </app-table>
+      }
+
+      <!-- ============================ BUILDER TAB (LIVE VISUAL STUDIO) ============================ -->
+      @case ('builder') {
+        <div class="flex min-h-0 flex-col gap-2">
+          <!-- Top Studio Bar: Form Title, Structure Mode (Section/Page/Step), Grid Cols, Responsive Viewport & Save/Publish -->
+          <div class="flex flex-wrap items-end justify-between gap-2 border border-default bg-surface p-2">
+            <div class="flex flex-wrap items-end gap-2">
+              <div class="w-56">
+                <app-sharp-input
+                  [label]="'PLUGIN_FORM_FIELD_TITLE' | translate"
+                  [value]="titleInput()"
+                  (valueChange)="titleInput.set($event); dirty.set(true)"
+                />
+              </div>
+              <div class="w-40">
+                <app-sharp-select
+                  [label]="'PLUGIN_FORM_LAYOUT_MODE' | translate"
+                  [options]="structureModeOptions"
+                  [value]="layoutConfig().mode ?? 'SECTION'"
+                  (valueChange)="setStructureMode($event)"
+                />
+              </div>
+              <div class="w-36">
+                <app-sharp-select
+                  [label]="'PLUGIN_FORM_DESKTOP_COLS' | translate"
+                  [options]="desktopColOptions"
+                  [value]="numText(layoutConfig().columns ?? 2)"
+                  (valueChange)="setDefaultDesktopCols($event)"
+                />
+              </div>
+              <div class="w-36">
+                <app-sharp-select
+                  [label]="'PLUGIN_FORM_MOBILE_COLS' | translate"
+                  [options]="mobileColOptions"
+                  [value]="numText(layoutConfig().mobile_columns ?? 1)"
+                  (valueChange)="setDefaultMobileCols($event)"
+                />
+              </div>
+              <!-- Viewport Switcher (Desktop vs Mobile 390px Live Preview) -->
+              <div class="inline-flex border border-default bg-surface-muted p-0.5">
+                <app-sharp-button
+                  size="sm"
+                  [variant]="previewViewport() === 'desktop' ? 'primary' : 'ghost'"
+                  [shape]="'sharp'"
+                  (clicked)="previewViewport.set('desktop')"
+                >
+                  <span class="inline-flex items-center gap-1"><app-icon name="grid" size="sm" [decorative]="true" />Desktop</span>
+                </app-sharp-button>
+                <app-sharp-button
+                  size="sm"
+                  [variant]="previewViewport() === 'mobile' ? 'primary' : 'ghost'"
+                  [shape]="'sharp'"
+                  (clicked)="previewViewport.set('mobile')"
+                >
+                  <span class="inline-flex items-center gap-1"><app-icon name="file-text" size="sm" [decorative]="true" />Mobile 390px</span>
+                </app-sharp-button>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-1">
+              <app-badge [variant]="statusVariant(selected()?.publish_status)" [shape]="'sharp'">
+                {{ ('PLUGIN_FORM_STATUS_' + (selected()?.publish_status ?? 'DRAFT')) | translate }}
+              </app-badge>
+              @if (dirty()) {
+                <app-badge variant="warning" [shape]="'sharp'">{{ 'PLUGIN_FORM_UNSAVED' | translate }}</app-badge>
+              }
+              <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="previewOpen.set(true)">
+                {{ 'PLUGIN_FORM_PREVIEW' | translate }}
+              </app-sharp-button>
+              @if (canManage()) {
+                <app-sharp-button size="sm" variant="primary" [shape]="'sharp'" [loading]="saving()" (clicked)="saveDocument()">
+                  <span class="inline-flex items-center gap-1"><app-icon name="check" size="sm" [decorative]="true" />{{ 'COMMON_SAVE' | translate }}</span>
+                </app-sharp-button>
+                <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="openPublish()">
+                  <span class="inline-flex items-center gap-1"><app-icon name="upload" size="sm" [decorative]="true" />{{ 'PLUGIN_FORM_PUBLISH' | translate }}</span>
+                </app-sharp-button>
+                @if (selected()?.publish_status === 'PUBLISHED') {
+                  <app-sharp-button size="sm" variant="ghost" [shape]="'sharp'" (clicked)="closeIntake()">
+                    {{ 'PLUGIN_FORM_CLOSE' | translate }}
+                  </app-sharp-button>
+                }
+              }
+            </div>
+          </div>
+
+          <!-- 3-Column Visual Studio: [Left Palette & Outline] | [Center Live Preview Canvas] | [Right Property Inspector] -->
+          <div class="grid min-h-0 flex-1 gap-2 xl:grid-cols-[15rem_minmax(0,1fr)_22rem]">
+            <!-- 1. LEFT PALETTE: Draggable Layout Containers, Draggable Field Types & Quick Outline -->
+            <aside class="flex min-h-0 flex-col gap-2">
+              <section class="border border-default bg-surface">
+                <div class="border-b border-default bg-surface-muted px-2 py-1.5">
+                  <h2 class="text-[10px] font-semibold uppercase tracking-wider">{{ 'PLUGIN_FORM_PALETTE_CONTAINERS' | translate }}</h2>
+                  <p class="text-[10px] text-muted">{{ 'PLUGIN_FORM_PALETTE_HINT' | translate }}</p>
+                </div>
+                <div class="grid grid-cols-3 gap-1 p-1.5">
+                  @for (cType of containerTypes; track cType) {
+                    <button
+                      type="button"
+                      draggable="true"
+                      class="flex cursor-grab flex-col items-center justify-center gap-1 border border-default bg-surface p-1.5 text-center text-[10px] font-medium hover:border-accent hover:bg-surface-muted"
+                      (dragstart)="onPaletteDragStart(cType)"
+                      (dragend)="onDragEnd()"
+                      (click)="addContainer(cType)"
+                    >
+                      <app-icon name="grid" size="sm" [decorative]="true" />
+                      <span class="truncate">{{ itemTypeKey(cType) | translate }}</span>
+                    </button>
+                  }
+                </div>
+              </section>
+
+              <section class="border border-default bg-surface">
+                <div class="border-b border-default bg-surface-muted px-2 py-1.5">
+                  <h2 class="text-[10px] font-semibold uppercase tracking-wider">{{ 'PLUGIN_FORM_PALETTE_FIELDS' | translate }}</h2>
+                </div>
+                <div class="grid grid-cols-2 gap-1 p-1.5">
+                  @for (fType of fieldTypes; track fType) {
+                    <button
+                      type="button"
+                      draggable="true"
+                      class="flex cursor-grab items-center gap-1.5 border border-default bg-surface px-2 py-1.5 text-start text-[10px] font-medium hover:border-accent hover:bg-surface-muted"
+                      (dragstart)="onPaletteDragStart(fType)"
+                      (dragend)="onDragEnd()"
+                      (click)="addQuestion(fType)"
+                    >
+                      <app-icon [name]="itemIcon(fType)" size="sm" [decorative]="true" />
+                      <span class="truncate">{{ itemTypeKey(fType) | translate }}</span>
+                    </button>
+                  }
+                </div>
+              </section>
+
+              <!-- Compact Structure Outline -->
+              <section class="flex min-h-0 flex-1 flex-col border border-default bg-surface">
+                <div class="flex items-center justify-between border-b border-default bg-surface-muted px-2 py-1.5">
+                  <h2 class="text-[10px] font-semibold uppercase tracking-wider">{{ 'PLUGIN_FORM_OUTLINE' | translate }}</h2>
+                  <span class="font-mono text-[10px] text-muted">{{ containerCount() }}C · {{ questionCount() }}Q</span>
+                </div>
+                <div class="max-h-64 overflow-y-auto p-1.5">
+                  @for (item of items(); track $index) {
+                    <div
+                      draggable="true"
+                      class="mb-1 flex cursor-grab items-center justify-between gap-1 border border-default px-1.5 py-1 text-[10px]"
+                      [class.border-accent]="selectedIndex() === $index"
+                      [class.bg-surface-muted]="selectedIndex() === $index || isContainer(item)"
+                      [class.ps-3]="!isContainer(item)"
+                      (click)="selectItem($index)"
+                      (dragstart)="onDragStart($index)"
+                      (dragover)="onDragOver($event, $index)"
+                      (drop)="onDrop($index)"
+                      (dragend)="onDragEnd()"
+                    >
+                      <span class="truncate" [class.font-semibold]="isContainer(item)">
+                        @if (isContainer(item)) {
+                          [{{ item.type }}] {{ item.title }}
+                        } @else {
+                          {{ item.label || item.ref }}
+                        }
+                      </span>
+                      <span class="shrink-0 font-mono text-[9px] text-muted">
+                        @if (isContainer(item)) {
+                          {{ item.grid_columns ?? layoutConfig().columns ?? 2 }}C
+                        } @else {
+                          {{ item.col_span ?? 1 }}C
+                        }
+                      </span>
+                    </div>
+                  }
+                </div>
+              </section>
+            </aside>
+
+            <!-- 2. CENTER LIVE VISUAL PREVIEW CANVAS (WYSIWYG) -->
+            <section class="flex min-h-0 flex-col border border-default bg-surface">
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-default bg-surface-muted px-3 py-1.5">
+                <div class="flex items-center gap-2">
+                  <app-icon name="eye" size="sm" [decorative]="true" />
+                  <h2 class="text-[10px] font-semibold uppercase tracking-wider">{{ 'PLUGIN_FORM_LIVE_CANVAS' | translate }}</h2>
+                  <app-badge variant="info" [shape]="'sharp'">
+                    {{ ('PLUGIN_FORM_MODE_' + (layoutConfig().mode ?? 'SECTION')) | translate }}
+                  </app-badge>
+                  <app-badge variant="default" [shape]="'sharp'">
+                    {{ previewViewport() === 'mobile' ? ('Mobile 390px · ' + (layoutConfig().mobile_columns ?? 1) + ' ' + ('PLUGIN_FORM_COL_UNIT' | translate)) : ('Desktop · ' + (layoutConfig().columns ?? 2) + ' ' + ('PLUGIN_FORM_COL_UNIT' | translate)) }}
+                  </app-badge>
+                </div>
+
+                <!-- Step / Page Wizard Switcher in Live Preview -->
+                @if (containerGroups().length > 1 || layoutConfig().mode === 'PAGE' || layoutConfig().mode === 'STEP') {
+                  <div class="flex flex-wrap items-center gap-1">
+                    <app-sharp-button
+                      size="sm"
+                      [variant]="activeContainerGroup() === 'ALL' ? 'primary' : 'outline'"
+                      [shape]="'sharp'"
+                      (clicked)="activeContainerGroup.set('ALL')"
+                    >
+                      {{ 'COMMON_ALL' | translate }} ({{ containerGroups().length }})
+                    </app-sharp-button>
+                    @for (grp of containerGroups(); track grp.groupId; let gIdx = $index) {
+                      <app-sharp-button
+                        size="sm"
+                        [variant]="activeContainerGroup() === gIdx ? 'primary' : 'outline'"
+                        [shape]="'sharp'"
+                        (clicked)="activeContainerGroup.set(gIdx); grp.containerIndex != null && selectItem(grp.containerIndex)"
+                      >
+                        {{ gIdx + 1 }}. {{ grp.title }}
+                      </app-sharp-button>
+                    }
+                  </div>
+                }
+              </div>
+
+              <!-- Live Preview Viewport Frame -->
+              <div class="flex-1 overflow-y-auto bg-surface-muted/50 p-3">
+                <div
+                  class="mx-auto space-y-3 transition-all"
+                  [class.max-w-[390px]]="previewViewport() === 'mobile'"
+                  [class.border-2]="previewViewport() === 'mobile'"
+                  [class.border-default]="previewViewport() === 'mobile'"
+                  [class.bg-surface]="previewViewport() === 'mobile'"
+                  [class.p-2.5]="previewViewport() === 'mobile'"
+                >
+                  <!-- Live Form Header Card -->
+                  <div class="border border-default bg-surface p-3">
+                    <div class="flex items-start justify-between gap-2">
+                      <div class="min-w-0 flex-1">
+                        <h3 class="text-sm font-semibold text-ink">{{ titleInput() || ('PLUGIN_FORM_FIELD_TITLE' | translate) }}</h3>
+                        @if (descriptionInput()) {
+                          <p class="mt-0.5 text-[11px] text-muted">{{ descriptionInput() }}</p>
+                        }
+                      </div>
+                      <span class="font-mono text-[10px] text-muted">/{{ slugInput() }}</span>
+                    </div>
+
+                    <!-- Step Wizard Progress Indicator when mode is STEP or PAGE -->
+                    @if (layoutConfig().mode === 'STEP' || layoutConfig().mode === 'PAGE') {
+                      <div class="mt-3 flex items-center gap-1 overflow-x-auto border-t border-default pt-2">
+                        @for (grp of containerGroups(); track grp.groupId; let gIdx = $index) {
+                          <button
+                            type="button"
+                            class="flex items-center gap-1.5 border px-2 py-1 text-[10px] font-medium transition-colors"
+                            [class.border-accent]="activeContainerGroup() === gIdx || (activeContainerGroup() === 'ALL' && gIdx === 0)"
+                            [class.bg-surface-muted]="activeContainerGroup() === gIdx"
+                            [class.border-default]="activeContainerGroup() !== gIdx"
+                            (click)="activeContainerGroup.set(gIdx)"
+                          >
+                            <span class="inline-flex h-4 w-4 items-center justify-center bg-accent text-[9px] font-bold text-white">{{ gIdx + 1 }}</span>
+                            <span class="truncate">{{ grp.title }}</span>
+                          </button>
+                          @if (gIdx < containerGroups().length - 1) {
+                            <span class="text-muted">→</span>
+                          }
+                        }
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Render Each Container Group (SECTION / PAGE / STEP) as a Live Grid Preview -->
+                  @for (group of visibleContainerGroups(); track group.groupId) {
+                    <div
+                      class="border bg-surface transition-colors"
+                      [class.border-accent]="group.containerIndex !== null && selectedIndex() === group.containerIndex"
+                      [class.border-default]="group.containerIndex === null || selectedIndex() !== group.containerIndex"
+                      (dragover)="$event.preventDefault()"
+                      (drop)="onDropIntoContainer(group)"
+                    >
+                      <!-- Container Header Bar -->
+                      <div
+                        class="flex flex-wrap items-center justify-between gap-2 border-b border-default bg-surface-muted px-3 py-2 cursor-pointer"
+                        (click)="group.containerIndex !== null && selectItem(group.containerIndex)"
+                      >
+                        <div class="flex min-w-0 items-center gap-2">
+                          <app-badge variant="info" [shape]="'sharp'">
+                            {{ itemTypeKey(group.containerType) | translate }} #{{ group.order }}
+                          </app-badge>
+                          <div class="min-w-0">
+                            <p class="truncate text-xs font-semibold uppercase tracking-wide">{{ group.title }}</p>
+                            @if (group.description) {
+                              <p class="truncate text-[10px] text-muted">{{ group.description }}</p>
+                            }
+                          </div>
+                        </div>
+
+                        <!-- Quick Container Grid Column Controls -->
+                        <div class="flex flex-wrap items-center gap-1" (click)="$event.stopPropagation()">
+                          <span class="text-[10px] text-muted">Desktop:</span>
+                          @for (col of [1, 2, 3, 4]; track col) {
+                            <button
+                              type="button"
+                              class="border px-1.5 py-0.5 font-mono text-[10px]"
+                              [class.border-accent]="group.desktopCols === col"
+                              [class.bg-surface]="group.desktopCols === col"
+                              [class.font-bold]="group.desktopCols === col"
+                              [class.border-default]="group.desktopCols !== col"
+                              (click)="setContainerCols(group.containerIndex, $any(col))"
+                            >
+                              {{ col }}C
+                            </button>
+                          }
+                          <span class="ms-1 text-[10px] text-muted">Mobile:</span>
+                          @for (mcol of [1, 2]; track mcol) {
+                            <button
+                              type="button"
+                              class="border px-1.5 py-0.5 font-mono text-[10px]"
+                              [class.border-accent]="group.mobileCols === mcol"
+                              [class.bg-surface]="group.mobileCols === mcol"
+                              [class.font-bold]="group.mobileCols === mcol"
+                              [class.border-default]="group.mobileCols !== mcol"
+                              (click)="setContainerMobileCols(group.containerIndex, $any(mcol))"
+                            >
+                              M:{{ mcol }}C
+                            </button>
+                          }
+                          <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="addQuestion(addType(), group.containerIndex)">
+                            <span class="inline-flex items-center gap-1"><app-icon name="plus" size="sm" [decorative]="true" />{{ 'PLUGIN_FORM_ADD_QUESTION' | translate }}</span>
+                          </app-sharp-button>
+                          @if (group.containerIndex !== null) {
+                            <button
+                              type="button"
+                              class="p-1 text-muted hover:text-red-600"
+                              [title]="'COMMON_DELETE' | translate"
+                              (click)="deleteItem(group.containerIndex!)"
+                            >
+                              <app-icon name="trash-2" size="sm" [decorative]="true" />
+                            </button>
+                          }
+                        </div>
+                      </div>
+
+                      <!-- Multi-Column Live Fields Grid -->
+                      <div class="p-3" [ngStyle]="containerGridStyle(group)">
+                        @for (entry of group.fields; track entry.index) {
+                          @if (!(previewViewport() === 'mobile' && entry.item.hide_on_mobile)) {
+                            <div
+                              draggable="true"
+                              class="group relative flex flex-col justify-between border p-2.5 transition-all cursor-pointer"
+                              [class.border-accent]="selectedIndex() === entry.index"
+                              [class.ring-1]="selectedIndex() === entry.index"
+                              [class.ring-accent]="selectedIndex() === entry.index"
+                              [class.bg-surface-muted/40]="selectedIndex() === entry.index"
+                              [class.border-default]="selectedIndex() !== entry.index"
+                              [class.bg-surface]="selectedIndex() !== entry.index"
+                              [ngStyle]="fieldGridStyle(entry.item, group)"
+                              (click)="selectItem(entry.index)"
+                              (dragstart)="onDragStart(entry.index)"
+                              (dragover)="onDragOver($event, entry.index)"
+                              (drop)="$event.stopPropagation(); onDrop(entry.index)"
+                              (dragend)="onDragEnd()"
+                            >
+                              <!-- Field Top Meta & Quick Span Toolbar -->
+                              <div class="mb-1.5 flex flex-wrap items-center justify-between gap-1 border-b border-default/60 pb-1">
+                                <div class="flex min-w-0 items-center gap-1">
+                                  <span class="cursor-grab text-muted" title="Drag"><app-icon name="grid" size="sm" [decorative]="true" /></span>
+                                  <span class="font-mono text-[10px] text-muted">{{ entry.item.ref }}</span>
+                                  <app-badge variant="default" [shape]="'sharp'">{{ itemTypeKey(entry.item.type) | translate }}</app-badge>
+                                  @if (currentFieldEntityKey(entry.item.ref)) {
+                                    <app-badge variant="success" [shape]="'sharp'">
+                                      → {{ currentFieldEntityKey(entry.item.ref) }}.{{ currentFieldTargetField(entry.item.ref) }}
+                                    </app-badge>
+                                  }
+                                </div>
+
+                                <!-- Quick Col-Span / Mobile-Span / Row-Break / Actions -->
+                                <div class="flex items-center gap-0.5" (click)="$event.stopPropagation()">
+                                  @for (sp of [1, 2, 3, 4]; track sp) {
+                                    @if (sp <= group.desktopCols) {
+                                      <button
+                                        type="button"
+                                        class="border px-1 py-0.5 font-mono text-[9px]"
+                                        [class.border-accent]="(entry.item.col_span ?? 1) === sp"
+                                        [class.font-bold]="(entry.item.col_span ?? 1) === sp"
+                                        [class.border-default]="(entry.item.col_span ?? 1) !== sp"
+                                        [title]="'Desktop span ' + sp"
+                                        (click)="setFieldColSpan(entry.index, $any(sp))"
+                                      >
+                                        {{ sp === group.desktopCols && group.desktopCols > 1 ? 'Full' : sp + 'C' }}
+                                      </button>
+                                    }
+                                  }
+                                  <button
+                                    type="button"
+                                    class="border px-1 py-0.5 font-mono text-[9px]"
+                                    [class.border-accent]="entry.item.row_break"
+                                    [class.border-default]="!entry.item.row_break"
+                                    [title]="'PLUGIN_FORM_ROW_BREAK' | translate"
+                                    (click)="toggleFieldRowBreak(entry.index)"
+                                  >
+                                    ↵
+                                  </button>
+                                  <button
+                                    type="button"
+                                    class="p-0.5 text-muted hover:text-ink"
+                                    [title]="'PLUGIN_FORM_MOVE_UP' | translate"
+                                    (click)="moveItem(entry.index, -1)"
+                                  >
+                                    <app-icon name="chevron-down" size="sm" class="rotate-180" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    class="p-0.5 text-muted hover:text-ink"
+                                    [title]="'PLUGIN_FORM_MOVE_DOWN' | translate"
+                                    (click)="moveItem(entry.index, 1)"
+                                  >
+                                    <app-icon name="chevron-down" size="sm" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    class="p-0.5 text-muted hover:text-red-600"
+                                    [title]="'COMMON_DELETE' | translate"
+                                    (click)="deleteItem(entry.index)"
+                                  >
+                                    <app-icon name="trash-2" size="sm" [decorative]="true" />
+                                  </button>
+                                </div>
+                              </div>
+
+                              <!-- Live Interactive Preview of the Question -->
+                              <div class="space-y-1">
+                                <label class="block text-[11px] font-semibold text-ink">
+                                  {{ entry.item.label || entry.item.ref }}
+                                  @if (entry.item.required) {
+                                    <span class="text-red-600">*</span>
+                                  }
+                                </label>
+                                @if (entry.item.description) {
+                                  <p class="text-[10px] text-muted">{{ entry.item.description }}</p>
+                                }
+
+                                @switch (entry.item.type) {
+                                  @case ('LONG_TEXT') {
+                                    <app-sharp-textarea [rows]="2" [placeholder]="entry.item.placeholder || ''" [disabled]="true" />
+                                  }
+                                  @case ('SINGLE_CHOICE') {
+                                    <div class="space-y-1 pt-0.5">
+                                      @for (opt of entry.item.options ?? []; track $index) {
+                                        <div class="flex items-center justify-between border border-default bg-surface px-2 py-1 text-[11px]">
+                                          <span>○ {{ opt.label || opt.value }}</span>
+                                          @if (opt.logic?.action) {
+                                            <span class="font-mono text-[9px] text-accent">→ {{ opt.logic?.action }} {{ opt.logic?.goto_ref || '' }}</span>
+                                          }
+                                        </div>
+                                      }
+                                    </div>
+                                  }
+                                  @case ('MULTI_CHOICE') {
+                                    <div class="space-y-1 pt-0.5">
+                                      @for (opt of entry.item.options ?? []; track $index) {
+                                        <div class="flex items-center justify-between border border-default bg-surface px-2 py-1 text-[11px]">
+                                          <span>☐ {{ opt.label || opt.value }}</span>
+                                        </div>
+                                      }
+                                    </div>
+                                  }
+                                  @case ('DROPDOWN') {
+                                    <div class="border border-default bg-surface px-2 py-1.5 text-[11px] text-muted">
+                                      ▾ {{ (entry.item.options?.[0]?.label || entry.item.options?.[0]?.value) ?? ('COMMON_SELECT' | translate) }} ({{ (entry.item.options ?? []).length }})
+                                    </div>
+                                  }
+                                  @case ('RATING') {
+                                    <div class="flex items-center gap-1 pt-0.5 text-base text-accent">
+                                      <span>★ ★ ★ ★ ☆</span>
+                                      <span class="ms-1 font-mono text-[10px] text-muted">({{ entry.item.grading?.points ?? 5 }} pts)</span>
+                                    </div>
+                                  }
+                                  @case ('MATRIX') {
+                                    <div class="overflow-x-auto border border-default">
+                                      <table class="w-full border-collapse text-[10px]">
+                                        <thead class="bg-surface-muted">
+                                          <tr>
+                                            <th class="border border-default px-1 py-0.5 text-start"></th>
+                                            @for (col of entry.item.columns ?? []; track col) {
+                                              <th class="border border-default px-1 py-0.5 text-center">{{ col }}</th>
+                                            }
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          @for (row of entry.item.rows ?? []; track row) {
+                                            <tr>
+                                              <td class="border border-default px-1 py-0.5">{{ row }}</td>
+                                              @for (col of entry.item.columns ?? []; track col) {
+                                                <td class="border border-default px-1 py-0.5 text-center">○</td>
+                                              }
+                                            </tr>
+                                          }
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  }
+                                  @case ('FILE_UPLOAD') {
+                                    <div class="border border-dashed border-default bg-surface-muted px-2 py-2 text-center text-[10px] text-muted">
+                                      {{ 'PLUGIN_FORM_FILE_PREVIEW' | translate }} (≤{{ entry.item.file_limits?.max_files ?? 3 }} files · {{ entry.item.file_limits?.max_size_mb ?? 10 }}MB)
+                                    </div>
+                                  }
+                                  @default {
+                                    <app-sharp-input
+                                      [type]="entry.item.type === 'NUMBER' ? 'number' : (entry.item.type === 'DATE' ? 'date' : 'text')"
+                                      [placeholder]="entry.item.placeholder || ''"
+                                      [disabled]="true"
+                                    />
+                                  }
+                                }
+                              </div>
+                            </div>
+                          }
+                        }
+
+                        <!-- Dropzone / Quick Add Field inside Container Grid -->
+                        <button
+                          type="button"
+                          class="flex min-h-16 flex-col items-center justify-center gap-1 border border-dashed border-default bg-surface-muted/40 p-2 text-center text-[10px] text-muted hover:border-accent hover:text-ink"
+                          (dragover)="$event.preventDefault()"
+                          (drop)="$event.stopPropagation(); onDropIntoContainer(group)"
+                          (click)="addQuestion(addType(), group.containerIndex)"
+                        >
+                          <app-icon name="plus" size="sm" [decorative]="true" />
+                          <span>{{ 'PLUGIN_FORM_DROP_OR_ADD_FIELD' | translate }}</span>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </section>
+
+            <!-- 3. RIGHT INSPECTOR: Properties, Grid/Responsive Layout & Searchable Entity Mapping -->
+            <section class="min-h-0 overflow-y-auto border border-default bg-surface">
+              @if (selectedItem(); as item) {
+                <div class="flex items-center justify-between gap-2 border-b border-default bg-surface-muted px-2.5 py-1.5">
+                  <h2 class="text-[10px] font-semibold uppercase tracking-wider">{{ 'PLUGIN_FORM_PROPERTIES' | translate }}</h2>
+                  <div class="flex items-center gap-1">
+                    <app-badge variant="info" [shape]="'sharp'">{{ itemTypeKey(item.type) | translate }}</app-badge>
+                    @if (selectedIndex() !== null) {
+                      <app-sharp-button size="sm" variant="ghost" [shape]="'sharp'" (clicked)="duplicateItem(selectedIndex()!)">
+                        {{ 'PLUGIN_FORM_DUPLICATE' | translate }}
+                      </app-sharp-button>
+                    }
+                  </div>
+                </div>
+
+                <div class="space-y-3 p-2.5">
+                  <app-sharp-select
+                    [label]="'PLUGIN_FORM_TYPE' | translate"
+                    [options]="typeOptions"
+                    [value]="item.type"
+                    (valueChange)="updateItem({ type: $any($event) })"
+                  />
+
+                  @if (isContainer(item)) {
+                    <!-- Container (SECTION / PAGE / STEP) Inspector -->
+                    <app-sharp-input
+                      [label]="'PLUGIN_FORM_SECTION_TITLE' | translate"
+                      [value]="item.title ?? ''"
+                      [required]="true"
+                      (valueChange)="updateItem({ title: $event })"
+                    />
+                    <app-sharp-textarea
+                      [label]="'PLUGIN_FORM_SECTION_DESCRIPTION' | translate"
+                      [rows]="2"
+                      [value]="item.description ?? ''"
+                      (valueChange)="updateItem({ description: $event })"
+                    />
+                    <div class="grid grid-cols-2 gap-2 border-t border-default pt-2">
+                      <app-sharp-select
+                        [label]="'PLUGIN_FORM_DESKTOP_COLS' | translate"
+                        [options]="desktopColOptions"
+                        [value]="numText(item.grid_columns ?? layoutConfig().columns ?? 2)"
+                        (valueChange)="updateItem({ grid_columns: $any(+$event) })"
+                      />
+                      <app-sharp-select
+                        [label]="'PLUGIN_FORM_MOBILE_COLS' | translate"
+                        [options]="mobileColOptions"
+                        [value]="numText(item.mobile_columns ?? layoutConfig().mobile_columns ?? 1)"
+                        (valueChange)="updateItem({ mobile_columns: $any(+$event) })"
+                      />
+                    </div>
+                  } @else {
+                    <!-- Field Question Inspector -->
+                    <app-sharp-input
+                      [label]="'PLUGIN_FORM_LABEL' | translate"
+                      [value]="item.label ?? ''"
+                      [required]="true"
+                      (valueChange)="updateItem({ label: $event })"
+                    />
+
+                    <div>
+                      <div class="flex items-end gap-1">
+                        <div class="min-w-0 flex-1">
+                          <app-sharp-input
+                            [label]="'PLUGIN_FORM_REF' | translate"
+                            [hint]="'PLUGIN_FORM_REF_HINT' | translate"
+                            [value]="item.ref ?? ''"
+                            [required]="true"
+                            (valueChange)="updateItem({ ref: sanitizeRef($event) })"
+                          />
+                        </div>
+                        <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="autoGenerateRefFromLabel()">
+                          {{ 'PLUGIN_FORM_AUTO_REF' | translate }}
+                        </app-sharp-button>
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                      <app-sharp-input
+                        [label]="'PLUGIN_FORM_PLACEHOLDER' | translate"
+                        [value]="item.placeholder ?? ''"
+                        (valueChange)="updateItem({ placeholder: $event })"
+                      />
+                      <div class="flex items-end pb-1.5">
+                        <app-sharp-toggle
+                          [checked]="!!item.required"
+                          [ariaLabel]="'PLUGIN_FORM_REQUIRED' | translate"
+                          (checkedChange)="updateItem({ required: $event })"
+                        />
+                        <span class="ms-2 text-[11px] font-medium">{{ 'PLUGIN_FORM_REQUIRED' | translate }}</span>
+                      </div>
+                    </div>
+
+                    <app-sharp-textarea
+                      [label]="'PLUGIN_FORM_HELP_TEXT' | translate"
+                      [rows]="2"
+                      [value]="item.description ?? ''"
+                      (valueChange)="updateItem({ description: $event })"
+                    />
+
+                    <!-- Grid Columns, Row Span & Mobile Responsive Config -->
+                    <div class="space-y-2 border-t border-default pt-2">
+                      <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">
+                        {{ 'PLUGIN_FORM_LAYOUT_RESPONSIVE_SECTION' | translate }}
+                      </h3>
+                      <div class="grid grid-cols-2 gap-2">
+                        <app-sharp-select
+                          [label]="'PLUGIN_FORM_FIELD_COL_SPAN' | translate"
+                          [options]="colSpanOptions"
+                          [value]="numText(item.col_span ?? 1)"
+                          (valueChange)="updateItem({ col_span: $any(+$event) })"
+                        />
+                        <app-sharp-select
+                          [label]="'PLUGIN_FORM_FIELD_ROW_SPAN' | translate"
+                          [options]="rowSpanOptions"
+                          [value]="numText(item.row_span ?? 1)"
+                          (valueChange)="updateItem({ row_span: $any(+$event) })"
+                        />
+                        <app-sharp-select
+                          [label]="'PLUGIN_FORM_FIELD_MOBILE_SPAN' | translate"
+                          [options]="mobileSpanOptions"
+                          [value]="numText(item.mobile_span ?? 1)"
+                          (valueChange)="updateItem({ mobile_span: $any(+$event) })"
+                        />
+                        <div class="flex flex-col justify-end gap-1.5 pb-1">
+                          <div class="flex items-center">
+                            <app-sharp-toggle
+                              [checked]="!!item.row_break"
+                              [ariaLabel]="'PLUGIN_FORM_ROW_BREAK' | translate"
+                              (checkedChange)="updateItem({ row_break: $event })"
+                            />
+                            <span class="ms-2 text-[11px]">{{ 'PLUGIN_FORM_ROW_BREAK' | translate }}</span>
+                          </div>
+                          <div class="flex items-center">
+                            <app-sharp-toggle
+                              [checked]="!!item.hide_on_mobile"
+                              [ariaLabel]="'PLUGIN_FORM_HIDE_ON_MOBILE' | translate"
+                              (checkedChange)="updateItem({ hide_on_mobile: $event })"
+                            />
+                            <span class="ms-2 text-[11px]">{{ 'PLUGIN_FORM_HIDE_ON_MOBILE' | translate }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Searchable Entity Registry Mapping Picker (No Raw Strings) -->
+                    <div class="space-y-2 border-t border-default pt-2">
+                      <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">
+                        {{ 'PLUGIN_FORM_ENTITY_MAPPING_SECTION' | translate }}
+                      </h3>
+                      <app-sharp-select
+                        [label]="'PLUGIN_FORM_TARGET_ENTITY' | translate"
+                        [options]="entityOptions()"
+                        [value]="currentFieldEntityKey(item.ref)"
+                        (valueChange)="setFieldEntityTarget(item.ref, $event)"
+                      />
+                      @if (currentFieldEntityKey(item.ref)) {
+                        <app-sharp-select
+                          [label]="'PLUGIN_FORM_TARGET_FIELD' | translate"
+                          [options]="targetFieldOptionsFor(item.ref)"
+                          [value]="currentFieldTargetField(item.ref)"
+                          (valueChange)="setFieldEntityColumn(item.ref, $event)"
+                        />
+                      }
+                    </div>
+
+                    @if (isChoice(item)) {
+                      <div class="space-y-1.5 border-t border-default pt-2">
+                        <div class="flex items-center justify-between">
+                          <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_FORM_OPTIONS' | translate }}</h3>
+                          <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="addOption()">
+                            <span class="inline-flex items-center gap-1"><app-icon name="plus" [size]="'sm'" [decorative]="true" />{{ 'PLUGIN_FORM_ADD_OPTION' | translate }}</span>
+                          </app-sharp-button>
+                        </div>
+                        <div class="space-y-1.5">
+                          @for (option of item.options ?? []; track $index) {
+                            <div class="space-y-1.5 border border-default bg-surface-muted/40 p-2">
+                              <div class="grid grid-cols-[1fr_1fr_auto] items-end gap-1.5">
+                                <app-sharp-input
+                                  [label]="'PLUGIN_FORM_OPTION_LABEL' | translate"
+                                  [value]="option.label ?? ''"
+                                  (valueChange)="updateOption($index, { label: $event, value: sanitizeRef($event) || option.value })"
+                                />
+                                <app-sharp-input
+                                  [label]="'PLUGIN_FORM_OPTION_VALUE' | translate"
+                                  [value]="option.value"
+                                  (valueChange)="updateOption($index, { value: $event })"
+                                />
+                                <app-sharp-button size="sm" variant="ghost" [shape]="'sharp'" (clicked)="removeOption($index)">
+                                  <app-icon name="trash-2" [size]="'sm'" [decorative]="true" />
+                                </app-sharp-button>
+                              </div>
+                              <div class="grid grid-cols-2 gap-1.5">
+                                <app-sharp-select
+                                  [label]="'PLUGIN_FORM_LOGIC_ACTION' | translate"
+                                  [options]="logicActionOptions"
+                                  [value]="option.logic?.action ?? ''"
+                                  (valueChange)="updateOptionLogic($index, $event)"
+                                />
+                                @if (option.logic?.action === 'GOTO_REF') {
+                                  <app-sharp-select
+                                    [label]="'PLUGIN_FORM_LOGIC_TARGET' | translate"
+                                    [options]="logicTargetOptions()"
+                                    [value]="option.logic?.goto_ref ?? ''"
+                                    (valueChange)="updateOptionGoto($index, $event)"
+                                  />
+                                }
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+
+                    @if (item.type === 'MATRIX') {
+                      <div class="grid grid-cols-2 gap-2 border-t border-default pt-2">
+                        <app-sharp-textarea
+                          [label]="'PLUGIN_FORM_MATRIX_ROWS' | translate"
+                          [rows]="3"
+                          [value]="(item.rows ?? []).join('\n')"
+                          (valueChange)="updateListField('rows', $event)"
+                        />
+                        <app-sharp-textarea
+                          [label]="'PLUGIN_FORM_MATRIX_COLUMNS' | translate"
+                          [rows]="3"
+                          [value]="(item.columns ?? []).join('\n')"
+                          (valueChange)="updateListField('columns', $event)"
+                        />
+                      </div>
+                    }
+
+                    @if (item.type === 'FILE_UPLOAD') {
+                      <div class="grid grid-cols-2 gap-2 border-t border-default pt-2">
+                        <app-sharp-input
+                          [label]="'PLUGIN_FORM_FILE_MAX_FILES' | translate"
+                          type="number"
+                          [value]="numText(item.file_limits?.max_files ?? 3)"
+                          (valueChange)="updateFileLimit('max_files', $event)"
+                        />
+                        <app-sharp-input
+                          [label]="'PLUGIN_FORM_FILE_MAX_SIZE' | translate"
+                          type="number"
+                          [value]="numText(item.file_limits?.max_size_mb ?? 10)"
+                          (valueChange)="updateFileLimit('max_size_mb', $event)"
+                        />
+                      </div>
+                    }
+
+                    @if (item.type === 'RATING') {
+                      <div class="border-t border-default pt-2">
+                        <app-sharp-input
+                          [label]="'PLUGIN_FORM_POINTS' | translate"
+                          type="number"
+                          [value]="numText(item.grading?.points ?? 5)"
+                          (valueChange)="updateGrading('points', $event)"
+                        />
+                      </div>
+                    }
+                  }
+                </div>
+              } @else {
+                <div class="flex h-full min-h-40 flex-col items-center justify-center gap-2 p-6 text-center text-muted">
+                  <app-icon name="file-text" [size]="'lg'" [decorative]="true" />
+                  <p class="text-[11px]">{{ 'PLUGIN_FORM_NO_ITEM_SELECTED' | translate }}</p>
+                </div>
+              }
+            </section>
+          </div>
+        </div>
+      }
+
+      <!-- ============================ RESPONSES TAB ============================ -->
+      @case ('responses') {
+        <div class="flex flex-wrap items-center justify-between gap-2 border border-default bg-surface p-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="w-64 max-w-full">
+              <app-sharp-input
+                [placeholder]="'PLUGIN_FORM_SEARCH_RESPONSES' | translate"
+                [value]="responseSearch()"
+                (valueChange)="responseSearch.set($event)"
+              />
+            </div>
+            <app-sharp-button size="sm" variant="ghost" [shape]="'sharp'" (clicked)="loadResponses()">
+              <span class="inline-flex items-center gap-1"><app-icon name="refresh-cw" [size]="'sm'" [decorative]="true" />{{ 'COMMON_REFRESH' | translate }}</span>
+            </app-sharp-button>
+            <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="exportCsv()">
+              <span class="inline-flex items-center gap-1"><app-icon name="download" [size]="'sm'" [decorative]="true" />{{ 'PLUGIN_FORM_EXPORT_CSV' | translate }}</span>
+            </app-sharp-button>
+          </div>
+          <span class="text-[11px] text-muted">
+            {{ 'PLUGIN_FORM_SUMMARY_TOTAL' | translate }}:
+            <strong class="font-mono text-ink">{{ responses().length }}</strong>
+          </span>
+        </div>
+
+        <div class="grid min-h-0 gap-2 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+          <app-table
+            [columns]="responseColumns"
+            [rows]="filteredResponses()"
+            [loading]="responsesLoading()"
+            emptyKey="PLUGIN_FORM_RESPONSE_EMPTY"
+          >
+            <ng-template let-response>
+              <tr
+                class="cursor-pointer hover:bg-surface-muted/60"
+                [class.bg-surface-muted]="selectedResponse()?.['id'] === response['id']"
+                (click)="selectResponse(response)"
+              >
+                <td class="px-2 py-1.5">{{ formatDate(response['submitted_at']) }}</td>
+                <td class="px-2 py-1.5">{{ response['responder_email'] || '—' }}</td>
+                <td class="px-2 py-1.5 font-mono">v{{ response['form_version'] }}</td>
+                <td class="px-2 py-1.5">
+                  <app-badge [variant]="entityVariant($any(response['entity_write_status']))" [shape]="'sharp'">
+                    {{ response['entity_write_status'] }}
+                  </app-badge>
                 </td>
               </tr>
-            } @empty {
-              <tr>
-                <td colspan="5">{{ 'PLUGIN_FORM_EMPTY' | translate }}</td>
-              </tr>
+            </ng-template>
+          </app-table>
+
+          <section class="min-h-0 border border-default bg-surface">
+            @if (selectedResponse(); as response) {
+              <div class="flex items-center justify-between border-b border-default bg-surface-muted px-2 py-1.5">
+                <h2 class="text-[10px] font-semibold uppercase tracking-wider">{{ 'PLUGIN_FORM_RESPONSE_DETAIL' | translate }}</h2>
+                <span class="font-mono text-[10px] text-muted">#{{ numText(response['id']).slice(0, 8) }}</span>
+              </div>
+              <div class="space-y-2 p-2">
+                <dl class="grid grid-cols-2 gap-1.5 text-[11px]">
+                  <div>
+                    <dt class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_FORM_RESPONSE_SUBMITTED' | translate }}</dt>
+                    <dd>{{ formatDate(response['submitted_at']) }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_FORM_VERSION' | translate }}</dt>
+                    <dd class="font-mono">v{{ response['form_version'] }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_FORM_RESPONSE_EMAIL' | translate }}</dt>
+                    <dd class="truncate">{{ response['responder_email'] || '—' }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_FORM_RESPONSE_ENTITY' | translate }}</dt>
+                    <dd class="flex items-center gap-1">
+                      <app-badge [variant]="entityVariant($any(response['entity_write_status']))" [shape]="'sharp'">
+                        {{ response['entity_write_status'] }}
+                      </app-badge>
+                      @if (response['entity_write_error']) {
+                        <span class="truncate font-mono text-[10px] text-red-600">{{ response['entity_write_error'] }}</span>
+                      }
+                    </dd>
+                  </div>
+                </dl>
+                <div class="border-t border-default pt-2">
+                  <h3 class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_FORM_RESPONSE_ANSWERS' | translate }}</h3>
+                  <dl class="space-y-1">
+                    @for (entry of answerEntries(response); track entry[0]) {
+                      <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2 border-b border-default/60 pb-1">
+                        <dt class="text-muted">{{ answerLabel(entry[0]) }}</dt>
+                        <dd class="break-words">{{ answerValue(entry[1]) }}</dd>
+                      </div>
+                    } @empty {
+                      <p class="text-[11px] text-muted">{{ 'PLUGIN_FORM_RESPONSE_EMPTY' | translate }}</p>
+                    }
+                  </dl>
+                </div>
+              </div>
+            } @else {
+              <div class="flex h-full min-h-40 flex-col items-center justify-center gap-2 p-6 text-center text-muted">
+                <app-icon name="file-text" [size]="'lg'" [decorative]="true" />
+                <p class="text-[11px]">{{ 'PLUGIN_FORM_SELECT_RESPONSE' | translate }}</p>
+              </div>
             }
-          </tbody>
-        </table>
-      </section>
+          </section>
+        </div>
+      }
+
+      <!-- ============================ SUMMARY TAB ============================ -->
+      @case ('summary') {
+        <div class="flex flex-wrap items-center justify-between gap-2 border border-default bg-surface p-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <app-sharp-button size="sm" variant="ghost" [shape]="'sharp'" (clicked)="loadSummary()">
+              <span class="inline-flex items-center gap-1"><app-icon name="refresh-cw" [size]="'sm'" [decorative]="true" />{{ 'COMMON_REFRESH' | translate }}</span>
+            </app-sharp-button>
+            <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="exportCsv()">
+              <span class="inline-flex items-center gap-1"><app-icon name="download" [size]="'sm'" [decorative]="true" />{{ 'PLUGIN_FORM_EXPORT_CSV' | translate }}</span>
+            </app-sharp-button>
+          </div>
+          @if (summaryLoading()) {
+            <span class="text-[11px] text-muted">{{ 'COMMON_LOADING' | translate }}</span>
+          }
+        </div>
+
+        <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          <div class="border border-default bg-surface p-2">
+            <p class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_FORM_SUMMARY_TOTAL' | translate }}</p>
+            <p class="font-mono text-2xl font-semibold">{{ summaryTotal() }}</p>
+          </div>
+          <div class="border border-default bg-surface p-2">
+            <p class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_FORM_SUMMARY_QUESTIONS' | translate }}</p>
+            <p class="font-mono text-2xl font-semibold">{{ questionCount() }}</p>
+          </div>
+          <div class="border border-default bg-surface p-2">
+            <p class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_FORM_SUMMARY_ANSWERED' | translate }}</p>
+            <p class="font-mono text-2xl font-semibold">{{ answeredRefs().length }}</p>
+          </div>
+          <div class="border border-default bg-surface p-2">
+            <p class="text-[10px] uppercase tracking-wider text-muted">{{ 'PLUGIN_FORM_STATUS' | translate }}</p>
+            <p class="mt-1">
+              <app-badge [variant]="statusVariant(selected()?.publish_status)" [shape]="'sharp'">
+                {{ ('PLUGIN_FORM_STATUS_' + (selected()?.publish_status ?? 'DRAFT')) | translate }}
+              </app-badge>
+            </p>
+          </div>
+        </div>
+
+        <div class="grid gap-2 lg:grid-cols-2 2xl:grid-cols-3">
+          @for (entry of answeredRefs(); track entry.ref) {
+            <article class="border border-default bg-surface p-2">
+              <div class="mb-1.5 flex items-start justify-between gap-2 border-b border-default pb-1">
+                <div class="min-w-0">
+                  <h3 class="truncate text-[11px] font-semibold">{{ entry.label }}</h3>
+                  <p class="font-mono text-[10px] text-muted">{{ entry.ref }}</p>
+                </div>
+                <app-badge variant="info" [shape]="'sharp'">{{ itemTypeKey(entry.type) | translate }}</app-badge>
+              </div>
+
+              @if (entry.type === 'NUMBER' || entry.type === 'RATING') {
+                <p class="font-mono text-2xl font-semibold">
+                  {{ numericAverage(entry.ref) ?? '—' }}
+                  <span class="text-[10px] font-normal text-muted">{{ 'PLUGIN_FORM_SUMMARY_AVERAGE' | translate }}</span>
+                </p>
+              } @else {
+                <div class="space-y-1">
+                  @for (row of choiceRows(entry.ref); track row.value) {
+                    <div>
+                      <div class="flex items-center justify-between gap-2 text-[11px]">
+                        <span class="truncate">{{ row.label }}</span>
+                        <span class="shrink-0 font-mono text-muted">{{ row.count }} · {{ row.percent }}%</span>
+                      </div>
+                      <div class="mt-0.5 h-1.5 w-full bg-surface-muted">
+                        <div class="h-1.5 bg-accent" [style.width.%]="row.percent"></div>
+                      </div>
+                    </div>
+                  } @empty {
+                    <p class="text-[11px] text-muted">{{ 'PLUGIN_FORM_SUMMARY_NO_DATA' | translate }}</p>
+                  }
+                </div>
+              }
+            </article>
+          } @empty {
+            <div class="border border-default bg-surface p-6 text-center text-[11px] text-muted lg:col-span-2 2xl:col-span-3">
+              {{ 'PLUGIN_FORM_SUMMARY_NO_DATA' | translate }}
+            </div>
+          }
+        </div>
+      }
     }
-    @case ('builder') {
-      <section class="op-split">
-        <div class="op-card">
-          <label>{{ 'PLUGIN_FORM_SLUG' | translate }}</label>
-          <input class="op-input" [ngModel]="slugInput()" (ngModelChange)="slugInput.set($event)" [readonly]="!!selected()" />
-          <label>{{ 'PLUGIN_FORM_TITLE' | translate }}</label>
-          <input class="op-input" [ngModel]="titleInput()" (ngModelChange)="titleInput.set($event)" />
-          <div class="op-row">
-            <button type="button" class="op-btn op-btn--primary" (click)="save()" [disabled]="busy()">
-              {{ 'PLUGIN_FORM_SAVE' | translate }}
-            </button>
-            @if (selected()) {
-              <button type="button" class="op-btn" (click)="publish()">{{ 'PLUGIN_FORM_PUBLISH' | translate }}</button>
-              <button type="button" class="op-btn" (click)="close()">{{ 'PLUGIN_FORM_CLOSE' | translate }}</button>
-              <span class="op-badge">v{{ selected()?.latest_version }}</span>
-              <span class="op-badge">{{ selected()?.publish_status }}</span>
+  </main>
+
+  <!-- Create / edit metadata drawer -->
+  <app-drawer
+    [isOpen]="formDrawerOpen()"
+    [title]="(editingForm() ? 'PLUGIN_FORM_EDIT_TITLE' : 'PLUGIN_FORM_CREATE_TITLE') | translate"
+    [width]="'w-screen max-w-lg'"
+    [zIndex]="60"
+    (close)="closeFormDrawer()"
+  >
+    <div class="space-y-3 p-4">
+      <app-sharp-input
+        [label]="'PLUGIN_FORM_FIELD_TITLE' | translate"
+        [required]="true"
+        [value]="draft().title"
+        (valueChange)="patchDraft({ title: $event })"
+      />
+      <app-sharp-input
+        [label]="'PLUGIN_FORM_SLUG' | translate"
+        [hint]="'PLUGIN_FORM_SLUG_HINT' | translate"
+        [required]="true"
+        [disabled]="!!editingForm()"
+        [value]="draft().slug"
+        (valueChange)="patchDraft({ slug: sanitizeSlug($event) })"
+      />
+      <app-sharp-textarea
+        [label]="'PLUGIN_FORM_DESCRIPTION' | translate"
+        [rows]="3"
+        [value]="draft().description"
+        (valueChange)="patchDraft({ description: $event })"
+      />
+    </div>
+    <div drawer-footer class="flex justify-end gap-2 border-t border-default bg-surface p-3">
+      <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="closeFormDrawer()">
+        {{ 'COMMON_CANCEL' | translate }}
+      </app-sharp-button>
+      <app-sharp-button size="sm" variant="primary" [shape]="'sharp'" [loading]="busy()" (clicked)="saveMeta()">
+        {{ 'COMMON_SAVE' | translate }}
+      </app-sharp-button>
+    </div>
+  </app-drawer>
+
+  <!-- Publish drawer -->
+  <app-drawer
+    [isOpen]="publishOpen()"
+    [title]="'PLUGIN_FORM_PUBLISH_TITLE' | translate"
+    [width]="'w-screen max-w-md'"
+    [zIndex]="70"
+    (close)="publishOpen.set(false)"
+  >
+    <div class="space-y-3 p-4">
+      <p class="text-[11px] text-muted">{{ 'PLUGIN_FORM_PUBLISH_HINT' | translate }}</p>
+      <app-sharp-select
+        [label]="'PLUGIN_FORM_CAPTCHA' | translate"
+        [options]="captchaOptions"
+        [value]="publishCaptcha()"
+        (valueChange)="publishCaptcha.set($event)"
+      />
+      <app-sharp-input
+        [label]="'PLUGIN_FORM_CLOSE_AT' | translate"
+        type="datetime-local"
+        [value]="publishCloseAt()"
+        (valueChange)="publishCloseAt.set($event)"
+      />
+      <app-sharp-input
+        [label]="'PLUGIN_FORM_RESPONSE_LIMIT' | translate"
+        type="number"
+        [value]="publishLimit()"
+        (valueChange)="publishLimit.set($event)"
+      />
+      @if (selected()?.publish_status === 'PUBLISHED') {
+        <div class="border border-default bg-surface-muted px-2 py-1.5 text-[11px]">
+          {{ 'PLUGIN_FORM_PUBLIC_PATH' | translate }}:
+          <code class="font-mono">/public/forms/{{ selected()?.slug }}</code>
+        </div>
+      }
+    </div>
+    <div drawer-footer class="flex justify-end gap-2 border-t border-default bg-surface p-3">
+      <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="publishOpen.set(false)">
+        {{ 'COMMON_CANCEL' | translate }}
+      </app-sharp-button>
+      <app-sharp-button size="sm" variant="primary" [shape]="'sharp'" [loading]="busy()" (clicked)="confirmPublish()">
+        {{ 'PLUGIN_FORM_PUBLISH' | translate }}
+      </app-sharp-button>
+    </div>
+  </app-drawer>
+
+  <!-- Preview drawer -->
+  <app-drawer
+    [isOpen]="previewOpen()"
+    [title]="'PLUGIN_FORM_PREVIEW' | translate"
+    [subtitle]="titleInput()"
+    [width]="'w-screen max-w-2xl'"
+    [zIndex]="80"
+    [shiftLeft]="true"
+    (close)="previewOpen.set(false)"
+  >
+    <div class="space-y-3 p-4">
+      @for (group of containerGroups(); track group.groupId) {
+        <div class="border border-default bg-surface">
+          <div class="border-b border-default bg-surface-muted px-3 py-2">
+            <h2 class="text-xs font-semibold uppercase">{{ group.title }}</h2>
+            @if (group.description) {
+              <p class="text-[11px] text-muted">{{ group.description }}</p>
             }
           </div>
-          <p class="op-hint">{{ 'PLUGIN_FORM_BUILDER_HINT' | translate }}</p>
-        </div>
-        <div class="op-card op-grow">
-          <label>{{ 'PLUGIN_FORM_DOCUMENT' | translate }} (JSON)</label>
-          <textarea
-            class="op-textarea op-monospace"
-            rows="24"
-            [ngModel]="builderDocument()"
-            (ngModelChange)="builderDocument.set($event)"
-          ></textarea>
-        </div>
-      </section>
-    }
-    @case ('responses') {
-      <section class="op-card">
-        <table class="op-table">
-          <thead>
-            <tr>
-              <th>{{ 'PLUGIN_FORM_RESPONSE_SUBMITTED' | translate }}</th>
-              <th>{{ 'PLUGIN_FORM_RESPONSE_EMAIL' | translate }}</th>
-              <th>v</th>
-              <th>{{ 'PLUGIN_FORM_RESPONSE_ENTITY' | translate }}</th>
-              <th>{{ 'PLUGIN_FORM_RESPONSE_ANSWERS' | translate }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (response of responses(); track response['id']) {
-              <tr>
-                <td>{{ response['submitted_at'] }}</td>
-                <td>{{ response['responder_email'] }}</td>
-                <td>{{ response['form_version'] }}</td>
-                <td>{{ response['entity_write_status'] }}</td>
-                <td><code>{{ response['answers'] | json }}</code></td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="5">{{ 'PLUGIN_FORM_RESPONSE_EMPTY' | translate }}</td>
-              </tr>
+          <div class="p-3" [ngStyle]="containerGridStyle(group)">
+            @for (entry of group.fields; track entry.index) {
+              <div [ngStyle]="fieldGridStyle(entry.item, group)">
+                <p class="mb-1 text-[11px] font-medium">
+                  {{ entry.item.label }}
+                  @if (entry.item.required) {
+                    <span class="text-red-600">*</span>
+                  }
+                </p>
+                <app-sharp-input [placeholder]="entry.item.placeholder || ''" [disabled]="true" />
+              </div>
             }
-          </tbody>
-        </table>
-      </section>
-    }
-    @case ('summary') {
-      <section class="op-card">
-        <p>{{ 'PLUGIN_FORM_SUMMARY_TOTAL' | translate }}: {{ summary()?.['total_responses'] }}</p>
-        <table class="op-table">
-          <thead>
-            <tr>
-              <th>{{ 'PLUGIN_FORM_SUMMARY_REF' | translate }}</th>
-              <th>{{ 'PLUGIN_FORM_SUMMARY_VALUE' | translate }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (entry of summaryEntries(); track entry[0]) {
-              <tr>
-                <td>{{ entry[0] }}</td>
-                <td>{{ entry[1] }}</td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="2">{{ 'PLUGIN_FORM_RESPONSE_EMPTY' | translate }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </section>
-    }
-  }
-</div>
+          </div>
+        </div>
+      }
+    </div>
+    <div drawer-footer class="flex justify-end border-t border-default bg-surface p-3">
+      <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="previewOpen.set(false)">
+        {{ 'COMMON_CLOSE' | translate }}
+      </app-sharp-button>
+    </div>
+  </app-drawer>
+</section>

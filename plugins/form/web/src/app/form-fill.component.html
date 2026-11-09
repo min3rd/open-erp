@@ -1,135 +1,288 @@
-<div class="op-fill">
-  @if (submitted()) {
-    <div class="op-card op-fill-done">
-      <h2>{{ 'PLUGIN_FORM_FILL_THANKS' | translate }}</h2>
-      <p>{{ 'PLUGIN_FORM_FILL_REFERENCE' | translate }}: <code>{{ submitted() }}</code></p>
-    </div>
-  } @else {
-    <div class="op-card">
-      <h1>{{ title() }}</h1>
-      <p>{{ description() }}</p>
-    </div>
-    @if (error()) {
-      <p class="op-error">{{ error() | translate }}</p>
-    }
-    <div class="op-card">
-      @for (item of items(); track item.ref ?? item.title) {
-        @if (item.type === 'SECTION') {
-          <h2 class="op-section">{{ item.title }}</h2>
-          @if (item.description) {
-            <p class="op-hint">{{ item.description }}</p>
-          }
-        } @else if (isVisible(item)) {
-          <div class="op-question">
-            <label class="op-label">
-              {{ item.label }}
-              @if (item.required) {
-                <span class="op-required">*</span>
-              }
-            </label>
-            @switch (item.type) {
-              @case ('SHORT_TEXT') {
-                <input
-                  class="op-input"
-                  type="text"
-                  [ngModel]="answers()[$any(item.ref)]"
-                  (ngModelChange)="answers()[$any(item.ref)] = $event; recomputeVisibility()"
-                />
-              }
-              @case ('LONG_TEXT') {
-                <textarea
-                  class="op-textarea"
-                  rows="4"
-                  [ngModel]="answers()[$any(item.ref)]"
-                  (ngModelChange)="answers()[$any(item.ref)] = $event"
-                ></textarea>
-              }
-              @case ('NUMBER') {
-                <input
-                  class="op-input"
-                  type="number"
-                  [ngModel]="answers()[$any(item.ref)]"
-                  (ngModelChange)="answers()[$any(item.ref)] = $event"
-                />
-              }
-              @case ('DATE') {
-                <input
-                  class="op-input"
-                  type="date"
-                  [ngModel]="answers()[$any(item.ref)]"
-                  (ngModelChange)="answers()[$any(item.ref)] = $event"
-                />
-              }
-              @case ('RATING') {
-                <input
-                  class="op-input"
-                  type="number"
-                  min="1"
-                  max="5"
-                  [ngModel]="answers()[$any(item.ref)]"
-                  (ngModelChange)="answers()[$any(item.ref)] = $event"
-                />
-              }
-              @case ('SINGLE_CHOICE') {
-                @for (option of item.options ?? []; track option.value) {
-                  <label class="op-choice">
-                    <input
-                      type="radio"
-                      [name]="$any(item.ref)"
-                      [value]="option.value"
-                      [ngModel]="answers()[$any(item.ref)]"
-                      (ngModelChange)="answers()[$any(item.ref)] = $event; recomputeVisibility()"
-                    />
-                    {{ option.label ?? option.value }}
-                  </label>
-                }
-              }
-              @case ('MULTI_CHOICE') {
-                <select
-                  class="op-select"
-                  [ngModel]="answers()[$any(item.ref)]"
-                  (ngModelChange)="answers()[$any(item.ref)] = $event"
-                >
-                  <option value=""></option>
-                  @for (option of item.options ?? []; track option.value) {
-                    <option [value]="option.value">{{ option.label ?? option.value }}</option>
-                  }
-                </select>
-              }
-              @case ('DROPDOWN') {
-                <select
-                  class="op-select"
-                  [ngModel]="answers()[$any(item.ref)]"
-                  (ngModelChange)="answers()[$any(item.ref)] = $event"
-                >
-                  <option value=""></option>
-                  @for (option of item.options ?? []; track option.value) {
-                    <option [value]="option.value">{{ option.label ?? option.value }}</option>
-                  }
-                </select>
-              }
-              @default {
-                <input
-                  class="op-input"
-                  type="text"
-                  [ngModel]="answers()[$any(item.ref)]"
-                  (ngModelChange)="answers()[$any(item.ref)] = $event"
-                />
-              }
-            }
-          </div>
-        }
-      }
-      <div class="op-row">
-        <button
-          type="button"
-          class="op-btn op-btn--primary"
-          (click)="submit()"
-          [disabled]="busy()"
-        >
-          {{ 'PLUGIN_FORM_FILL_SUBMIT' | translate }}
-        </button>
+<div class="min-h-screen bg-surface-muted px-3 py-6 text-xs text-ink">
+  <div class="mx-auto w-full max-w-3xl space-y-3">
+    @if (loading()) {
+      <div class="border border-default bg-surface p-6">
+        <div class="mb-3 h-4 w-48 animate-pulse bg-surface-muted"></div>
+        <div class="space-y-2">
+          <div class="h-3 w-full animate-pulse bg-surface-muted"></div>
+          <div class="h-3 w-4/5 animate-pulse bg-surface-muted"></div>
+          <div class="h-3 w-3/5 animate-pulse bg-surface-muted"></div>
+        </div>
+        <p class="mt-4 text-[11px] text-muted">{{ 'COMMON_LOADING' | translate }}</p>
       </div>
-    </div>
-  }
+    } @else if (submitted()) {
+      <div class="border border-default bg-surface p-6 text-center">
+        <span class="mx-auto mb-3 flex h-12 w-12 items-center justify-center border border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
+          <app-icon name="check" [size]="'lg'" [decorative]="true" />
+        </span>
+        <h1 class="text-base font-semibold">{{ 'PLUGIN_FORM_FILL_THANKS' | translate }}</h1>
+        <p class="mt-1 text-[11px] text-muted">
+          {{ 'PLUGIN_FORM_FILL_REFERENCE' | translate }}:
+          <code class="font-mono text-ink">{{ submitted() }}</code>
+        </p>
+        <app-sharp-button class="mt-4 inline-block" size="sm" variant="outline" [shape]="'sharp'" (clicked)="submitted.set('')">
+          {{ 'PLUGIN_FORM_FILL_AGAIN' | translate }}
+        </app-sharp-button>
+      </div>
+    } @else {
+      <!-- Title -->
+      <header class="border border-default bg-surface p-3">
+        <h1 class="text-base font-semibold leading-tight">{{ title() }}</h1>
+        @if (description()) {
+          <p class="mt-1 text-[11px] text-muted">{{ description() }}</p>
+        }
+        <div class="mt-2 flex items-center gap-2">
+          <div class="h-1.5 flex-1 bg-surface-muted">
+            <div class="h-1.5 bg-accent transition-[width] duration-300" [style.width.%]="progressPercent()"></div>
+          </div>
+          <span class="shrink-0 font-mono text-[10px] text-muted">
+            {{ answeredCount() }} / {{ visibleQuestions().length }}
+          </span>
+        </div>
+      </header>
+
+      @if (error()) {
+        <div class="flex items-start gap-1.5 border border-red-300 bg-red-50 px-2 py-1.5 text-[11px] text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300" role="alert">
+          <app-icon name="alert-triangle" [size]="'sm'" [decorative]="true" />
+          <span>{{ error() | translate }}</span>
+        </div>
+      }
+
+      <form class="space-y-3" (ngSubmit)="submit()" novalidate>
+        <div class="border border-default bg-surface">
+          @for (item of items(); track $index) {
+            @if (isContainer(item)) {
+              <section class="border-b border-default bg-surface-muted px-3 py-2">
+                <h2 class="text-[11px] font-semibold uppercase tracking-wider">{{ item.title }}</h2>
+                @if (item.description) {
+                  <p class="mt-0.5 text-[11px] text-muted">{{ item.description }}</p>
+                }
+              </section>
+            } @else if (isVisible(item)) {
+              <div class="border-b border-default px-3 py-2.5 last:border-b-0" [id]="'fill-' + item.ref">
+                <label class="mb-1 block text-[11px] font-medium" [attr.for]="'input-' + item.ref">
+                  {{ item.label }}
+                  @if (item.required) {
+                    <span class="text-red-600">*</span>
+                  }
+                </label>
+                @if (item.description) {
+                  <p class="mb-1 text-[10px] text-muted">{{ item.description }}</p>
+                }
+
+                @switch (item.type) {
+                  @case ('SHORT_TEXT') {
+                    <input
+                      [id]="'input-' + item.ref"
+                      type="text"
+                      class="w-full border border-default bg-surface px-2 py-1.5 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent"
+                      [class.border-red-500]="isInvalid(item)"
+                      [placeholder]="item.placeholder ?? ''"
+                      [ngModel]="textAnswer(item)"
+                      (ngModelChange)="setAnswer(item.ref ?? '', $event)"
+                    />
+                  }
+                  @case ('LONG_TEXT') {
+                    <textarea
+                      [id]="'input-' + item.ref"
+                      rows="4"
+                      class="w-full resize-y border border-default bg-surface px-2 py-1.5 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent"
+                      [class.border-red-500]="isInvalid(item)"
+                      [placeholder]="item.placeholder ?? ''"
+                      [ngModel]="textAnswer(item)"
+                      (ngModelChange)="setAnswer(item.ref ?? '', $event)"
+                    ></textarea>
+                  }
+                  @case ('NUMBER') {
+                    <input
+                      [id]="'input-' + item.ref"
+                      type="number"
+                      class="w-full border border-default bg-surface px-2 py-1.5 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent"
+                      [class.border-red-500]="isInvalid(item)"
+                      [placeholder]="item.placeholder ?? ''"
+                      [ngModel]="textAnswer(item)"
+                      (ngModelChange)="setAnswer(item.ref ?? '', $event)"
+                    />
+                  }
+                  @case ('DATE') {
+                    <input
+                      [id]="'input-' + item.ref"
+                      type="date"
+                      class="w-full border border-default bg-surface px-2 py-1.5 text-xs text-ink focus:outline-none focus:ring-1 focus:ring-accent"
+                      [class.border-red-500]="isInvalid(item)"
+                      [ngModel]="textAnswer(item)"
+                      (ngModelChange)="setAnswer(item.ref ?? '', $event)"
+                    />
+                  }
+                  @case ('RATING') {
+                    <div class="flex items-center gap-1">
+                      @for (star of ratingStars(item); track star) {
+                        <button
+                          type="button"
+                          class="text-xl leading-none transition-colors"
+                          [class.text-accent]="star <= ratingValue(item)"
+                          [class.text-muted]="star > ratingValue(item)"
+                          [attr.aria-label]="star"
+                          (click)="setRating(item, star)"
+                        >
+                          {{ star <= ratingValue(item) ? '★' : '☆' }}
+                        </button>
+                      }
+                      <span class="ms-1 font-mono text-[10px] text-muted">{{ ratingValue(item) }} / {{ ratingMax(item) }}</span>
+                    </div>
+                  }
+                  @case ('SINGLE_CHOICE') {
+                    <div class="space-y-1" [class.border]="isInvalid(item)" [class.border-red-500]="isInvalid(item)" [class.p-1]="isInvalid(item)">
+                      @for (option of item.options ?? []; track option.value) {
+                        <label class="flex cursor-pointer items-center gap-1.5 border border-default px-2 py-1.5 hover:bg-surface-muted">
+                          <input
+                            type="radio"
+                            class="accent-current"
+                            [name]="'q-' + item.ref"
+                            [value]="option.value"
+                            [checked]="isSelected(item, option.value)"
+                            (change)="setAnswer(item.ref ?? '', option.value)"
+                          />
+                          <span>{{ option.label ?? option.value }}</span>
+                        </label>
+                      }
+                    </div>
+                  }
+                  @case ('MULTI_CHOICE') {
+                    <div class="space-y-1" [class.border]="isInvalid(item)" [class.border-red-500]="isInvalid(item)" [class.p-1]="isInvalid(item)">
+                      @for (option of item.options ?? []; track option.value) {
+                        <label class="flex cursor-pointer items-center gap-1.5 border border-default px-2 py-1.5 hover:bg-surface-muted">
+                          <input
+                            type="checkbox"
+                            class="accent-current"
+                            [checked]="isMultiSelected(item, option.value)"
+                            (change)="toggleMulti(item, option.value, $any($event.target).checked)"
+                          />
+                          <span>{{ option.label ?? option.value }}</span>
+                        </label>
+                      }
+                    </div>
+                  }
+                  @case ('DROPDOWN') {
+                    <select
+                      [id]="'input-' + item.ref"
+                      class="w-full border border-default bg-surface px-1.5 py-1.5 text-xs text-ink focus:outline-none focus:ring-1 focus:ring-accent"
+                      [class.border-red-500]="isInvalid(item)"
+                      [ngModel]="textAnswer(item)"
+                      (ngModelChange)="setAnswer(item.ref ?? '', $event)"
+                    >
+                      <option value=""></option>
+                      @for (option of item.options ?? []; track option.value) {
+                        <option [value]="option.value">{{ option.label ?? option.value }}</option>
+                      }
+                    </select>
+                  }
+                  @case ('MATRIX') {
+                    <div class="overflow-x-auto border border-default" [class.border-red-500]="isInvalid(item)">
+                      <table class="w-full border-collapse text-[11px]">
+                        <thead class="bg-surface-muted">
+                          <tr>
+                            <th class="border border-default px-1.5 py-1 text-start font-medium"></th>
+                            @for (column of item.columns ?? []; track column) {
+                              <th class="border border-default px-1.5 py-1 text-center font-medium">{{ column }}</th>
+                            }
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (row of item.rows ?? []; track row) {
+                            <tr>
+                              <td class="border border-default px-1.5 py-1">{{ row }}</td>
+                              @for (column of item.columns ?? []; track column) {
+                                <td class="border border-default px-1.5 py-1 text-center">
+                                  <input
+                                    type="radio"
+                                    [name]="'matrix-' + item.ref + '-' + $index"
+                                    [checked]="matrixValue(item, row) === column"
+                                    (change)="setMatrix(item, row, column)"
+                                  />
+                                </td>
+                              }
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
+                  @case ('FILE_UPLOAD') {
+                    <div class="space-y-1">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <label class="inline-flex min-h-10 cursor-pointer items-center gap-1 border border-default px-2 py-1 text-[11px] hover:bg-surface-muted sm:min-h-0">
+                          <app-icon name="upload" [size]="'sm'" [decorative]="true" />
+                          {{ (uploadingRef() === item.ref ? 'PLUGIN_FORM_UPLOADING' : 'PLUGIN_FORM_FILE_CHOOSE') | translate }}
+                          <input
+                            type="file"
+                            class="sr-only"
+                            multiple
+                            [disabled]="uploadingRef() === item.ref"
+                            (change)="onFilesSelected(item, $event)"
+                          />
+                        </label>
+                        <span class="text-[10px] text-muted">
+                          {{ 'PLUGIN_FORM_FILE_LIMITS' | translate: { max: item.file_limits?.max_files ?? 3, size: item.file_limits?.max_size_mb ?? 10 } }}
+                        </span>
+                      </div>
+                      @for (file of uploadedFiles(item); track file.file_id; let fileIndex = $index) {
+                        <div class="flex items-center justify-between gap-2 border border-default bg-surface-muted px-2 py-1">
+                          <a class="truncate text-[11px] underline" [href]="file.url" target="_blank" rel="noopener">{{ file.original_name || file.file_id }}</a>
+                          <button type="button" class="shrink-0 p-0.5 text-muted hover:text-red-600" (click)="removeFile(item, fileIndex)">
+                            <app-icon name="x" [size]="'sm'" [decorative]="true" />
+                          </button>
+                        </div>
+                      }
+                      @if (fileError()) {
+                        <p class="text-[10px] text-red-600">{{ fileError() | translate }}</p>
+                      }
+                    </div>
+                  }
+                  @default {
+                    <input
+                      [id]="'input-' + item.ref"
+                      type="text"
+                      class="w-full border border-default bg-surface px-2 py-1.5 text-xs text-ink focus:outline-none focus:ring-1 focus:ring-accent"
+                      [ngModel]="textAnswer(item)"
+                      (ngModelChange)="setAnswer(item.ref ?? '', $event)"
+                    />
+                  }
+                }
+              </div>
+            }
+          }
+        </div>
+
+        <div class="border border-default bg-surface p-3">
+          <label class="block">
+            <span class="mb-1 block text-[11px] font-medium">{{ 'PLUGIN_FORM_RESPONSE_EMAIL' | translate }}</span>
+            <input
+              type="email"
+              class="w-full border border-default bg-surface px-2 py-1.5 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent"
+              [placeholder]="'PLUGIN_FORM_EMAIL_PLACEHOLDER' | translate"
+              [ngModel]="email()"
+              (ngModelChange)="email.set($event)"
+              name="responder_email"
+            />
+            <span class="mt-0.5 block text-[10px] text-muted">{{ 'PLUGIN_FORM_EMAIL_HINT' | translate }}</span>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between gap-2">
+          <p class="text-[10px] text-muted">{{ 'PLUGIN_FORM_FILL_REQUIRED_HINT' | translate }}</p>
+          <app-sharp-button
+            type="submit"
+            size="md"
+            variant="primary"
+            [shape]="'sharp'"
+            [loading]="busy()"
+            [disabled]="uploadingRef() !== ''"
+          >
+            {{ 'PLUGIN_FORM_FILL_SUBMIT' | translate }}
+          </app-sharp-button>
+        </div>
+      </form>
+    }
+  </div>
 </div>
