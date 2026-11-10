@@ -43,6 +43,7 @@ import {
   GridColumnDef,
   GridColumnType,
   GridSummaryType,
+  RepeaterFieldDef,
 } from './form.model';
 import { FormService } from './form.service';
 import { evaluateColumnSummary, evaluateRowFormula, formatGridNumber } from './grid-formula.util';
@@ -78,25 +79,126 @@ export interface ContainerGroup {
   fields: Array<{ index: number; item: FormItem }>;
 }
 
-const CONTAINER_TYPES: FormContainerType[] = ['SECTION', 'PAGE', 'STEP'];
+export interface FieldCategoryDef {
+  key: string;
+  labelKey: string;
+  icon: string;
+  types: FormItemType[];
+}
 
-const FIELD_TYPES: FormItemType[] = [
+export const CONTAINER_TYPES: FormContainerType[] = ['SECTION', 'PAGE', 'STEP'];
+
+export const FIELD_CATEGORIES: FieldCategoryDef[] = [
+  {
+    key: 'basic',
+    labelKey: 'PLUGIN_FORM_CAT_BASIC',
+    icon: 'type',
+    types: ['SHORT_TEXT', 'LONG_TEXT', 'NUMBER', 'PASSWORD', 'HIDDEN'],
+  },
+  {
+    key: 'choice',
+    labelKey: 'PLUGIN_FORM_CAT_CHOICE',
+    icon: 'check-square',
+    types: ['CHECKBOX', 'MULTI_CHOICE', 'SINGLE_CHOICE', 'DROPDOWN', 'MULTI_SELECT', 'SWITCH'],
+  },
+  {
+    key: 'specialized',
+    labelKey: 'PLUGIN_FORM_CAT_SPECIALIZED',
+    icon: 'clock',
+    types: ['EMAIL', 'PHONE', 'URL', 'CURRENCY', 'DATE', 'TIME', 'DATE_RANGE', 'COLOR'],
+  },
+  {
+    key: 'media',
+    labelKey: 'PLUGIN_FORM_CAT_MEDIA',
+    icon: 'image',
+    types: ['FILE_UPLOAD', 'IMAGE_UPLOAD', 'SIGNATURE'],
+  },
+  {
+    key: 'advanced',
+    labelKey: 'PLUGIN_FORM_CAT_ADVANCED',
+    icon: 'sliders',
+    types: ['RICH_TEXT', 'SLIDER', 'RATING', 'MATRIX', 'ADDRESS'],
+  },
+  {
+    key: 'layout',
+    labelKey: 'PLUGIN_FORM_CAT_LAYOUT',
+    icon: 'layout',
+    types: ['STATIC_TEXT', 'DIVIDER', 'SECTION', 'GRID', 'REPEATER', 'PAGE', 'STEP'],
+  },
+];
+
+export const FIELD_TYPES: FormItemType[] = [
   'SHORT_TEXT',
   'LONG_TEXT',
   'NUMBER',
-  'DATE',
-  'SINGLE_CHOICE',
+  'PASSWORD',
+  'HIDDEN',
+  'CHECKBOX',
   'MULTI_CHOICE',
+  'SINGLE_CHOICE',
   'DROPDOWN',
+  'MULTI_SELECT',
+  'SWITCH',
+  'EMAIL',
+  'PHONE',
+  'URL',
+  'CURRENCY',
+  'DATE',
+  'TIME',
+  'DATE_RANGE',
+  'COLOR',
+  'FILE_UPLOAD',
+  'IMAGE_UPLOAD',
+  'SIGNATURE',
+  'RICH_TEXT',
+  'SLIDER',
   'RATING',
   'MATRIX',
+  'ADDRESS',
+  'STATIC_TEXT',
+  'DIVIDER',
   'GRID',
-  'FILE_UPLOAD',
+  'REPEATER',
 ];
 
-const ITEM_TYPES: FormItemType[] = [...CONTAINER_TYPES, ...FIELD_TYPES];
+export const ITEM_TYPES: FormItemType[] = [
+  'SHORT_TEXT',
+  'LONG_TEXT',
+  'NUMBER',
+  'PASSWORD',
+  'HIDDEN',
+  'CHECKBOX',
+  'MULTI_CHOICE',
+  'SINGLE_CHOICE',
+  'DROPDOWN',
+  'MULTI_SELECT',
+  'SWITCH',
+  'EMAIL',
+  'PHONE',
+  'URL',
+  'CURRENCY',
+  'DATE',
+  'TIME',
+  'DATE_RANGE',
+  'COLOR',
+  'FILE_UPLOAD',
+  'IMAGE_UPLOAD',
+  'SIGNATURE',
+  'RICH_TEXT',
+  'SLIDER',
+  'RATING',
+  'MATRIX',
+  'ADDRESS',
+  'STATIC_TEXT',
+  'DIVIDER',
+  'SECTION',
+  'GRID',
+  'REPEATER',
+  'PAGE',
+  'STEP',
+];
 
-const CHOICE_TYPES: FormItemType[] = ['SINGLE_CHOICE', 'MULTI_CHOICE', 'DROPDOWN'];
+export const CHOICE_TYPES: FormItemType[] = ['SINGLE_CHOICE', 'MULTI_CHOICE', 'DROPDOWN', 'MULTI_SELECT'];
 
 const FALLBACK_ENTITIES: EntityRegistryEntry[] = [
   {
@@ -183,6 +285,30 @@ export class FormScreenComponent implements OnInit {
 
   readonly containerTypes = CONTAINER_TYPES;
   readonly fieldTypes = FIELD_TYPES;
+  readonly fieldCategories = FIELD_CATEGORIES;
+
+  readonly staticTextTypeOptions: SelectOption[] = [
+    { value: 'H1', labelKey: 'PLUGIN_FORM_STATIC_TEXT_H1' },
+    { value: 'H2', labelKey: 'PLUGIN_FORM_STATIC_TEXT_H2' },
+    { value: 'H3', labelKey: 'PLUGIN_FORM_STATIC_TEXT_H3' },
+    { value: 'P', labelKey: 'PLUGIN_FORM_STATIC_TEXT_P' },
+    { value: 'ALERT_INFO', labelKey: 'PLUGIN_FORM_STATIC_TEXT_ALERT_INFO' },
+    { value: 'ALERT_WARN', labelKey: 'PLUGIN_FORM_STATIC_TEXT_ALERT_WARN' },
+    { value: 'ALERT_SUCCESS', labelKey: 'PLUGIN_FORM_STATIC_TEXT_ALERT_SUCCESS' },
+  ];
+
+  readonly dividerStyleOptions: SelectOption[] = [
+    { value: 'SOLID', labelKey: 'PLUGIN_FORM_DIVIDER_SOLID' },
+    { value: 'DASHED', labelKey: 'PLUGIN_FORM_DIVIDER_DASHED' },
+    { value: 'SPACER', labelKey: 'PLUGIN_FORM_DIVIDER_SPACER' },
+  ];
+
+  readonly currencyCodeOptions: SelectOption[] = [
+    { value: 'VND', label: 'VND (₫)' },
+    { value: 'USD', label: 'USD ($)' },
+    { value: 'EUR', label: 'EUR (€)' },
+    { value: 'JPY', label: 'JPY (¥)' },
+  ];
 
   // Builder Live Preview state
   readonly layoutConfig = signal<FormLayoutConfig>({
@@ -922,7 +1048,20 @@ export class FormScreenComponent implements OnInit {
       ref,
       label: defaultLabel,
       required: false,
-      col_span: type === 'LONG_TEXT' || type === 'MATRIX' || type === 'GRID' || type === 'FILE_UPLOAD' ? 2 : 1,
+      col_span:
+        type === 'LONG_TEXT' ||
+        type === 'MATRIX' ||
+        type === 'GRID' ||
+        type === 'FILE_UPLOAD' ||
+        type === 'IMAGE_UPLOAD' ||
+        type === 'SIGNATURE' ||
+        type === 'RICH_TEXT' ||
+        type === 'ADDRESS' ||
+        type === 'STATIC_TEXT' ||
+        type === 'DIVIDER' ||
+        type === 'REPEATER'
+          ? 2
+          : 1,
       row_span: 1,
       mobile_span: 1,
     };
@@ -931,6 +1070,39 @@ export class FormScreenComponent implements OnInit {
       question.options = [
         { value: 'option_1', label: `${this.i18n.t('PLUGIN_FORM_OPTION_DEFAULT')} 1` },
         { value: 'option_2', label: `${this.i18n.t('PLUGIN_FORM_OPTION_DEFAULT')} 2` },
+      ];
+    }
+    if (type === 'CHECKBOX' || type === 'SWITCH') {
+      question.default_value = false;
+    }
+    if (type === 'CURRENCY') {
+      question.currency_code = 'VND';
+      question.currency_symbol = '₫';
+    }
+    if (type === 'SLIDER') {
+      question.min_value = 0;
+      question.max_value = 100;
+      question.step_value = 1;
+      question.default_value = 50;
+    }
+    if (type === 'COLOR') {
+      question.default_value = '#2563eb';
+    }
+    if (type === 'STATIC_TEXT') {
+      question.static_text_type = 'H2';
+      question.content = 'Tiêu đề nội dung / Tiêu điểm';
+    }
+    if (type === 'DIVIDER') {
+      question.divider_style = 'SOLID';
+    }
+    if (type === 'IMAGE_UPLOAD') {
+      question.accept_mime_types = 'image/*';
+      question.file_limits = { max_files: 1, max_size_mb: 5 };
+    }
+    if (type === 'REPEATER') {
+      question.repeater_fields = [
+        { key: 'title', label: 'Tên mục / Tiêu đề', type: 'SHORT_TEXT', required: true },
+        { key: 'description', label: 'Mô tả / Ghi chú', type: 'LONG_TEXT', required: false },
       ];
     }
     if (type === 'MATRIX') {
@@ -1030,6 +1202,13 @@ export class FormScreenComponent implements OnInit {
 
   selectItem(index: number): void {
     this.selectedIndex.set(index);
+  }
+
+  onHorizontalWheel(event: WheelEvent, container: HTMLElement): void {
+    if (event.deltaY !== 0) {
+      event.preventDefault();
+      container.scrollLeft += event.deltaY;
+    }
   }
 
   deleteItem(index: number): void {
@@ -2031,20 +2210,109 @@ export class FormScreenComponent implements OnInit {
 
   itemIcon(type: FormItemType): string {
     switch (type) {
-      case 'SECTION':
-      case 'PAGE':
-      case 'STEP':
+      case 'SHORT_TEXT':
+        return 'type';
+      case 'LONG_TEXT':
+        return 'file-text';
+      case 'NUMBER':
+        return 'sliders';
+      case 'PASSWORD':
+        return 'lock';
+      case 'HIDDEN':
+        return 'eye-off';
+      case 'CHECKBOX':
+      case 'MULTI_CHOICE':
+        return 'check-square';
+      case 'SINGLE_CHOICE':
+        return 'check';
+      case 'DROPDOWN':
+      case 'MULTI_SELECT':
+        return 'list';
+      case 'SWITCH':
+        return 'check';
+      case 'EMAIL':
+        return 'mail';
+      case 'PHONE':
+        return 'phone';
+      case 'URL':
+        return 'link';
+      case 'CURRENCY':
+        return 'dollar-sign';
+      case 'DATE':
+      case 'DATE_RANGE':
+        return 'calendar';
+      case 'TIME':
+        return 'clock';
+      case 'COLOR':
+        return 'sliders';
+      case 'FILE_UPLOAD':
+        return 'upload';
+      case 'IMAGE_UPLOAD':
+        return 'image';
+      case 'SIGNATURE':
+        return 'edit-3';
+      case 'RICH_TEXT':
+        return 'edit-2';
+      case 'SLIDER':
+        return 'sliders';
+      case 'RATING':
+        return 'check';
       case 'MATRIX':
       case 'GRID':
         return 'grid';
-      case 'SINGLE_CHOICE':
-      case 'MULTI_CHOICE':
-      case 'DROPDOWN':
-        return 'check';
-      case 'FILE_UPLOAD':
-        return 'upload';
+      case 'ADDRESS':
+        return 'map-pin';
+      case 'STATIC_TEXT':
+        return 'type';
+      case 'DIVIDER':
+        return 'minus';
+      case 'SECTION':
+        return 'layout';
+      case 'REPEATER':
+        return 'layout';
+      case 'PAGE':
+        return 'file-text';
+      case 'STEP':
+        return 'chevrons-right';
       default:
         return 'file-text';
+    }
+  }
+
+  getRepeaterFields(item: FormItem): RepeaterFieldDef[] {
+    if (item.repeater_fields && item.repeater_fields.length > 0) {
+      return item.repeater_fields;
+    }
+    return [{ key: 'title', label: 'Tên mục', type: 'SHORT_TEXT' }];
+  }
+
+  addRepeaterField(item: FormItem): void {
+    const fields = [...(item.repeater_fields ?? [])];
+    const idx = fields.length + 1;
+    fields.push({
+      key: `field_${idx}`,
+      label: `Trường #${idx}`,
+      type: 'SHORT_TEXT',
+      required: false,
+    });
+    this.updateItem({ repeater_fields: fields });
+  }
+
+  removeRepeaterField(item: FormItem, index: number): void {
+    const fields = [...(item.repeater_fields ?? [])];
+    fields.splice(index, 1);
+    this.updateItem({ repeater_fields: fields });
+  }
+
+  updateRepeaterField(
+    item: FormItem,
+    index: number,
+    patch: Partial<{ key: string; label: string; type: FormItemType; required: boolean }>,
+  ): void {
+    const fields = [...(item.repeater_fields ?? [])];
+    if (fields[index]) {
+      fields[index] = { ...fields[index], ...patch };
+      this.updateItem({ repeater_fields: fields });
     }
   }
 

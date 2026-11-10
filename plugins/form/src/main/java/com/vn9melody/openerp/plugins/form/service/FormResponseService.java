@@ -231,7 +231,8 @@ public class FormResponseService {
                 }
                 Map<String, Object> item = (Map<String, Object>) rawItem;
                 String type = String.valueOf(item.get("type"));
-                if (FormDocumentValidator.CONTAINER_TYPES.contains(type)) {
+                if (FormDocumentValidator.CONTAINER_TYPES.contains(type)
+                        || FormDocumentValidator.NON_VALUE_TYPES.contains(type)) {
                     continue;
                 }
                 String ref = String.valueOf(item.get("ref"));

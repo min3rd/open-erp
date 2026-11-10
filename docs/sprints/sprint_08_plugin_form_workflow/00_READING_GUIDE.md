@@ -52,6 +52,15 @@ Sprint này **không** làm: chữ ký số (giữ chỗ trong mô hình hành �
 3. **Bảng lưới tính toán kiểu Excel mật độ cao (`GRID` — High-Density Excel Grid)**:
    - Nâng cấp loại trường `GRID` thành bảng tính nghiệp vụ kiểu Excel: cấu hình kiểu trường riêng cho từng cột (`TEXT`, `NUMBER`, `DATE`, `SELECT`, `FORMULA`), công thức dòng (`qty * price`), hàm tổng kết chân cột (`SUM`, `AVG`, `COUNT`, `MIN`, `MAX`).
    - Người điền form thêm/xóa dòng động (`+ Thêm dòng`, `✕`), tính toán thời gian thực theo thuật toán Dijkstra Shunting-Yard RPN an toàn 100% không dùng `eval()`, lưu trữ cấu trúc mảng JSON hoàn chỉnh vào PostgreSQL thật.
+4. **Trọn bộ 32 loại trường Form Builder qua 6 nhóm nghiệp vụ chuẩn ERP (`TASK-446`)**:
+   - Phân chia bảng điều khiển kéo thả (Left Palette) thành 6 nhóm nghiệp vụ trực quan kèm biểu tượng và huy hiệu số lượng trường:
+     1. *Nhập liệu cơ bản (Basic Inputs - 5 loại)*: `SHORT_TEXT`, `LONG_TEXT`, `NUMBER`, `PASSWORD` (kèm mắt ẩn/hiện), `HIDDEN` (metadata/token ngầm).
+     2. *Lựa chọn (Choice & Selection - 6 loại)*: `CHECKBOX` (điều khoản), `MULTI_CHOICE` (nhóm checkbox), `SINGLE_CHOICE` (radio), `DROPDOWN` (select), `MULTI_SELECT` (thả xuống chọn nhiều mục với tags và tìm kiếm), `SWITCH` (nút gạt hiện đại).
+     3. *Dữ liệu chuyên biệt (Specialized Inputs - 8 loại)*: `EMAIL`, `PHONE` (số điện thoại), `URL` (trang web), `CURRENCY` (tiền tệ VND/USD), `DATE`, `TIME`, `DATE_RANGE` (khoảng ngày từ - đến), `COLOR` (chọn màu sắc).
+     4. *Tệp & Đa phương tiện (Media & Upload - 3 loại)*: `FILE_UPLOAD` (đính kèm tệp), `IMAGE_UPLOAD` (tải ảnh xem trước trực tiếp), `SIGNATURE` (bảng vẽ chữ ký số Canvas HTML5 tương tác).
+     5. *Nâng cao & Khảo sát (Advanced & Interactive - 5 loại)*: `RICH_TEXT` (soạn thảo WYSIWYG), `SLIDER` (thanh trượt thang điểm), `RATING` (đánh giá sao 1-5), `MATRIX` (ma trận Likert Scale hàng/cột), `ADDRESS` (địa chỉ phân cấp 3 cấp Tỉnh/Thành -> Quận/Huyện -> Phường/Xã).
+     6. *Cấu trúc & Bố cục (Layout & Structural - 5 loại)*: `STATIC_TEXT` (tiêu đề H1/H2/H3, đoạn văn, alert), `DIVIDER` (vạch kẻ nét liền/nét đứt/spacer), `SECTION` (nhóm khối), `GRID` (bảng tính Excel), `REPEATER` (mảng lặp động "+ Thêm dòng") cùng phân trang `PAGE`/`STEP`.
+   - 100% đa ngôn ngữ nghiêm ngặt trên cả 13 ngôn ngữ, xác thực backend và lưu trữ dữ liệu PostgreSQL thật.
 
 ## 2. Lộ trình đọc
 
@@ -79,6 +88,7 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | 07.03 | FEAT-41 | [Nền tảng Event Hub & Public](07_items/FEAT-41_platform_event_hub_public.md) | Core Event Hub/Entity Write Proxy/Public Session/SDK — Done (Dev) | Developer |
 | 07.04 | FEAT-42 | [Migration employee](07_items/FEAT-42_employee_migration_workflow.md) | Runtime chuyển engine — backend xong, cutover QA còn lại | Developer |
 | 07.05 | TASK-445 | [Nâng cấp trường Grid kiểu Excel](07_items/TASK-445_form_excel_style_grid_field.md) | Bảng tính toán Excel mật độ cao: cấu hình kiểu cột, cột Select 3 nguồn dữ liệu & cascading cha-con cô lập cấp dòng, thêm/xóa dòng, công thức dòng và tổng kết cột — Done | Developer |
+| 07.06 | TASK-446 | [Bộ 32 loại trường Form Builder](07_items/TASK-446_form_builder_comprehensive_field_palette.md) | Tích hợp đầy đủ 32 loại trường qua 6 nhóm nghiệp vụ: Basic Inputs, Choice, Specialized, Media, Advanced, Structural — Done | Developer |
 | 08.01 | TP-S08-001 | [Test plan](08_testing/01_TP-S08-001_sprint_08_test_plan.md) | Ma trận AC → TC-N/I/E/B/S | QA |
 | 08.02 | TR-S08-001 | [Test report](08_testing/02_TR-S08-001_sprint_08_test_report.md) | 391/391 PASS (18 unit engine + 254 core + 34 plugin + 13 CLI/manifest + 22 E2E + 5 bảo mật + 45 màn hình browser thực tế Dual-Mode Desktop/Mobile kèm ảnh chụp nhúng đầy đủ: Bảng tính Excel Grid, Cột Select Cascading & Row Isolation, Inspector Configuration, Step Wizard 2 cột, Page Mode 2 cột, Cascading Catalog) | QA |
 | 09.01 | REV-S08-001 | [Nghiệm thu & đóng Sprint 08](09_review/01_REV-S08-001_sprint_08_dod_review.md) | PM DoD Review — chờ Chủ dự án nghiệm thu | PM |

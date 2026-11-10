@@ -437,7 +437,7 @@ Thực nghiệm toàn diện tính năng Bảng tính toán nghiệp vụ kiểu
 
 ---
 
-## 5. Bảng ma trận kiểm thử 45 màn hình chức năng Sprint 08
+## 5. Bảng ma trận kiểm thử 51 màn hình chức năng Sprint 08
 
 | STT | Mã màn hình | Tên màn hình / Chức năng kiểm thử | URL / Route | Chế độ | Độ phân giải | Kết quả QA |
 |:---:|:---:|:---|:---|:---:|:---:|:---:|
@@ -486,6 +486,12 @@ Thực nghiệm toàn diện tính năng Bảng tính toán nghiệp vụ kiểu
 | 43 | G10 | Nộp Biểu Mẫu Grid Thành Công & Lưu DB Thật | `/public/forms/.../grid-cascading-equipment` | Desktop | 1280×850 | ✅ PASS |
 | 44 | G11 | Bảng Báo Giá Excel Grid Tính Toán Cơ Bản | `/public/forms/.../quotation-excel-grid-v1` | Desktop | 1280×850 | ✅ PASS |
 | 45 | G12 | Quản Lý Câu Trả Lời Grid (Split-View & JSON DB) | `/settings/apps/form?tab=responses` | Desktop | 1280×850 | ✅ PASS |
+| 46 | H1 | Form Studio Designer Palette 6 Nhóm Nghiệp Vụ & 32 Loại Trường | `/settings/apps/form?tab=builder` | Desktop | 1440×900 | ✅ PASS |
+| 47 | H2 | Inspector Cấu Hình Mảng Lặp `REPEATER` & Trường Con Độc Lập | `/settings/apps/form?tab=builder` | Desktop | 1440×900 | ✅ PASS |
+| 48 | H3 | Form Công Khai: Nhập Liệu Cơ Bản & Lựa Chọn (Password Eye, Multi-Select Tags) | `/public/forms/.../comprehensive-palette` | Desktop | 1440×900 | ✅ PASS |
+| 49 | H4 | Form Công Khai: Chuyên Biệt & Đa Phương Tiện (Tiền Tệ VND, Date Range, Image Preview) | `/public/forms/.../comprehensive-palette` | Desktop | 1440×900 | ✅ PASS |
+| 50 | H5 | Form Công Khai: Chữ Ký Canvas, Địa Chỉ 3 Cấp, Slider, Rating, Repeater & Excel Grid | `/public/forms/.../comprehensive-palette` | Desktop | 1440×900 | ✅ PASS |
+| 51 | H6 | Xác Nhận Nộp Biểu Mẫu Toàn Diện Thành Công & Đồng Bộ Dữ Liệu PostgreSQL Thật | `/public/forms/.../comprehensive-palette` | Desktop | 1440×900 | ✅ PASS |
 
 ---
 
@@ -504,4 +510,4 @@ Thực nghiệm toàn diện tính năng Bảng tính toán nghiệp vụ kiểu
    - **Row-Level Isolation Invariant**: Các ô select phụ thuộc cha-con trong bảng Grid được giải quyết độc lập trên từng dòng; thay đổi dòng cha chỉ reset con của riêng dòng đó, không gây ảnh hưởng chéo giữa các dòng.
    - **Zero Missing Labels & 100% i18n Parity**: Toàn bộ các trường, nút bấm, ô tìm kiếm và select cell đều có `[ariaLabel]`, `[attr.aria-label]` và nhãn đầy đủ; đối sánh 13 ngôn ngữ đạt 100.0% PASS.
    - **Strict Commit Protocol (Rule 27)**: Mã nguồn và tài liệu được lưu tại working tree để Chủ dự án trực tiếp review trước khi commit.
-3. **Đánh giá tổng thể**: **PASS 100% (Reviewed-ready v3.3)**. Báo cáo kiểm thử Sprint 08 đã hoàn thiện toàn diện và sẵn sàng để Chủ dự án nghiệm thu và phê duyệt.
+3. **Đánh giá tổng thể**: **PASS 100% (Reviewed-ready v3.4)**. Báo cáo kiểm thử Sprint 08 đã hoàn thiện toàn diện và sẵn sàng để Chủ dự án nghiệm thu và phê duyệt.

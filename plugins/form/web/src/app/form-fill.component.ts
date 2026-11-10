@@ -16,7 +16,7 @@ import {
   SharpButtonComponent,
   TranslatePipe,
 } from '@shared';
-import { FormDocument, FormItem, FormLayoutConfig, FormOption, FormStructureMode, GridColumnDef, GridColumnOption } from './form.model';
+import { FormDocument, FormItem, FormLayoutConfig, FormOption, FormStructureMode, GridColumnDef, GridColumnOption, RepeaterFieldDef } from './form.model';
 import { FormService } from './form.service';
 import { evaluateColumnSummary, evaluateRowFormula, formatGridNumber } from './grid-formula.util';
 
@@ -149,7 +149,19 @@ export class FormFillComponent implements OnInit {
 
   fieldSpan(item: FormItem): number {
     const maxCols = this.currentCols();
-    if (item.type === 'MATRIX' || item.type === 'GRID' || item.type === 'LONG_TEXT' || item.type === 'FILE_UPLOAD') {
+    if (
+      item.type === 'MATRIX' ||
+      item.type === 'GRID' ||
+      item.type === 'LONG_TEXT' ||
+      item.type === 'FILE_UPLOAD' ||
+      item.type === 'IMAGE_UPLOAD' ||
+      item.type === 'SIGNATURE' ||
+      item.type === 'RICH_TEXT' ||
+      item.type === 'ADDRESS' ||
+      item.type === 'STATIC_TEXT' ||
+      item.type === 'DIVIDER' ||
+      item.type === 'REPEATER'
+    ) {
       return item.col_span ? Math.min(item.col_span, maxCols) : maxCols;
     }
     return Math.min(item.col_span ?? 1, maxCols);
@@ -340,8 +352,16 @@ export class FormFillComponent implements OnInit {
     return item.type === 'SECTION' || item.type === 'PAGE' || item.type === 'STEP';
   }
 
+  isNonValue(item: FormItem): boolean {
+    return (
+      this.isContainer(item) ||
+      item.type === 'STATIC_TEXT' ||
+      item.type === 'DIVIDER'
+    );
+  }
+
   readonly visibleQuestions = computed(() =>
-    this.items().filter((item) => !this.isContainer(item) && this.isVisible(item)),
+    this.items().filter((item) => !this.isNonValue(item) && this.isVisible(item)),
   );
 
   readonly answeredCount = computed(
@@ -790,6 +810,284 @@ export class FormFillComponent implements OnInit {
     }
     const next = this.uploadedFiles(item).filter((_, position) => position !== index);
     this.setAnswer(item.ref, next);
+  }
+
+  // --- Password visibility ---
+  private passwordVisible: Record<string, boolean> = {};
+
+  togglePassword(ref: string): void {
+    this.passwordVisible[ref] = !this.passwordVisible[ref];
+  }
+
+  isPasswordVisible(ref: string): boolean {
+    return !!this.passwordVisible[ref];
+  }
+
+  // --- Multi-Select Dropdown with search and tags ---
+  multiSelectOpen: Record<string, boolean> = {};
+  multiSelectQuery: Record<string, string> = {};
+
+  toggleMultiSelect(ref: string): void {
+    this.multiSelectOpen[ref] = !this.multiSelectOpen[ref];
+  }
+
+  isMultiSelectOpen(ref: string): boolean {
+    return !!this.multiSelectOpen[ref];
+  }
+
+  getMultiSelectQuery(ref: string): string {
+    return this.multiSelectQuery[ref] ?? '';
+  }
+
+  setMultiSelectQuery(ref: string, q: string): void {
+    this.multiSelectQuery[ref] = q;
+  }
+
+  selectedMultiValues(item: FormItem): string[] {
+    const v = this.answerOf(item);
+    return Array.isArray(v) ? (v as string[]) : [];
+  }
+
+  addMultiSelect(item: FormItem, val: string): void {
+    if (!item.ref) return;
+    const cur = this.selectedMultiValues(item);
+    if (!cur.includes(val)) {
+      this.setAnswer(item.ref, [...cur, val]);
+    }
+  }
+
+  removeMultiSelect(item: FormItem, val: string): void {
+    if (!item.ref) return;
+    const cur = this.selectedMultiValues(item);
+    this.setAnswer(
+      item.ref,
+      cur.filter((x) => x !== val),
+    );
+  }
+
+  multiSelectFilteredOptions(item: FormItem): FormOption[] {
+    const all = this.filteredOptions(item);
+    const q = this.getMultiSelectQuery(item.ref ?? '').toLowerCase();
+    return q ? all.filter((o) => (o.label || o.value).toLowerCase().includes(q)) : all;
+  }
+
+  // --- Date Range ---
+  dateRangeValue(item: FormItem, part: 'from' | 'to'): string {
+    const v = this.answerOf(item) as Record<string, string> | undefined;
+    return v?.[part] ?? '';
+  }
+
+  setDateRangeValue(item: FormItem, part: 'from' | 'to', val: string): void {
+    if (!item.ref) return;
+    const v = (this.answerOf(item) as Record<string, string> | undefined) ?? {};
+    this.setAnswer(item.ref, { ...v, [part]: val });
+  }
+
+  // --- Cascading Address (Vietnam dataset) ---
+  readonly vnProvinces = [
+    { code: 'HN', name: 'Hà Nội' },
+    { code: 'HCM', name: 'TP. Hồ Chí Minh' },
+    { code: 'DN', name: 'Đà Nẵng' },
+    { code: 'HP', name: 'Hải Phòng' },
+    { code: 'CT', name: 'Cần Thơ' },
+  ];
+
+  readonly vnDistricts: Record<string, Array<{ code: string; name: string }>> = {
+    HN: [
+      { code: 'HN-BD', name: 'Ba Đình' },
+      { code: 'HN-HK', name: 'Hoàn Kiếm' },
+      { code: 'HN-CG', name: 'Cầu Giấy' },
+    ],
+    HCM: [
+      { code: 'HCM-Q1', name: 'Quận 1' },
+      { code: 'HCM-Q3', name: 'Quận 3' },
+      { code: 'HCM-BT', name: 'Bình Thạnh' },
+    ],
+    DN: [
+      { code: 'DN-HC', name: 'Hải Châu' },
+      { code: 'DN-TK', name: 'Thanh Khê' },
+    ],
+    HP: [
+      { code: 'HP-HB', name: 'Hồng Bàng' },
+      { code: 'HP-LC', name: 'Lê Chân' },
+    ],
+    CT: [
+      { code: 'CT-NK', name: 'Ninh Kiều' },
+      { code: 'CT-CR', name: 'Cái Răng' },
+    ],
+  };
+
+  readonly vnWards: Record<string, Array<{ code: string; name: string }>> = {
+    'HN-BD': [
+      { code: 'HN-BD-DB', name: 'Điện Biên' },
+      { code: 'HN-BD-QX', name: 'Quán Thánh' },
+    ],
+    'HN-HK': [
+      { code: 'HN-HK-TT', name: 'Tràng Tiền' },
+      { code: 'HN-HK-HB', name: 'Hàng Bạc' },
+    ],
+    'HN-CG': [
+      { code: 'HN-CG-DH', name: 'Dịch Vọng Hậu' },
+      { code: 'HN-CG-YD', name: 'Yên Hòa' },
+    ],
+    'HCM-Q1': [
+      { code: 'HCM-Q1-BN', name: 'Bến Nghé' },
+      { code: 'HCM-Q1-BT', name: 'Bến Thành' },
+    ],
+    'HCM-Q3': [{ code: 'HCM-Q3-VTS', name: 'Võ Thị Sáu' }],
+    'HCM-BT': [
+      { code: 'HCM-BT-P1', name: 'Phường 1' },
+      { code: 'HCM-BT-P2', name: 'Phường 2' },
+    ],
+    'DN-HC': [
+      { code: 'DN-HC-1', name: 'Hải Châu 1' },
+      { code: 'DN-HC-2', name: 'Hải Châu 2' },
+    ],
+    'DN-TK': [{ code: 'DN-TK-CT', name: 'Chính Gián' }],
+    'HP-HB': [{ code: 'HP-HB-HQ', name: 'Hoàng Văn Thụ' }],
+    'HP-LC': [{ code: 'HP-LC-AN', name: 'An Ninh' }],
+    'CT-NK': [{ code: 'CT-NK-TT', name: 'Tân An' }],
+    'CT-CR': [{ code: 'CT-CR-LE', name: 'Lê Bình' }],
+  };
+
+  addressValue(item: FormItem, field: 'province' | 'district' | 'ward' | 'street'): string {
+    const v = this.answerOf(item) as Record<string, string> | undefined;
+    return v?.[field] ?? '';
+  }
+
+  setAddressValue(item: FormItem, field: 'province' | 'district' | 'ward' | 'street', val: string): void {
+    if (!item.ref) return;
+    const v = (this.answerOf(item) as Record<string, string> | undefined) ?? {};
+    const next: Record<string, string> = { ...v, [field]: val };
+    if (field === 'province') {
+      delete next['district'];
+      delete next['ward'];
+    } else if (field === 'district') {
+      delete next['ward'];
+    }
+    this.setAnswer(item.ref, next);
+  }
+
+  getDistrictsFor(item: FormItem): Array<{ code: string; name: string }> {
+    const prov = this.addressValue(item, 'province');
+    return this.vnDistricts[prov] ?? [];
+  }
+
+  getWardsFor(item: FormItem): Array<{ code: string; name: string }> {
+    const dist = this.addressValue(item, 'district');
+    return this.vnWards[dist] ?? [];
+  }
+
+  // --- Image Upload ---
+  onImageSelected(item: FormItem, event: Event): void {
+    if (!item.ref) return;
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.setAnswer(item.ref as string, {
+        name: file.name,
+        size: file.size,
+        dataUrl: String(reader.result),
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  imagePreviewUrl(item: FormItem): string {
+    const val = this.answerOf(item) as { dataUrl?: string } | string | undefined;
+    if (typeof val === 'string') return val;
+    return val?.dataUrl ?? '';
+  }
+
+  removeImage(item: FormItem): void {
+    if (!item.ref) return;
+    this.setAnswer(item.ref, null);
+  }
+
+  // --- Signature Pad (Interactive Canvas) ---
+  private signatureDrawing: Record<string, boolean> = {};
+
+  onSignatureStart(event: MouseEvent | TouchEvent, ref: string, canvas: HTMLCanvasElement): void {
+    event.preventDefault();
+    this.signatureDrawing[ref] = true;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const rect = canvas.getBoundingClientRect();
+    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+    const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
+    ctx.beginPath();
+    ctx.moveTo(clientX - rect.left, clientY - rect.top);
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+  }
+
+  onSignatureMove(event: MouseEvent | TouchEvent, ref: string, canvas: HTMLCanvasElement): void {
+    if (!this.signatureDrawing[ref]) return;
+    event.preventDefault();
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const rect = canvas.getBoundingClientRect();
+    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+    const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
+    ctx.lineTo(clientX - rect.left, clientY - rect.top);
+    ctx.stroke();
+  }
+
+  onSignatureEnd(ref: string, canvas: HTMLCanvasElement): void {
+    if (!this.signatureDrawing[ref]) return;
+    this.signatureDrawing[ref] = false;
+    const dataUrl = canvas.toDataURL('image/png');
+    this.setAnswer(ref, dataUrl);
+  }
+
+  clearSignature(ref: string, canvas: HTMLCanvasElement): void {
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    this.setAnswer(ref, null);
+  }
+
+  hasSignature(item: FormItem): boolean {
+    return !!this.answerOf(item);
+  }
+
+  // --- Repeater Array Field ---
+  getRepeaterFields(item: FormItem): RepeaterFieldDef[] {
+    if (item.repeater_fields && item.repeater_fields.length > 0) {
+      return item.repeater_fields;
+    }
+    return [{ key: 'title', label: 'Tên mục', type: 'SHORT_TEXT' }];
+  }
+
+  getRepeaterRows(item: FormItem): Array<Record<string, any>> {
+    if (!item.ref) return [{}];
+    const val = this.answerOf(item);
+    if (Array.isArray(val) && val.length > 0) return val;
+    return [{}];
+  }
+
+  addRepeaterRow(item: FormItem): void {
+    if (!item.ref) return;
+    const rows = [...this.getRepeaterRows(item), {}];
+    this.setAnswer(item.ref, rows);
+  }
+
+  removeRepeaterRow(item: FormItem, index: number): void {
+    if (!item.ref) return;
+    const rows = this.getRepeaterRows(item).filter((_, i) => i !== index);
+    this.setAnswer(item.ref, rows.length > 0 ? rows : [{}]);
+  }
+
+  onRepeaterCellChange(item: FormItem, index: number, key: string, val: any): void {
+    if (!item.ref) return;
+    const rows = [...this.getRepeaterRows(item)];
+    rows[index] = { ...rows[index], [key]: val };
+    this.setAnswer(item.ref, rows);
   }
 
   hasAnswer(item: FormItem): boolean {

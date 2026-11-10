@@ -16,11 +16,25 @@ public final class FormDocumentValidator {
 
     public static final Set<String> CONTAINER_TYPES = Set.of("SECTION", "PAGE", "STEP");
 
-    public static final Set<String> ITEM_TYPES = Set.of(
-            "SECTION", "PAGE", "STEP", "SHORT_TEXT", "LONG_TEXT", "SINGLE_CHOICE", "MULTI_CHOICE",
-            "DROPDOWN", "DATE", "NUMBER", "RATING", "FILE_UPLOAD", "MATRIX", "GRID");
+    public static final Set<String> NON_VALUE_TYPES = Set.of(
+            "SECTION", "PAGE", "STEP", "STATIC_TEXT", "DIVIDER");
 
-    public static final Set<String> CHOICE_TYPES = Set.of("SINGLE_CHOICE", "MULTI_CHOICE", "DROPDOWN");
+    public static final Set<String> ITEM_TYPES = Set.of(
+            // 1. Basic Inputs
+            "SHORT_TEXT", "LONG_TEXT", "NUMBER", "PASSWORD", "HIDDEN",
+            // 2. Choice & Selection
+            "CHECKBOX", "MULTI_CHOICE", "SINGLE_CHOICE", "DROPDOWN", "MULTI_SELECT", "SWITCH",
+            // 3. Specialized Inputs
+            "EMAIL", "PHONE", "URL", "CURRENCY", "DATE", "TIME", "DATE_RANGE", "COLOR",
+            // 4. Media & Upload
+            "FILE_UPLOAD", "IMAGE_UPLOAD", "SIGNATURE",
+            // 5. Advanced & Interactive
+            "RICH_TEXT", "SLIDER", "RATING", "MATRIX", "ADDRESS", "GRID", "REPEATER",
+            // 6. Layout & Structural Components
+            "STATIC_TEXT", "DIVIDER", "SECTION", "PAGE", "STEP");
+
+    public static final Set<String> CHOICE_TYPES = Set.of(
+            "SINGLE_CHOICE", "MULTI_CHOICE", "DROPDOWN", "MULTI_SELECT");
 
     private static final String REF_PATTERN = "[a-zA-Z0-9_-]+";
     private static final Set<String> GOTO_ACTIONS = Set.of("NEXT_SECTION", "NEXT_PAGE", "NEXT_STEP", "SUBMIT_FORM");
@@ -83,6 +97,27 @@ public final class FormDocumentValidator {
             String containerRef = str(item.get("ref"));
             if (containerRef != null && !containerRef.isBlank() && containerRef.matches(REF_PATTERN)) {
                 refIndex.putIfAbsent(containerRef, index);
+            }
+            return;
+        }
+        if ("DIVIDER".equals(type)) {
+            String dividerRef = str(item.get("ref"));
+            if (dividerRef != null && !dividerRef.isBlank() && dividerRef.matches(REF_PATTERN)) {
+                refIndex.putIfAbsent(dividerRef, index);
+            }
+            return;
+        }
+        if ("STATIC_TEXT".equals(type)) {
+            String staticRef = str(item.get("ref"));
+            if (staticRef != null && !staticRef.isBlank() && staticRef.matches(REF_PATTERN)) {
+                refIndex.putIfAbsent(staticRef, index);
+            }
+            String content = str(item.get("content"));
+            String label = str(item.get("label"));
+            String title = str(item.get("title"));
+            if ((content == null || content.isBlank()) && (label == null || label.isBlank()) && (title == null || title.isBlank())) {
+                violations.add(new Violation("FORM_DOCUMENT_INVALID",
+                        "items[" + index + "] STATIC_TEXT requires content, title or label"));
             }
             return;
         }

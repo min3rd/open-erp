@@ -31,20 +31,46 @@ export interface FormDocument {
 export type FormContainerType = 'SECTION' | 'PAGE' | 'STEP';
 
 export type FormItemType =
-  | 'SECTION'
-  | 'PAGE'
-  | 'STEP'
+  // 1. Nhóm nhập liệu cơ bản (Basic Inputs)
   | 'SHORT_TEXT'
   | 'LONG_TEXT'
-  | 'SINGLE_CHOICE'
-  | 'MULTI_CHOICE'
-  | 'DROPDOWN'
-  | 'DATE'
   | 'NUMBER'
-  | 'RATING'
+  | 'PASSWORD'
+  | 'HIDDEN'
+  // 2. Nhóm lựa chọn (Choice & Selection)
+  | 'CHECKBOX'
+  | 'MULTI_CHOICE'
+  | 'SINGLE_CHOICE'
+  | 'DROPDOWN'
+  | 'MULTI_SELECT'
+  | 'SWITCH'
+  // 3. Nhóm dữ liệu định dạng chuyên biệt (Specialized Inputs)
+  | 'EMAIL'
+  | 'PHONE'
+  | 'URL'
+  | 'CURRENCY'
+  | 'DATE'
+  | 'TIME'
+  | 'DATE_RANGE'
+  | 'COLOR'
+  // 4. Nhóm tệp & Đa phương tiện (Media & Upload)
   | 'FILE_UPLOAD'
+  | 'IMAGE_UPLOAD'
+  | 'SIGNATURE'
+  // 5. Nhóm nâng cao & Khảo sát (Advanced & Interactive)
+  | 'RICH_TEXT'
+  | 'SLIDER'
+  | 'RATING'
   | 'MATRIX'
-  | 'GRID';
+  | 'ADDRESS'
+  | 'GRID'
+  | 'REPEATER'
+  // 6. Nhóm cấu trúc & Bố cục (Layout & Structural Components)
+  | 'STATIC_TEXT'
+  | 'DIVIDER'
+  | 'SECTION'
+  | 'PAGE'
+  | 'STEP';
 
 export type GridColumnType = 'TEXT' | 'NUMBER' | 'DATE' | 'SELECT' | 'FORMULA';
 
@@ -80,6 +106,13 @@ export interface GridColumnDef {
 
 export type FormOptionSourceType = 'STATIC' | 'CATALOG' | 'EXTERNAL_API';
 
+export interface RepeaterFieldDef {
+  key: string;
+  label: string;
+  type: FormItemType;
+  required?: boolean;
+}
+
 export interface FormItem {
   type: FormItemType;
   title?: string;
@@ -109,7 +142,22 @@ export interface FormItem {
   allow_add_row?: boolean;
   allow_delete_row?: boolean;
   file_limits?: { max_files?: number; max_size_mb?: number };
+  accept_mime_types?: string;
   grading?: { points: number; correct: string[]; feedback?: string };
+  // Numeric, Slider & Currency
+  min_value?: number;
+  max_value?: number;
+  step_value?: number;
+  currency_code?: string;
+  currency_symbol?: string;
+  mask_pattern?: string;
+  // Typography & Layout
+  static_text_type?: 'H1' | 'H2' | 'H3' | 'PARAGRAPH' | 'P' | 'ALERT_INFO' | 'ALERT_WARNING' | 'ALERT_WARN' | 'ALERT_SUCCESS';
+  content?: string;
+  divider_style?: 'SOLID' | 'DASHED' | 'DOTTED' | 'SPACER';
+  default_value?: any;
+  // Repeater array field
+  repeater_fields?: RepeaterFieldDef[];
   // Container grid config (for SECTION / PAGE / STEP)
   grid_columns?: 1 | 2 | 3 | 4;
   mobile_columns?: 1 | 2;

@@ -39,7 +39,24 @@ export enum IconName {
   KEY = 'key',
   HOME = 'home',
   FILE_TEXT = 'file-text',
-  PACKAGE = 'package'
+  PACKAGE = 'package',
+  MAIL = 'mail',
+  PHONE = 'phone',
+  IMAGE = 'image',
+  SLIDERS = 'sliders',
+  CHECK_SQUARE = 'check-square',
+  LAYOUT = 'layout',
+  EDIT_3 = 'edit-3',
+  EYE = 'eye',
+  EYE_OFF = 'eye-off',
+  CLOCK = 'clock',
+  DOLLAR_SIGN = 'dollar-sign',
+  MAP_PIN = 'map-pin',
+  HELP_CIRCLE = 'help-circle',
+  LIST = 'list',
+  TYPE = 'type',
+  MINUS = 'minus',
+  LINK = 'link'
 }
 
 /**

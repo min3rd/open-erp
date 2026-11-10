@@ -137,6 +137,48 @@
                   <p class="mt-0.5 text-[11px] text-muted">{{ item.description }}</p>
                 }
               </section>
+            } @else if (item.type === 'STATIC_TEXT') {
+              <div class="p-2 sm:col-span-full">
+                @switch (item.static_text_type) {
+                  @case ('H1') {
+                    <h1 class="text-base font-bold text-ink border-b border-default pb-1">{{ item.label || item.content }}</h1>
+                  }
+                  @case ('H2') {
+                    <h2 class="text-sm font-semibold text-ink border-b border-default pb-0.5">{{ item.label || item.content }}</h2>
+                  }
+                  @case ('H3') {
+                    <h3 class="text-xs font-semibold text-ink">{{ item.label || item.content }}</h3>
+                  }
+                  @case ('ALERT_INFO') {
+                    <div class="border border-blue-300 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/40 p-2 text-xs text-blue-700 dark:text-blue-300">
+                      ℹ {{ item.content || item.label }}
+                    </div>
+                  }
+                  @case ('ALERT_WARN') {
+                    <div class="border border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40 p-2 text-xs text-amber-700 dark:text-amber-300">
+                      ⚠ {{ item.content || item.label }}
+                    </div>
+                  }
+                  @case ('ALERT_SUCCESS') {
+                    <div class="border border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/40 p-2 text-xs text-emerald-700 dark:text-emerald-300">
+                      ✓ {{ item.content || item.label }}
+                    </div>
+                  }
+                  @default {
+                    <p class="text-xs text-ink/80">{{ item.content || item.label }}</p>
+                  }
+                }
+              </div>
+            } @else if (item.type === 'DIVIDER') {
+              <div class="py-1 sm:col-span-full">
+                @if (item.divider_style === 'DASHED') {
+                  <hr class="border-t border-dashed border-default" />
+                } @else if (item.divider_style === 'SPACER') {
+                  <div class="h-4"></div>
+                } @else {
+                  <hr class="border-t border-default" />
+                }
+              </div>
             } @else if (isVisible(item)) {
               <div
                 class="border border-default bg-surface p-2.5 flex flex-col justify-between transition-colors"
@@ -147,14 +189,16 @@
                 [class.sm:col-span-full]="fieldSpan(item) >= currentCols()"
                 [class.sm:col-start-1]="item.row_break"
               >
-                <label class="mb-1 block text-[11px] font-medium" [attr.for]="'input-' + item.ref">
-                  {{ item.label }}
-                  @if (item.required) {
-                    <span class="text-red-600">*</span>
+                @if (item.type !== 'CHECKBOX' && item.type !== 'HIDDEN') {
+                  <label class="mb-1 block text-[11px] font-medium" [attr.for]="'input-' + item.ref">
+                    {{ item.label }}
+                    @if (item.required) {
+                      <span class="text-red-600">*</span>
+                    }
+                  </label>
+                  @if (item.description) {
+                    <p class="mb-1 text-[10px] text-muted">{{ item.description }}</p>
                   }
-                </label>
-                @if (item.description) {
-                  <p class="mb-1 text-[10px] text-muted">{{ item.description }}</p>
                 }
 
                 @switch (item.type) {
@@ -496,6 +540,439 @@
                       @if (fileError()) {
                         <p class="text-[10px] text-red-600">{{ fileError() | translate }}</p>
                       }
+                    </div>
+                  }
+                  @case ('PASSWORD') {
+                    <div class="relative flex items-center">
+                      <input
+                        [id]="'input-' + item.ref"
+                        [type]="isPasswordVisible(item.ref ?? '') ? 'text' : 'password'"
+                        class="w-full border border-default bg-surface px-2 py-1.5 pe-8 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent"
+                        [class.border-red-500]="isInvalid(item)"
+                        [placeholder]="item.placeholder ?? ''"
+                        [ngModel]="textAnswer(item)"
+                        (ngModelChange)="setAnswer(item.ref ?? '', $event)"
+                      />
+                      <button
+                        type="button"
+                        class="absolute end-1.5 p-1 text-muted hover:text-ink cursor-pointer"
+                        [title]="(isPasswordVisible(item.ref ?? '') ? 'PLUGIN_FORM_PASSWORD_HIDE' : 'PLUGIN_FORM_PASSWORD_SHOW') | translate"
+                        (click)="togglePassword(item.ref ?? '')"
+                      >
+                        <app-icon [name]="isPasswordVisible(item.ref ?? '') ? 'eye-off' : 'eye'" size="xs" [decorative]="true" />
+                      </button>
+                    </div>
+                  }
+                  @case ('HIDDEN') {
+                    <input type="hidden" [id]="'input-' + item.ref" [value]="textAnswer(item) || item.default_value || ''" />
+                  }
+                  @case ('CHECKBOX') {
+                    <label class="flex cursor-pointer items-center gap-2 border border-default p-2 hover:bg-surface-muted transition-colors" [class.border-red-500]="isInvalid(item)">
+                      <input
+                        type="checkbox"
+                        class="h-4 w-4 accent-accent cursor-pointer"
+                        [checked]="!!answerOf(item)"
+                        (change)="setAnswer(item.ref ?? '', $any($event.target).checked)"
+                      />
+                      <span class="text-xs">{{ item.label || item.placeholder || item.ref }}</span>
+                      @if (item.required) {
+                        <span class="text-red-600">*</span>
+                      }
+                    </label>
+                  }
+                  @case ('SWITCH') {
+                    <div class="flex items-center gap-2.5 pt-0.5">
+                      <button
+                        type="button"
+                        role="switch"
+                        [attr.aria-checked]="!!answerOf(item)"
+                        class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1"
+                        [class.bg-accent]="!!answerOf(item)"
+                        [class.bg-neutral-300]="!answerOf(item)"
+                        [class.dark:bg-neutral-600]="!answerOf(item)"
+                        (click)="setAnswer(item.ref ?? '', !answerOf(item))"
+                      >
+                        <span
+                          class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out"
+                          [class.translate-x-4]="!!answerOf(item)"
+                          [class.translate-x-0]="!answerOf(item)"
+                        ></span>
+                      </button>
+                      <span class="text-xs text-ink select-none cursor-pointer" (click)="setAnswer(item.ref ?? '', !answerOf(item))">
+                        {{ item.placeholder || (answerOf(item) ? ('COMMON_ENABLED' | translate) : ('COMMON_DISABLED' | translate)) }}
+                      </span>
+                    </div>
+                  }
+                  @case ('MULTI_SELECT') {
+                    <div class="relative space-y-1">
+                      <div
+                        class="min-h-8 flex flex-wrap items-center gap-1 border border-default bg-surface p-1 text-xs cursor-pointer focus-within:ring-1 focus-within:ring-accent"
+                        [class.border-red-500]="isInvalid(item)"
+                        (click)="toggleMultiSelect(item.ref ?? '')"
+                      >
+                        @for (val of selectedMultiValues(item); track val) {
+                          <span class="inline-flex items-center gap-1 rounded bg-accent/10 px-1.5 py-0.5 text-[11px] font-medium text-accent">
+                            {{ val }}
+                            <button
+                              type="button"
+                              class="text-accent hover:text-red-600 cursor-pointer"
+                              (click)="$event.stopPropagation(); removeMultiSelect(item, val)"
+                            >
+                              ✕
+                            </button>
+                          </span>
+                        }
+                        @if (selectedMultiValues(item).length === 0) {
+                          <span class="text-muted text-[11px] px-1">{{ 'PLUGIN_FORM_MULTI_SELECT_PLACEHOLDER' | translate }}</span>
+                        }
+                        <span class="ms-auto text-muted px-1">▾</span>
+                      </div>
+                      @if (isMultiSelectOpen(item.ref ?? '')) {
+                        <div class="absolute z-30 start-0 end-0 mt-1 max-h-48 overflow-y-auto border border-default bg-surface shadow-md p-1 space-y-1">
+                          <input
+                            type="text"
+                            class="w-full border border-default bg-surface-muted px-2 py-1 text-xs outline-none"
+                            [placeholder]="'COMMON_SEARCH' | translate"
+                            [ngModel]="getMultiSelectQuery(item.ref ?? '')"
+                            (ngModelChange)="setMultiSelectQuery(item.ref ?? '', $event)"
+                            (click)="$event.stopPropagation()"
+                          />
+                          @for (opt of multiSelectFilteredOptions(item); track opt.value) {
+                            <div
+                              class="flex items-center justify-between px-2 py-1 text-xs hover:bg-surface-muted cursor-pointer"
+                              (click)="addMultiSelect(item, opt.value)"
+                            >
+                              <span>{{ opt.label || opt.value }}</span>
+                              @if (selectedMultiValues(item).includes(opt.value)) {
+                                <span class="text-accent font-bold">✓</span>
+                              }
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                  @case ('EMAIL') {
+                    <div class="relative flex items-center">
+                      <input
+                        [id]="'input-' + item.ref"
+                        type="email"
+                        class="w-full border border-default bg-surface px-2 py-1.5 ps-7 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent"
+                        [class.border-red-500]="isInvalid(item)"
+                        [placeholder]="item.placeholder ?? 'name@example.com'"
+                        [ngModel]="textAnswer(item)"
+                        (ngModelChange)="setAnswer(item.ref ?? '', $event)"
+                      />
+                      <span class="absolute start-2 text-muted"><app-icon name="mail" size="xs" [decorative]="true" /></span>
+                    </div>
+                  }
+                  @case ('PHONE') {
+                    <div class="relative flex items-center">
+                      <input
+                        [id]="'input-' + item.ref"
+                        type="tel"
+                        class="w-full border border-default bg-surface px-2 py-1.5 ps-7 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent"
+                        [class.border-red-500]="isInvalid(item)"
+                        [placeholder]="item.placeholder ?? '(+84) 901-234-567'"
+                        [ngModel]="textAnswer(item)"
+                        (ngModelChange)="setAnswer(item.ref ?? '', $event)"
+                      />
+                      <span class="absolute start-2 text-muted"><app-icon name="phone" size="xs" [decorative]="true" /></span>
+                    </div>
+                  }
+                  @case ('URL') {
+                    <div class="relative flex items-center">
+                      <input
+                        [id]="'input-' + item.ref"
+                        type="url"
+                        class="w-full border border-default bg-surface px-2 py-1.5 ps-7 text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent"
+                        [class.border-red-500]="isInvalid(item)"
+                        [placeholder]="item.placeholder ?? 'https://example.com'"
+                        [ngModel]="textAnswer(item)"
+                        (ngModelChange)="setAnswer(item.ref ?? '', $event)"
+                      />
+                      <span class="absolute start-2 text-muted"><app-icon name="link" size="xs" [decorative]="true" /></span>
+                    </div>
+                  }
+                  @case ('CURRENCY') {
+                    <div class="relative flex items-center">
+                      <input
+                        [id]="'input-' + item.ref"
+                        type="number"
+                        class="w-full border border-default bg-surface px-2 py-1.5 pe-12 text-end font-mono text-xs text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent"
+                        [class.border-red-500]="isInvalid(item)"
+                        [placeholder]="item.placeholder ?? '0'"
+                        [ngModel]="textAnswer(item)"
+                        (ngModelChange)="setAnswer(item.ref ?? '', $event)"
+                      />
+                      <span class="absolute end-2 font-mono text-xs font-bold text-accent">
+                        {{ item.currency_symbol || item.currency_code || '₫' }}
+                      </span>
+                    </div>
+                  }
+                  @case ('TIME') {
+                    <div class="relative flex items-center">
+                      <input
+                        [id]="'input-' + item.ref"
+                        type="time"
+                        class="w-full border border-default bg-surface px-2 py-1.5 ps-7 text-xs text-ink focus:outline-none focus:ring-1 focus:ring-accent"
+                        [class.border-red-500]="isInvalid(item)"
+                        [ngModel]="textAnswer(item)"
+                        (ngModelChange)="setAnswer(item.ref ?? '', $event)"
+                      />
+                      <span class="absolute start-2 text-muted"><app-icon name="clock" size="xs" [decorative]="true" /></span>
+                    </div>
+                  }
+                  @case ('DATE_RANGE') {
+                    <div class="grid grid-cols-2 gap-2" [class.border]="isInvalid(item)" [class.border-red-500]="isInvalid(item)">
+                      <div>
+                        <span class="mb-0.5 block text-[10px] text-muted">{{ 'PLUGIN_FORM_DATE_RANGE_FROM' | translate }}</span>
+                        <input
+                          type="date"
+                          class="w-full border border-default bg-surface px-2 py-1 text-xs text-ink focus:outline-none focus:ring-1 focus:ring-accent"
+                          [value]="dateRangeValue(item, 'from')"
+                          (change)="setDateRangeValue(item, 'from', $any($event.target).value)"
+                        />
+                      </div>
+                      <div>
+                        <span class="mb-0.5 block text-[10px] text-muted">{{ 'PLUGIN_FORM_DATE_RANGE_TO' | translate }}</span>
+                        <input
+                          type="date"
+                          class="w-full border border-default bg-surface px-2 py-1 text-xs text-ink focus:outline-none focus:ring-1 focus:ring-accent"
+                          [value]="dateRangeValue(item, 'to')"
+                          (change)="setDateRangeValue(item, 'to', $any($event.target).value)"
+                        />
+                      </div>
+                    </div>
+                  }
+                  @case ('COLOR') {
+                    <div class="flex items-center gap-2">
+                      <input
+                        [id]="'input-' + item.ref"
+                        type="color"
+                        class="h-7 w-10 border border-default bg-surface cursor-pointer p-0.5"
+                        [ngModel]="textAnswer(item) || item.default_value || '#2563eb'"
+                        (ngModelChange)="setAnswer(item.ref ?? '', $event)"
+                      />
+                      <input
+                        type="text"
+                        class="w-24 border border-default bg-surface px-2 py-1 font-mono text-xs text-ink uppercase"
+                        [ngModel]="textAnswer(item) || item.default_value || '#2563eb'"
+                        (ngModelChange)="setAnswer(item.ref ?? '', $event)"
+                      />
+                    </div>
+                  }
+                  @case ('IMAGE_UPLOAD') {
+                    <div class="space-y-2">
+                      @if (imagePreviewUrl(item)) {
+                        <div class="relative inline-block border border-default p-1 bg-surface">
+                          <img [src]="imagePreviewUrl(item)" alt="Preview" class="max-h-40 max-w-full object-contain rounded-none" />
+                          <button
+                            type="button"
+                            class="absolute top-1 end-1 bg-red-600 text-white rounded-none p-1 hover:bg-red-700 transition-colors"
+                            [title]="'PLUGIN_FORM_IMAGE_REMOVE' | translate"
+                            (click)="removeImage(item)"
+                          >
+                            <app-icon name="trash-2" size="xs" [decorative]="true" />
+                          </button>
+                        </div>
+                      } @else {
+                        <label class="flex flex-col items-center justify-center gap-1.5 border border-dashed border-default bg-surface p-4 text-center cursor-pointer hover:border-accent hover:bg-surface-muted transition-colors" [class.border-red-500]="isInvalid(item)">
+                          <app-icon name="image" size="md" class="text-accent" [decorative]="true" />
+                          <span class="text-xs text-ink font-medium">{{ 'PLUGIN_FORM_IMAGE_CHOOSE' | translate }}</span>
+                          <span class="text-[10px] text-muted">PNG, JPG, WebP (≤{{ item.file_limits?.max_size_mb ?? 5 }}MB)</span>
+                          <input type="file" accept="image/*" class="sr-only" (change)="onImageSelected(item, $event)" />
+                        </label>
+                      }
+                    </div>
+                  }
+                  @case ('SIGNATURE') {
+                    <div class="space-y-1.5" [class.border]="isInvalid(item)" [class.border-red-500]="isInvalid(item)">
+                      <div class="relative border border-default bg-white dark:bg-neutral-900">
+                        <canvas
+                          #sigCanvas
+                          width="500"
+                          height="140"
+                          class="w-full h-28 touch-none cursor-crosshair block"
+                          (mousedown)="onSignatureStart($event, item.ref ?? '', sigCanvas)"
+                          (mousemove)="onSignatureMove($event, item.ref ?? '', sigCanvas)"
+                          (mouseup)="onSignatureEnd(item.ref ?? '', sigCanvas)"
+                          (mouseleave)="onSignatureEnd(item.ref ?? '', sigCanvas)"
+                          (touchstart)="onSignatureStart($event, item.ref ?? '', sigCanvas)"
+                          (touchmove)="onSignatureMove($event, item.ref ?? '', sigCanvas)"
+                          (touchend)="onSignatureEnd(item.ref ?? '', sigCanvas)"
+                        ></canvas>
+                        @if (!hasSignature(item)) {
+                          <div class="absolute inset-0 flex items-center justify-center pointer-events-none text-muted text-xs italic">
+                            <span class="flex items-center gap-1"><app-icon name="edit-3" size="xs" [decorative]="true" />{{ 'PLUGIN_FORM_SIGNATURE_HINT' | translate }}</span>
+                          </div>
+                        }
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <span class="text-[10px] text-muted">
+                          @if (hasSignature(item)) {
+                            <span class="text-emerald-600 dark:text-emerald-400 font-medium">✓ {{ 'PLUGIN_FORM_SIGNATURE_SIGNED' | translate }}</span>
+                          }
+                        </span>
+                        <button
+                          type="button"
+                          class="border border-default bg-surface px-2 py-0.5 text-[10px] text-muted hover:text-red-600 transition-colors cursor-pointer"
+                          (click)="clearSignature(item.ref ?? '', sigCanvas)"
+                        >
+                          {{ 'PLUGIN_FORM_SIGNATURE_CLEAR' | translate }}
+                        </button>
+                      </div>
+                    </div>
+                  }
+                  @case ('RICH_TEXT') {
+                    <div class="border border-default bg-surface" [class.border-red-500]="isInvalid(item)">
+                      <div class="flex items-center gap-1 border-b border-default bg-surface-muted px-2 py-1 text-[11px] font-bold text-muted">
+                        <span class="px-1 hover:text-ink cursor-pointer">B</span>
+                        <span class="px-1 hover:text-ink cursor-pointer italic">I</span>
+                        <span class="px-1 hover:text-ink cursor-pointer underline">U</span>
+                        <span class="px-1 hover:text-ink cursor-pointer">• List</span>
+                        <span class="px-1 hover:text-ink cursor-pointer">1. List</span>
+                      </div>
+                      <textarea
+                        [id]="'input-' + item.ref"
+                        rows="4"
+                        class="w-full resize-y border-0 bg-transparent px-2 py-1.5 text-xs text-ink placeholder:text-muted focus:outline-none"
+                        [placeholder]="item.placeholder ?? ''"
+                        [ngModel]="textAnswer(item)"
+                        (ngModelChange)="setAnswer(item.ref ?? '', $event)"
+                      ></textarea>
+                    </div>
+                  }
+                  @case ('SLIDER') {
+                    <div class="space-y-1 pt-1" [class.border]="isInvalid(item)" [class.border-red-500]="isInvalid(item)">
+                      <div class="flex items-center gap-3">
+                        <input
+                          [id]="'input-' + item.ref"
+                          type="range"
+                          class="w-full accent-accent cursor-pointer"
+                          [min]="item.min_value ?? 0"
+                          [max]="item.max_value ?? 100"
+                          [step]="item.step_value ?? 1"
+                          [ngModel]="textAnswer(item) || item.default_value || item.min_value || 0"
+                          (ngModelChange)="setAnswer(item.ref ?? '', +$event)"
+                        />
+                        <span class="font-mono text-xs font-bold text-accent min-w-8 text-end">
+                          {{ textAnswer(item) || item.default_value || item.min_value || 0 }}
+                        </span>
+                      </div>
+                      <div class="flex items-center justify-between text-[10px] font-mono text-muted">
+                        <span>{{ item.min_value ?? 0 }}</span>
+                        <span>{{ item.max_value ?? 100 }}</span>
+                      </div>
+                    </div>
+                  }
+                  @case ('ADDRESS') {
+                    <div class="space-y-2" [class.border]="isInvalid(item)" [class.border-red-500]="isInvalid(item)">
+                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div>
+                          <label class="block text-[10px] text-muted mb-0.5">{{ 'PLUGIN_FORM_ADDRESS_PROVINCE' | translate }}</label>
+                          <select
+                            class="w-full border border-default bg-surface px-1.5 py-1 text-xs text-ink focus:ring-1 focus:ring-accent outline-none"
+                            [value]="addressValue(item, 'province')"
+                            (change)="setAddressValue(item, 'province', $any($event.target).value)"
+                          >
+                            <option value="">{{ 'PLUGIN_FORM_ADDRESS_CHOOSE_PROVINCE' | translate }}</option>
+                            @for (p of vnProvinces; track p.code) {
+                              <option [value]="p.code">{{ p.name }}</option>
+                            }
+                          </select>
+                        </div>
+                        <div>
+                          <label class="block text-[10px] text-muted mb-0.5">{{ 'PLUGIN_FORM_ADDRESS_DISTRICT' | translate }}</label>
+                          <select
+                            class="w-full border border-default bg-surface px-1.5 py-1 text-xs text-ink focus:ring-1 focus:ring-accent outline-none"
+                            [disabled]="!addressValue(item, 'province')"
+                            [value]="addressValue(item, 'district')"
+                            (change)="setAddressValue(item, 'district', $any($event.target).value)"
+                          >
+                            <option value="">{{ 'PLUGIN_FORM_ADDRESS_CHOOSE_DISTRICT' | translate }}</option>
+                            @for (d of getDistrictsFor(item); track d.code) {
+                              <option [value]="d.code">{{ d.name }}</option>
+                            }
+                          </select>
+                        </div>
+                        <div>
+                          <label class="block text-[10px] text-muted mb-0.5">{{ 'PLUGIN_FORM_ADDRESS_WARD' | translate }}</label>
+                          <select
+                            class="w-full border border-default bg-surface px-1.5 py-1 text-xs text-ink focus:ring-1 focus:ring-accent outline-none"
+                            [disabled]="!addressValue(item, 'district')"
+                            [value]="addressValue(item, 'ward')"
+                            (change)="setAddressValue(item, 'ward', $any($event.target).value)"
+                          >
+                            <option value="">{{ 'PLUGIN_FORM_ADDRESS_CHOOSE_WARD' | translate }}</option>
+                            @for (w of getWardsFor(item); track w.code) {
+                              <option [value]="w.code">{{ w.name }}</option>
+                            }
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label class="block text-[10px] text-muted mb-0.5">{{ 'PLUGIN_FORM_ADDRESS_STREET' | translate }}</label>
+                        <input
+                          type="text"
+                          class="w-full border border-default bg-surface px-2 py-1 text-xs text-ink focus:ring-1 focus:ring-accent outline-none"
+                          [placeholder]="'PLUGIN_FORM_ADDRESS_STREET' | translate"
+                          [value]="addressValue(item, 'street')"
+                          (input)="setAddressValue(item, 'street', $any($event.target).value)"
+                        />
+                      </div>
+                    </div>
+                  }
+                  @case ('REPEATER') {
+                    <div class="space-y-2" [class.border]="isInvalid(item)" [class.border-red-500]="isInvalid(item)">
+                      <div class="space-y-2">
+                        @for (row of getRepeaterRows(item); track $index; let rIdx = $index) {
+                          <div class="border border-default bg-surface-muted/30 p-2 space-y-1.5">
+                            <div class="flex items-center justify-between border-b border-default/50 pb-1 text-[10px] text-muted font-medium">
+                              <span>Mục #{{ rIdx + 1 }}</span>
+                              @if (getRepeaterRows(item).length > 1) {
+                                <button
+                                  type="button"
+                                  class="text-red-600 hover:underline cursor-pointer"
+                                  (click)="removeRepeaterRow(item, rIdx)"
+                                >
+                                  {{ 'PLUGIN_FORM_REPEATER_REMOVE' | translate }}
+                                </button>
+                              }
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              @for (rf of getRepeaterFields(item); track rf.key) {
+                                <div>
+                                  <label class="block text-[10px] text-muted mb-0.5">{{ rf.label }}</label>
+                                  @if (rf.type === 'LONG_TEXT') {
+                                    <textarea
+                                      rows="2"
+                                      class="w-full border border-default bg-surface px-1.5 py-1 text-xs focus:ring-1 focus:ring-accent outline-none"
+                                      [value]="row[rf.key] || ''"
+                                      (input)="onRepeaterCellChange(item, rIdx, rf.key, $any($event.target).value)"
+                                    ></textarea>
+                                  } @else {
+                                    <input
+                                      type="text"
+                                      class="w-full border border-default bg-surface px-1.5 py-1 text-xs focus:ring-1 focus:ring-accent outline-none"
+                                      [value]="row[rf.key] || ''"
+                                      (input)="onRepeaterCellChange(item, rIdx, rf.key, $any($event.target).value)"
+                                    />
+                                  }
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                      <button
+                        type="button"
+                        class="inline-flex items-center gap-1 border border-default bg-surface px-2.5 py-1 text-xs font-medium hover:bg-surface-muted transition-colors cursor-pointer"
+                        (click)="addRepeaterRow(item)"
+                      >
+                        <span class="text-accent font-bold">+</span>
+                        <span>{{ 'PLUGIN_FORM_REPEATER_ADD' | translate }}</span>
+                      </button>
                     </div>
                   }
                   @default {
