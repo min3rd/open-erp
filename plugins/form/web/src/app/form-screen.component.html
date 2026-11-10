@@ -606,6 +606,11 @@
                                   @if (entry.item.required) {
                                     <span class="text-red-600">*</span>
                                   }
+                                  @if (entry.item.option_source === 'CATALOG') {
+                                    <span class="ms-1.5 inline-block border border-default bg-surface-muted px-1 text-[9px] font-mono font-normal text-accent">Catalog: {{ entry.item.catalog_type || 'PROVINCE' }}</span>
+                                  } @else if (entry.item.option_source === 'EXTERNAL_API') {
+                                    <span class="ms-1.5 inline-block border border-default bg-surface-muted px-1 text-[9px] font-mono font-normal text-accent">API</span>
+                                  }
                                 </label>
                                 @if (entry.item.description) {
                                   <p class="text-[10px] text-muted">{{ entry.item.description }}</p>
@@ -617,7 +622,7 @@
                                   }
                                   @case ('SINGLE_CHOICE') {
                                     <div class="space-y-1 pt-0.5">
-                                      @for (opt of entry.item.options ?? []; track $index) {
+                                      @for (opt of getItemOptions(entry.item); track $index) {
                                         <div class="flex items-center justify-between border border-default bg-surface px-2 py-1 text-[11px]">
                                           <span>○ {{ opt.label || opt.value }}</span>
                                           @if (opt.logic?.action) {
@@ -629,7 +634,7 @@
                                   }
                                   @case ('MULTI_CHOICE') {
                                     <div class="space-y-1 pt-0.5">
-                                      @for (opt of entry.item.options ?? []; track $index) {
+                                      @for (opt of getItemOptions(entry.item); track $index) {
                                         <div class="flex items-center justify-between border border-default bg-surface px-2 py-1 text-[11px]">
                                           <span>☐ {{ opt.label || opt.value }}</span>
                                         </div>
@@ -638,7 +643,7 @@
                                   }
                                   @case ('DROPDOWN') {
                                     <div class="border border-default bg-surface px-2 py-1.5 text-[11px] text-muted">
-                                      ▾ {{ (entry.item.options?.[0]?.label || entry.item.options?.[0]?.value) ?? ('COMMON_SELECT' | translate) }} ({{ (entry.item.options ?? []).length }})
+                                      ▾ {{ (getItemOptions(entry.item)[0]?.label || getItemOptions(entry.item)[0]?.value) ?? ('COMMON_SELECT' | translate) }} ({{ getItemOptions(entry.item).length }})
                                     </div>
                                   }
                                   @case ('RATING') {
@@ -876,50 +881,140 @@
                     </div>
 
                     @if (isChoice(item)) {
-                      <div class="space-y-1.5 border-t border-default pt-2">
+                      <div class="space-y-2 border-t border-default pt-2">
                         <div class="flex items-center justify-between">
                           <h3 class="text-[10px] font-semibold uppercase tracking-wider text-muted">{{ 'PLUGIN_FORM_OPTIONS' | translate }}</h3>
-                          <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="addOption()">
-                            <span class="inline-flex items-center gap-1"><app-icon name="plus" [size]="'sm'" [decorative]="true" />{{ 'PLUGIN_FORM_ADD_OPTION' | translate }}</span>
-                          </app-sharp-button>
-                        </div>
-                        <div class="space-y-1.5">
-                          @for (option of item.options ?? []; track $index) {
-                            <div class="space-y-1.5 border border-default bg-surface-muted/40 p-2">
-                              <div class="grid grid-cols-[1fr_1fr_auto] items-end gap-1.5">
-                                <app-sharp-input
-                                  [label]="'PLUGIN_FORM_OPTION_LABEL' | translate"
-                                  [value]="option.label ?? ''"
-                                  (valueChange)="updateOption($index, { label: $event, value: sanitizeRef($event) || option.value })"
-                                />
-                                <app-sharp-input
-                                  [label]="'PLUGIN_FORM_OPTION_VALUE' | translate"
-                                  [value]="option.value"
-                                  (valueChange)="updateOption($index, { value: $event })"
-                                />
-                                <app-sharp-button size="sm" variant="ghost" [shape]="'sharp'" (clicked)="removeOption($index)">
-                                  <app-icon name="trash-2" [size]="'sm'" [decorative]="true" />
-                                </app-sharp-button>
-                              </div>
-                              <div class="grid grid-cols-2 gap-1.5">
-                                <app-sharp-select
-                                  [label]="'PLUGIN_FORM_LOGIC_ACTION' | translate"
-                                  [options]="logicActionOptions"
-                                  [value]="option.logic?.action ?? ''"
-                                  (valueChange)="updateOptionLogic($index, $event)"
-                                />
-                                @if (option.logic?.action === 'GOTO_REF') {
-                                  <app-sharp-select
-                                    [label]="'PLUGIN_FORM_LOGIC_TARGET' | translate"
-                                    [options]="logicTargetOptions()"
-                                    [value]="option.logic?.goto_ref ?? ''"
-                                    (valueChange)="updateOptionGoto($index, $event)"
-                                  />
-                                }
-                              </div>
-                            </div>
+                          @if (!item.option_source || item.option_source === 'STATIC') {
+                            <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" (clicked)="addOption()">
+                              <span class="inline-flex items-center gap-1"><app-icon name="plus" [size]="'sm'" [decorative]="true" />{{ 'PLUGIN_FORM_ADD_OPTION' | translate }}</span>
+                            </app-sharp-button>
                           }
                         </div>
+
+                        <!-- Option Data Source Selector (STATIC / CATALOG / EXTERNAL_API) -->
+                        <app-sharp-select
+                          [label]="'PLUGIN_FORM_OPTION_SOURCE' | translate"
+                          [options]="optionSourceOptions"
+                          [value]="item.option_source || 'STATIC'"
+                          (valueChange)="updateOptionSource($event)"
+                        />
+
+                        <!-- 1. STATIC SOURCE: manual options list -->
+                        @if (!item.option_source || item.option_source === 'STATIC') {
+                          <div class="space-y-1.5">
+                            @for (option of item.options ?? []; track $index) {
+                              <div class="space-y-1.5 border border-default bg-surface-muted/40 p-2">
+                                <div class="grid grid-cols-[1fr_1fr_auto] items-end gap-1.5">
+                                  <app-sharp-input
+                                    [label]="'PLUGIN_FORM_OPTION_LABEL' | translate"
+                                    [value]="option.label ?? ''"
+                                    (valueChange)="updateOption($index, { label: $event, value: sanitizeRef($event) || option.value })"
+                                  />
+                                  <app-sharp-input
+                                    [label]="'PLUGIN_FORM_OPTION_VALUE' | translate"
+                                    [value]="option.value"
+                                    (valueChange)="updateOption($index, { value: $event })"
+                                  />
+                                  <app-sharp-button size="sm" variant="ghost" [shape]="'sharp'" (clicked)="removeOption($index)">
+                                    <app-icon name="trash-2" [size]="'sm'" [decorative]="true" />
+                                  </app-sharp-button>
+                                </div>
+                                <div class="grid grid-cols-2 gap-1.5">
+                                  <app-sharp-select
+                                    [label]="'PLUGIN_FORM_LOGIC_ACTION' | translate"
+                                    [options]="logicActionOptions"
+                                    [value]="option.logic?.action ?? ''"
+                                    (valueChange)="updateOptionLogic($index, $event)"
+                                  />
+                                  @if (option.logic?.action === 'GOTO_REF') {
+                                    <app-sharp-select
+                                      [label]="'PLUGIN_FORM_LOGIC_TARGET' | translate"
+                                      [options]="logicTargetOptions()"
+                                      [value]="option.logic?.goto_ref ?? ''"
+                                      (valueChange)="updateOptionGoto($index, $event)"
+                                    />
+                                  }
+                                </div>
+                              </div>
+                            }
+                          </div>
+                        }
+
+                        <!-- 2. CATALOG SOURCE: select catalog type -->
+                        @if (item.option_source === 'CATALOG') {
+                          <div class="space-y-2 border border-default bg-surface-muted/40 p-2.5">
+                            <app-sharp-select
+                              [label]="'PLUGIN_FORM_CATALOG_TYPE' | translate"
+                              [options]="catalogTypeOptions()"
+                              [value]="item.catalog_type || 'PROVINCE'"
+                              (valueChange)="updateItem({ catalog_type: $event })"
+                            />
+                            <p class="text-[10px] text-muted leading-relaxed">
+                              {{ 'PLUGIN_FORM_CATALOG_TYPE_HINT' | translate }}
+                            </p>
+                            <div class="flex items-center gap-2 pt-1">
+                              <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" [loading]="isFetching(item.ref)" (clicked)="testFetchOptions(item)">
+                                <span class="inline-flex items-center gap-1"><app-icon name="refresh-cw" size="sm" [decorative]="true" />{{ 'PLUGIN_FORM_TEST_FETCH' | translate }}</span>
+                              </app-sharp-button>
+                              <span class="font-mono text-[10px] text-accent">/api/v1/form/catalog/options/{{ item.catalog_type || 'PROVINCE' }}</span>
+                            </div>
+                            @if (optionFetchStatus()?.ref === item.ref && optionFetchStatus()?.message) {
+                              <div class="p-1.5 text-[10px]" [class.text-emerald-500]="!optionFetchStatus()?.error" [class.text-rose-500]="optionFetchStatus()?.error">
+                                {{ optionFetchStatus()?.message }}
+                              </div>
+                            }
+                          </div>
+                        }
+
+                        <!-- 3. EXTERNAL API SOURCE: REST URL & JSON path mapping -->
+                        @if (item.option_source === 'EXTERNAL_API') {
+                          <div class="space-y-2 border border-default bg-surface-muted/40 p-2.5">
+                            <app-sharp-input
+                              [label]="'PLUGIN_FORM_API_URL' | translate"
+                              [value]="item.api_url || ''"
+                              placeholder="https://api.example.com/items hoặc /api/v1/..."
+                              (valueChange)="updateItem({ api_url: $event })"
+                            />
+                            <div class="grid grid-cols-2 gap-1.5">
+                              <app-sharp-select
+                                [label]="'PLUGIN_FORM_API_METHOD' | translate"
+                                [options]="apiMethodOptions"
+                                [value]="item.api_method || 'GET'"
+                                (valueChange)="updateApiMethod($event)"
+                              />
+                              <app-sharp-input
+                                [label]="'PLUGIN_FORM_API_ITEMS_PATH' | translate"
+                                [value]="item.api_items_path || ''"
+                                placeholder="data.items"
+                                (valueChange)="updateItem({ api_items_path: $event })"
+                              />
+                            </div>
+                            <div class="grid grid-cols-2 gap-1.5">
+                              <app-sharp-input
+                                [label]="'PLUGIN_FORM_API_VALUE_KEY' | translate"
+                                [value]="item.api_value_key || 'id'"
+                                placeholder="id"
+                                (valueChange)="updateItem({ api_value_key: $event })"
+                              />
+                              <app-sharp-input
+                                [label]="'PLUGIN_FORM_API_LABEL_KEY' | translate"
+                                [value]="item.api_label_key || 'name'"
+                                placeholder="name"
+                                (valueChange)="updateItem({ api_label_key: $event })"
+                              />
+                            </div>
+                            <div class="pt-1">
+                              <app-sharp-button size="sm" variant="outline" [shape]="'sharp'" [loading]="isFetching(item.ref)" (clicked)="testFetchOptions(item)">
+                                <span class="inline-flex items-center gap-1"><app-icon name="refresh-cw" size="sm" [decorative]="true" />{{ 'PLUGIN_FORM_TEST_FETCH' | translate }}</span>
+                              </app-sharp-button>
+                            </div>
+                            @if (optionFetchStatus()?.ref === item.ref && optionFetchStatus()?.message) {
+                              <div class="p-1.5 text-[10px]" [class.text-emerald-500]="!optionFetchStatus()?.error" [class.text-rose-500]="optionFetchStatus()?.error">
+                                {{ optionFetchStatus()?.message }}
+                              </div>
+                            }
+                          </div>
+                        }
                       </div>
                     }
 
@@ -1287,7 +1382,7 @@
                   }
                   @case ('SINGLE_CHOICE') {
                     <div class="space-y-1">
-                      @for (opt of entry.item.options ?? []; track $index) {
+                      @for (opt of getItemOptions(entry.item); track $index) {
                         <div class="flex items-center gap-2 border border-default bg-surface px-2 py-1 text-[11px]">
                           <input type="radio" [disabled]="true" />
                           <span>{{ opt.label || opt.value }}</span>
@@ -1297,7 +1392,7 @@
                   }
                   @case ('MULTI_CHOICE') {
                     <div class="space-y-1">
-                      @for (opt of entry.item.options ?? []; track $index) {
+                      @for (opt of getItemOptions(entry.item); track $index) {
                         <div class="flex items-center gap-2 border border-default bg-surface px-2 py-1 text-[11px]">
                           <input type="checkbox" [disabled]="true" />
                           <span>{{ opt.label || opt.value }}</span>
@@ -1307,7 +1402,7 @@
                   }
                   @case ('DROPDOWN') {
                     <div class="border border-default bg-surface px-2 py-1.5 text-[11px] text-muted">
-                      ▾ {{ (entry.item.options?.[0]?.label || entry.item.options?.[0]?.value) ?? ('COMMON_SELECT' | translate) }}
+                      ▾ {{ (getItemOptions(entry.item)[0]?.label || getItemOptions(entry.item)[0]?.value) ?? ('COMMON_SELECT' | translate) }} ({{ getItemOptions(entry.item).length }})
                     </div>
                   }
                   @case ('RATING') {

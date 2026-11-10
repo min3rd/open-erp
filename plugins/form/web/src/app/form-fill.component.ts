@@ -7,8 +7,9 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { firstValueFrom, forkJoin } from 'rxjs';
 import {
   I18nService,
   IconComponent,
@@ -38,6 +39,7 @@ interface UploadedFile {
 export class FormFillComponent implements OnInit {
   private host = inject<ElementRef<HTMLElement>>(ElementRef);
   private api = inject(FormService);
+  private http = inject(HttpClient);
   private i18n = inject(I18nService);
 
   @Input() formSlug = '';
@@ -77,6 +79,7 @@ export class FormFillComponent implements OnInit {
           this.description.set(String(data['description'] ?? ''));
           const document = (data['document'] ?? { items: [] }) as FormDocument;
           this.items.set(document.items ?? []);
+          void this.resolveDynamicOptions(document.items ?? []);
           this.recomputeVisibility();
           this.loading.set(false);
         },
@@ -91,17 +94,80 @@ export class FormFillComponent implements OnInit {
   private async loadDictionary(): Promise<void> {
     const lang = (navigator.language || 'vi').startsWith('vi') ? 'vi' : 'en';
     try {
-      // The public page is served from the core origin, so a root-relative
-      // runtime path reaches the plugin bundle's dictionaries.
-      const response = await fetch(
-        `/api/v1/plugins/runtime/form/i18n/${lang}.json?plugin_token=${encodeURIComponent(this.pluginToken)}`,
+      const dict = await firstValueFrom(
+        this.http.get<Record<string, string>>(
+          `/api/v1/plugins/runtime/form/i18n/${lang}.json?plugin_token=${encodeURIComponent(this.pluginToken)}`,
+        ),
       );
-      if (response.ok) {
-        this.i18n.setDictionary(lang as never, await response.json());
+      if (dict) {
+        this.i18n.setDictionary(lang as never, dict);
         this.i18n.setLanguage(lang as never);
       }
     } catch {
       // Labels fall back to keys; the form stays functional.
+    }
+  }
+
+  private async resolveDynamicOptions(items: FormItem[]): Promise<void> {
+    const next = [...items];
+    let changed = false;
+    for (let i = 0; i < next.length; i++) {
+      const item = next[i];
+      if (item.type !== 'SINGLE_CHOICE' && item.type !== 'MULTI_CHOICE' && item.type !== 'DROPDOWN') {
+        continue;
+      }
+      if (item.option_source === 'CATALOG' && item.catalog_type) {
+        try {
+          const res = await firstValueFrom(this.api.getCatalogOptions(item.catalog_type));
+          const raw = res?.data?.items ?? [];
+          if (Array.isArray(raw) && raw.length > 0) {
+            const opts = raw.map((x: any) => ({
+              value: String(x.code ?? x.id ?? x.value),
+              label: String(x.name ?? x.label ?? x.title ?? x.code ?? x.value),
+            }));
+            next[i] = { ...item, options: opts };
+            changed = true;
+          }
+        } catch {
+          /* keep existing options */
+        }
+      } else if (item.option_source === 'EXTERNAL_API' && item.api_url) {
+        try {
+          const method = item.api_method || 'GET';
+          const data: any = await firstValueFrom(this.api.testExternalApi(item.api_url, method));
+          let raw: any[] = [];
+          if (item.api_items_path) {
+            const parts = item.api_items_path.split('.');
+            let cur = data;
+            for (const p of parts) {
+              cur = cur?.[p];
+            }
+            raw = Array.isArray(cur) ? cur : [];
+          } else if (Array.isArray(data)) {
+            raw = data;
+          } else if (Array.isArray(data?.items)) {
+            raw = data.items;
+          } else if (Array.isArray(data?.data)) {
+            raw = data.data;
+          }
+          const valKey = item.api_value_key || 'id';
+          const lblKey = item.api_label_key || 'name';
+          const opts = raw.map((x: any) => ({
+            value: String(x[valKey] ?? x['value'] ?? x['code'] ?? JSON.stringify(x)),
+            label: String(x[lblKey] ?? x['label'] ?? x['title'] ?? x[valKey] ?? 'Option'),
+          }));
+          if (opts.length > 0) {
+            next[i] = { ...item, options: opts };
+            changed = true;
+          }
+        } catch {
+          /* keep existing options */
+        }
+      }
+    }
+    if (changed) {
+      this.items.set(next);
+      this.recomputeVisibility();
     }
   }
 

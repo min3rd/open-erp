@@ -45,6 +45,8 @@ export type FormItemType =
   | 'FILE_UPLOAD'
   | 'MATRIX';
 
+export type FormOptionSourceType = 'STATIC' | 'CATALOG' | 'EXTERNAL_API';
+
 export interface FormItem {
   type: FormItemType;
   title?: string;
@@ -54,6 +56,14 @@ export interface FormItem {
   required?: boolean;
   placeholder?: string;
   options?: FormOption[];
+  // Dynamic choice source configuration
+  option_source?: FormOptionSourceType;
+  catalog_type?: string;
+  api_url?: string;
+  api_method?: 'GET' | 'POST';
+  api_items_path?: string;
+  api_value_key?: string;
+  api_label_key?: string;
   rows?: string[];
   columns?: string[];
   file_limits?: { max_files?: number; max_size_mb?: number };

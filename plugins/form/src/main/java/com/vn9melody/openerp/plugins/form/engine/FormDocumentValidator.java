@@ -103,7 +103,22 @@ public final class FormDocumentValidator {
                     "items[" + index + "] question '" + ref + "' requires label"));
         }
         if (CHOICE_TYPES.contains(type)) {
-            validateOptions(item, index, ref, refIndex);
+            String optionSource = str(item.get("option_source"));
+            if ("CATALOG".equals(optionSource)) {
+                String catalogType = str(item.get("catalog_type"));
+                if (catalogType == null || catalogType.isBlank()) {
+                    violations.add(new Violation("FORM_DOCUMENT_INVALID",
+                            "items[" + index + "] choice '" + ref + "' with CATALOG source requires catalog_type"));
+                }
+            } else if ("EXTERNAL_API".equals(optionSource) || "API".equals(optionSource)) {
+                String apiUrl = str(item.get("api_url"));
+                if (apiUrl == null || apiUrl.isBlank()) {
+                    violations.add(new Violation("FORM_DOCUMENT_INVALID",
+                            "items[" + index + "] choice '" + ref + "' with EXTERNAL_API source requires api_url"));
+                }
+            } else {
+                validateOptions(item, index, ref, refIndex);
+            }
         }
         if ("MATRIX".equals(type)) {
             if (!(item.get("rows") instanceof List<?> rows) || rows.isEmpty()

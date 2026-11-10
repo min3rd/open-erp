@@ -101,4 +101,25 @@ class FormDocumentValidatorTest {
                         Map.of("type", "PAGE", "title", "Page 2: Enterprise Details", "grid_columns", 3)));
         assertTrue(validator.validate(document).isEmpty());
     }
+
+    @Test
+    void acceptsDynamicChoiceSourcesCatalogAndApi() {
+        Map<String, Object> document = Map.of("items", List.of(
+                Map.of("type", "SINGLE_CHOICE", "ref", "province", "label", "Province",
+                        "option_source", "CATALOG", "catalog_type", "PROVINCE"),
+                Map.of("type", "DROPDOWN", "ref", "external_user", "label", "User from API",
+                        "option_source", "EXTERNAL_API", "api_url", "https://api.example.com/users")));
+        assertTrue(validator.validate(document).isEmpty());
+    }
+
+    @Test
+    void rejectsDynamicChoiceWithoutRequiredConfiguration() {
+        Map<String, Object> document = Map.of("items", List.of(
+                Map.of("type", "SINGLE_CHOICE", "ref", "c1", "label", "Bad Catalog",
+                        "option_source", "CATALOG"),
+                Map.of("type", "DROPDOWN", "ref", "a1", "label", "Bad API",
+                        "option_source", "EXTERNAL_API")));
+        List<FormDocumentValidator.Violation> violations = validator.validate(document);
+        assertEquals(2, violations.size());
+    }
 }

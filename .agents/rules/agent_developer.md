@@ -15,12 +15,17 @@ Developer Agent chịu trách nhiệm lập trình và triển khai mã nguồn 
   - **CẤM SỬ DỤNG H2 / Mock DB**: Môi trường dev có sẵn PostgreSQL và Redis (`make infra`). Mọi test backend phải kết nối và chạy trực tiếp trên PostgreSQL và Redis thật.
   - **Frontend**: **TUYỆT ĐỐI KHÔNG VIẾT Unit Test** (không tạo file `.spec.ts`). Kiểm thử giao diện do QA thực hiện trực tiếp trên trình duyệt.
 - **Quy Chuẩn Frontend**:
+  - **CẤM DÙNG NATIVE FETCH()**: 100% request HTTP trong Angular (kể cả Web Component hay màn hình Public) bắt buộc phải sử dụng Angular `HttpClient` hoặc `ApiService` từ `@shared`. Nghiêm cấm dùng native `fetch()` vì làm bypass Interceptors (Bearer Token, Tenant Context, Request ID) và phá vỡ cơ chế xử lý lỗi/reactivity thống nhất.
+  - **Cấm Frontend Gọi Chéo Endpoint Plugin Khác**: Frontend của Plugin A chỉ được gọi API của Backend Plugin A thông qua Service nội bộ. Tuyệt đối không tự ý hardcode hoặc gọi trực tiếp URL endpoint của Plugin B từ phía trình duyệt.
+  - **Quy Chuẩn Chân Drawer (Drawer Footer Invariant)**: Thẻ `<div drawer-footer>` chỉ chứa các lớp dàn layout (`flex items-center gap-2`), tuyệt đối không thêm thuộc tính màu nền (`bg-surface`, `bg-*`) hoặc viền trên (`border-t`) vì vỏ component `<app-drawer>` đã có sẵn nền `bg-surface-muted` và `border-t`.
   - **Tách riêng template HTML**: 100% component Angular phải tách riêng file template `.html`. Cấm viết inline `template: \`...\``.
   - **Component-First & Thư Viện Dùng Chung**: Mọi component dùng chung phải đặt tại `src/frontend/shared/` (`@shared/*`) để dùng chung cho cả Web và Mobile trước khi sử dụng.
   - **Tái sử dụng layout component**: Tách các cụm UI lặp lại thành component độc lập (`<app-language-switcher>`, `<app-topbar>`, `<app-navbar>`).
   - **100% Đa Ngôn Ngữ**: Không hardcode text, dùng `[appTranslate]` và `translate` pipe kết nối từ điển i18n (`vi.json`, `en.json`).
   - **Design Token Enums**: Sử dụng thống nhất bộ `ColorVariant`, `SizeVariant`, `ShapeVariant` từ `@shared/enums/theme.enum`.
-- **Quy Chuẩn Backend**:
+- **Quy Chuẩn Backend & Ranh Giới Inter-Plugin**:
+  - **Giao Tiếp Liên Plugin Phải Qua gRPC (`PluginDataServiceGrpc`) - CẤM GỌI CHÉO REST API**: Backend của Plugin A khi cần đọc dữ liệu thuộc Plugin B bắt buộc phải sử dụng `PluginDataClient` chạy qua gRPC (`PluginDataServiceGrpc`) cổng `9090` với mTLS. Tuyệt đối cấm dùng `HttpClient` gọi trực tiếp REST API runtime của Plugin B. Ghi dữ liệu chéo plugin bắt buộc qua Event Hub (`/api/v1/internal/plugin-events`) hoặc Entity Write Proxy (`/api/v1/internal/entity-write/...`).
+  - **Cấm Fix Cứng Page Limit (`size = 100`) - Bắt Buộc Dùng Mẫu Duyệt Toàn Bộ `pageThrough`**: Khi truy vấn dữ liệu danh mục, loại trường, options, hoặc danh sách bản ghi liên plugin, lập trình viên tuyệt đối không được fix cứng kích thước trang (ví dụ `size = 100`) dẫn đến mất dữ liệu khi vượt quá 1 trang; bắt buộc phải cài đặt vòng lặp `pageThrough` tuần tự (`while(rows.size() == PAGE_SIZE) { page++; }`) cho đến khi lấy hết 100% bản ghi.
   - **Cấm Hardcode URL**: URL frontend phải nạp động qua `@ConfigProperty(name = "openerp.frontend.url")`.
   - **Chuẩn Hóa Java Enums**: Mọi phân loại (Roles, Tenant Types, Company Sizes, Account Statuses, Two-Factor Methods) phải khai báo bằng Java Enum, đồng bộ 1-1 với TypeScript Enums.
   - **Chuẩn Hóa ResponseKey Enum**: Toàn bộ keys trả về trong Response Data Map/Object bắt buộc phải sử dụng enum `ResponseKey` (`ResponseKey.USER_ID.getKey()`, `ResponseKey.TENANT_ID.getKey()`).

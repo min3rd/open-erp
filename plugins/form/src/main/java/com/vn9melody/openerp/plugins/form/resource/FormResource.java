@@ -36,6 +36,28 @@ public class FormResource {
     @Inject
     FormResponseService responseService;
 
+    @Inject
+    com.vn9melody.openerp.plugins.form.service.FormCatalogService catalogService;
+
+    @GET
+    @Path("/catalog/types")
+    @RequirePermission("form:definition:manage")
+    public ApiResponse<ListData<Map<String, Object>>> catalogTypes() {
+        return ApiResponse.successList(
+                "CATALOG_TYPES_SUCCESS",
+                "Catalog types retrieved.",
+                catalogService.getTypes());
+    }
+
+    @GET
+    @Path("/catalog/options/{type}")
+    public ApiResponse<ListData<Map<String, Object>>> catalogOptions(@PathParam("type") String type) {
+        return ApiResponse.successList(
+                "CATALOG_OPTIONS_SUCCESS",
+                "Catalog options retrieved.",
+                catalogService.getOptions(type));
+    }
+
     @GET
     @Path("/forms")
     @RequirePermission("form:definition:manage")

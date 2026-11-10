@@ -30,6 +30,16 @@ Solution Architect chịu trách nhiệm dẫn dắt Giai đoạn 2 (Chặng K�
    - Non-Paginated List: `data: { items: [...] }`
    - Error Response: `{ success: false, code, message, params, errors: [{ field, code, params }], timestamp }` (cấm hardcode text tiếng Việt).
    Nghiêm cấm sáng tác bất kỳ format phản hồi riêng biệt nào.
+7. **Ràng Buộc Ranh Giới & Giao Tiếp Liên Plugin (Inter-Plugin Boundary Invariant)**:
+   - Các Plugin độc lập tuyệt đối không được truy cập trực tiếp bảng CSDL hoặc gọi chéo REST API client-side lẫn server-side của nhau.
+   - Frontend của Plugin chỉ giao tiếp với Backend của chính Plugin đó.
+   - Giao tiếp liên Plugin (Cross-Plugin) chỉ được phép diễn ra ở tầng Backend thông qua 3 kênh chuẩn hóa:
+     1. **gRPC Data Service (`PluginDataServiceGrpc`)**: Đồng bộ, độ trễ thấp, typed contract qua protobuf kết nối tới Core Data Gateway. Core kiểm tra Tenant Ledger (plugin mục tiêu phải `ACTIVE`), phân giải schema đích `tenant_<id8>_<target>`, và **chỉ cho phép thao tác READ** (chặn toàn bộ mutation WRITE chéo).
+     2. **Core Internal Write Proxy (`/api/v1/internal/entity-write/...`)**: Được Core trung chuyển và kiểm soát phân quyền Tenant/Plugin Service Token cho các thao tác ghi dữ liệu có kiểm soát.
+     3. **Message Broker (Apache Kafka / Plugin Event Fanout / Event Hub)**: Bất đồng bộ, Event-driven, đảm bảo tính phân tán và chịu tải cao.
+8. **Quy Chuẩn Nạp Dữ Liệu Trọn Vẹn (Anti-Data Truncation & PageThrough Invariant)**:
+   - Khi thiết kế tích hợp dữ liệu dùng chung (danh mục, option nguồn, dữ liệu tham chiếu đa thực thể), Solution Architect **nghiêm cấm cấu hình hoặc chấp nhận giới hạn cứng** (như `size = 100` tĩnh hoặc chỉ nạp 1 trang).
+   - Thiết kế tích hợp bắt buộc phải có cơ chế duyệt tuần tự `pageThrough` cho đến khi thu thập đủ 100% bản ghi hoặc bắt buộc hợp đồng API phân trang động minh bạch.
 
 ## 3. Contract baseline và bàn giao
 

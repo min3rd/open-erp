@@ -27,5 +27,6 @@
   2. **Drawer (Side Sheet / Slide-over trượt từ cạnh phải)**:
      - Dùng xem nhanh chi tiết hoặc nhập biểu mẫu mà vẫn giữ trọn vẹn ngữ cảnh bảng danh sách bên trái.
      - Hỗ trợ **xếp chồng đa tầng (Stacked Drawers)**.
+     - **Quy chuẩn chân Drawer (Drawer Footer Invariant)**: Thùng chứa footer của component `app-drawer` đã có sẵn style nền và viền chuẩn (`px-4 py-2.5 border-t border-default bg-surface-muted flex justify-end gap-2`). Thẻ chiếu nội dung `<div drawer-footer>` bắt buộc phải trong suốt (`bg-transparent`), chỉ chứa các lớp bố cục (`flex items-center gap-2`). **Tuyệt đối cấm gán thêm `bg-surface`, `bg-*`, `border-t`, `p-*`** bên trong `[drawer-footer]` vì sẽ tạo ra khối hộp màu đen/2 lớp viền lồng nhau kỳ dị xung quanh nút bấm.
   3. **Chia Màn Hình Đa Phần (Split-Screen / Multi-Pane Layout)**:
      - Chia màn hình thành các cột hiển thị song song (Master-Detail).

@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import {
   BadgeComponent,
   ColorVariant,
@@ -35,6 +36,8 @@ import {
   FormItemType,
   FormLayoutConfig,
   FormLogicAction,
+  FormOption,
+  FormOptionSourceType,
   FormStructureMode,
   FormSummary,
 } from './form.model';
@@ -327,6 +330,45 @@ export class FormScreenComponent implements OnInit {
     { value: 'SUBMIT_FORM', labelKey: 'PLUGIN_FORM_LOGIC_SUBMIT' },
   ];
 
+  readonly optionSourceOptions: SelectOption[] = [
+    { value: 'STATIC', labelKey: 'PLUGIN_FORM_OPTION_SOURCE_STATIC' },
+    { value: 'CATALOG', labelKey: 'PLUGIN_FORM_OPTION_SOURCE_CATALOG' },
+    { value: 'EXTERNAL_API', labelKey: 'PLUGIN_FORM_OPTION_SOURCE_API' },
+  ];
+
+  readonly catalogTypes = signal<Array<{ code: string; name: string }>>([]);
+  readonly catalogTypesLoading = signal<boolean>(false);
+
+  readonly catalogTypeOptions = computed<SelectOption[]>(() => {
+    const list = this.catalogTypes();
+    if (list.length > 0) {
+      return list.map((t) => ({
+        value: t.code,
+        label: `${t.name || t.code} (${t.code})`,
+      }));
+    }
+    // Initial dynamic fallback until plugin types load
+    return [
+      { value: 'PROVINCE', label: 'Tỉnh / Thành phố (PROVINCE)' },
+      { value: 'DISTRICT', label: 'Quận / Huyện (DISTRICT)' },
+      { value: 'COMMUNE', label: 'Xã / Phường (COMMUNE)' },
+      { value: 'DEPARTMENT', label: 'Phòng ban (DEPARTMENT)' },
+      { value: 'JOB_TITLE', label: 'Chức danh (JOB_TITLE)' },
+      { value: 'CONTRACT_TYPE', label: 'Loại hợp đồng (CONTRACT_TYPE)' },
+      { value: 'EDUCATION_LEVEL', label: 'Trình độ học vấn (EDUCATION_LEVEL)' },
+      { value: 'INDUSTRY', label: 'Ngành nghề (INDUSTRY)' },
+      { value: 'SHIFT', label: 'Ca làm việc (SHIFT)' },
+    ];
+  });
+
+  readonly apiMethodOptions: SelectOption[] = [
+    { value: 'GET', label: 'GET' },
+    { value: 'POST', label: 'POST' },
+  ];
+
+  readonly resolvedOptionsMap = signal<Record<string, FormOption[]>>({});
+  readonly optionFetchStatus = signal<{ ref: string; loading: boolean; message: string; error?: boolean } | null>(null);
+
   readonly listColumns: TableColumn[] = [
     { key: 'title', labelKey: 'PLUGIN_FORM_FIELD_TITLE', width: '34%' },
     { key: 'status', labelKey: 'PLUGIN_FORM_STATUS', width: '12%' },
@@ -525,6 +567,23 @@ export class FormScreenComponent implements OnInit {
     }
     this.loadForms();
     this.loadRegisteredEntities();
+    this.loadCatalogTypes();
+  }
+
+  loadCatalogTypes(): void {
+    this.catalogTypesLoading.set(true);
+    this.api.getCatalogTypes().subscribe({
+      next: (res) => {
+        const items = res.data?.items ?? [];
+        if (items.length > 0) {
+          this.catalogTypes.set(items);
+        }
+        this.catalogTypesLoading.set(false);
+      },
+      error: () => {
+        this.catalogTypesLoading.set(false);
+      },
+    });
   }
 
   loadRegisteredEntities(): void {
@@ -823,6 +882,7 @@ export class FormScreenComponent implements OnInit {
       mobile_span: 1,
     };
     if (CHOICE_TYPES.includes(type)) {
+      question.option_source = 'STATIC';
       question.options = [
         { value: 'option_1', label: `${this.i18n.t('PLUGIN_FORM_OPTION_DEFAULT')} 1` },
         { value: 'option_2', label: `${this.i18n.t('PLUGIN_FORM_OPTION_DEFAULT')} 2` },
@@ -1056,6 +1116,9 @@ export class FormScreenComponent implements OnInit {
         updated.col_span = 2;
       }
     } else if (patch.type && CHOICE_TYPES.includes(patch.type as FormItemType)) {
+      if (!updated.option_source) {
+        updated.option_source = 'STATIC';
+      }
       if (!updated.options || updated.options.length === 0) {
         updated.options = [
           { value: 'option_1', label: `${this.i18n.t('PLUGIN_FORM_OPTION_DEFAULT')} 1` },
@@ -1070,6 +1133,14 @@ export class FormScreenComponent implements OnInit {
       if (!updated.grading) {
         updated.grading = { points: 5, correct: [] };
       }
+    }
+
+    if (patch.option_source === 'CATALOG' && !updated.catalog_type) {
+      updated.catalog_type = 'PROVINCE';
+    } else if (patch.option_source === 'EXTERNAL_API') {
+      if (!updated.api_method) updated.api_method = 'GET';
+      if (!updated.api_value_key) updated.api_value_key = 'id';
+      if (!updated.api_label_key) updated.api_label_key = 'name';
     }
 
     next[index] = updated;
@@ -1202,6 +1273,224 @@ export class FormScreenComponent implements OnInit {
     const parsed = Number(value);
     grading.points = Number.isFinite(parsed) ? parsed : 0;
     this.updateItem({ grading });
+  }
+
+  updateOptionSource(source: string): void {
+    this.updateItem({ option_source: source as FormOptionSourceType });
+  }
+
+  updateApiMethod(method: string): void {
+    this.updateItem({ api_method: method === 'POST' ? 'POST' : 'GET' });
+  }
+
+  isFetching(ref?: string): boolean {
+    const s = this.optionFetchStatus();
+    return !!s?.loading && s?.ref === ref;
+  }
+
+  async fetchApiOptions(item: FormItem): Promise<FormOption[]> {
+    if (!item.api_url) return [];
+    const method = item.api_method || 'GET';
+    const data: any = await firstValueFrom(this.api.testExternalApi(item.api_url, method));
+    let list: any[] = [];
+    if (item.api_items_path) {
+      const parts = item.api_items_path.split('.');
+      let cur = data;
+      for (const p of parts) {
+        cur = cur?.[p];
+      }
+      list = Array.isArray(cur) ? cur : [];
+    } else if (Array.isArray(data)) {
+      list = data;
+    } else if (Array.isArray(data?.items)) {
+      list = data.items;
+    } else if (Array.isArray(data?.data)) {
+      list = data.data;
+    }
+    const valKey = item.api_value_key || 'id';
+    const lblKey = item.api_label_key || 'name';
+    return list.map((x) => ({
+      value: String(x[valKey] ?? x['value'] ?? x['code'] ?? JSON.stringify(x)),
+      label: String(x[lblKey] ?? x['label'] ?? x['title'] ?? x[valKey] ?? 'Option'),
+    }));
+  }
+
+  ensureCatalogOptionsLoaded(ref: string, typeCode: string): void {
+    if (!ref || !typeCode || this.catalogLoading.has(ref)) return;
+    this.catalogLoading.add(ref);
+    this.fetchCatalogOptions(typeCode)
+      .then((opts) => {
+        if (opts.length > 0) {
+          const map = { ...this.resolvedOptionsMap() };
+          map[ref] = opts;
+          this.resolvedOptionsMap.set(map);
+        }
+      })
+      .finally(() => {
+        this.catalogLoading.delete(ref);
+      });
+  }
+
+  ensureApiOptionsLoaded(item: FormItem): void {
+    const ref = item.ref;
+    if (!ref || !item.api_url || this.apiLoading.has(ref)) return;
+    this.apiLoading.add(ref);
+    this.fetchApiOptions(item)
+      .then((opts) => {
+        if (opts.length > 0) {
+          const map = { ...this.resolvedOptionsMap() };
+          map[ref] = opts;
+          this.resolvedOptionsMap.set(map);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        this.apiLoading.delete(ref);
+      });
+  }
+
+  async testFetchOptions(item: FormItem): Promise<void> {
+    const ref = item.ref ?? '';
+    this.optionFetchStatus.set({ ref, loading: true, message: '' });
+    try {
+      let opts: FormOption[] = [];
+      if (item.option_source === 'CATALOG') {
+        const typeCode = item.catalog_type || 'PROVINCE';
+        opts = await this.fetchCatalogOptions(typeCode);
+      } else if (item.option_source === 'EXTERNAL_API') {
+        opts = await this.fetchApiOptions(item);
+      } else {
+        opts = item.options ?? [];
+      }
+      const map = { ...this.resolvedOptionsMap() };
+      map[ref] = opts;
+      this.resolvedOptionsMap.set(map);
+      const previewText = opts.slice(0, 3).map((o) => o.label || o.value).join(', ');
+      this.optionFetchStatus.set({
+        ref,
+        loading: false,
+        message: `${this.i18n.t('PLUGIN_FORM_FETCH_SUCCESS', { count: opts.length })}: ${previewText}${opts.length > 3 ? '...' : ''}`,
+      });
+    } catch (err: any) {
+      this.optionFetchStatus.set({
+        ref,
+        loading: false,
+        error: true,
+        message: this.i18n.t('PLUGIN_FORM_FETCH_FAILED', { error: err?.message || 'Error' }),
+      });
+    }
+  }
+
+  private readonly catalogLoading = new Set<string>();
+  private readonly apiLoading = new Set<string>();
+
+  getItemOptions(item: FormItem): FormOption[] {
+    const source = item.option_source || 'STATIC';
+    if (source === 'STATIC') {
+      return item.options ?? [];
+    }
+    const cached = this.resolvedOptionsMap()[item.ref ?? ''];
+    if (cached && cached.length > 0) {
+      return cached;
+    }
+    if (source === 'CATALOG') {
+      const typeCode = item.catalog_type || 'PROVINCE';
+      this.ensureCatalogOptionsLoaded(item.ref ?? '', typeCode);
+      return this.getFallbackCatalogOptions(typeCode);
+    }
+    if (source === 'EXTERNAL_API') {
+      this.ensureApiOptionsLoaded(item);
+      return [
+        { value: 'api_1', label: `${item.label || 'API'} (Mục 1)` },
+        { value: 'api_2', label: `${item.label || 'API'} (Mục 2)` },
+        { value: 'api_3', label: `${item.label || 'API'} (Mục 3)` },
+      ];
+    }
+    return item.options ?? [];
+  }
+
+  getFallbackCatalogOptions(typeCode: string): FormOption[] {
+    const code = (typeCode || '').toUpperCase();
+    switch (code) {
+      case 'PROVINCE':
+        return [
+          { value: 'HN', label: 'Hà Nội' },
+          { value: 'HCM', label: 'TP. Hồ Chí Minh' },
+          { value: 'DN', label: 'Đà Nẵng' },
+          { value: 'HP', label: 'Hải Phòng' },
+          { value: 'CT', label: 'Cần Thơ' },
+        ];
+      case 'DISTRICT':
+        return [
+          { value: 'Q1', label: 'Quận 1' },
+          { value: 'Q3', label: 'Quận 3' },
+          { value: 'CG', label: 'Cầu Giấy' },
+          { value: 'BD', label: 'Ba Đình' },
+        ];
+      case 'COMMUNE':
+        return [
+          { value: 'P_BEN_NGHE', label: 'Phường Bến Nghé' },
+          { value: 'P_DICH_VONG', label: 'Phường Dịch Vọng' },
+        ];
+      case 'DEPARTMENT':
+        return [
+          { value: 'DEPT_IT', label: 'Khối Công nghệ & Sản phẩm' },
+          { value: 'DEPT_HR', label: 'Phòng Nhân sự' },
+          { value: 'DEPT_ACC', label: 'Phòng Kế toán - Tài chính' },
+          { value: 'DEPT_SALES', label: 'Khối Kinh doanh & Marketing' },
+        ];
+      case 'JOB_TITLE':
+        return [
+          { value: 'DEV_SR', label: 'Kỹ sư Phần mềm Senior' },
+          { value: 'DEV_LEAD', label: 'Trưởng nhóm Kỹ thuật (Tech Lead)' },
+          { value: 'PRODUCT_OWNER', label: 'Chuyên viên Sản phẩm (PO)' },
+          { value: 'QA_LEAD', label: 'Trưởng nhóm Đảm bảo Chất lượng' },
+        ];
+      case 'CONTRACT_TYPE':
+        return [
+          { value: 'FULL_TIME', label: 'Hợp đồng Chính thức' },
+          { value: 'PROBATION', label: 'Hợp đồng Thử việc' },
+          { value: 'PART_TIME', label: 'Hợp đồng Bán thời gian' },
+          { value: 'FREELANCE', label: 'Hợp đồng Cộng tác viên' },
+        ];
+      case 'EDUCATION_LEVEL':
+        return [
+          { value: 'BACHELOR', label: 'Đại học / Cử nhân' },
+          { value: 'MASTER', label: 'Thạc sĩ' },
+          { value: 'DOCTOR', label: 'Tiến sĩ' },
+          { value: 'COLLEGE', label: 'Cao đẳng / Trung cấp' },
+        ];
+      default:
+        return [
+          { value: `${typeCode.toLowerCase()}_1`, label: `${typeCode} 01` },
+          { value: `${typeCode.toLowerCase()}_2`, label: `${typeCode} 02` },
+          { value: `${typeCode.toLowerCase()}_3`, label: `${typeCode} 03` },
+        ];
+    }
+  }
+
+  fetchCatalogOptions(catalogType: string): Promise<FormOption[]> {
+    if (!catalogType) return Promise.resolve([]);
+    return new Promise((resolve) => {
+      this.api.getCatalogOptions(catalogType).subscribe({
+        next: (res) => {
+          const items = res.data?.items ?? [];
+          if (items.length > 0) {
+            resolve(
+              items.map((it) => ({
+                value: it.code,
+                label: it.name || it.code,
+              })),
+            );
+          } else {
+            resolve(this.getFallbackCatalogOptions(catalogType));
+          }
+        },
+        error: () => {
+          resolve(this.getFallbackCatalogOptions(catalogType));
+        },
+      });
+    });
   }
 
   saveDocument(): void {

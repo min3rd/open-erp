@@ -72,9 +72,13 @@ public class PluginDataExecutor {
     @Transactional
     public Result execute(PluginServiceIdentity identity, String queryId, String requestId,
                           Map<String, Value> params, String idempotencyKey) {
-        Resolved resolved = resolve(identity);
-        PluginManifest manifest = registry.manifest(identity.pluginKey(), resolved.version());
+        Resolved resolved = resolve(identity, queryId);
+        PluginManifest manifest = registry.manifest(resolved.targetPlugin(), resolved.version());
         PluginQueryDescriptor query = manifest.requireQuery(queryId);
+        if (!resolved.targetPlugin().equals(identity.pluginKey()) && query.mode() != PluginQueryDescriptor.Mode.READ) {
+            throw new PluginDataException(PluginDataException.Code.QUERY_NOT_FOUND,
+                    "PLUGIN_DATA_CROSS_PLUGIN_WRITE_DENIED");
+        }
         try (Connection connection = dataSource.getConnection()) {
             configureSession(connection, resolved,
                     query.timeoutMs() > 0 ? query.timeoutMs() : defaultTimeoutMs);
@@ -133,7 +137,7 @@ public class PluginDataExecutor {
 
     /** A batch runs with the largest timeout declared by its statements. */
     private int batchTimeout(PluginServiceIdentity identity, Resolved resolved, List<BatchStatement> statements) {
-        PluginManifest manifest = registry.manifest(identity.pluginKey(), resolved.version());
+        PluginManifest manifest = registry.manifest(resolved.targetPlugin(), resolved.version());
         int timeout = defaultTimeoutMs;
         for (BatchStatement statement : statements) {
             PluginQueryDescriptor query = manifest.requireQuery(statement.queryId());
@@ -146,7 +150,8 @@ public class PluginDataExecutor {
 
     private Result executeOne(PluginServiceIdentity identity, Resolved resolved,
                               String queryId, String requestId, Map<String, Value> params,
-                              Connection connection) {        PluginManifest manifest = registry.manifest(identity.pluginKey(), resolved.version());
+                              Connection connection) {
+        PluginManifest manifest = registry.manifest(resolved.targetPlugin(), resolved.version());
         PluginQueryDescriptor query = manifest.requireQuery(queryId);
         if (!identity.system() && query.scope() == PluginQueryDescriptor.Scope.SYSTEM) {
             throw new PluginDataException(PluginDataException.Code.QUERY_NOT_FOUND,
@@ -414,24 +419,50 @@ public class PluginDataExecutor {
     }
 
     private Resolved resolve(PluginServiceIdentity identity) {
-        TenantPlugin ledger = tenantPluginRepository
+        return resolve(identity, null);
+    }
+
+    private Resolved resolve(PluginServiceIdentity identity, String queryId) {
+        TenantPlugin callerLedger = tenantPluginRepository
                 .findByTenantAndKey(identity.tenantId(), identity.pluginKey())
                 .orElseThrow(() -> new PluginDataException(PluginDataException.Code.PLUGIN_NOT_ACTIVE,
                         "PLUGIN_DATA_PLUGIN_NOT_INSTALLED"));
-        if (ledger.status != TenantPluginStatus.ACTIVE) {
+        if (callerLedger.status != TenantPluginStatus.ACTIVE) {
             throw new PluginDataException(PluginDataException.Code.PLUGIN_NOT_ACTIVE,
                     "PLUGIN_DATA_PLUGIN_NOT_ACTIVE");
         }
-        if (ledger.storageSchema == null || ledger.storageSchema.isBlank()) {
+        if (callerLedger.storageSchema == null || callerLedger.storageSchema.isBlank()) {
             throw new PluginDataException(PluginDataException.Code.PLUGIN_NOT_ACTIVE,
                     "PLUGIN_DATA_SCHEMA_MISSING");
         }
-        if (ledger.installedVersion == null || ledger.installedVersion.isBlank()) {
+        if (callerLedger.installedVersion == null || callerLedger.installedVersion.isBlank()) {
             throw new PluginDataException(PluginDataException.Code.PLUGIN_NOT_ACTIVE,
                     "PLUGIN_DATA_VERSION_MISSING");
         }
-        return new Resolved(ledger.storageSchema, identity.tenantId(), ledger.installedVersion);
+
+        PluginManifest callerManifest = registry.manifest(identity.pluginKey(), callerLedger.installedVersion);
+        if (queryId == null || callerManifest.queries().containsKey(queryId)) {
+            return new Resolved(callerLedger.storageSchema, identity.tenantId(), callerLedger.installedVersion, identity.pluginKey());
+        }
+
+        if (queryId.contains(".")) {
+            String prefix = queryId.substring(0, queryId.indexOf('.'));
+            var targetLedgerOpt = tenantPluginRepository.findByTenantAndKey(identity.tenantId(), prefix);
+            if (targetLedgerOpt.isPresent()) {
+                TenantPlugin targetLedger = targetLedgerOpt.get();
+                if (targetLedger.status == TenantPluginStatus.ACTIVE
+                        && targetLedger.storageSchema != null
+                        && targetLedger.installedVersion != null) {
+                    PluginManifest targetManifest = registry.manifest(prefix, targetLedger.installedVersion);
+                    if (targetManifest.queries().containsKey(queryId)) {
+                        return new Resolved(targetLedger.storageSchema, identity.tenantId(), targetLedger.installedVersion, prefix);
+                    }
+                }
+            }
+        }
+
+        return new Resolved(callerLedger.storageSchema, identity.tenantId(), callerLedger.installedVersion, identity.pluginKey());
     }
 
-    private record Resolved(String schema, UUID tenantId, String version) {}
+    private record Resolved(String schema, UUID tenantId, String version, String targetPlugin) {}
 }

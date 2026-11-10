@@ -80,6 +80,22 @@ export class FormService {
     );
   }
 
+  getCatalogTypes(): Observable<ApiResponse<ListData<{ code: string; name: string }>>> {
+    return this.api.get<ListData<{ code: string; name: string }>>(
+      this.url('/api/v1/form/catalog/types'),
+    );
+  }
+
+  getCatalogOptions(type: string): Observable<ApiResponse<ListData<{ code: string; name: string; name_en?: string }>>> {
+    return this.api.get<ListData<{ code: string; name: string; name_en?: string }>>(
+      this.url(`/api/v1/form/catalog/options/${encodeURIComponent(type)}`),
+    );
+  }
+
+  testExternalApi(url: string, method = 'GET'): Observable<unknown> {
+    return this.http.request(method, url);
+  }
+
   // ---- Public (anonymous) fill surface -----------------------------
 
   publicView(slug: string, token: string): Observable<ApiResponse<Record<string, unknown>>> {

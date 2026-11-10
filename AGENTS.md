@@ -145,3 +145,7 @@ Mỗi Sprint được đóng gói trọn gói trong `docs/sprints/sprint_XX_<tê
 > 20. Hardcode chuỗi string literals tự do cho các key trong response data payload thay vì sử dụng Java/TypeScript enum `ResponseKey`.
 > 21. Viết service backend trả về Map<String, Object> tự do cho dữ liệu nghiệp vụ thay vì định nghĩa class DTO cố định.
 > 22. Tự ý định nghĩa hoặc trả về API response có cấu trúc riêng (thiếu success, đổi tên items/page/size/total_items, hoặc nhét message tiếng Việt vào error) sai lệch với 4 khuôn mẫu chuẩn trong [.agents/rules/api_standards.md](.agents/rules/api_standards.md).
+> 23. Sử dụng hàm native `fetch()` trong mã nguồn Angular frontend thay vì `HttpClient` hoặc `ApiService` của `@shared`.
+> 24. Cho phép backend hoặc frontend của một Plugin gọi trực tiếp REST API của Plugin khác; giao tiếp liên plugin bắt buộc phải thực hiện ở tầng Backend qua gRPC (`PluginDataServiceGrpc`), Message Broker (Kafka) hoặc Core Internal Proxy.
+> 25. Cố định kích thước trang truy vấn (ví dụ gán cứng `size = 100` hoặc chỉ đọc trang 1) khi nạp danh mục, tùy chọn hoặc danh sách thực thể liên plugin gây mất hoặc thiếu dữ liệu của Tenant; bắt buộc phải duyệt toàn bộ qua cơ chế `pageThrough` hoặc phân trang đầy đủ.
+> 26. Khai báo thêm thuộc tính màu nền (`bg-surface`, `bg-*`) hoặc viền trên (`border-t`) bên trong thẻ chiếu `<div drawer-footer>` của Drawer, làm phát sinh lỗi giao diện 2 lớp nền lồng nhau quanh nút hành động.
