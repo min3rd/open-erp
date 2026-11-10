@@ -18,7 +18,7 @@ public final class FormDocumentValidator {
 
     public static final Set<String> ITEM_TYPES = Set.of(
             "SECTION", "PAGE", "STEP", "SHORT_TEXT", "LONG_TEXT", "SINGLE_CHOICE", "MULTI_CHOICE",
-            "DROPDOWN", "DATE", "NUMBER", "RATING", "FILE_UPLOAD", "MATRIX");
+            "DROPDOWN", "DATE", "NUMBER", "RATING", "FILE_UPLOAD", "MATRIX", "GRID");
 
     public static final Set<String> CHOICE_TYPES = Set.of("SINGLE_CHOICE", "MULTI_CHOICE", "DROPDOWN");
 
@@ -125,6 +125,19 @@ public final class FormDocumentValidator {
                     || !(item.get("columns") instanceof List<?> columns) || columns.isEmpty()) {
                 violations.add(new Violation("FORM_DOCUMENT_INVALID",
                         "items[" + index + "] MATRIX requires non-empty rows and columns"));
+            }
+        }
+        if ("GRID".equals(type)) {
+            Object cols = item.get("columns_def");
+            if (cols == null) {
+                cols = item.get("columns");
+            }
+            if (cols == null) {
+                cols = item.get("grid_columns_def");
+            }
+            if (!(cols instanceof List<?> colList) || colList.isEmpty()) {
+                violations.add(new Violation("FORM_DOCUMENT_INVALID",
+                        "items[" + index + "] GRID requires non-empty columns"));
             }
         }
         if ("FILE_UPLOAD".equals(type) && item.get("file_limits") instanceof Map<?, ?> limits) {

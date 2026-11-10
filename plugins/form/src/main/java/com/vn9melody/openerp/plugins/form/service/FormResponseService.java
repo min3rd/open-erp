@@ -231,15 +231,17 @@ public class FormResponseService {
                 }
                 Map<String, Object> item = (Map<String, Object>) rawItem;
                 String type = String.valueOf(item.get("type"));
-                if ("SECTION".equals(type)) {
+                if (FormDocumentValidator.CONTAINER_TYPES.contains(type)) {
                     continue;
                 }
                 String ref = String.valueOf(item.get("ref"));
                 boolean required = Boolean.TRUE.equals(item.get("required"));
-                if (required && (answers.get(ref) == null
-                        || "".equals(answers.get(ref)))) {
-                    throw new ApiException(400, FormErrorCode.FORM_DOCUMENT_INVALID,
-                            "Answer for '" + ref + "' is required");
+                if (required) {
+                    Object val = answers.get(ref);
+                    if (val == null || "".equals(val) || (val instanceof List<?> l && l.isEmpty())) {
+                        throw new ApiException(400, FormErrorCode.FORM_DOCUMENT_INVALID,
+                                "Answer for '" + ref + "' is required");
+                    }
                 }
             }
         }

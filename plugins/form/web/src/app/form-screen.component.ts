@@ -40,8 +40,12 @@ import {
   FormOptionSourceType,
   FormStructureMode,
   FormSummary,
+  GridColumnDef,
+  GridColumnType,
+  GridSummaryType,
 } from './form.model';
 import { FormService } from './form.service';
+import { evaluateColumnSummary, evaluateRowFormula, formatGridNumber } from './grid-formula.util';
 
 interface PluginContext {
   theme?: string;
@@ -86,6 +90,7 @@ const FIELD_TYPES: FormItemType[] = [
   'DROPDOWN',
   'RATING',
   'MATRIX',
+  'GRID',
   'FILE_UPLOAD',
 ];
 
@@ -147,7 +152,26 @@ export class FormScreenComponent implements OnInit {
   private api = inject(FormService);
   private i18n = inject(I18nService);
 
-  @Input() context: PluginContext | null = null;
+  private _context: PluginContext | null = null;
+
+  @Input()
+  get context(): PluginContext | null {
+    return this._context;
+  }
+  set context(val: PluginContext | null) {
+    this._context = val;
+    if (val?.language) {
+      this.i18n.setLanguage(val.language as never);
+    }
+  }
+
+  @Input()
+  set language(lang: string | undefined) {
+    if (lang) {
+      this.i18n.setLanguage(lang as never);
+    }
+  }
+
   @Input() route = '';
 
   readonly tab = signal<FormTab>('forms');
@@ -369,6 +393,24 @@ export class FormScreenComponent implements OnInit {
   readonly resolvedOptionsMap = signal<Record<string, FormOption[]>>({});
   readonly optionFetchStatus = signal<{ ref: string; loading: boolean; message: string; error?: boolean } | null>(null);
 
+  potentialParentOptions(currentItem: FormItem): SelectOption[] {
+    const opts: SelectOption[] = [
+      {
+        value: '',
+        label: this.i18n.t('PLUGIN_FORM_DEPENDS_ON_NONE') || '-- Không phụ thuộc (Hiển thị tất cả) --',
+      },
+    ];
+    for (const item of this.items()) {
+      if (item !== currentItem && !this.isContainer(item) && item.ref) {
+        opts.push({
+          value: item.ref,
+          label: `${item.label || item.ref} (${item.ref})`,
+        });
+      }
+    }
+    return opts;
+  }
+
   readonly listColumns: TableColumn[] = [
     { key: 'title', labelKey: 'PLUGIN_FORM_FIELD_TITLE', width: '34%' },
     { key: 'status', labelKey: 'PLUGIN_FORM_STATUS', width: '12%' },
@@ -561,6 +603,9 @@ export class FormScreenComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    if (this.context?.language) {
+      this.i18n.setLanguage(this.context.language as never);
+    }
     const origin = this.host.nativeElement.getAttribute('runtime-origin');
     if (origin) {
       this.api.setRuntimeOrigin(origin);
@@ -877,7 +922,7 @@ export class FormScreenComponent implements OnInit {
       ref,
       label: defaultLabel,
       required: false,
-      col_span: type === 'LONG_TEXT' || type === 'MATRIX' || type === 'FILE_UPLOAD' ? 2 : 1,
+      col_span: type === 'LONG_TEXT' || type === 'MATRIX' || type === 'GRID' || type === 'FILE_UPLOAD' ? 2 : 1,
       row_span: 1,
       mobile_span: 1,
     };
@@ -891,6 +936,19 @@ export class FormScreenComponent implements OnInit {
     if (type === 'MATRIX') {
       question.rows = [`${this.i18n.t('PLUGIN_FORM_MATRIX_ROW_DEFAULT')} 1`, `${this.i18n.t('PLUGIN_FORM_MATRIX_ROW_DEFAULT')} 2`];
       question.columns = [`${this.i18n.t('PLUGIN_FORM_MATRIX_COLUMN_DEFAULT')} 1`, `${this.i18n.t('PLUGIN_FORM_MATRIX_COLUMN_DEFAULT')} 2`];
+    }
+    if (type === 'GRID') {
+      question.col_span = 2;
+      question.default_rows = 2;
+      question.allow_add_row = true;
+      question.allow_delete_row = true;
+      question.columns_def = [
+        { key: 'item', label: 'Tên hàng / Mục', type: 'TEXT' },
+        { key: 'qty', label: 'Số lượng', type: 'NUMBER', summary: 'SUM' },
+        { key: 'price', label: 'Đơn giá', type: 'NUMBER' },
+        { key: 'total', label: 'Thành tiền', type: 'FORMULA', formula: 'qty * price', summary: 'SUM' },
+      ];
+      question.columns = question.columns_def.map((c) => c.label);
     }
     if (type === 'FILE_UPLOAD') {
       question.file_limits = { max_files: 3, max_size_mb: 10 };
@@ -1115,6 +1173,22 @@ export class FormScreenComponent implements OnInit {
       if (!updated.col_span || updated.col_span < 2) {
         updated.col_span = 2;
       }
+    } else if (patch.type === 'GRID') {
+      if (!updated.columns_def || updated.columns_def.length === 0) {
+        updated.columns_def = [
+          { key: 'item', label: 'Tên hàng / Mục', type: 'TEXT' },
+          { key: 'qty', label: 'Số lượng', type: 'NUMBER', summary: 'SUM' },
+          { key: 'price', label: 'Đơn giá', type: 'NUMBER' },
+          { key: 'total', label: 'Thành tiền', type: 'FORMULA', formula: 'qty * price', summary: 'SUM' },
+        ];
+        updated.columns = updated.columns_def.map((c) => c.label);
+      }
+      if (updated.default_rows == null) updated.default_rows = 2;
+      if (updated.allow_add_row == null) updated.allow_add_row = true;
+      if (updated.allow_delete_row == null) updated.allow_delete_row = true;
+      if (!updated.col_span || updated.col_span < 2) {
+        updated.col_span = 2;
+      }
     } else if (patch.type && CHOICE_TYPES.includes(patch.type as FormItemType)) {
       if (!updated.option_source) {
         updated.option_source = 'STATIC';
@@ -1259,6 +1333,227 @@ export class FormScreenComponent implements OnInit {
       .map((entry) => entry.trim())
       .filter((entry) => !!entry);
     this.updateItem({ [field]: list } as Partial<FormItem>);
+  }
+
+  readonly gridColumnTypes: SelectOption[] = [
+    { value: 'TEXT', label: this.i18n.t('PLUGIN_FORM_GRID_TYPE_TEXT') },
+    { value: 'NUMBER', label: this.i18n.t('PLUGIN_FORM_GRID_TYPE_NUMBER') },
+    { value: 'DATE', label: this.i18n.t('PLUGIN_FORM_GRID_TYPE_DATE') },
+    { value: 'SELECT', label: this.i18n.t('PLUGIN_FORM_GRID_TYPE_SELECT') },
+    { value: 'FORMULA', label: this.i18n.t('PLUGIN_FORM_GRID_TYPE_FORMULA') },
+  ];
+
+  readonly gridSummaryTypes: SelectOption[] = [
+    { value: 'NONE', label: this.i18n.t('PLUGIN_FORM_GRID_SUMMARY_NONE') },
+    { value: 'SUM', label: this.i18n.t('PLUGIN_FORM_GRID_SUMMARY_SUM') },
+    { value: 'AVG', label: this.i18n.t('PLUGIN_FORM_GRID_SUMMARY_AVG') },
+    { value: 'COUNT', label: this.i18n.t('PLUGIN_FORM_GRID_SUMMARY_COUNT') },
+    { value: 'MIN', label: this.i18n.t('PLUGIN_FORM_GRID_SUMMARY_MIN') },
+    { value: 'MAX', label: this.i18n.t('PLUGIN_FORM_GRID_SUMMARY_MAX') },
+  ];
+
+  gridColumns(item: FormItem): GridColumnDef[] {
+    if (item.columns_def && item.columns_def.length > 0) {
+      return item.columns_def;
+    }
+    if (item.columns && item.columns.length > 0) {
+      return item.columns.map((c, idx) => ({
+        key: `col_${idx + 1}`,
+        label: c,
+        type: 'TEXT' as GridColumnType,
+        summary: 'NONE' as GridSummaryType,
+      }));
+    }
+    return [
+      { key: 'item', label: 'Tên hàng / Mục', type: 'TEXT' },
+      { key: 'qty', label: 'Số lượng', type: 'NUMBER', summary: 'SUM' },
+      { key: 'price', label: 'Đơn giá', type: 'NUMBER' },
+      { key: 'total', label: 'Thành tiền', type: 'FORMULA', formula: 'qty * price', summary: 'SUM' },
+    ];
+  }
+
+  addGridColumn(item: FormItem): void {
+    const current = this.gridColumns(item);
+    const nextIdx = current.length + 1;
+    const nextCols: GridColumnDef[] = [
+      ...current,
+      {
+        key: `col_${nextIdx}`,
+        label: `Cột ${nextIdx}`,
+        type: 'TEXT',
+        summary: 'NONE',
+      },
+    ];
+    this.updateItem({
+      columns_def: nextCols,
+      columns: nextCols.map((c) => c.label || c.key),
+    });
+  }
+
+  removeGridColumn(item: FormItem, colIndex: number): void {
+    const current = this.gridColumns(item);
+    if (current.length <= 1) return;
+    const nextCols = current.filter((_, idx) => idx !== colIndex);
+    this.updateItem({
+      columns_def: nextCols,
+      columns: nextCols.map((c) => c.label || c.key),
+    });
+  }
+
+  updateGridColumn(item: FormItem, colIndex: number, patch: Partial<GridColumnDef>): void {
+    const current = this.gridColumns(item);
+    const nextCols = current.map((col, idx) => {
+      if (idx !== colIndex) return col;
+      return { ...col, ...patch };
+    });
+    this.updateItem({
+      columns_def: nextCols,
+      columns: nextCols.map((c) => c.label || c.key),
+    });
+  }
+
+  updateGridColumnType(item: FormItem, colIndex: number, type: string): void {
+    this.updateGridColumn(item, colIndex, { type: type as GridColumnType });
+  }
+
+  updateGridColumnSummary(item: FormItem, colIndex: number, summary: string): void {
+    this.updateGridColumn(item, colIndex, { summary: summary as GridSummaryType });
+  }
+
+  updateGridColumnOptionSource(item: FormItem, colIndex: number, source: string): void {
+    this.updateGridColumn(item, colIndex, { option_source: source as FormOptionSourceType });
+  }
+
+  potentialGridParentColumnOptions(gridItem: FormItem, currentColumn: GridColumnDef): SelectOption[] {
+    const opts: SelectOption[] = [
+      {
+        value: '',
+        label: this.i18n.t('PLUGIN_FORM_GRID_COLUMN_DEPENDS_ON_NONE') || '-- Không phụ thuộc (Hiển thị tất cả) --',
+      },
+    ];
+    // Sibling columns in the same grid
+    const cols = this.gridColumns(gridItem);
+    for (const c of cols) {
+      if (c.key !== currentColumn.key) {
+        opts.push({
+          value: c.key,
+          label: `[Cột dòng] ${c.label || c.key} (${c.key})`,
+        });
+      }
+    }
+    // Questions in outer form
+    for (const it of this.items()) {
+      if (it !== gridItem && !this.isContainer(it) && it.ref) {
+        opts.push({
+          value: it.ref,
+          label: `[Trường Form] ${it.label || it.ref} (${it.ref})`,
+        });
+      }
+    }
+    return opts;
+  }
+
+  async testFetchGridColumnOptions(gridItem: FormItem, colIndex: number): Promise<void> {
+    const col = this.gridColumns(gridItem)[colIndex];
+    if (!col) return;
+    const ref = `${gridItem.ref || 'grid'}:${col.key}`;
+    this.optionFetchStatus.set({ ref, loading: true, message: '' });
+    try {
+      let opts: FormOption[] = [];
+      if (col.option_source === 'CATALOG' && col.catalog_type) {
+        const res = await firstValueFrom(this.api.getCatalogOptions(col.catalog_type));
+        opts = res?.data?.items?.map((x: any) => ({
+          value: String(x.code ?? x.id ?? x.value),
+          label: String(x.name ?? x.label ?? x.title ?? x.code ?? x.value),
+          parent_code: x.parent_code ? String(x.parent_code) : undefined,
+        })) ?? [];
+      } else if (col.option_source === 'EXTERNAL_API' && col.api_url) {
+        const data: any = await firstValueFrom(this.api.testExternalApi(col.api_url, col.api_method || 'GET'));
+        let raw: any[] = [];
+        if (col.api_items_path) {
+          const parts = col.api_items_path.split('.');
+          let cur = data;
+          for (const p of parts) cur = cur?.[p];
+          raw = Array.isArray(cur) ? cur : [];
+        } else if (Array.isArray(data)) {
+          raw = data;
+        } else if (Array.isArray(data?.items)) {
+          raw = data.items;
+        } else if (Array.isArray(data?.data)) {
+          raw = data.data;
+        }
+        const valKey = col.api_value_key || 'id';
+        const lblKey = col.api_label_key || 'name';
+        opts = raw.map((x: any) => ({
+          value: String(x[valKey] ?? x['value'] ?? x['code'] ?? JSON.stringify(x)),
+          label: String(x[lblKey] ?? x['label'] ?? x['title'] ?? x[valKey] ?? 'Option'),
+        }));
+      }
+      this.optionFetchStatus.set({
+        ref,
+        loading: false,
+        message: `Đã nạp thành công ${opts.length} tùy chọn (${col.catalog_type || 'API'}).`,
+      });
+    } catch (e: any) {
+      this.optionFetchStatus.set({
+        ref,
+        loading: false,
+        message: `Lỗi khi tải: ${e?.message || 'Không thể kết nối nguồn dữ liệu'}`,
+        error: true,
+      });
+    }
+  }
+
+  formatOptionsText(options?: Array<{ value: string; label?: string } | string>): string {
+    if (!options || options.length === 0) return '';
+    return options.map((opt) => (typeof opt === 'string' ? opt : opt.label || opt.value)).join(', ');
+  }
+
+  setGridColumnOptions(item: FormItem, colIndex: number, rawText: string): void {
+    const tokens = rawText
+      .split(',')
+      .map((s) => s.trim())
+      .filter((s) => !!s);
+    const options = tokens.map((t) => ({ value: t, label: t }));
+    this.updateGridColumn(item, colIndex, { options });
+  }
+
+  dummyGridRows(item: FormItem): Array<Record<string, any>> {
+    const cols = this.gridColumns(item);
+    const rowCount = Math.max(item.default_rows ?? 2, 1);
+    const sampleRows: Array<Record<string, any>> = [];
+    const sampleNames = ['MacBook Pro M3', 'Màn hình Dell 4K', 'Bàn phím Keychron', 'Chuột Logitech'];
+    for (let r = 0; r < rowCount; r++) {
+      const row: Record<string, any> = {};
+      for (let c = 0; c < cols.length; c++) {
+        const col = cols[c];
+        if (col.type === 'NUMBER') {
+          row[col.key] = c === 1 ? (r + 1) * 2 : (r + 1) * 500000;
+        } else if (col.type === 'DATE') {
+          row[col.key] = '2026-11-10';
+        } else if (col.type === 'SELECT') {
+          const opts = col.options ?? [];
+          const firstOpt = opts[0];
+          row[col.key] = typeof firstOpt === 'string' ? firstOpt : firstOpt?.label || firstOpt?.value || 'Loại A';
+        } else if (col.type === 'FORMULA') {
+          // Handled via canvasRowFormula
+        } else {
+          row[col.key] = sampleNames[r % sampleNames.length] || `Mục ${r + 1}`;
+        }
+      }
+      sampleRows.push(row);
+    }
+    return sampleRows;
+  }
+
+  canvasRowFormula(item: FormItem, row: Record<string, any>, col: GridColumnDef): string {
+    const val = evaluateRowFormula(col.formula, row, this.gridColumns(item));
+    return formatGridNumber(val);
+  }
+
+  canvasColSummary(item: FormItem, col: GridColumnDef): string {
+    const rows = this.dummyGridRows(item);
+    return evaluateColumnSummary(col, rows, this.gridColumns(item));
   }
 
   updateFileLimit(field: 'max_files' | 'max_size_mb', value: string): void {
@@ -1422,15 +1717,25 @@ export class FormScreenComponent implements OnInit {
         ];
       case 'DISTRICT':
         return [
-          { value: 'Q1', label: 'Quận 1' },
-          { value: 'Q3', label: 'Quận 3' },
-          { value: 'CG', label: 'Cầu Giấy' },
-          { value: 'BD', label: 'Ba Đình' },
+          { value: 'BA_DINH', label: 'Quận Ba Đình', parent_code: 'HN' },
+          { value: 'CAU_GIAY', label: 'Quận Cầu Giấy', parent_code: 'HN' },
+          { value: 'DONG_DA', label: 'Quận Đống Đa', parent_code: 'HN' },
+          { value: 'Q1', label: 'Quận 1', parent_code: 'HCM' },
+          { value: 'Q3', label: 'Quận 3', parent_code: 'HCM' },
+          { value: 'BINH_THANH', label: 'Quận Bình Thạnh', parent_code: 'HCM' },
+          { value: 'HAI_CHAU', label: 'Quận Hải Châu', parent_code: 'DN' },
+          { value: 'THANH_KHE', label: 'Quận Thanh Khê', parent_code: 'DN' },
+          { value: 'SON_TRA', label: 'Quận Sơn Trà', parent_code: 'DN' },
         ];
       case 'COMMUNE':
+      case 'WARD':
         return [
-          { value: 'P_BEN_NGHE', label: 'Phường Bến Nghé' },
-          { value: 'P_DICH_VONG', label: 'Phường Dịch Vọng' },
+          { value: 'DOI_CAN', label: 'Phường Đội Cấn', parent_code: 'BA_DINH' },
+          { value: 'KIM_MA', label: 'Phường Kim Mã', parent_code: 'BA_DINH' },
+          { value: 'DICH_VONG', label: 'Phường Dịch Vọng', parent_code: 'CAU_GIAY' },
+          { value: 'BEN_NGHE', label: 'Phường Bến Nghé', parent_code: 'Q1' },
+          { value: 'BEN_THANH', label: 'Phường Bến Thành', parent_code: 'Q1' },
+          { value: 'THACH_THANG', label: 'Phường Thạch Thang', parent_code: 'HAI_CHAU' },
         ];
       case 'DEPARTMENT':
         return [
@@ -1477,9 +1782,10 @@ export class FormScreenComponent implements OnInit {
           const items = res.data?.items ?? [];
           if (items.length > 0) {
             resolve(
-              items.map((it) => ({
+              items.map((it: any) => ({
                 value: it.code,
                 label: it.name || it.code,
+                parent_code: it.parent_code ? String(it.parent_code) : undefined,
               })),
             );
           } else {
@@ -1701,6 +2007,9 @@ export class FormScreenComponent implements OnInit {
       return '—';
     }
     if (Array.isArray(value)) {
+      if (value.length > 0 && typeof value[0] === 'object' && value[0] !== null) {
+        return value.map((r, i) => `#${i + 1}: {${Object.entries(r).map(([k, v]) => `${k}: ${v}`).join(', ')}}`).join(' | ');
+      }
       return value.map((entry) => String(entry)).join(', ');
     }
     if (typeof value === 'object') {
@@ -1725,6 +2034,8 @@ export class FormScreenComponent implements OnInit {
       case 'SECTION':
       case 'PAGE':
       case 'STEP':
+      case 'MATRIX':
+      case 'GRID':
         return 'grid';
       case 'SINGLE_CHOICE':
       case 'MULTI_CHOICE':
@@ -1763,6 +2074,11 @@ export class FormScreenComponent implements OnInit {
 
   numText(value: unknown): string {
     return value == null ? '' : `${value}`;
+  }
+
+  numVal(value: unknown, fallback: number = 0): number {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : fallback;
   }
 
   statusVariant(status: string | undefined): ColorVariant {

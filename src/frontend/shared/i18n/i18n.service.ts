@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject, ApplicationRef } from '@angular/core';
 import { LangCode } from '../enums/lang.enum';
 import { DEFAULT_LANG, FALLBACK_LANG, findLanguage, isLangCode } from './language-registry';
 
@@ -8,6 +8,7 @@ const LANG_STORAGE_KEY = 'openerp_lang';
   providedIn: 'root'
 })
 export class I18nService {
+  private appRef = inject(ApplicationRef, { optional: true });
   private currentLangSignal = signal<LangCode>(this.readStoredLang());
   public currentLang = computed(() => this.currentLangSignal());
   private dictVersionSignal = signal<number>(0);
@@ -19,6 +20,26 @@ export class I18nService {
   constructor() {
     this.applyDocumentLanguage();
     this.loadDictionaries();
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('openerp:language-change', (event: Event) => {
+        const customEvent = event as CustomEvent<{ lang: LangCode }>;
+        const newLang = customEvent?.detail?.lang;
+        if (newLang && newLang !== this.currentLangSignal() && isLangCode(newLang)) {
+          this.currentLangSignal.set(newLang);
+          this.applyDocumentLanguage();
+          this.dictVersionSignal.update((v: number) => v + 1);
+          void this.ensureDictionary(newLang).then(() => {
+            this.dictVersionSignal.update((v: number) => v + 1);
+            try {
+              this.appRef?.tick();
+            } catch {
+              /* ignore tick errors */
+            }
+          });
+        }
+      });
+    }
   }
 
   /** Loads the fallback + current locale; other locales load lazily on switch. */
@@ -26,16 +47,36 @@ export class I18nService {
     await Promise.all([this.ensureDictionary(FALLBACK_LANG), this.ensureDictionary(this.currentLangSignal())]);
     this.isLoaded.set(true);
     this.dictVersionSignal.update((v: number) => v + 1);
+    try {
+      this.appRef?.tick();
+    } catch {
+      /* ignore tick errors */
+    }
   }
 
   setLanguage(lang: LangCode) {
+    if (!isLangCode(lang)) {
+      return;
+    }
+    const prevLang = this.currentLangSignal();
     this.currentLangSignal.set(lang);
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem(LANG_STORAGE_KEY, lang);
     }
     this.applyDocumentLanguage();
     this.dictVersionSignal.update((v: number) => v + 1);
-    void this.ensureDictionary(lang).then(() => this.dictVersionSignal.update((v: number) => v + 1));
+    void this.ensureDictionary(lang).then(() => {
+      this.dictVersionSignal.update((v: number) => v + 1);
+      try {
+        this.appRef?.tick();
+      } catch {
+        /* ignore tick errors */
+      }
+    });
+
+    if (typeof window !== 'undefined' && prevLang !== lang) {
+      window.dispatchEvent(new CustomEvent('openerp:language-change', { detail: { lang } }));
+    }
   }
 
   /**
@@ -77,12 +118,22 @@ export class I18nService {
     const request = (async () => {
       try {
         // Relative to the document base: "/" for core web, "./" for embedded plugin UIs.
-        const response = await fetch(`i18n/${lang}.json`);
+        let response = await fetch(`i18n/${lang}.json`);
+        if (!response.ok) {
+          response = await fetch(`/i18n/${lang}.json`);
+        }
         if (response.ok) {
           this.dictionaries.set(lang, await response.json());
         }
       } catch (e) {
-        console.warn(`Could not load i18n dictionary for ${lang}`, e);
+        try {
+          const response = await fetch(`/i18n/${lang}.json`);
+          if (response.ok) {
+            this.dictionaries.set(lang, await response.json());
+          }
+        } catch {
+          console.warn(`Could not load i18n dictionary for ${lang}`, e);
+        }
       } finally {
         this.loading.delete(lang);
       }

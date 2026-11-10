@@ -12,6 +12,7 @@ import {
   SharpSelectComponent,
   SharpToggleComponent,
   TranslatePipe,
+  I18nService,
 } from '@shared';
 import {
   ApprovalConfig,
@@ -66,6 +67,7 @@ const EDITABLE_SELF_FIELDS = [
 })
 export class EmployeeScreenComponent implements OnInit, OnDestroy {
   private service = inject(EmployeeService);
+  private i18n = inject(I18nService);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -305,6 +307,20 @@ export class EmployeeScreenComponent implements OnInit, OnDestroy {
   @Input()
   set apiBaseUrl(value: string) {
     this.service.setRuntimeOrigin(value);
+  }
+
+  @Input()
+  set language(lang: string | undefined) {
+    if (lang) {
+      this.i18n.setLanguage(lang as never);
+    }
+  }
+
+  @Input()
+  set context(ctx: any) {
+    if (ctx?.language) {
+      this.i18n.setLanguage(ctx.language as never);
+    }
   }
 
   ngOnInit(): void {

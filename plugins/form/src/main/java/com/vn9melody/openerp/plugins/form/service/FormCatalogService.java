@@ -50,6 +50,8 @@ public class FormCatalogService {
         }
         return List.of(
                 Map.of("code", "PROVINCE", "name", "Tỉnh / Thành phố"),
+                Map.of("code", "DISTRICT", "name", "Quận / Huyện"),
+                Map.of("code", "WARD", "name", "Phường / Xã"),
                 Map.of("code", "INDUSTRY", "name", "Ngành nghề kinh doanh"),
                 Map.of("code", "JOB_TITLE", "name", "Chức danh công việc"),
                 Map.of("code", "DEPARTMENT", "name", "Phòng ban")
@@ -84,6 +86,13 @@ public class FormCatalogService {
                             opt.put("name", name != null ? name : code);
                             if (item.containsKey("name_en") && item.get("name_en") != null) {
                                 opt.put("name_en", String.valueOf(item.get("name_en")));
+                            }
+                            String parentCode = (String) item.get("parent_code");
+                            if (parentCode == null && item.get("parent") != null) {
+                                parentCode = String.valueOf(item.get("parent"));
+                            }
+                            if (parentCode != null && !parentCode.isBlank()) {
+                                opt.put("parent_code", parentCode);
                             }
                             result.add(opt);
                         }
@@ -127,6 +136,27 @@ public class FormCatalogService {
                     Map.of("code", "HN", "name", "Hà Nội"),
                     Map.of("code", "HCM", "name", "Hồ Chí Minh"),
                     Map.of("code", "DN", "name", "Đà Nẵng")
+            );
+        } else if ("DISTRICT".equalsIgnoreCase(typeCode)) {
+            return List.of(
+                    Map.of("code", "BA_DINH", "name", "Quận Ba Đình", "parent_code", "HN"),
+                    Map.of("code", "CAU_GIAY", "name", "Quận Cầu Giấy", "parent_code", "HN"),
+                    Map.of("code", "DONG_DA", "name", "Quận Đống Đa", "parent_code", "HN"),
+                    Map.of("code", "Q1", "name", "Quận 1", "parent_code", "HCM"),
+                    Map.of("code", "Q3", "name", "Quận 3", "parent_code", "HCM"),
+                    Map.of("code", "BINH_THANH", "name", "Quận Bình Thạnh", "parent_code", "HCM"),
+                    Map.of("code", "HAI_CHAU", "name", "Quận Hải Châu", "parent_code", "DN"),
+                    Map.of("code", "THANH_KHE", "name", "Quận Thanh Khê", "parent_code", "DN"),
+                    Map.of("code", "SON_TRA", "name", "Quận Sơn Trà", "parent_code", "DN")
+            );
+        } else if ("WARD".equalsIgnoreCase(typeCode)) {
+            return List.of(
+                    Map.of("code", "DOI_CAN", "name", "Phường Đội Cấn", "parent_code", "BA_DINH"),
+                    Map.of("code", "KIM_MA", "name", "Phường Kim Mã", "parent_code", "BA_DINH"),
+                    Map.of("code", "DICH_VONG", "name", "Phường Dịch Vọng", "parent_code", "CAU_GIAY"),
+                    Map.of("code", "BEN_NGHE", "name", "Phường Bến Nghé", "parent_code", "Q1"),
+                    Map.of("code", "BEN_THANH", "name", "Phường Bến Thành", "parent_code", "Q1"),
+                    Map.of("code", "THACH_THANG", "name", "Phường Thạch Thang", "parent_code", "HAI_CHAU")
             );
         } else if ("INDUSTRY".equalsIgnoreCase(typeCode)) {
             return List.of(

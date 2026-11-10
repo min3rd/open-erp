@@ -8,6 +8,7 @@ import com.vn9melody.openerp.plugins.form.api.FormErrorCode;
 import com.vn9melody.openerp.plugins.form.dto.FormResponseDto;
 import com.vn9melody.openerp.plugins.form.dto.SubmitResponseRequest;
 import com.vn9melody.openerp.plugins.form.model.FormDefinition;
+import com.vn9melody.openerp.plugins.form.service.FormCatalogService;
 import com.vn9melody.openerp.plugins.form.service.CaptchaVerifier;
 import com.vn9melody.openerp.plugins.form.service.FormFileService;
 import com.vn9melody.openerp.plugins.form.service.FormResponseService;
@@ -55,6 +56,18 @@ public class FormPublicResource {
 
     @Inject
     TenantContext context;
+
+    @Inject
+    FormCatalogService catalogService;
+
+    @GET
+    @Path("/catalog/options/{type}")
+    public ApiResponse<com.vn9melody.openerp.plugin.sdk.api.ListData<Map<String, Object>>> catalogOptions(@PathParam("type") String type) {
+        return ApiResponse.successList(
+                "CATALOG_OPTIONS_SUCCESS",
+                "Catalog options retrieved.",
+                catalogService.getOptions(type));
+    }
 
     @GET
     @Path("/forms/{slug}")

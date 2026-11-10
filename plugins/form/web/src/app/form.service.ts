@@ -86,8 +86,17 @@ export class FormService {
     );
   }
 
-  getCatalogOptions(type: string): Observable<ApiResponse<ListData<{ code: string; name: string; name_en?: string }>>> {
-    return this.api.get<ListData<{ code: string; name: string; name_en?: string }>>(
+  getCatalogOptions(
+    type: string,
+    token?: string,
+  ): Observable<ApiResponse<ListData<{ code: string; name: string; name_en?: string; parent_code?: string }>>> {
+    const base = this.runtimeOrigin() || this.staticBase || '';
+    if (token) {
+      return this.http.get<ApiResponse<ListData<{ code: string; name: string; name_en?: string; parent_code?: string }>>>(
+        `${base}/api/v1/plugins/runtime/form/api/v1/form/public/catalog/options/${encodeURIComponent(type)}?plugin_token=${encodeURIComponent(token)}`,
+      );
+    }
+    return this.api.get<ListData<{ code: string; name: string; name_en?: string; parent_code?: string }>>(
       this.url(`/api/v1/form/catalog/options/${encodeURIComponent(type)}`),
     );
   }

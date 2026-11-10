@@ -144,7 +144,26 @@ export class WorkflowScreenComponent implements OnInit {
   private api = inject(WorkflowService);
   private i18n = inject(I18nService);
 
-  @Input() context: PluginContext | null = null;
+  private _context: PluginContext | null = null;
+
+  @Input()
+  get context(): PluginContext | null {
+    return this._context;
+  }
+  set context(val: PluginContext | null) {
+    this._context = val;
+    if (val?.language) {
+      this.i18n.setLanguage(val.language as never);
+    }
+  }
+
+  @Input()
+  set language(lang: string | undefined) {
+    if (lang) {
+      this.i18n.setLanguage(lang as never);
+    }
+  }
+
   @Input() route = '';
 
   readonly tab = signal<WorkflowTab>('inbox');
@@ -625,6 +644,9 @@ export class WorkflowScreenComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    if (this.context?.language) {
+      this.i18n.setLanguage(this.context.language as never);
+    }
     const origin = this.host.nativeElement.getAttribute('runtime-origin');
     if (origin) {
       this.api.setRuntimeOrigin(origin);

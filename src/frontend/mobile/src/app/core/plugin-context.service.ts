@@ -1,6 +1,6 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { NavController } from '@ionic/angular/standalone';
-import { PluginContext } from '@shared';
+import { PluginContext, I18nService } from '@shared';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
@@ -14,12 +14,13 @@ import { getJwtPermissions } from './jwt.util';
 export class PluginContextService {
   private auth = inject(AuthService);
   private navCtrl = inject(NavController);
+  private i18n = inject(I18nService);
 
   readonly context = computed<PluginContext>(() => {
     const user = this.auth.user();
     return {
       theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
-      language: document.documentElement.getAttribute('lang') || 'vi',
+      language: this.i18n.currentLang(),
       direction: document.documentElement.getAttribute('dir') === 'rtl' ? 'rtl' : 'ltr',
       tenant: user ? { id: user.tenant_id, name: user.tenant_name } : null,
       user: user

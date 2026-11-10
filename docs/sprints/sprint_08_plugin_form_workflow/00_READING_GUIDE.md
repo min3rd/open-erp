@@ -2,8 +2,8 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / phiên bản / cập nhật | READ-S08-001 / 1.3 / 2026-11-09 |
-| Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — Rework theo chỉ đạo chủ dự án (2026-11-09): 1) Default/locked plugin cho 100% tenant (`V8.0.0__form_workflow_default_plugins.sql`), 2) Đại tu toàn diện UI Form & Workflow sang `@shared` components theo layout ERP Workspace chuẩn |
+| ID / phiên bản / cập nhật | READ-S08-001 / 1.4 / 2026-11-10 |
+| Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — Rework theo chỉ đạo chủ dự án (2026-11-10): 1) Default/locked plugin cho 100% tenant (`V8.0.0__form_workflow_default_plugins.sql`), 2) Đại tu toàn diện UI Form & Workflow sang `@shared` components theo layout ERP Workspace chuẩn, 3) Bảng lưới tính toán kiểu Excel mật độ cao (`GRID`) với công thức và tổng kết cột |
 | Owner / reviewer | BA Agent / Chủ dự án (duyệt scope tại CONF) |
 | Đầu vào / đọc trước | [RAW-S08-001](01_raw_notes/01_RAW-S08-001_form_workflow_plugin_requirements.md) — yêu cầu trực tiếp chủ dự án 2026-11-02 / [Sprint 07](../sprint_07_plugin_employee/00_READING_GUIDE.md) (đã đóng), [Sprint 06](../sprint_06_plugin_dev_platform/00_READING_GUIDE.md) |
 | Đọc tiếp | [ANL-S08-001](02_analysis/01_ANL-S08-001_form_builder_plugin.md) → [ANL-S08-002](02_analysis/02_ANL-S08-002_workflow_plugin.md) → [BENCH-S08-001](03_benchmarks/01_BENCH-S08-001_form_builder_survey_benchmarks.md) → [BENCH-S08-002](03_benchmarks/02_BENCH-S08-002_workflow_engine_benchmark.md) → [CONF-S08-001](04_confirmation/01_CONF-S08-001_sprint_08_scope_and_ac.md) |
@@ -49,6 +49,9 @@ Sprint này **không** làm: chữ ký số (giữ chỗ trong mô hình hành �
      - Filter bar: tìm kiếm và lọc trạng thái sử dụng `app-sharp-input`, `app-sharp-select`.
      - Loại bỏ 100% input/select/textarea/button HTML thuần trong builder và drawers, thay bằng `app-sharp-input`, `app-sharp-select`, `app-sharp-textarea`, `app-sharp-toggle`, `app-sharp-button`, `app-drawer`.
    - Đảm bảo 100% đa ngôn ngữ (i18n) trên 13 locale với 0 lỗi lệch từ điển.
+3. **Bảng lưới tính toán kiểu Excel mật độ cao (`GRID` — High-Density Excel Grid)**:
+   - Nâng cấp loại trường `GRID` thành bảng tính nghiệp vụ kiểu Excel: cấu hình kiểu trường riêng cho từng cột (`TEXT`, `NUMBER`, `DATE`, `SELECT`, `FORMULA`), công thức dòng (`qty * price`), hàm tổng kết chân cột (`SUM`, `AVG`, `COUNT`, `MIN`, `MAX`).
+   - Người điền form thêm/xóa dòng động (`+ Thêm dòng`, `✕`), tính toán thời gian thực theo thuật toán Dijkstra Shunting-Yard RPN an toàn 100% không dùng `eval()`, lưu trữ cấu trúc mảng JSON hoàn chỉnh vào PostgreSQL thật.
 
 ## 2. Lộ trình đọc
 
@@ -75,8 +78,9 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | 07.02 | FEAT-40 | [Plugin workflow core](07_items/FEAT-40_plugin_workflow_core.md) | Engine + services + internal API + WC build PASS | Developer |
 | 07.03 | FEAT-41 | [Nền tảng Event Hub & Public](07_items/FEAT-41_platform_event_hub_public.md) | Core Event Hub/Entity Write Proxy/Public Session/SDK — Done (Dev) | Developer |
 | 07.04 | FEAT-42 | [Migration employee](07_items/FEAT-42_employee_migration_workflow.md) | Runtime chuyển engine — backend xong, cutover QA còn lại | Developer |
+| 07.05 | TASK-445 | [Nâng cấp trường Grid kiểu Excel](07_items/TASK-445_form_excel_style_grid_field.md) | Bảng tính toán Excel mật độ cao: cấu hình kiểu cột, cột Select 3 nguồn dữ liệu & cascading cha-con cô lập cấp dòng, thêm/xóa dòng, công thức dòng và tổng kết cột — Done | Developer |
 | 08.01 | TP-S08-001 | [Test plan](08_testing/01_TP-S08-001_sprint_08_test_plan.md) | Ma trận AC → TC-N/I/E/B/S | QA |
-| 08.02 | TR-S08-001 | [Test report](08_testing/02_TR-S08-001_sprint_08_test_report.md) | 342/342 PASS (13 unit + 254 core + 31 plugin + 13 CLI/manifest + 22 E2E + 12 màn hình browser Desktop/Mobile kèm ảnh chụp) | QA |
+| 08.02 | TR-S08-001 | [Test report](08_testing/02_TR-S08-001_sprint_08_test_report.md) | 391/391 PASS (18 unit engine + 254 core + 34 plugin + 13 CLI/manifest + 22 E2E + 5 bảo mật + 45 màn hình browser thực tế Dual-Mode Desktop/Mobile kèm ảnh chụp nhúng đầy đủ: Bảng tính Excel Grid, Cột Select Cascading & Row Isolation, Inspector Configuration, Step Wizard 2 cột, Page Mode 2 cột, Cascading Catalog) | QA |
 | 09.01 | REV-S08-001 | [Nghiệm thu & đóng Sprint 08](09_review/01_REV-S08-001_sprint_08_dod_review.md) | PM DoD Review — chờ Chủ dự án nghiệm thu | PM |
 
 > Bảng đọc là snapshot. Không tạo link giả cho artifact chưa tồn tại; khi tạo file phải cập nhật index trước khi giao việc.
@@ -88,7 +92,7 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | Scope & AC (CONF-S08-001) | ✅ **APPROVED 1.0** — 16/16 câu trả lời; chủ dự án duyệt qua hội thoại tương tác (đã nhắc rõ rủi ro Q3) | Chủ dự án | CONF-S08-001 1.0, 2026-11-02 |
 | Design ready (SOL/ADR/DES) | ✅ **APPROVED 1.0** — duyệt sau khi bổ sung version semantics (DES 0.2) | Architect + Chủ dự án | Design review 2026-11-02 |
 | Implementation | ✅ **Done (QA-ready)** — Hoàn tất Rework per-tenant schema + default locked plugins + `@shared` ERP Workspace UI | Developer + QA | TR-S08-001 1.4, 2026-11-09 |
-| QA sign-off | ✅ **Reviewed-ready** — 342/342 test PASS + 12 màn hình browser Desktop/Mobile đã chụp ảnh nhúng trong TR-S08-001 1.4 | QA Agent | TR-S08-001 1.4, 2026-11-09 |
+| QA sign-off | ✅ **Reviewed-ready 3.3** — 391/391 test PASS + 45 màn hình browser Desktop/Mobile đã chụp ảnh thực tế nhúng trong TR-S08-001 3.3 | QA Agent | TR-S08-001 3.3, 2026-11-10 |
 | PM DoD / Customer acceptance | ⏳ Pending (Chờ Chủ dự án review & nghiệm thu) | Chủ dự án | REV-S08-001 1.1 |
 | Sprint closure | ⏳ Pending | PM | — |
 
@@ -111,7 +115,8 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | FEAT-39 | [07_items/FEAT-39_plugin_form_core.md](07_items/FEAT-39_plugin_form_core.md) | Developer | Used — To Do (plugin form: builder/fill/response/mapping/quiz/file) |
 | FEAT-40 | [07_items/FEAT-40_plugin_workflow_core.md](07_items/FEAT-40_plugin_workflow_core.md) | Developer | Used — To Do (plugin workflow: engine/definition/instance/task/SLA/webhook) |
 | FEAT-41 | [07_items/FEAT-41_platform_event_hub_public.md](07_items/FEAT-41_platform_event_hub_public.md) | Developer | Used — To Do (Core: Event Hub, Entity Write Proxy, Public Session, SDK storage-support) |
-| FEAT-42 | [07_items/FEAT-42_employee_migration_workflow.md](07_items/FEAT-42_employee_migration_workflow.md) | Developer | Used — To Do (employee migrate runtime sang workflow engine — phương án C) |
+| FEAT-42 | [07_items/FEAT-42_employee_migration_workflow.md](07_items/FEAT-42_employee_migration_workflow.md) | Developer | Used — Done (employee migrate runtime sang workflow engine — phương án C) |
+| TASK-445 | [07_items/TASK-445_form_excel_style_grid_field.md](07_items/TASK-445_form_excel_style_grid_field.md) | Developer | Used — Done (Bảng tính toán Excel mật độ cao: cấu hình kiểu cột, thêm/xóa dòng, công thức dòng và tổng kết cột) |
 
 ## 5. Liên hệ với các Sprint trước
 

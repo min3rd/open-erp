@@ -1,7 +1,7 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { PluginContext } from '@shared';
+import { PluginContext, I18nService } from '@shared';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 
@@ -13,13 +13,14 @@ import { AuthService } from './auth.service';
 export class PluginContextService {
   private auth = inject(AuthService);
   private router = inject(Router);
+  private i18n = inject(I18nService);
 
   readonly context = computed<PluginContext>(() => {
     const user = this.auth.user();
     const permissions = this.auth.functionalPermissions() ?? [];
     return {
       theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
-      language: document.documentElement.getAttribute('lang') || 'vi',
+      language: this.i18n.currentLang(),
       direction: document.documentElement.getAttribute('dir') === 'rtl' ? 'rtl' : 'ltr',
       tenant: user ? { id: user.tenant_id, name: user.tenant_name } : null,
       user: user

@@ -48,6 +48,13 @@ export class PluginWebComponentLoaderComponent implements AfterViewInit, OnDestr
         (this.mounted as unknown as { route?: string }).route = route;
       }
     });
+
+    effect(() => {
+      const context = this.context();
+      if (this.mounted && context) {
+        this.applyProperties(this.mounted);
+      }
+    });
   }
 
   async ngAfterViewInit(): Promise<void> {

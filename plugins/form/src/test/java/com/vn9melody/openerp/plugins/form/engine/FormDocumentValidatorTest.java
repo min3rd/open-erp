@@ -122,4 +122,27 @@ class FormDocumentValidatorTest {
         List<FormDocumentValidator.Violation> violations = validator.validate(document);
         assertEquals(2, violations.size());
     }
+
+    @Test
+    void acceptsExcelStyleGridWithColumnsDef() {
+        Map<String, Object> document = Map.of("items", List.of(
+                Map.of("type", "GRID", "ref", "order_items", "label", "Bảng mặt hàng",
+                        "columns_def", List.of(
+                                Map.of("key", "item_name", "label", "Tên mặt hàng", "type", "TEXT"),
+                                Map.of("key", "qty", "label", "Số lượng", "type", "NUMBER"),
+                                Map.of("key", "price", "label", "Đơn giá", "type", "NUMBER"),
+                                Map.of("key", "total", "label", "Thành tiền", "type", "FORMULA", "formula", "qty * price", "summary", "SUM")
+                        ))));
+        assertTrue(validator.validate(document).isEmpty());
+    }
+
+    @Test
+    void rejectsGridWithoutColumns() {
+        Map<String, Object> document = Map.of("items", List.of(
+                Map.of("type", "GRID", "ref", "empty_grid", "label", "Bảng trống",
+                        "columns", List.of())));
+        List<FormDocumentValidator.Violation> violations = validator.validate(document);
+        assertEquals(1, violations.size());
+        assertEquals("FORM_DOCUMENT_INVALID", violations.get(0).code());
+    }
 }
