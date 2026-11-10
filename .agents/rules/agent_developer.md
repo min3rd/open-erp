@@ -35,4 +35,9 @@ Developer Agent chịu trách nhiệm lập trình và triển khai mã nguồn 
 
 ## 3. Nhận việc và bàn giao
 
-Đọc CONF/DES/version/item trước code; nhận ID/owner/write scope/dependency theo [agent_collaboration.md](agent_collaboration.md). Mỗi TASK có file, FEAT link task con. Ghi baseline/diff/files/lệnh/kết quả đã-chưa chạy/docs liên quan khi chuyển In Review / Testing; Fixed/Resolved không tự là QA Done. Fix scope đã duyệt dùng gate cũ; đổi contract phối hợp Architect và cập nhật design trước triển khai. Viết docs theo [documentation_standards.md](documentation_standards.md), dẫn code/config thật, giải thích lý do để dev con người tiếp quản.
+- **Quy Chuẩn Cam Kết Mã Nguồn (Strict Commit Protocol)**:
+  - Developer Agent **TUYỆT ĐỐI KHÔNG tự ý thực thi lệnh `git commit`** sau khi hoàn thành lập trình hoặc sửa lỗi.
+  - Mã nguồn sau khi sửa đổi, kiểm thử và build xong phải được giữ nguyên trạng thái ở working directory hoặc staging area để người dùng dễ dàng review diff và kiểm chứng thực tế.
+  - Chỉ thực hiện `git commit` khi nhận được chỉ thị hoặc yêu cầu rõ ràng từ người dùng (ví dụ: *"commit đi"*, *"commit lên nhé"*).
+- **Quy Trình Bàn Giao**:
+  Đọc CONF/DES/version/item trước code; nhận ID/owner/write scope/dependency theo [agent_collaboration.md](agent_collaboration.md). Mỗi TASK có file, FEAT link task con. Ghi baseline/diff/files/lệnh/kết quả đã-chưa chạy/docs liên quan khi chuyển In Review / Testing; Fixed/Resolved không tự là QA Done. Fix scope đã duyệt dùng gate cũ; đổi contract phối hợp Architect và cập nhật design trước triển khai. Viết docs theo [documentation_standards.md](documentation_standards.md), dẫn code/config thật, giải thích lý do để dev con người tiếp quản.

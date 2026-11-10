@@ -1,8 +1,10 @@
 import {
   Component,
   ElementRef,
+  HostListener,
   Input,
   OnInit,
+  ViewChild,
   computed,
   inject,
   signal,
@@ -167,9 +169,15 @@ export class WorkflowScreenComponent implements OnInit {
   readonly showAdvancedJson = signal(false);
 
   // Visual Node Graph Canvas State
+  @ViewChild('graphCanvasContainer') graphCanvasContainer?: ElementRef<HTMLDivElement>;
   readonly graphDirection = signal<'LR' | 'TB'>('LR');
   readonly graphZoom = signal(100);
   readonly linkingFromIndex = signal<number | null>(null);
+  readonly isPanning = signal(false);
+  private panStartX = 0;
+  private panStartY = 0;
+  private panStartScrollLeft = 0;
+  private panStartScrollTop = 0;
   private draggingNodeIndex: number | null = null;
   private dragOffsetX = 0;
   private dragOffsetY = 0;
@@ -978,7 +986,35 @@ export class WorkflowScreenComponent implements OnInit {
     this.nodes.set(next);
   }
 
+  onCanvasMouseDown(event: MouseEvent): void {
+    // Middle click (button 1) anywhere OR left click (button 0) on empty canvas background
+    const isMiddleClick = event.button === 1;
+    const target = event.target as HTMLElement | null;
+    const isLeftClickOnBackground = event.button === 0 && (
+      target === this.graphCanvasContainer?.nativeElement ||
+      target?.tagName?.toLowerCase() === 'svg' ||
+      target?.classList?.contains('canvas-background')
+    );
+
+    if (isMiddleClick || isLeftClickOnBackground) {
+      event.preventDefault();
+      const container = this.graphCanvasContainer?.nativeElement;
+      if (!container) return;
+      this.isPanning.set(true);
+      this.panStartX = event.clientX;
+      this.panStartY = event.clientY;
+      this.panStartScrollLeft = container.scrollLeft;
+      this.panStartScrollTop = container.scrollTop;
+    }
+  }
+
   onGraphNodeMouseDown(event: MouseEvent, index: number): void {
+    // If middle click on a node, delegate to canvas pan instead of dragging the node
+    if (event.button === 1) {
+      event.preventDefault();
+      this.onCanvasMouseDown(event);
+      return;
+    }
     if ((event.target as HTMLElement)?.closest('button')) {
       return;
     }
@@ -991,6 +1027,17 @@ export class WorkflowScreenComponent implements OnInit {
   }
 
   onGraphMouseMove(event: MouseEvent): void {
+    if (this.isPanning()) {
+      event.preventDefault();
+      const container = this.graphCanvasContainer?.nativeElement;
+      if (container) {
+        const dx = event.clientX - this.panStartX;
+        const dy = event.clientY - this.panStartY;
+        container.scrollLeft = this.panStartScrollLeft - dx;
+        container.scrollTop = this.panStartScrollTop - dy;
+      }
+      return;
+    }
     if (this.draggingNodeIndex == null) return;
     const idx = this.draggingNodeIndex;
     const next = [...this.nodes()];
@@ -1001,7 +1048,32 @@ export class WorkflowScreenComponent implements OnInit {
     this.nodes.set(next);
   }
 
-  onGraphMouseUp(): void {
+  onGraphMouseUp(event?: MouseEvent): void {
+    if (this.isPanning()) {
+      this.isPanning.set(false);
+    }
+    this.draggingNodeIndex = null;
+  }
+
+  @HostListener('window:mousemove', ['$event'])
+  onWindowMouseMove(event: MouseEvent): void {
+    if (this.isPanning()) {
+      event.preventDefault();
+      const container = this.graphCanvasContainer?.nativeElement;
+      if (container) {
+        const dx = event.clientX - this.panStartX;
+        const dy = event.clientY - this.panStartY;
+        container.scrollLeft = this.panStartScrollLeft - dx;
+        container.scrollTop = this.panStartScrollTop - dy;
+      }
+    }
+  }
+
+  @HostListener('window:mouseup')
+  onWindowMouseUp(): void {
+    if (this.isPanning()) {
+      this.isPanning.set(false);
+    }
     this.draggingNodeIndex = null;
   }
 

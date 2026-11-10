@@ -177,7 +177,7 @@
   "PLUGIN_WORKFLOW_GRAPH_TITLE": "Workflow Process Flowchart (Visual Node Graph)",
   "PLUGIN_WORKFLOW_EDGES": "links",
   "PLUGIN_WORKFLOW_LINKING_HINT": "Linking mode: Click a target step on the graph to connect an arrow.",
-  "PLUGIN_WORKFLOW_GRAPH_HINT": "Drag nodes to reposition · Click 🔗 to link arrows · Click + Step to insert",
+  "PLUGIN_WORKFLOW_GRAPH_HINT": "Drag node · Middle mouse button to pan · Click 🔗 to link · + Step to insert",
   "PLUGIN_WORKFLOW_UNLINK_EDGE": "Remove this link",
   "PLUGIN_WORKFLOW_APPEND_STEP": "Insert next step",
   "PLUGIN_WORKFLOW_STEP_SHORT": "Step",

@@ -364,14 +364,19 @@
 
               <!-- Interactive SVG + Node Canvas -->
               <div
-                class="relative min-h-[420px] flex-1 overflow-auto bg-surface-muted/40 select-none"
+                #graphCanvasContainer
+                class="canvas-background relative min-h-[420px] flex-1 overflow-auto bg-surface-muted/40 select-none"
+                [class.cursor-grabbing]="isPanning()"
+                [class.cursor-grab]="!isPanning()"
                 style="background-image: radial-gradient(rgba(120, 120, 128, 0.22) 1px, transparent 1px); background-size: 18px 18px;"
+                (mousedown)="onCanvasMouseDown($event)"
                 (mousemove)="onGraphMouseMove($event)"
-                (mouseup)="onGraphMouseUp()"
-                (mouseleave)="onGraphMouseUp()"
+                (mouseup)="onGraphMouseUp($event)"
+                (mouseleave)="onGraphMouseUp($event)"
+                (auxclick)="$event.preventDefault()"
               >
                 <div
-                  class="relative"
+                  class="canvas-background relative"
                   [style.width.px]="graphLayout().width"
                   [style.height.px]="graphLayout().height"
                 >
@@ -461,6 +466,7 @@
                       [style.width.px]="view.width"
                       [style.height.px]="view.height"
                       (mousedown)="onGraphNodeMouseDown($event, view.index)"
+                      (auxclick)="$event.preventDefault()"
                       (click)="onNodeCardClick(view.index)"
                     >
                       <!-- Input Connector Port Dot -->
