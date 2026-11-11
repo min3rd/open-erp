@@ -313,5 +313,7 @@
   "PLUGIN_FORM_SLIDER_MAX": "Максимальное значение",
   "PLUGIN_FORM_SLIDER_STEP": "Шаг",
   "PLUGIN_FORM_CURRENCY_CODE": "Код валюты",
-  "PLUGIN_FORM_CURRENCY_SYMBOL": "Символ валюты"
+  "PLUGIN_FORM_CURRENCY_SYMBOL": "Символ валюты",
+  "PLUGIN_FORM_UNDO": "Undo",
+  "PLUGIN_FORM_REDO": "Redo"
 }

@@ -517,7 +517,11 @@ export class FormFillComponent implements OnInit {
   }
 
   answerOf(item: FormItem): unknown {
-    return item.ref ? this.answers()[item.ref] : undefined;
+    if (!item.ref) return undefined;
+    if (item.type === 'GRID') {
+      return this.answers()[item.ref] ?? this.gridRows[item.ref];
+    }
+    return this.answers()[item.ref];
   }
 
   textAnswer(item: FormItem): string {
@@ -618,7 +622,6 @@ export class FormFillComponent implements OnInit {
       initialRows.push(this.newEmptyRow(item));
     }
     this.gridRows[item.ref] = initialRows;
-    this.syncGridAnswer(item);
   }
 
   private newEmptyRow(item: FormItem): Record<string, any> {
@@ -1091,6 +1094,13 @@ export class FormFillComponent implements OnInit {
   }
 
   hasAnswer(item: FormItem): boolean {
+    if (item.type === 'GRID') {
+      const rows =
+        (this.answers()[item.ref ?? ''] as Array<Record<string, any>> | undefined) ??
+        this.gridRows[item.ref ?? ''];
+      if (!rows || rows.length === 0) return false;
+      return rows.some((r) => Object.values(r).some((v) => v !== '' && v != null));
+    }
     const value = this.answerOf(item);
     if (value == null || value === '') {
       return false;
@@ -1128,7 +1138,12 @@ export class FormFillComponent implements OnInit {
     const answers: Record<string, unknown> = {};
     for (const item of this.visibleQuestions()) {
       if (item.ref && this.hasAnswer(item)) {
-        answers[item.ref] = this.answerOf(item);
+        if (item.type === 'GRID') {
+          this.syncGridAnswer(item);
+          answers[item.ref] = this.gridRows[item.ref] ?? [];
+        } else {
+          answers[item.ref] = this.answerOf(item);
+        }
       }
     }
     this.busy.set(true);

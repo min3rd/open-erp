@@ -1969,5 +1969,7 @@
   "PLUGIN_FORM_SLIDER_MAX": "Valeur maximale",
   "PLUGIN_FORM_SLIDER_STEP": "Incrément",
   "PLUGIN_FORM_CURRENCY_CODE": "Code de devise",
-  "PLUGIN_FORM_CURRENCY_SYMBOL": "Symbole de devise"
+  "PLUGIN_FORM_CURRENCY_SYMBOL": "Symbole de devise",
+  "PLUGIN_FORM_UNDO": "Undo",
+  "PLUGIN_FORM_REDO": "Redo"
 }

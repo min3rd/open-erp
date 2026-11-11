@@ -1,6 +1,7 @@
 import {
   Component,
   ElementRef,
+  HostListener,
   Input,
   OnInit,
   computed,
@@ -77,6 +78,15 @@ export interface ContainerGroup {
   desktopCols: 1 | 2 | 3 | 4;
   mobileCols: 1 | 2;
   fields: Array<{ index: number; item: FormItem }>;
+}
+
+export interface FormHistorySnapshot {
+  items: FormItem[];
+  layoutConfig: FormLayoutConfig;
+  selectedIndex: number | null;
+  activeContainerGroup: number | 'ALL';
+  titleInput?: string;
+  descriptionInput?: string;
 }
 
 export interface FieldCategoryDef {
@@ -417,6 +427,173 @@ export class FormScreenComponent implements OnInit {
     { id: 'responses', labelKey: 'PLUGIN_FORM_TAB_RESPONSES' },
     { id: 'summary', labelKey: 'PLUGIN_FORM_TAB_SUMMARY' },
   ]);
+
+  readonly undoStack = signal<FormHistorySnapshot[]>([]);
+  readonly redoStack = signal<FormHistorySnapshot[]>([]);
+  readonly canUndo = computed(() => this.undoStack().length > 0);
+  readonly canRedo = computed(() => this.redoStack().length > 0);
+
+  private isHistoryAction = false;
+  private lastDebounceKey: string | null = null;
+  private lastDebounceTime = 0;
+  private readonly MAX_HISTORY = 50;
+
+  clearHistory(): void {
+    this.undoStack.set([]);
+    this.redoStack.set([]);
+    this.lastDebounceKey = null;
+    this.lastDebounceTime = 0;
+  }
+
+  recordSnapshot(debounceKey?: string): void {
+    if (this.isHistoryAction) return;
+
+    const now = Date.now();
+    if (debounceKey) {
+      if (this.lastDebounceKey === debounceKey && now - this.lastDebounceTime < 700) {
+        this.lastDebounceTime = now;
+        return;
+      }
+      this.lastDebounceKey = debounceKey;
+      this.lastDebounceTime = now;
+    } else {
+      this.lastDebounceKey = null;
+      this.lastDebounceTime = 0;
+    }
+
+    const snapshot: FormHistorySnapshot = {
+      items: structuredClone(this.items()),
+      layoutConfig: structuredClone(this.layoutConfig()),
+      selectedIndex: this.selectedIndex(),
+      activeContainerGroup: this.activeContainerGroup(),
+      titleInput: this.titleInput(),
+      descriptionInput: this.descriptionInput(),
+    };
+
+    this.undoStack.update((stack) => {
+      const next = [...stack, snapshot];
+      return next.length > this.MAX_HISTORY ? next.slice(-this.MAX_HISTORY) : next;
+    });
+    this.redoStack.set([]);
+  }
+
+  undo(): void {
+    const stack = this.undoStack();
+    if (stack.length === 0) return;
+
+    this.isHistoryAction = true;
+    try {
+      const currentSnapshot: FormHistorySnapshot = {
+        items: structuredClone(this.items()),
+        layoutConfig: structuredClone(this.layoutConfig()),
+        selectedIndex: this.selectedIndex(),
+        activeContainerGroup: this.activeContainerGroup(),
+        titleInput: this.titleInput(),
+        descriptionInput: this.descriptionInput(),
+      };
+
+      const nextUndo = [...stack];
+      const previous = nextUndo.pop()!;
+      this.undoStack.set(nextUndo);
+
+      this.redoStack.update((redo) => [...redo, currentSnapshot]);
+
+      this.items.set(previous.items);
+      this.layoutConfig.set(previous.layoutConfig);
+      this.selectedIndex.set(previous.selectedIndex);
+      if (previous.activeContainerGroup !== undefined) {
+        this.activeContainerGroup.set(previous.activeContainerGroup);
+      }
+      if (previous.titleInput !== undefined) {
+        this.titleInput.set(previous.titleInput);
+      }
+      if (previous.descriptionInput !== undefined) {
+        this.descriptionInput.set(previous.descriptionInput);
+      }
+      this.dirty.set(true);
+      this.lastDebounceKey = null;
+      this.lastDebounceTime = 0;
+    } finally {
+      this.isHistoryAction = false;
+    }
+  }
+
+  redo(): void {
+    const stack = this.redoStack();
+    if (stack.length === 0) return;
+
+    this.isHistoryAction = true;
+    try {
+      const currentSnapshot: FormHistorySnapshot = {
+        items: structuredClone(this.items()),
+        layoutConfig: structuredClone(this.layoutConfig()),
+        selectedIndex: this.selectedIndex(),
+        activeContainerGroup: this.activeContainerGroup(),
+        titleInput: this.titleInput(),
+        descriptionInput: this.descriptionInput(),
+      };
+
+      const nextRedo = [...stack];
+      const nextState = nextRedo.pop()!;
+      this.redoStack.set(nextRedo);
+
+      this.undoStack.update((undo) => [...undo, currentSnapshot]);
+
+      this.items.set(nextState.items);
+      this.layoutConfig.set(nextState.layoutConfig);
+      this.selectedIndex.set(nextState.selectedIndex);
+      if (nextState.activeContainerGroup !== undefined) {
+        this.activeContainerGroup.set(nextState.activeContainerGroup);
+      }
+      if (nextState.titleInput !== undefined) {
+        this.titleInput.set(nextState.titleInput);
+      }
+      if (nextState.descriptionInput !== undefined) {
+        this.descriptionInput.set(nextState.descriptionInput);
+      }
+      this.dirty.set(true);
+      this.lastDebounceKey = null;
+      this.lastDebounceTime = 0;
+    } finally {
+      this.isHistoryAction = false;
+    }
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  onWindowKeyDown(event: KeyboardEvent): void {
+    if (this.tab() !== 'builder' || !this.selected()) return;
+
+    const isCtrlOrMeta = event.ctrlKey || event.metaKey;
+    if (!isCtrlOrMeta) return;
+
+    const key = event.key.toLowerCase();
+    if (key !== 'z' && key !== 'y') return;
+
+    const target = event.target as HTMLElement | null;
+    const isTextInput =
+      target &&
+      (target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable);
+
+    if (key === 'z' && !event.shiftKey) {
+      if (this.canUndo()) {
+        event.preventDefault();
+        if (isTextInput) {
+          target?.blur();
+        }
+        this.undo();
+      }
+    } else if (key === 'y' || (key === 'z' && event.shiftKey)) {
+      if (this.canRedo()) {
+        event.preventDefault();
+        if (isTextInput) {
+          target?.blur();
+        }
+        this.redo();
+      }
+    }
+  }
 
   readonly statusOptions: SelectOption[] = [
     { value: 'ALL', labelKey: 'COMMON_ALL' },
@@ -915,6 +1092,7 @@ export class FormScreenComponent implements OnInit {
         const firstQuestionIdx = loadedItems.findIndex((i) => !this.isContainer(i));
         this.selectedIndex.set(firstQuestionIdx >= 0 ? firstQuestionIdx : loadedItems.length > 0 ? 0 : null);
         this.dirty.set(false);
+        this.clearHistory();
         this.publishCaptcha.set(full.captcha ?? 'none');
         this.publishCloseAt.set(toLocalInput(full.close_at));
         this.publishLimit.set(full.response_limit ? String(full.response_limit) : '');
@@ -937,7 +1115,20 @@ export class FormScreenComponent implements OnInit {
     this.openForm(form);
   }
 
+  onTitleChange(val: string): void {
+    this.recordSnapshot('form_title');
+    this.titleInput.set(val);
+    this.dirty.set(true);
+  }
+
+  onDescriptionChange(val: string): void {
+    this.recordSnapshot('form_description');
+    this.descriptionInput.set(val);
+    this.dirty.set(true);
+  }
+
   setStructureMode(mode: string): void {
+    this.recordSnapshot();
     const validMode = (mode === 'PAGE' || mode === 'STEP' ? mode : 'SECTION') as FormStructureMode;
     this.layoutConfig.set({ ...this.layoutConfig(), mode: validMode });
     // Convert existing containers if user switches structure mode so preview reflects it immediately
@@ -949,6 +1140,7 @@ export class FormScreenComponent implements OnInit {
   }
 
   setDefaultDesktopCols(cols: string): void {
+    this.recordSnapshot();
     const n = Math.min(Math.max(Number(cols) || 2, 1), 4) as 1 | 2 | 3 | 4;
     this.layoutConfig.set({ ...this.layoutConfig(), columns: n });
     const next = this.items().map((item) =>
@@ -959,6 +1151,7 @@ export class FormScreenComponent implements OnInit {
   }
 
   setDefaultMobileCols(cols: string): void {
+    this.recordSnapshot();
     const n = (Number(cols) === 2 ? 2 : 1) as 1 | 2;
     this.layoutConfig.set({ ...this.layoutConfig(), mobile_columns: n });
     const next = this.items().map((item) =>
@@ -969,6 +1162,7 @@ export class FormScreenComponent implements OnInit {
   }
 
   setContainerCols(containerIndex: number | null, desktopCols: 1 | 2 | 3 | 4): void {
+    this.recordSnapshot();
     if (containerIndex == null) {
       this.setDefaultDesktopCols(String(desktopCols));
       return;
@@ -980,6 +1174,7 @@ export class FormScreenComponent implements OnInit {
   }
 
   setContainerMobileCols(containerIndex: number | null, mobileCols: 1 | 2): void {
+    this.recordSnapshot();
     if (containerIndex == null) {
       this.setDefaultMobileCols(String(mobileCols));
       return;
@@ -991,6 +1186,7 @@ export class FormScreenComponent implements OnInit {
   }
 
   addContainer(type?: FormContainerType): void {
+    this.recordSnapshot();
     const containerType: FormContainerType = type ?? this.layoutConfig().mode ?? 'SECTION';
     const next = [...this.items()];
     const count = next.filter((i) => this.isContainer(i)).length + 1;
@@ -1022,6 +1218,7 @@ export class FormScreenComponent implements OnInit {
       this.addContainer(type as FormContainerType);
       return;
     }
+    this.recordSnapshot();
     const next = [...this.items()];
     const question = this.buildNewField(type);
     let insertAt = next.length;
@@ -1134,6 +1331,7 @@ export class FormScreenComponent implements OnInit {
   duplicateItem(index: number): void {
     const source = this.items()[index];
     if (!source) return;
+    this.recordSnapshot();
     const copy = structuredClone(source);
     if (!this.isContainer(copy)) {
       copy.ref = this.nextRef(copy.type);
@@ -1151,6 +1349,7 @@ export class FormScreenComponent implements OnInit {
   setFieldColSpan(index: number, span: 1 | 2 | 3 | 4): void {
     const next = [...this.items()];
     if (!next[index]) return;
+    this.recordSnapshot();
     next[index] = { ...next[index], col_span: span };
     this.items.set(next);
     this.selectedIndex.set(index);
@@ -1160,6 +1359,7 @@ export class FormScreenComponent implements OnInit {
   setFieldMobileSpan(index: number, span: 1 | 2): void {
     const next = [...this.items()];
     if (!next[index]) return;
+    this.recordSnapshot();
     next[index] = { ...next[index], mobile_span: span };
     this.items.set(next);
     this.selectedIndex.set(index);
@@ -1169,6 +1369,7 @@ export class FormScreenComponent implements OnInit {
   toggleFieldRowBreak(index: number): void {
     const next = [...this.items()];
     if (!next[index]) return;
+    this.recordSnapshot();
     next[index] = { ...next[index], row_break: !next[index].row_break };
     this.items.set(next);
     this.selectedIndex.set(index);
@@ -1213,6 +1414,7 @@ export class FormScreenComponent implements OnInit {
 
   deleteItem(index: number): void {
     const removed = this.items()[index];
+    this.recordSnapshot();
     const next = [...this.items()];
     next.splice(index, 1);
     if (removed?.ref) {
@@ -1230,6 +1432,7 @@ export class FormScreenComponent implements OnInit {
     if (target < 0 || target >= this.items().length) {
       return;
     }
+    this.recordSnapshot();
     const next = [...this.items()];
     const [moved] = next.splice(index, 1);
     next.splice(target, 0, moved);
@@ -1259,6 +1462,7 @@ export class FormScreenComponent implements OnInit {
     if (paletteType) {
       this.paletteDragType.set(null);
       this.dragOverIndex.set(null);
+      this.recordSnapshot();
       const next = [...this.items()];
       if (this.isContainerType(paletteType)) {
         const count = next.filter((i) => this.isContainer(i)).length + 1;
@@ -1284,6 +1488,7 @@ export class FormScreenComponent implements OnInit {
     if (from == null || from === targetIndex) {
       return;
     }
+    this.recordSnapshot();
     const next = [...this.items()];
     const [moved] = next.splice(from, 1);
     next.splice(targetIndex, 0, moved);
@@ -1304,6 +1509,7 @@ export class FormScreenComponent implements OnInit {
     this.dragIndex.set(null);
     this.dragOverIndex.set(null);
     if (from == null) return;
+    this.recordSnapshot();
     const next = [...this.items()];
     const [moved] = next.splice(from, 1);
     let insertAt = next.length;
@@ -1331,6 +1537,14 @@ export class FormScreenComponent implements OnInit {
     if (index == null) {
       return;
     }
+    const isTextOnlyPatch =
+      Object.keys(patch).length > 0 &&
+      Object.keys(patch).every((k) =>
+        ['label', 'title', 'description', 'placeholder', 'content', 'ref'].includes(k),
+      );
+    const debounceKey = isTextOnlyPatch ? `field_${index}_text` : undefined;
+    this.recordSnapshot(debounceKey);
+
     const next = [...this.items()];
     const current = next[index];
     const updated = { ...current, ...patch };

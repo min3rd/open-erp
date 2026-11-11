@@ -1557,7 +1557,7 @@
   "PLUGIN_FORM_TYPE_NUMBER": "Số",
   "PLUGIN_FORM_TYPE_RATING": "Đánh giá sao",
   "PLUGIN_FORM_TYPE_FILE_UPLOAD": "Tải tệp",
-  "PLUGIN_FORM_TYPE_MATRIX": "Ma trận (Likert)",
+  "PLUGIN_FORM_TYPE_MATRIX": "Ma trận",
   "PLUGIN_FORM_ADD": "Thêm",
   "PLUGIN_FORM_ADD_SECTION": "Thêm phần",
   "PLUGIN_FORM_ADD_QUESTION": "Thêm câu hỏi",
@@ -1827,7 +1827,7 @@
   "PLUGIN_WORKFLOW_GRAPH_TITLE": "Sơ đồ luồng quy trình (Visual Node Graph)",
   "PLUGIN_WORKFLOW_EDGES": "liên kết",
   "PLUGIN_WORKFLOW_LINKING_HINT": "Đang nối bước: Nhấn vào bước đích trên sơ đồ để tạo mũi tên liên kết.",
-  "PLUGIN_WORKFLOW_GRAPH_HINT": "Kéo thả node · Chuột giữa di chuyển canvas · Nhấn 🔗 để nối mũi tên · + Bước để chèn nhanh",
+  "PLUGIN_WORKFLOW_GRAPH_HINT": "Kéo thả node để đổi vị trí · Nhấn 🔗 để nối mũi tên · Nhấn + Bước để chèn nhanh",
   "PLUGIN_WORKFLOW_UNLINK_EDGE": "Gỡ liên kết này",
   "PLUGIN_WORKFLOW_APPEND_STEP": "Chèn bước kế tiếp",
   "PLUGIN_WORKFLOW_STEP_SHORT": "Bước",
@@ -1969,5 +1969,7 @@
   "PLUGIN_FORM_SLIDER_MAX": "Giá trị lớn nhất",
   "PLUGIN_FORM_SLIDER_STEP": "Bước nhảy",
   "PLUGIN_FORM_CURRENCY_CODE": "Mã tiền tệ",
-  "PLUGIN_FORM_CURRENCY_SYMBOL": "Ký hiệu tiền tệ"
+  "PLUGIN_FORM_CURRENCY_SYMBOL": "Ký hiệu tiền tệ",
+  "PLUGIN_FORM_UNDO": "Hoàn tác",
+  "PLUGIN_FORM_REDO": "Làm lại"
 }

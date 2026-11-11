@@ -1969,5 +1969,7 @@
   "PLUGIN_FORM_SLIDER_MAX": "ค่าสูงสุด",
   "PLUGIN_FORM_SLIDER_STEP": "ระยะก้าว",
   "PLUGIN_FORM_CURRENCY_CODE": "รหัสสกุลเงิน",
-  "PLUGIN_FORM_CURRENCY_SYMBOL": "สัญลักษณ์สกุลเงิน"
+  "PLUGIN_FORM_CURRENCY_SYMBOL": "สัญลักษณ์สกุลเงิน",
+  "PLUGIN_FORM_UNDO": "Undo",
+  "PLUGIN_FORM_REDO": "Redo"
 }

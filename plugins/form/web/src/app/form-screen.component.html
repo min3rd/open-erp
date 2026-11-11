@@ -197,7 +197,7 @@
                 <app-sharp-input
                   [label]="'PLUGIN_FORM_FIELD_TITLE' | translate"
                   [value]="titleInput()"
-                  (valueChange)="titleInput.set($event); dirty.set(true)"
+                  (valueChange)="onTitleChange($event)"
                 />
               </div>
               <div class="w-40">
@@ -246,6 +246,36 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-1">
+              <!-- Undo / Redo Actions (FEAT: Undo/Redo Engine) -->
+              <div class="inline-flex border border-default bg-surface-muted p-0.5" [attr.aria-label]="'PLUGIN_FORM_UNDO' | translate">
+                <app-sharp-button
+                  size="sm"
+                  variant="ghost"
+                  [shape]="'sharp'"
+                  [disabled]="!canUndo()"
+                  [title]="('PLUGIN_FORM_UNDO' | translate) + ' (Ctrl+Z)'"
+                  (clicked)="undo()"
+                >
+                  <span class="inline-flex items-center gap-1">
+                    <app-icon name="corner-up-left" size="sm" [decorative]="true" />
+                    <span class="hidden md:inline">{{ 'PLUGIN_FORM_UNDO' | translate }}</span>
+                  </span>
+                </app-sharp-button>
+                <app-sharp-button
+                  size="sm"
+                  variant="ghost"
+                  [shape]="'sharp'"
+                  [disabled]="!canRedo()"
+                  [title]="('PLUGIN_FORM_REDO' | translate) + ' (Ctrl+Y)'"
+                  (clicked)="redo()"
+                >
+                  <span class="inline-flex items-center gap-1">
+                    <app-icon name="corner-up-right" size="sm" [decorative]="true" />
+                    <span class="hidden md:inline">{{ 'PLUGIN_FORM_REDO' | translate }}</span>
+                  </span>
+                </app-sharp-button>
+              </div>
+
               <app-badge [variant]="statusVariant(selected()?.publish_status)" [shape]="'sharp'">
                 {{ ('PLUGIN_FORM_STATUS_' + (selected()?.publish_status ?? 'DRAFT')) | translate }}
               </app-badge>
@@ -364,11 +394,11 @@
               @if (containerGroups().length > 1 || layoutConfig().mode === 'PAGE' || layoutConfig().mode === 'STEP') {
                 <div
                   #containerTabsStrip
-                  class="flex items-center gap-1.5 overflow-x-auto border-b border-default bg-surface px-2.5 py-1.5 shrink-0 select-none scrollbar-thin"
+                  class="flex flex-nowrap items-center gap-1.5 overflow-x-auto border-b border-default bg-surface px-2.5 py-1.5 shrink-0 select-none scrollbar-thin whitespace-nowrap"
                   (wheel)="onHorizontalWheel($event, containerTabsStrip)"
                 >
                   <app-sharp-button
-                    class="shrink-0"
+                    class="shrink-0 whitespace-nowrap inline-flex"
                     size="sm"
                     [variant]="activeContainerGroup() === 'ALL' ? 'primary' : 'outline'"
                     [shape]="'sharp'"
@@ -378,13 +408,14 @@
                   </app-sharp-button>
                   @for (grp of containerGroups(); track grp.groupId; let gIdx = $index) {
                     <app-sharp-button
-                      class="shrink-0"
+                      class="shrink-0 whitespace-nowrap inline-flex"
                       size="sm"
                       [variant]="activeContainerGroup() === gIdx ? 'primary' : 'outline'"
                       [shape]="'sharp'"
+                      [title]="grp.title"
                       (clicked)="activeContainerGroup.set(gIdx); grp.containerIndex != null && selectItem(grp.containerIndex)"
                     >
-                      {{ gIdx + 1 }}. {{ grp.title }}
+                      <span class="truncate max-w-[220px]">{{ gIdx + 1 }}. {{ grp.title }}</span>
                     </app-sharp-button>
                   }
                 </div>

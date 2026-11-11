@@ -56,7 +56,11 @@ export enum IconName {
   LIST = 'list',
   TYPE = 'type',
   MINUS = 'minus',
-  LINK = 'link'
+  LINK = 'link',
+  ROTATE_CCW = 'rotate-ccw',
+  ROTATE_CW = 'rotate-cw',
+  CORNER_UP_LEFT = 'corner-up-left',
+  CORNER_UP_RIGHT = 'corner-up-right'
 }
 
 /**

@@ -1589,5 +1589,7 @@
   "PLUGIN_FORM_SLIDER_MAX": "Giá trị lớn nhất",
   "PLUGIN_FORM_SLIDER_STEP": "Bước nhảy",
   "PLUGIN_FORM_CURRENCY_CODE": "Mã tiền tệ",
-  "PLUGIN_FORM_CURRENCY_SYMBOL": "Ký hiệu tiền tệ"
+  "PLUGIN_FORM_CURRENCY_SYMBOL": "Ký hiệu tiền tệ",
+  "PLUGIN_FORM_UNDO": "Hoàn tác",
+  "PLUGIN_FORM_REDO": "Làm lại"
 }

@@ -313,5 +313,7 @@
   "PLUGIN_FORM_SLIDER_MAX": "Nilai maksimum",
   "PLUGIN_FORM_SLIDER_STEP": "Langkah",
   "PLUGIN_FORM_CURRENCY_CODE": "Kode Mata Uang",
-  "PLUGIN_FORM_CURRENCY_SYMBOL": "Simbol Mata Uang"
+  "PLUGIN_FORM_CURRENCY_SYMBOL": "Simbol Mata Uang",
+  "PLUGIN_FORM_UNDO": "Undo",
+  "PLUGIN_FORM_REDO": "Redo"
 }

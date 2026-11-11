@@ -55,7 +55,7 @@
   "PLUGIN_FORM_TYPE_NUMBER": "Số",
   "PLUGIN_FORM_TYPE_RATING": "Đánh giá sao",
   "PLUGIN_FORM_TYPE_FILE_UPLOAD": "Tải tệp",
-  "PLUGIN_FORM_TYPE_MATRIX": "Ma trận (Likert)",
+  "PLUGIN_FORM_TYPE_MATRIX": "Ma trận",
   "PLUGIN_FORM_TYPE_GRID": "Bảng tính Excel (Grid)",
   "PLUGIN_FORM_ADD": "Thêm",
   "PLUGIN_FORM_ADD_SECTION": "Thêm phần",
@@ -313,5 +313,7 @@
   "PLUGIN_FORM_SLIDER_MAX": "Giá trị lớn nhất",
   "PLUGIN_FORM_SLIDER_STEP": "Bước nhảy",
   "PLUGIN_FORM_CURRENCY_CODE": "Mã tiền tệ",
-  "PLUGIN_FORM_CURRENCY_SYMBOL": "Ký hiệu tiền tệ"
+  "PLUGIN_FORM_CURRENCY_SYMBOL": "Ký hiệu tiền tệ",
+  "PLUGIN_FORM_UNDO": "Hoàn tác",
+  "PLUGIN_FORM_REDO": "Làm lại"
 }

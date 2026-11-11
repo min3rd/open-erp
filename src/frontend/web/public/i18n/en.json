@@ -1557,7 +1557,7 @@
   "PLUGIN_FORM_TYPE_NUMBER": "Number",
   "PLUGIN_FORM_TYPE_RATING": "Rating",
   "PLUGIN_FORM_TYPE_FILE_UPLOAD": "File upload",
-  "PLUGIN_FORM_TYPE_MATRIX": "Matrix (Likert)",
+  "PLUGIN_FORM_TYPE_MATRIX": "Matrix",
   "PLUGIN_FORM_ADD": "Add",
   "PLUGIN_FORM_ADD_SECTION": "Add section",
   "PLUGIN_FORM_ADD_QUESTION": "Add question",
@@ -1827,7 +1827,7 @@
   "PLUGIN_WORKFLOW_GRAPH_TITLE": "Workflow Process Flowchart (Visual Node Graph)",
   "PLUGIN_WORKFLOW_EDGES": "links",
   "PLUGIN_WORKFLOW_LINKING_HINT": "Linking mode: Click a target step on the graph to connect an arrow.",
-  "PLUGIN_WORKFLOW_GRAPH_HINT": "Drag node · Middle mouse button to pan · Click 🔗 to link · + Step to insert",
+  "PLUGIN_WORKFLOW_GRAPH_HINT": "Drag nodes to reposition · Click 🔗 to link arrows · Click + Step to insert",
   "PLUGIN_WORKFLOW_UNLINK_EDGE": "Remove this link",
   "PLUGIN_WORKFLOW_APPEND_STEP": "Insert next step",
   "PLUGIN_WORKFLOW_STEP_SHORT": "Step",
@@ -1969,5 +1969,7 @@
   "PLUGIN_FORM_SLIDER_MAX": "Max value",
   "PLUGIN_FORM_SLIDER_STEP": "Step",
   "PLUGIN_FORM_CURRENCY_CODE": "Currency Code",
-  "PLUGIN_FORM_CURRENCY_SYMBOL": "Currency Symbol"
+  "PLUGIN_FORM_CURRENCY_SYMBOL": "Currency Symbol",
+  "PLUGIN_FORM_UNDO": "Undo",
+  "PLUGIN_FORM_REDO": "Redo"
 }

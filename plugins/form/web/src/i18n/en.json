@@ -55,7 +55,7 @@
   "PLUGIN_FORM_TYPE_NUMBER": "Number",
   "PLUGIN_FORM_TYPE_RATING": "Rating",
   "PLUGIN_FORM_TYPE_FILE_UPLOAD": "File upload",
-  "PLUGIN_FORM_TYPE_MATRIX": "Matrix (Likert)",
+  "PLUGIN_FORM_TYPE_MATRIX": "Matrix",
   "PLUGIN_FORM_TYPE_GRID": "Excel Grid",
   "PLUGIN_FORM_ADD": "Add",
   "PLUGIN_FORM_ADD_SECTION": "Add section",
@@ -313,5 +313,7 @@
   "PLUGIN_FORM_SLIDER_MAX": "Max value",
   "PLUGIN_FORM_SLIDER_STEP": "Step",
   "PLUGIN_FORM_CURRENCY_CODE": "Currency Code",
-  "PLUGIN_FORM_CURRENCY_SYMBOL": "Currency Symbol"
+  "PLUGIN_FORM_CURRENCY_SYMBOL": "Currency Symbol",
+  "PLUGIN_FORM_UNDO": "Undo",
+  "PLUGIN_FORM_REDO": "Redo"
 }
