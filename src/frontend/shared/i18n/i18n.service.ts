@@ -122,61 +122,8 @@ export class I18nService {
     return text;
   }
 
-  private staleCheckSet = new Set<string>();
-
-  private triggerStaleDictionaryRefresh(lang: LangCode, key: string): void {
-    if (this.staleCheckSet.has(key)) return;
-    this.staleCheckSet.add(key);
-    void this.reloadDictionaryHttp(lang).then((updated) => {
-      if (updated && updated[key]) {
-        this.dictVersionSignal.update((v) => v + 1);
-        try {
-          this.appRef?.tick();
-        } catch {
-          /* ignore tick errors */
-        }
-      }
-    });
-  }
-
-  /** Force refresh all loaded dictionaries from server via HttpClient, bypassing browser cache (BUG-182) */
-  async refreshAllDictionaries(): Promise<void> {
-    const langs = [...this.dictionaries.keys()];
-    if (!langs.length) {
-      langs.push(FALLBACK_LANG, this.currentLangSignal());
-    }
-    await Promise.all(langs.map((l) => this.reloadDictionaryHttp(l)));
-    this.dictVersionSignal.update((v) => v + 1);
-    try {
-      this.appRef?.tick();
-    } catch {
-      /* ignore tick errors */
-    }
-  }
-
-  private async requestDictionary(lang: LangCode, force = false): Promise<Record<string, string> | null> {
-    if (!this.http) {
-      return null;
-    }
-    const query = force ? `?_t=${Date.now()}` : '';
-    try {
-      return await firstValueFrom(this.http.get<Record<string, string>>(`i18n/${lang}.json${query}`));
-    } catch {
-      try {
-        return await firstValueFrom(this.http.get<Record<string, string>>(`/i18n/${lang}.json${query}`));
-      } catch (err) {
-        console.warn(`Could not load i18n dictionary for ${lang}`, err);
-        return null;
-      }
-    }
-  }
-
-  private async reloadDictionaryHttp(lang: LangCode): Promise<Record<string, string> | null> {
-    const dict = await this.requestDictionary(lang, true);
-    if (dict) {
-      this.dictionaries.set(lang, dict);
-    }
-    return dict;
+  instant(code: string, params?: Record<string, any>): string {
+    return this.t(code, params);
   }
 
   private staleCheckSet = new Set<string>();

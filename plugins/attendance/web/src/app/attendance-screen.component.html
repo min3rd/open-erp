@@ -1,0 +1,1102 @@
+<div class="op-attendance-container w-full min-h-screen bg-surface text-default flex flex-col font-sans">
+  <!-- Notifications Banner -->
+  @if (successMessage()) {
+    <div class="px-4 py-2 bg-success/15 border-b border-success/30 text-success text-xs font-mono flex items-center justify-between">
+      <span>✓ {{ successMessage() }}</span>
+      <button type="button" (click)="successMessage.set(null)" class="text-success hover:underline">✕</button>
+    </div>
+  }
+  @if (errorMessage()) {
+    <div class="px-4 py-2 bg-danger/15 border-b border-danger/30 text-danger text-xs font-mono flex items-center justify-between">
+      <span>⚠️ {{ errorMessage() }}</span>
+      <button type="button" (click)="errorMessage.set(null)" class="text-danger hover:underline">✕</button>
+    </div>
+  }
+
+  <!-- Mobile View -->
+  @if (isMobile()) {
+    <div class="flex-1 flex flex-col pb-16">
+      <!-- Mobile Top Bar -->
+      <div class="px-3 py-2 border-b border-neutral-200 dark:border-neutral-800 bg-surface flex items-center justify-between">
+        <div class="text-sm font-bold font-mono tracking-tight text-primary">
+          {{ 'PLUGIN_ATTENDANCE_TITLE' | translate }}
+        </div>
+        <app-attendance-status-badge [status]="todayStatus()"></app-attendance-status-badge>
+      </div>
+
+      <!-- Mobile Tab Content -->
+      <div class="p-3 flex-1 overflow-y-auto space-y-3">
+        <!-- Tab 1: Chấm công (m-punch) -->
+        @if (activeMobileTab() === 'm-punch') {
+          <div class="space-y-3">
+            <app-gps-indicator
+              [lat]="gpsLat()"
+              [lng]="gpsLng()"
+              [accuracy]="gpsAccuracy()"
+              [distanceMeters]="gpsDistance()"
+              [isInside]="gpsInside()"
+              [loading]="gpsLoading()"
+            ></app-gps-indicator>
+
+            <!-- Punch In / Out Actions (Touch target >= 44px) -->
+            <div class="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                (click)="executePunch('IN')"
+                [disabled]="loading()"
+                class="min-h-12 bg-success text-white font-mono text-sm font-bold uppercase tracking-wider rounded-none active:bg-success/80 flex items-center justify-center gap-2 border border-success"
+              >
+                <span>☀️</span>
+                <span>{{ 'attendance.checkin.punch_in' | translate }}</span>
+              </button>
+
+              <button
+                type="button"
+                (click)="executePunch('OUT')"
+                [disabled]="loading()"
+                class="min-h-12 bg-danger text-white font-mono text-sm font-bold uppercase tracking-wider rounded-none active:bg-danger/80 flex items-center justify-center gap-2 border border-danger"
+              >
+                <span>🌙</span>
+                <span>{{ 'attendance.checkin.punch_out' | translate }}</span>
+              </button>
+            </div>
+
+            <!-- Punch Note input -->
+            <div class="mt-2">
+              <input
+                type="text"
+                [(ngModel)]="punchNote"
+                [placeholder]="'attendance.checkin.punch_note' | translate"
+                class="w-full text-xs font-mono p-2 border border-neutral-200 dark:border-neutral-800 rounded-none bg-surface"
+              />
+            </div>
+
+            <!-- Last Punch Info -->
+            <div class="border border-neutral-200 dark:border-neutral-800 bg-surface-muted/30 p-2 text-xs font-mono flex items-center justify-between">
+              <span class="text-muted">{{ 'attendance.checkin.last_punch' | translate }}:</span>
+              <span class="font-bold text-default">
+                @if (lastPunch()) {
+                  {{ lastPunch()?.punch_type }} - {{ lastPunch()?.punch_time }}
+                } @else {
+                  --:--
+                }
+              </span>
+            </div>
+
+            <!-- Shift Today -->
+            <div class="border border-neutral-200 dark:border-neutral-800 p-2 text-xs font-mono">
+              <div class="text-[10px] text-muted uppercase">{{ 'attendance.checkin.shift' | translate }}</div>
+              <div class="font-bold text-default mt-0.5">
+                {{ currentShift()?.name || ('attendance.checkin.no_shift' | translate) }}
+                @if (currentShift()) {
+                  ({{ currentShift()?.start_time }} - {{ currentShift()?.end_time }})
+                }
+              </div>
+            </div>
+
+            <!-- Leave Balances Preview -->
+            @if (myLeaveBalances().length > 0) {
+              <div class="space-y-1.5 pt-1">
+                <div class="text-xs font-mono font-bold uppercase text-muted">
+                  {{ 'attendance.leave.title' | translate }}
+                </div>
+                @for (b of myLeaveBalances(); track b.id) {
+                  <app-leave-balance-card
+                    [leaveTypeName]="b.leave_type_name || b.leave_type_code || ''"
+                    [granted]="b.granted"
+                    [used]="b.used"
+                    [remaining]="b.remaining"
+                    [expiring]="b.expiring"
+                    [validUntil]="b.valid_until || null"
+                  ></app-leave-balance-card>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Tab 2: Lịch của tôi (m-schedule) -->
+        @if (activeMobileTab() === 'm-schedule') {
+          <div class="space-y-2">
+            <div class="text-xs font-mono font-bold uppercase text-muted">
+              {{ 'attendance.schedule.title' | translate }}
+            </div>
+            <div class="border border-neutral-200 dark:border-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-800">
+              @for (item of weekSchedule(); track item.date) {
+                <div class="p-2 flex items-center justify-between text-xs font-mono">
+                  <div>
+                    <span class="font-bold mr-2 text-primary">{{ item.day }}</span>
+                    <span class="text-muted text-[11px]">{{ item.date }}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px]">{{ item.shift }}</span>
+                    @if (item.status) {
+                      <app-attendance-status-badge [status]="item.status"></app-attendance-status-badge>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Tab 3: Đơn của tôi (m-requests) -->
+        @if (activeMobileTab() === 'm-requests') {
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-bold uppercase text-muted">
+                {{ 'attendance.request.title' | translate }}
+              </span>
+              <button
+                type="button"
+                (click)="openNewRequestDrawer()"
+                class="px-2.5 py-1 text-xs font-mono bg-primary text-white rounded-none border border-primary font-semibold"
+              >
+                + {{ 'attendance.request.new' | translate }}
+              </button>
+            </div>
+
+            <div class="border border-neutral-200 dark:border-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-800">
+              @for (req of myRequestsList(); track req.id) {
+                <div class="p-2.5 text-xs font-mono space-y-1">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-default">{{ req.request_number }}</span>
+                    <span
+                      class="px-1.5 py-0.5 text-[10px] uppercase font-bold border"
+                      [ngClass]="{
+                        'bg-warning/15 text-warning border-warning/30': req.status === 'PENDING',
+                        'bg-success/15 text-success border-success/30': req.status === 'APPROVED',
+                        'bg-danger/15 text-danger border-danger/30': req.status === 'REJECTED',
+                        'bg-surface-muted text-muted border-neutral-300': req.status === 'CANCELLED'
+                      }"
+                    >
+                      {{ req.status }}
+                    </span>
+                  </div>
+                  <div class="text-muted text-[11px]">
+                    {{ req.request_type_name || req.request_type_code }}
+                  </div>
+                  @if (req.submitted_at) {
+                    <div class="text-[10px] text-muted">
+                      {{ req.submitted_at }}
+                    </div>
+                  }
+                </div>
+              } @empty {
+                <div class="p-4 text-center text-xs font-mono text-muted italic">
+                  {{ 'attendance.request.empty' | translate }}
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Tab 4: Duyệt đơn Manager (m-approvals) -->
+        @if (activeMobileTab() === 'm-approvals') {
+          <div class="space-y-3">
+            <div class="text-xs font-mono font-bold uppercase text-muted">
+              {{ 'attendance.request.inbox' | translate }}
+            </div>
+
+            <div class="border border-neutral-200 dark:border-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-800">
+              @for (req of inboxRequestsList(); track req.id) {
+                <div class="p-2.5 text-xs font-mono space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-default">{{ req.employee_name || req.employee_id }}</span>
+                    <span class="px-1.5 py-0.5 text-[10px] bg-warning/15 text-warning border border-warning/30">
+                      {{ req.request_type_code }}
+                    </span>
+                  </div>
+                  <div class="text-[11px] text-muted">
+                    {{ req.request_number }} · {{ req.submitted_at }}
+                  </div>
+                  @if (selectedInboxRequest()?.id === req.id) {
+                    <div class="pt-2 space-y-2 border-t border-neutral-200 dark:border-neutral-800">
+                      <input
+                        type="text"
+                        [(ngModel)]="approvalComment"
+                        [placeholder]="'attendance.request.comment' | translate"
+                        class="w-full text-xs font-mono p-1.5 border border-neutral-200 dark:border-neutral-800 rounded-none bg-surface"
+                      />
+                      <div class="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          (click)="processApproval('APPROVE')"
+                          class="py-1.5 bg-success text-white font-mono text-xs font-bold uppercase rounded-none border border-success"
+                        >
+                          ✓ {{ 'attendance.request.approve' | translate }}
+                        </button>
+                        <button
+                          type="button"
+                          (click)="processApproval('REJECT')"
+                          class="py-1.5 bg-danger text-white font-mono text-xs font-bold uppercase rounded-none border border-danger"
+                        >
+                          ✕ {{ 'attendance.request.reject' | translate }}
+                        </button>
+                      </div>
+                    </div>
+                  } @else {
+                    <button
+                      type="button"
+                      (click)="selectInboxRequest(req)"
+                      class="w-full py-1 text-xs font-mono border border-neutral-200 dark:border-neutral-800 text-primary font-semibold"
+                    >
+                      {{ 'attendance.request.inbox' | translate }} →
+                    </button>
+                  }
+                </div>
+              } @empty {
+                <div class="p-4 text-center text-xs font-mono text-muted italic">
+                  {{ 'attendance.request.empty' | translate }}
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Tab 5: Xác nhận công (m-confirm) -->
+        @if (activeMobileTab() === 'm-confirm') {
+          <div class="space-y-3">
+            <div class="text-xs font-mono font-bold uppercase text-muted">
+              {{ 'attendance.timesheet.confirm' | translate }}
+            </div>
+
+            @if (selectedTimesheet()) {
+              <div class="border border-neutral-200 dark:border-neutral-800 p-3 space-y-2 text-xs font-mono">
+                <div class="font-bold text-default text-sm">
+                  {{ selectedTimesheet()?.name }}
+                </div>
+                <div class="text-muted text-[11px]">
+                  {{ selectedTimesheet()?.period_start }} ~ {{ selectedTimesheet()?.period_end }}
+                </div>
+                <div class="grid grid-cols-2 gap-2 pt-2">
+                  <button
+                    type="button"
+                    (click)="confirmMyTimesheet()"
+                    class="py-2 bg-success text-white font-mono text-xs font-bold uppercase rounded-none border border-success cursor-pointer"
+                  >
+                    ✓ {{ 'attendance.timesheet.confirmed' | translate }}
+                  </button>
+                  <button
+                    type="button"
+                    (click)="rejectMyTimesheet()"
+                    class="py-2 bg-danger text-white font-mono text-xs font-bold uppercase rounded-none border border-danger cursor-pointer"
+                  >
+                    ✕ {{ 'attendance.timesheet.reject' | translate }}
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div class="p-4 text-center text-xs font-mono text-muted italic border border-neutral-200 dark:border-neutral-800">
+                {{ 'attendance.timesheet.locked' | translate }}
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Mobile Bottom Navigation (5 tabs, touch target >= 44px) -->
+      <div class="fixed bottom-0 inset-x-0 bg-surface border-t border-neutral-200 dark:border-neutral-800 grid grid-cols-5 z-40">
+        <button
+          type="button"
+          (click)="activeMobileTab.set('m-punch')"
+          class="min-h-12 flex flex-col items-center justify-center text-[10px] font-mono tracking-tight"
+          [ngClass]="activeMobileTab() === 'm-punch' ? 'text-primary font-bold bg-primary/5' : 'text-muted'"
+        >
+          <span class="text-base">📍</span>
+          <span>{{ 'attendance.checkin.title' | translate }}</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="activeMobileTab.set('m-schedule')"
+          class="min-h-12 flex flex-col items-center justify-center text-[10px] font-mono tracking-tight"
+          [ngClass]="activeMobileTab() === 'm-schedule' ? 'text-primary font-bold bg-primary/5' : 'text-muted'"
+        >
+          <span class="text-base">📅</span>
+          <span>{{ 'attendance.schedule.title' | translate }}</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="activeMobileTab.set('m-requests')"
+          class="min-h-12 flex flex-col items-center justify-center text-[10px] font-mono tracking-tight"
+          [ngClass]="activeMobileTab() === 'm-requests' ? 'text-primary font-bold bg-primary/5' : 'text-muted'"
+        >
+          <span class="text-base">📝</span>
+          <span>{{ 'attendance.request.title' | translate }}</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="activeMobileTab.set('m-approvals')"
+          class="min-h-12 flex flex-col items-center justify-center text-[10px] font-mono tracking-tight"
+          [ngClass]="activeMobileTab() === 'm-approvals' ? 'text-primary font-bold bg-primary/5' : 'text-muted'"
+        >
+          <span class="text-base">📥</span>
+          <span>{{ 'attendance.request.inbox' | translate }}</span>
+        </button>
+
+        <button
+          type="button"
+          (click)="activeMobileTab.set('m-confirm')"
+          class="min-h-12 flex flex-col items-center justify-center text-[10px] font-mono tracking-tight"
+          [ngClass]="activeMobileTab() === 'm-confirm' ? 'text-primary font-bold bg-primary/5' : 'text-muted'"
+        >
+          <span class="text-base">✅</span>
+          <span>{{ 'attendance.timesheet.confirm' | translate }}</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Desktop View -->
+  @if (!isMobile()) {
+    <div class="flex-1 flex flex-col">
+      <!-- Desktop Header & Tab Bar -->
+      <div class="border-b border-neutral-200 dark:border-neutral-800 bg-surface px-4 py-2 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="text-base font-bold font-mono text-primary uppercase tracking-tight">
+            {{ 'PLUGIN_ATTENDANCE_TITLE' | translate }}
+          </div>
+          <span class="text-xs text-muted font-mono hidden md:inline">
+            {{ 'PLUGIN_ATTENDANCE_SUBTITLE' | translate }}
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <app-attendance-status-badge [status]="todayStatus()"></app-attendance-status-badge>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs (High density, sharp aesthetic) -->
+      <div class="border-b border-neutral-200 dark:border-neutral-800 bg-surface-muted/30 px-4 flex items-center gap-1 overflow-x-auto text-xs font-mono">
+        <!-- Self Group -->
+        <button
+          type="button"
+          (click)="activeTab.set('self')"
+          class="px-3 py-2 border-b-2 font-medium transition-colors"
+          [ngClass]="activeTab() === 'self' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
+        >
+          {{ 'PLUGIN_ATTENDANCE_MY_ATTENDANCE' | translate }}
+        </button>
+        <button
+          type="button"
+          (click)="activeTab.set('requests')"
+          class="px-3 py-2 border-b-2 font-medium transition-colors"
+          [ngClass]="activeTab() === 'requests' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
+        >
+          {{ 'PLUGIN_ATTENDANCE_MY_REQUESTS' | translate }}
+        </button>
+
+        <div class="h-4 w-px bg-neutral-300 dark:bg-neutral-700 mx-1"></div>
+
+        <!-- Manager Group -->
+        <button
+          type="button"
+          (click)="activeTab.set('team')"
+          class="px-3 py-2 border-b-2 font-medium transition-colors"
+          [ngClass]="activeTab() === 'team' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
+        >
+          {{ 'PLUGIN_ATTENDANCE_TEAM' | translate }}
+        </button>
+        <button
+          type="button"
+          (click)="activeTab.set('approvals')"
+          class="px-3 py-2 border-b-2 font-medium transition-colors"
+          [ngClass]="activeTab() === 'approvals' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
+        >
+          {{ 'PLUGIN_ATTENDANCE_INBOX' | translate }}
+          @if (inboxRequestsList().length > 0) {
+            <span class="ml-1 px-1 text-[10px] bg-warning/20 text-warning font-bold">
+              {{ inboxRequestsList().length }}
+            </span>
+          }
+        </button>
+
+        <div class="h-4 w-px bg-neutral-300 dark:bg-neutral-700 mx-1"></div>
+
+        <!-- Admin Group -->
+        <button
+          type="button"
+          (click)="activeTab.set('admin-logs')"
+          class="px-3 py-2 border-b-2 font-medium transition-colors"
+          [ngClass]="activeTab() === 'admin-logs' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
+        >
+          {{ 'PLUGIN_ATTENDANCE_ADMIN_LOGS' | translate }}
+        </button>
+        <button
+          type="button"
+          (click)="activeTab.set('admin-shifts')"
+          class="px-3 py-2 border-b-2 font-medium transition-colors"
+          [ngClass]="activeTab() === 'admin-shifts' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
+        >
+          {{ 'PLUGIN_ATTENDANCE_ADMIN_SHIFTS' | translate }}
+        </button>
+        <button
+          type="button"
+          (click)="activeTab.set('admin-records')"
+          class="px-3 py-2 border-b-2 font-medium transition-colors"
+          [ngClass]="activeTab() === 'admin-records' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
+        >
+          {{ 'PLUGIN_ATTENDANCE_ADMIN_RECORDS' | translate }}
+        </button>
+        <button
+          type="button"
+          (click)="activeTab.set('admin-timesheets')"
+          class="px-3 py-2 border-b-2 font-medium transition-colors"
+          [ngClass]="activeTab() === 'admin-timesheets' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
+        >
+          {{ 'PLUGIN_ATTENDANCE_ADMIN_TIMESHEETS' | translate }}
+        </button>
+        <button
+          type="button"
+          (click)="activeTab.set('admin-leave'); loadAdminLeave()"
+          class="px-3 py-2 border-b-2 font-medium transition-colors"
+          [ngClass]="activeTab() === 'admin-leave' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
+        >
+          {{ 'PLUGIN_ATTENDANCE_ADMIN_LEAVE' | translate }}
+        </button>
+        <button
+          type="button"
+          (click)="activeTab.set('admin-reports')"
+          class="px-3 py-2 border-b-2 font-medium transition-colors"
+          [ngClass]="activeTab() === 'admin-reports' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
+        >
+          {{ 'PLUGIN_ATTENDANCE_ADMIN_REPORTS' | translate }}
+        </button>
+        <button
+          type="button"
+          (click)="activeTab.set('kiosk')"
+          class="px-3 py-2 border-b-2 font-medium transition-colors"
+          [ngClass]="activeTab() === 'kiosk' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
+        >
+          {{ 'PLUGIN_ATTENDANCE_KIOSK' | translate }}
+        </button>
+      </div>
+
+      <!-- Tab Content Area -->
+      <div class="p-4 flex-1 overflow-y-auto space-y-4">
+        <!-- 1. TAB: SELF (Chấm công của tôi) -->
+        @if (activeTab() === 'self') {
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <!-- Left 2 Cols: Punch Widget + Week Schedule + Logs -->
+            <div class="lg:col-span-2 space-y-4">
+              <!-- Punch Widget Box -->
+              <div class="border border-neutral-200 dark:border-neutral-800 bg-surface p-4 space-y-3">
+                <div class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-2">
+                  <div class="font-mono text-sm font-bold uppercase tracking-wider text-default">
+                    {{ 'attendance.checkin.title' | translate }}
+                  </div>
+                  <div class="text-xs font-mono text-muted">
+                    {{ 'attendance.checkin.shift' | translate }}:
+                    <span class="font-bold text-default">
+                      {{ currentShift()?.name || ('attendance.checkin.no_shift' | translate) }}
+                    </span>
+                  </div>
+                </div>
+
+                <app-gps-indicator
+                  [lat]="gpsLat()"
+                  [lng]="gpsLng()"
+                  [accuracy]="gpsAccuracy()"
+                  [distanceMeters]="gpsDistance()"
+                  [isInside]="gpsInside()"
+                  [loading]="gpsLoading()"
+                ></app-gps-indicator>
+
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                  <button
+                    type="button"
+                    (click)="executePunch('IN')"
+                    [disabled]="loading()"
+                    class="py-3 bg-success text-white font-mono text-sm font-bold uppercase tracking-wider rounded-none active:bg-success/80 flex items-center justify-center gap-2 border border-success cursor-pointer"
+                  >
+                    <span>☀️</span>
+                    <span>{{ 'attendance.checkin.punch_in' | translate }}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="executePunch('OUT')"
+                    [disabled]="loading()"
+                    class="py-3 bg-danger text-white font-mono text-sm font-bold uppercase tracking-wider rounded-none active:bg-danger/80 flex items-center justify-center gap-2 border border-danger cursor-pointer"
+                  >
+                    <span>🌙</span>
+                    <span>{{ 'attendance.checkin.punch_out' | translate }}</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Week Schedule -->
+              <div class="border border-neutral-200 dark:border-neutral-800 bg-surface p-3 space-y-2">
+                <div class="font-mono text-xs font-bold uppercase tracking-wider text-muted">
+                  {{ 'attendance.schedule.title' | translate }}
+                </div>
+                <div class="grid grid-cols-7 gap-1 text-center font-mono text-xs">
+                  @for (item of weekSchedule(); track item.date) {
+                    <div class="border border-neutral-200 dark:border-neutral-800 p-2 space-y-1 bg-surface-muted/20">
+                      <div class="font-bold text-primary">{{ item.day }}</div>
+                      <div class="text-[10px] text-muted">{{ item.date.slice(5) }}</div>
+                      <div class="text-[11px] truncate" [title]="item.shift || ''">{{ item.shift }}</div>
+                      @if (item.status) {
+                        <div class="pt-1">
+                          <app-attendance-status-badge [status]="item.status"></app-attendance-status-badge>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- My Punch Logs Table -->
+              <div class="border border-neutral-200 dark:border-neutral-800 bg-surface p-3 space-y-2">
+                <div class="font-mono text-xs font-bold uppercase tracking-wider text-muted">
+                  {{ 'PLUGIN_ATTENDANCE_ADMIN_LOGS' | translate }} (30 Days)
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-xs font-mono border-collapse border border-neutral-200 dark:border-neutral-800">
+                    <thead>
+                      <tr class="bg-surface-muted/50 border-b border-neutral-200 dark:border-neutral-800 text-muted uppercase text-[10px]">
+                        <th class="p-2 text-left">Time</th>
+                        <th class="p-2 text-left">Type</th>
+                        <th class="p-2 text-left">Source</th>
+                        <th class="p-2 text-left">GPS Status</th>
+                        <th class="p-2 text-left">Note</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800">
+                      @for (log of myLogsList(); track log.id) {
+                        <tr>
+                          <td class="p-2 font-bold">{{ log.punch_time }}</td>
+                          <td class="p-2">
+                            <span
+                              class="px-1.5 py-0.5 text-[10px] font-bold border"
+                              [ngClass]="log.punch_type === 'IN' ? 'bg-success/15 text-success border-success/30' : 'bg-danger/15 text-danger border-danger/30'"
+                            >
+                              {{ log.punch_type }}
+                            </span>
+                          </td>
+                          <td class="p-2 text-muted">{{ log.source }}</td>
+                          <td class="p-2">
+                            @if (log.in_geofence === true) {
+                              <span class="text-success text-[10px]">✓ In office</span>
+                            } @else if (log.in_geofence === false) {
+                              <span class="text-warning text-[10px]">⚠️ Outside ({{ log.distance_meters }}m)</span>
+                            } @else {
+                              <span class="text-muted text-[10px]">N/A</span>
+                            }
+                          </td>
+                          <td class="p-2 text-muted italic">{{ log.note || '-' }}</td>
+                        </tr>
+                      } @empty {
+                        <tr>
+                          <td colspan="5" class="p-4 text-center text-muted italic">
+                            {{ 'attendance.request.empty' | translate }}
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Col: Leave Balances breakdown -->
+            <div class="space-y-4">
+              <div class="border border-neutral-200 dark:border-neutral-800 bg-surface p-4 space-y-3">
+                <div class="font-mono text-sm font-bold uppercase tracking-wider text-default border-b border-neutral-200 dark:border-neutral-800 pb-2">
+                  {{ 'attendance.leave.title' | translate }}
+                </div>
+                <div class="space-y-3">
+                  @for (b of myLeaveBalances(); track b.id) {
+                    <app-leave-balance-card
+                      [leaveTypeName]="b.leave_type_name || b.leave_type_code || ''"
+                      [granted]="b.granted"
+                      [used]="b.used"
+                      [remaining]="b.remaining"
+                      [expiring]="b.expiring"
+                      [validUntil]="b.valid_until || null"
+                    ></app-leave-balance-card>
+                  } @empty {
+                    <div class="p-4 text-center text-xs font-mono text-muted italic">
+                      {{ 'attendance.leave.empty' | translate }}
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- 2. TAB: REQUESTS (Đơn của tôi) -->
+        @if (activeTab() === 'requests') {
+          <div class="border border-neutral-200 dark:border-neutral-800 bg-surface p-4 space-y-3">
+            <div class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3">
+              <div class="font-mono text-sm font-bold uppercase tracking-wider text-default">
+                {{ 'attendance.request.title' | translate }}
+              </div>
+              <button
+                type="button"
+                (click)="openNewRequestDrawer()"
+                class="px-3 py-1.5 text-xs font-mono bg-primary text-white font-semibold rounded-none border border-primary cursor-pointer"
+              >
+                + {{ 'attendance.request.new' | translate }}
+              </button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs font-mono border-collapse border border-neutral-200 dark:border-neutral-800">
+                <thead>
+                  <tr class="bg-surface-muted/50 border-b border-neutral-200 dark:border-neutral-800 text-muted uppercase text-[10px]">
+                    <th class="p-2 text-left">Code</th>
+                    <th class="p-2 text-left">Type</th>
+                    <th class="p-2 text-left">Status</th>
+                    <th class="p-2 text-left">Approval Mode</th>
+                    <th class="p-2 text-left">Submitted At</th>
+                    <th class="p-2 text-left">Approved At</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800">
+                  @for (req of myRequestsList(); track req.id) {
+                    <tr>
+                      <td class="p-2 font-bold">{{ req.request_number }}</td>
+                      <td class="p-2">{{ req.request_type_name || req.request_type_code }}</td>
+                      <td class="p-2">
+                        <span
+                          class="px-1.5 py-0.5 text-[10px] font-bold uppercase border"
+                          [ngClass]="{
+                            'bg-warning/15 text-warning border-warning/30': req.status === 'PENDING',
+                            'bg-success/15 text-success border-success/30': req.status === 'APPROVED',
+                            'bg-danger/15 text-danger border-danger/30': req.status === 'REJECTED',
+                            'bg-surface-muted text-muted border-neutral-300': req.status === 'CANCELLED'
+                          }"
+                        >
+                          {{ req.status }}
+                        </span>
+                      </td>
+                      <td class="p-2 text-muted text-[11px]">{{ req.approval_mode }}</td>
+                      <td class="p-2 text-muted">{{ req.submitted_at }}</td>
+                      <td class="p-2 text-muted">{{ req.approved_at || '-' }}</td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="6" class="p-6 text-center text-muted italic">
+                        {{ 'attendance.request.empty' | translate }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+
+        <!-- 3. TAB: APPROVALS (Hộp thư duyệt đơn Split-view) -->
+        @if (activeTab() === 'approvals') {
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[calc(100vh-180px)]">
+            <!-- Left: Requests List -->
+            <div class="border border-neutral-200 dark:border-neutral-800 bg-surface flex flex-col">
+              <div class="p-3 border-b border-neutral-200 dark:border-neutral-800 font-mono text-xs font-bold uppercase tracking-wider text-muted">
+                {{ 'attendance.request.inbox' | translate }} ({{ inboxRequestsList().length }})
+              </div>
+              <div class="flex-1 overflow-y-auto divide-y divide-neutral-200 dark:divide-neutral-800">
+                @for (req of inboxRequestsList(); track req.id) {
+                  <div
+                    (click)="selectInboxRequest(req)"
+                    class="p-3 font-mono text-xs cursor-pointer transition-colors"
+                    [ngClass]="selectedInboxRequest()?.id === req.id ? 'bg-primary/10 border-l-2 border-primary' : 'hover:bg-surface-muted/30'"
+                  >
+                    <div class="flex items-center justify-between">
+                      <span class="font-bold text-default">{{ req.employee_name || req.employee_id }}</span>
+                      <span class="px-1.5 py-0.5 text-[10px] bg-warning/15 text-warning border border-warning/30">
+                        {{ req.request_type_code }}
+                      </span>
+                    </div>
+                    <div class="text-[11px] text-muted mt-1">
+                      {{ req.request_number }} · {{ req.submitted_at }}
+                    </div>
+                  </div>
+                } @empty {
+                  <div class="p-8 text-center text-xs font-mono text-muted italic">
+                    {{ 'attendance.request.empty' | translate }}
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Right: Detail & Actions Split -->
+            <div class="border border-neutral-200 dark:border-neutral-800 bg-surface p-4 flex flex-col justify-between">
+              @if (selectedInboxRequest()) {
+                <div class="space-y-4">
+                  <div class="border-b border-neutral-200 dark:border-neutral-800 pb-2 flex items-center justify-between">
+                    <div>
+                      <div class="font-mono text-sm font-bold text-default">
+                        {{ selectedInboxRequest()?.request_number }}
+                      </div>
+                      <div class="text-xs font-mono text-muted">
+                        {{ selectedInboxRequest()?.request_type_name || selectedInboxRequest()?.request_type_code }}
+                      </div>
+                    </div>
+                    <span class="px-2 py-0.5 text-xs font-mono font-bold bg-warning/20 text-warning border border-warning/40">
+                      {{ selectedInboxRequest()?.status }}
+                    </span>
+                  </div>
+
+                  <!-- Timeline -->
+                  <div class="space-y-2">
+                    <div class="text-xs font-mono font-bold uppercase text-muted">
+                      {{ 'attendance.request.timeline' | translate }}
+                    </div>
+                    <app-request-timeline [nodes]="inboxTimelineNodes()"></app-request-timeline>
+                  </div>
+
+                  <!-- Comment Field -->
+                  <div class="space-y-1">
+                    <label class="text-xs font-mono text-muted">{{ 'attendance.request.comment' | translate }}</label>
+                    <textarea
+                      [(ngModel)]="approvalComment"
+                      rows="3"
+                      class="w-full text-xs font-mono p-2 border border-neutral-200 dark:border-neutral-800 rounded-none bg-surface"
+                      placeholder="Comment or reason..."
+                    ></textarea>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-2 gap-3 pt-4 border-t border-neutral-200 dark:border-neutral-800">
+                  <button
+                    type="button"
+                    (click)="processApproval('APPROVE')"
+                    [disabled]="loading()"
+                    class="py-2.5 bg-success text-white font-mono text-xs font-bold uppercase tracking-wider rounded-none border border-success cursor-pointer"
+                  >
+                    ✓ {{ 'attendance.request.approve' | translate }}
+                  </button>
+                  <button
+                    type="button"
+                    (click)="processApproval('REJECT')"
+                    [disabled]="loading()"
+                    class="py-2.5 bg-danger text-white font-mono text-xs font-bold uppercase tracking-wider rounded-none border border-danger cursor-pointer"
+                  >
+                    ✕ {{ 'attendance.request.reject' | translate }}
+                  </button>
+                </div>
+              } @else {
+                <div class="flex-1 flex items-center justify-center text-xs font-mono text-muted italic">
+                  Select a request from the left list to review
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- 4. TAB: TIMESHEETS (Bảng công kỳ 4 bước Stepper) -->
+        @if (activeTab() === 'admin-timesheets') {
+          <div class="space-y-4">
+            <!-- Stepper Header -->
+            @if (selectedTimesheet()) {
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <span class="font-mono text-sm font-bold text-default mr-2">
+                      {{ selectedTimesheet()?.name }}
+                    </span>
+                    <span class="text-xs font-mono text-muted">
+                      ({{ selectedTimesheet()?.period_start }} ~ {{ selectedTimesheet()?.period_end }})
+                    </span>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <button
+                      type="button"
+                      (click)="sendTimesheetConfirmations()"
+                      class="px-2.5 py-1 text-xs font-mono bg-surface-muted border border-neutral-300 dark:border-neutral-700 cursor-pointer"
+                    >
+                      📢 {{ 'attendance.timesheet.send_confirmations' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      (click)="exportTimesheetCsv()"
+                      class="px-2.5 py-1 text-xs font-mono bg-surface-muted border border-neutral-300 dark:border-neutral-700 cursor-pointer"
+                    >
+                      📥 {{ 'attendance.report.export_csv' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      (click)="toggleLockTimesheet()"
+                      class="px-2.5 py-1 text-xs font-mono font-bold border cursor-pointer"
+                      [ngClass]="selectedTimesheet()?.locked ? 'bg-danger text-white border-danger' : 'bg-primary text-white border-primary'"
+                    >
+                      🔒 {{ (selectedTimesheet()?.locked ? 'attendance.timesheet.unlock' : 'attendance.timesheet.lock') | translate }}
+                    </button>
+                  </div>
+                </div>
+
+                <app-period-stepper
+                  [currentStep]="selectedTimesheet()?.step || 'S1_LOGS'"
+                  [locked]="selectedTimesheet()?.locked || false"
+                  (stepChange)="changeTimesheetStep($event)"
+                ></app-period-stepper>
+              </div>
+            }
+
+            <!-- Timesheets Periods List -->
+            <div class="border border-neutral-200 dark:border-neutral-800 bg-surface p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-2">
+                <span class="font-mono text-xs font-bold uppercase tracking-wider text-muted">
+                  {{ 'attendance.timesheet.title' | translate }}
+                </span>
+                <button
+                  type="button"
+                  (click)="newTimesheetDrawerOpen.set(true)"
+                  class="px-2.5 py-1 text-xs font-mono bg-primary text-white font-semibold rounded-none cursor-pointer"
+                >
+                  + {{ 'attendance.timesheet.create' | translate }}
+                </button>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="w-full text-xs font-mono border-collapse border border-neutral-200 dark:border-neutral-800">
+                  <thead>
+                    <tr class="bg-surface-muted/50 border-b border-neutral-200 dark:border-neutral-800 text-muted uppercase text-[10px]">
+                      <th class="p-2 text-left">Period Name</th>
+                      <th class="p-2 text-left">Start Date</th>
+                      <th class="p-2 text-left">End Date</th>
+                      <th class="p-2 text-left">Current Step</th>
+                      <th class="p-2 text-left">Locked</th>
+                      <th class="p-2 text-left">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800">
+                    @for (ts of timesheetsList(); track ts.id) {
+                      <tr [ngClass]="selectedTimesheet()?.id === ts.id ? 'bg-primary/5' : ''">
+                        <td class="p-2 font-bold">{{ ts.name }}</td>
+                        <td class="p-2">{{ ts.period_start }}</td>
+                        <td class="p-2">{{ ts.period_end }}</td>
+                        <td class="p-2">
+                          <span class="px-1.5 py-0.5 text-[10px] bg-primary/10 text-primary border border-primary/30">
+                            {{ ts.step }}
+                          </span>
+                        </td>
+                        <td class="p-2">
+                          @if (ts.locked) {
+                            <span class="text-danger font-bold">🔒 LOCKED</span>
+                          } @else {
+                            <span class="text-success font-bold">🔓 OPEN</span>
+                          }
+                        </td>
+                        <td class="p-2">
+                          <button
+                            type="button"
+                            (click)="selectTimesheet(ts)"
+                            class="px-2 py-0.5 text-[11px] bg-surface-muted border border-neutral-300 dark:border-neutral-700 cursor-pointer"
+                          >
+                            Open Stepper
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- 5. TAB: KIOSK MODE (Fullscreen PIN Pad) -->
+        @if (activeTab() === 'kiosk') {
+          <div class="max-w-md mx-auto border-2 border-neutral-300 dark:border-neutral-700 bg-surface p-6 shadow-sm space-y-4 font-mono text-center">
+            <div class="text-lg font-bold text-primary tracking-wide">
+              {{ 'attendance.kiosk.title' | translate }}
+            </div>
+            <div class="text-xs text-muted">
+              Device: KIOSK-LOBBY-01 · {{ 'attendance.kiosk.enter_pin' | translate }}
+            </div>
+
+            @if (kioskSuccessMessage()) {
+              <div class="p-3 bg-success/20 text-success text-xs font-bold border border-success/40">
+                ✓ {{ kioskSuccessMessage() }}
+              </div>
+            }
+            @if (kioskErrorMessage()) {
+              <div class="p-3 bg-danger/20 text-danger text-xs font-bold border border-danger/40">
+                ⚠️ {{ kioskErrorMessage() }}
+              </div>
+            }
+
+            <div class="space-y-2 text-left">
+              <label class="text-[11px] text-muted">{{ 'attendance.kiosk.employee_code' | translate }}</label>
+              <input
+                type="text"
+                [(ngModel)]="kioskEmployeeCode"
+                placeholder="EMP-001"
+                class="w-full text-center text-sm font-bold p-2 border border-neutral-300 dark:border-neutral-700 rounded-none bg-surface"
+              />
+            </div>
+
+            <!-- PIN Display (Masked) -->
+            <div class="p-3 bg-surface-muted border border-neutral-300 dark:border-neutral-700 text-center tracking-widest text-lg font-bold h-12 flex items-center justify-center">
+              {{ kioskPin() ? '••••••'.slice(0, kioskPin().length) : 'PIN' }}
+            </div>
+
+            <!-- Numeric Keypad -->
+            <div class="grid grid-cols-3 gap-2">
+              @for (n of ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫']; track n) {
+                <button
+                  type="button"
+                  (click)="n === 'C' ? kioskClear() : (n === '⌫' ? kioskPin.set(kioskPin().slice(0, -1)) : kioskKeypadPress(n))"
+                  class="h-12 bg-surface hover:bg-surface-muted text-base font-bold border border-neutral-300 dark:border-neutral-700 rounded-none cursor-pointer active:scale-95 transition-transform"
+                >
+                  {{ n }}
+                </button>
+              }
+            </div>
+
+            <!-- Punch In / Out Actions -->
+            <div class="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                (click)="kioskPunch('IN')"
+                class="h-12 bg-success text-white text-sm font-bold uppercase rounded-none border border-success cursor-pointer"
+              >
+                {{ 'attendance.kiosk.punch_in' | translate }}
+              </button>
+              <button
+                type="button"
+                (click)="kioskPunch('OUT')"
+                class="h-12 bg-danger text-white text-sm font-bold uppercase rounded-none border border-danger cursor-pointer"
+              >
+                {{ 'attendance.kiosk.punch_out' | translate }}
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Other Tabs (Logs, Shifts, Records, Leave, Reports) -->
+        @if (activeTab() === 'admin-logs' || activeTab() === 'admin-shifts' || activeTab() === 'admin-records' || activeTab() === 'admin-leave' || activeTab() === 'admin-reports' || activeTab() === 'team') {
+          <div class="border border-neutral-200 dark:border-neutral-800 bg-surface p-4 space-y-3">
+            <div class="font-mono text-sm font-bold uppercase tracking-wider text-default border-b border-neutral-200 dark:border-neutral-800 pb-2">
+              {{ ('PLUGIN_ATTENDANCE_' + activeTab().toUpperCase().replace('-', '_')) | translate }}
+            </div>
+            <div class="text-xs font-mono text-muted">
+              Showing active management views for {{ activeTab() }}
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Drawers (Rule 10: Anti-Modal, Rule 26: No bg/border-t on drawer-footer) -->
+  <!-- 1. Drawer: New Request -->
+  <app-drawer
+    [isOpen]="newRequestDrawerOpen()"
+    [title]="'attendance.request.new' | translate"
+    [subtitle]="'attendance.request.title' | translate"
+    (close)="newRequestDrawerOpen.set(false)"
+  >
+    <div class="space-y-3 font-mono text-xs">
+      <div>
+        <label class="block text-muted text-[11px] mb-1">{{ 'attendance.request.type' | translate }}</label>
+        <select
+          [(ngModel)]="selectedRequestTypeCode"
+          class="w-full p-2 border border-neutral-300 dark:border-neutral-700 bg-surface rounded-none"
+        >
+          @for (t of requestTypesList(); track t.code) {
+            <option [value]="t.code">{{ t.name }} ({{ t.code }})</option>
+          }
+        </select>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block text-muted text-[11px] mb-1">From Date</label>
+          <input
+            type="date"
+            [(ngModel)]="requestFromDate"
+            class="w-full p-2 border border-neutral-300 dark:border-neutral-700 bg-surface rounded-none"
+          />
+        </div>
+        <div>
+          <label class="block text-muted text-[11px] mb-1">To Date</label>
+          <input
+            type="date"
+            [(ngModel)]="requestToDate"
+            class="w-full p-2 border border-neutral-300 dark:border-neutral-700 bg-surface rounded-none"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-muted text-[11px] mb-1">{{ 'attendance.request.reason' | translate }}</label>
+        <textarea
+          [(ngModel)]="requestReason"
+          rows="4"
+          class="w-full p-2 border border-neutral-300 dark:border-neutral-700 bg-surface rounded-none"
+          placeholder="Reason for request..."
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Rule 26: No bg-surface or border-t inside drawer-footer -->
+    <div drawer-footer class="flex items-center justify-end gap-2">
+      <button
+        type="button"
+        (click)="newRequestDrawerOpen.set(false)"
+        class="px-3 py-1.5 text-xs font-mono border border-neutral-300 dark:border-neutral-700 cursor-pointer"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        (click)="submitNewRequest()"
+        [disabled]="loading() || !requestReason()"
+        class="px-4 py-1.5 text-xs font-mono bg-primary text-white font-semibold cursor-pointer border border-primary"
+      >
+        {{ 'attendance.request.submit' | translate }}
+      </button>
+    </div>
+  </app-drawer>
+
+  <!-- 2. Drawer: Lock Timesheet Confirm -->
+  <app-drawer
+    [isOpen]="lockDrawerOpen()"
+    [title]="'attendance.timesheet.lock' | translate"
+    (close)="lockDrawerOpen.set(false)"
+  >
+    <div class="space-y-3 font-mono text-xs">
+      <div class="p-3 bg-warning/15 text-warning border border-warning/30 text-xs">
+        ⚠️ {{ 'attendance.timesheet.lock_confirm' | translate }}
+      </div>
+      <div>
+        <label class="block text-muted text-[11px] mb-1">Audit Reason</label>
+        <input
+          type="text"
+          [(ngModel)]="lockReason"
+          placeholder="Reason for locking period..."
+          class="w-full p-2 border border-neutral-300 dark:border-neutral-700 bg-surface rounded-none"
+        />
+      </div>
+    </div>
+
+    <!-- Rule 26: No bg-surface or border-t inside drawer-footer -->
+    <div drawer-footer class="flex items-center justify-end gap-2">
+      <button
+        type="button"
+        (click)="lockDrawerOpen.set(false)"
+        class="px-3 py-1.5 text-xs font-mono border border-neutral-300 dark:border-neutral-700 cursor-pointer"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        (click)="confirmLockTimesheet()"
+        class="px-4 py-1.5 text-xs font-mono bg-danger text-white font-bold cursor-pointer border border-danger"
+      >
+        🔒 {{ 'attendance.timesheet.lock' | translate }}
+      </button>
+    </div>
+  </app-drawer>
+</div>
+

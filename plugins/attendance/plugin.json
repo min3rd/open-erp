@@ -9,7 +9,28 @@
   "core_version_compatibility": ">=1.0.0 <2.0.0",
   "migration_policy": "COMPATIBLE",
   "rollback_strategy": "SNAPSHOT_RESTORE",
-  "dependencies": [],
+  "dependencies": [
+    {
+      "key": "catalog",
+      "min_version": "1.0.0"
+    },
+    {
+      "key": "org-structure",
+      "min_version": "1.1.0"
+    },
+    {
+      "key": "employee",
+      "min_version": "1.0.0"
+    },
+    {
+      "key": "form",
+      "min_version": "1.0.0"
+    },
+    {
+      "key": "workflow",
+      "min_version": "1.0.0"
+    }
+  ],
   "event_subscriptions": [
     { "source": "workflow", "event": "workflow.instance.completed" }
   ],
@@ -304,6 +325,154 @@
       "validators": [
         { "field": "status", "rule": "enum", "value": ["PENDING", "SENT", "FAILED"] }
       ]
+    },
+    {
+      "name": "Timesheet",
+      "table": "plg_attendance_timesheets",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "period_year", "type": "integer", "required": true },
+        { "name": "period_month", "type": "integer", "required": true },
+        { "name": "scope_type", "type": "enum", "enum_values": ["TENANT", "BRANCH", "DEPARTMENT"], "required": true },
+        { "name": "scope_id", "type": "uuid", "required": false },
+        { "name": "wage_calc_mode", "type": "enum", "enum_values": ["STANDARD_MINUS_UNPAID", "ACTUAL_TOTAL"], "required": true, "default": "STANDARD_MINUS_UNPAID" },
+        { "name": "step", "type": "enum", "enum_values": ["S1_LOGS", "S2_SCHEDULE", "S3_CALCULATE", "S4_ADJUST", "DONE"], "required": true, "default": "S1_LOGS" },
+        { "name": "locked_at", "type": "datetime", "required": false },
+        { "name": "locked_by", "type": "uuid", "required": false },
+        { "name": "unlocked_at", "type": "datetime", "required": false },
+        { "name": "unlocked_by", "type": "uuid", "required": false },
+        { "name": "unlock_reason", "type": "text", "required": false },
+        { "name": "snapshot", "type": "json", "required": false },
+        { "name": "created_by", "type": "uuid", "required": false },
+        { "name": "created_at", "type": "datetime", "required": false },
+        { "name": "updated_at", "type": "datetime", "required": false }
+      ]
+    },
+    {
+      "name": "TimesheetConfirmation",
+      "table": "plg_attendance_timesheet_confirmations",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "timesheet_id", "type": "uuid", "required": true },
+        { "name": "employee_id", "type": "uuid", "required": true },
+        { "name": "status", "type": "enum", "enum_values": ["PENDING", "CONFIRMED", "REJECTED"], "required": true, "default": "PENDING" },
+        { "name": "comment", "type": "text", "required": false },
+        { "name": "sent_at", "type": "datetime", "required": false },
+        { "name": "acted_at", "type": "datetime", "required": false },
+        { "name": "acted_by", "type": "uuid", "required": false }
+      ]
+    },
+    {
+      "name": "ExportTemplate",
+      "table": "plg_attendance_export_templates",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "name", "type": "string", "required": true, "max_length": 128 },
+        { "name": "columns", "type": "json", "required": true },
+        { "name": "is_default", "type": "bool", "required": true, "default": false },
+        { "name": "created_by", "type": "uuid", "required": false },
+        { "name": "created_at", "type": "datetime", "required": false },
+        { "name": "updated_at", "type": "datetime", "required": false }
+      ]
+    },
+    {
+      "name": "RequestType",
+      "table": "plg_attendance_request_types",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "code", "type": "string", "required": true, "max_length": 40 },
+        { "name": "name", "type": "string", "required": true, "max_length": 128 },
+        { "name": "is_system", "type": "bool", "required": true, "default": false },
+        { "name": "is_active", "type": "bool", "required": true, "default": true },
+        { "name": "form_ref", "type": "json", "required": false },
+        { "name": "workflow_definition_key", "type": "string", "required": false, "max_length": 80 },
+        { "name": "status_mapping", "type": "json", "required": false },
+        { "name": "window_days", "type": "integer", "required": true, "default": 30 },
+        { "name": "sort_order", "type": "integer", "required": true, "default": 0 },
+        { "name": "created_at", "type": "datetime", "required": false },
+        { "name": "updated_at", "type": "datetime", "required": false }
+      ]
+    },
+    {
+      "name": "AttendanceRequest",
+      "table": "plg_attendance_requests",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "request_type_id", "type": "uuid", "required": true },
+        { "name": "code", "type": "string", "required": true, "max_length": 32 },
+        { "name": "subject_employee_id", "type": "uuid", "required": true },
+        { "name": "submitted_by_user_id", "type": "uuid", "required": true },
+        { "name": "form_version", "type": "integer", "required": false },
+        { "name": "response", "type": "json", "required": true },
+        { "name": "status", "type": "enum", "enum_values": ["PENDING", "APPROVED", "REJECTED", "CANCELLED"], "required": true },
+        { "name": "workflow_instance_id", "type": "uuid", "required": false },
+        { "name": "approval_mode", "type": "enum", "enum_values": ["ENGINE", "INTERNAL_FALLBACK"], "required": true, "default": "ENGINE" },
+        { "name": "fallback_approver_employee_id", "type": "uuid", "required": false },
+        { "name": "fallback_comment", "type": "text", "required": false },
+        { "name": "affected_window", "type": "json", "required": false },
+        { "name": "mapping_status", "type": "enum", "enum_values": ["NOT_APPLICABLE", "PENDING", "APPLIED", "FAILED"], "required": true, "default": "NOT_APPLICABLE" },
+        { "name": "mapping_error", "type": "text", "required": false },
+        { "name": "created_at", "type": "datetime", "required": false },
+        { "name": "updated_at", "type": "datetime", "required": false }
+      ]
+    },
+    {
+      "name": "LeaveType",
+      "table": "plg_attendance_leave_types",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "code", "type": "string", "required": true, "max_length": 32 },
+        { "name": "name", "type": "string", "required": true, "max_length": 128 },
+        { "name": "paid", "type": "bool", "required": true, "default": true },
+        { "name": "counts_as_work", "type": "bool", "required": true, "default": false },
+        { "name": "deduct_balance", "type": "bool", "required": true, "default": true },
+        { "name": "allow_negative", "type": "bool", "required": true, "default": false },
+        { "name": "carry_over_max_days", "type": "integer", "required": true, "default": 0 },
+        { "name": "validity_months", "type": "integer", "required": false },
+        { "name": "default_annual_grant", "type": "decimal", "required": false },
+        { "name": "is_active", "type": "bool", "required": true, "default": true },
+        { "name": "created_at", "type": "datetime", "required": false },
+        { "name": "updated_at", "type": "datetime", "required": false }
+      ]
+    },
+    {
+      "name": "LeaveLedger",
+      "table": "plg_attendance_leave_ledger",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "employee_id", "type": "uuid", "required": true },
+        { "name": "leave_type_id", "type": "uuid", "required": true },
+        { "name": "entry_type", "type": "enum", "enum_values": ["GRANT", "USAGE", "USAGE_REVERSAL", "ADJUSTMENT", "EXPIRY"], "required": true },
+        { "name": "days", "type": "decimal", "required": true },
+        { "name": "valid_until", "type": "date", "required": false },
+        { "name": "source_request_id", "type": "uuid", "required": false },
+        { "name": "source", "type": "enum", "enum_values": ["REQUEST", "HR", "JOB"], "required": true, "default": "HR" },
+        { "name": "note", "type": "text", "required": false },
+        { "name": "created_by", "type": "uuid", "required": false },
+        { "name": "created_at", "type": "datetime", "required": false }
+      ]
+    },
+    {
+      "name": "LeaveBalance",
+      "table": "plg_attendance_leave_balances",
+      "storage_scope": "TENANT",
+      "fields": [
+        { "name": "tenant_id", "type": "uuid", "required": true },
+        { "name": "employee_id", "type": "uuid", "required": true },
+        { "name": "leave_type_id", "type": "uuid", "required": true },
+        { "name": "granted", "type": "decimal", "required": true, "default": 0 },
+        { "name": "used", "type": "decimal", "required": true, "default": 0 },
+        { "name": "remaining", "type": "decimal", "required": true, "default": 0 },
+        { "name": "expiring", "type": "decimal", "required": true, "default": 0 },
+        { "name": "recomputed_at", "type": "datetime", "required": false }
+      ]
     }
   ],
   "relations": [],
@@ -438,6 +607,815 @@
         { "field": "needs_review", "op": "EQ", "param": "needs_review", "required": true }
       ],
       "sort": [{ "field": "work_date", "direction": "DESC" }],
+      "page": { "pageParam": "page", "sizeParam": "size", "maxSize": 200, "defaultSize": 50 }
+    },
+    {
+      "id": "attendance.record.list_range",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "AttendanceRecord",
+      "tenant_scope": "TENANT",
+      "select": ["id", "employee_id", "work_date", "shift_definition_id", "shift_name_snapshot",
+        "status", "effective_in", "effective_out", "worked_minutes", "late_minutes",
+        "early_leave_minutes", "ot_minutes", "calc_version", "is_override", "override_reason", "override_by", "needs_review", "review_note", "timesheet_id", "lock_version", "created_at", "updated_at"],
+      "filters": [
+        { "field": "employee_id", "op": "EQ", "param": "employee_id", "optional": true },
+        { "field": "work_date", "op": "GTE", "param": "from", "optional": true },
+        { "field": "work_date", "op": "LTE", "param": "to", "optional": true }
+      ],
+      "sort": [{ "field": "work_date", "direction": "ASC" }],
+      "page": { "pageParam": "page", "sizeParam": "size", "maxSize": 1000, "defaultSize": 500 }
+    },
+    {
+      "id": "attendance.record.get_by_id",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "AttendanceRecord",
+      "tenant_scope": "TENANT",
+      "select": ["id", "employee_id", "work_date", "shift_definition_id", "shift_name_snapshot",
+        "status", "effective_in", "effective_out", "worked_minutes", "late_minutes",
+        "early_leave_minutes", "ot_minutes", "calc_version", "is_override", "override_reason", "override_by", "needs_review", "review_note", "timesheet_id", "lock_version", "created_at", "updated_at"],
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ]
+    },
+    {
+      "id": "attendance.record.update_by_timesheet",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "AttendanceRecord",
+      "tenant_scope": "TENANT",
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ],
+      "values": {
+        "status": { "param": "status", "optional": true },
+        "worked_minutes": { "param": "worked_minutes", "optional": true },
+        "is_override": { "param": "is_override", "optional": true },
+        "override_reason": { "param": "override_reason", "optional": true },
+        "override_by": { "param": "override_by", "optional": true },
+        "updated_at": { "param": "updated_at" }
+      },
+      "returning": ["id", "status", "worked_minutes", "is_override"]
+    },
+    {
+      "id": "attendance.record.lock_by_id",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "AttendanceRecord",
+      "tenant_scope": "TENANT",
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ],
+      "values": {
+        "timesheet_id": { "param": "timesheet_id", "optional": true, "allow_null": true },
+        "updated_at": { "param": "updated_at" }
+      },
+      "returning": ["id", "timesheet_id"]
+    },
+    {
+      "id": "attendance.log.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "AttendanceLog",
+      "tenant_scope": "TENANT",
+      "select": ["id", "employee_id", "event_type", "occurred_at", "work_date", "source", "device_id", "meta", "deleted_at", "deleted_by", "deleted_reason"],
+      "filters": [
+        { "field": "employee_id", "op": "EQ", "param": "employee_id", "optional": true },
+        { "field": "source", "op": "EQ", "param": "source", "optional": true },
+        { "field": "work_date", "op": "GTE", "param": "from", "optional": true },
+        { "field": "work_date", "op": "LTE", "param": "to", "optional": true }
+      ],
+      "sort": [{ "field": "occurred_at", "direction": "DESC" }],
+      "page": { "pageParam": "page", "sizeParam": "size", "maxSize": 200, "defaultSize": 50 }
+    },
+    {
+      "id": "attendance.log.soft_delete",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "AttendanceLog",
+      "tenant_scope": "TENANT",
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ],
+      "values": {
+        "deleted_by": { "param": "deleted_by" },
+        "deleted_reason": { "param": "deleted_reason" },
+        "deleted_at": { "param": "deleted_at" }
+      },
+      "returning": ["id", "deleted_at"]
+    },
+    {
+      "id": "attendance.device.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "AttendanceDevice",
+      "tenant_scope": "TENANT",
+      "select": ["id", "name", "device_type", "branch_id", "device_code", "is_active", "locked_until", "secret_rotated_at", "created_at", "updated_at"],
+      "filters": [
+        { "field": "device_type", "op": "EQ", "param": "device_type", "optional": true },
+        { "field": "is_active", "op": "EQ", "param": "is_active", "optional": true }
+      ],
+      "sort": [{ "field": "created_at", "direction": "DESC" }],
+      "page": { "pageParam": "page", "sizeParam": "size", "maxSize": 100, "defaultSize": 50 }
+    },
+    {
+      "id": "attendance.device.get_by_code",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "AttendanceDevice",
+      "tenant_scope": "TENANT",
+      "select": ["id", "name", "device_type", "branch_id", "device_code", "pin_hash", "ingest_secret_hash", "is_active", "locked_until", "secret_rotated_at"],
+      "filters": [
+        { "field": "device_code", "op": "EQ", "param": "device_code", "required": true }
+      ]
+    },
+    {
+      "id": "attendance.device.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "AttendanceDevice",
+      "tenant_scope": "TENANT",
+      "values": {
+        "name": { "param": "name" },
+        "device_type": { "param": "device_type" },
+        "branch_id": { "param": "branch_id", "optional": true, "allow_null": true },
+        "device_code": { "param": "device_code" },
+        "pin_hash": { "param": "pin_hash", "optional": true, "allow_null": true },
+        "ingest_secret_hash": { "param": "ingest_secret_hash", "optional": true, "allow_null": true },
+        "is_active": { "param": "is_active", "optional": true }
+      },
+      "returning": ["id", "name", "device_type", "device_code"]
+    },
+    {
+      "id": "attendance.device.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "AttendanceDevice",
+      "tenant_scope": "TENANT",
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ],
+      "values": {
+        "name": { "param": "name", "optional": true },
+        "branch_id": { "param": "branch_id", "optional": true, "allow_null": true },
+        "is_active": { "param": "is_active", "optional": true },
+        "pin_hash": { "param": "pin_hash", "optional": true }
+      },
+      "returning": ["id", "name", "device_code", "is_active"]
+    },
+    {
+      "id": "attendance.device.lock",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "AttendanceDevice",
+      "tenant_scope": "TENANT",
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ],
+      "values": {
+        "locked_until": { "param": "locked_until" }
+      },
+      "returning": ["id", "locked_until"]
+    },
+    {
+      "id": "attendance.settings.get",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "AttendanceSettings",
+      "tenant_scope": "TENANT",
+      "select": ["id", "hanging_threshold_hours", "geofence_radius_m", "default_shift_definition_id", "mobile_require_gps", "kiosk_enabled", "push_enabled", "work_week", "timezone"]
+    },
+    {
+      "id": "attendance.employee_ref.get_by_id",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "EmployeeRef",
+      "tenant_scope": "TENANT",
+      "select": ["id", "employee_id", "employee_code", "full_name", "user_id", "primary_branch_id", "primary_department_id", "manager_employee_id", "employment_status"],
+      "filters": [
+        { "field": "employee_id", "op": "EQ", "param": "employee_id", "required": true }
+      ]
+    },
+    {
+      "id": "attendance.employee_ref.get_by_code",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "EmployeeRef",
+      "tenant_scope": "TENANT",
+      "select": ["id", "employee_id", "employee_code", "full_name", "user_id", "primary_branch_id", "primary_department_id", "manager_employee_id", "employment_status"],
+      "filters": [
+        { "field": "employee_code", "op": "EQ", "param": "employee_code", "required": true }
+      ]
+    },
+    {
+      "id": "attendance.employee_ref.get_by_user_id",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "EmployeeRef",
+      "tenant_scope": "TENANT",
+      "select": ["id", "employee_id", "employee_code", "full_name", "user_id", "primary_branch_id", "primary_department_id", "manager_employee_id", "employment_status"],
+      "filters": [
+        { "field": "user_id", "op": "EQ", "param": "user_id", "required": true }
+      ]
+    },
+    {
+      "id": "attendance.outbox.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "AttendanceOutbox",
+      "tenant_scope": "TENANT",
+      "values": {
+        "event_type": { "param": "event_type" },
+        "aggregate_id": { "param": "aggregate_id" },
+        "payload": { "param": "payload" },
+        "status": { "param": "status" }
+      },
+      "returning": ["id", "event_type", "status"]
+    },
+    {
+      "id": "attendance.timesheet.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "Timesheet",
+      "tenant_scope": "TENANT",
+      "select": ["id", "period_year", "period_month", "scope_type", "scope_id", "wage_calc_mode", "step", "locked_at", "locked_by", "unlocked_at", "unlocked_by", "unlock_reason", "snapshot", "created_by", "created_at", "updated_at"],
+      "filters": [
+        { "field": "period_year", "op": "EQ", "param": "period_year", "optional": true },
+        { "field": "period_month", "op": "EQ", "param": "period_month", "optional": true },
+        { "field": "scope_type", "op": "EQ", "param": "scope_type", "optional": true },
+        { "field": "step", "op": "EQ", "param": "step", "optional": true }
+      ],
+      "sort": [{ "field": "period_year", "direction": "DESC" }, { "field": "period_month", "direction": "DESC" }],
+      "page": { "pageParam": "page", "sizeParam": "size", "maxSize": 100, "defaultSize": 20 }
+    },
+    {
+      "id": "attendance.timesheet.get_by_id",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "Timesheet",
+      "tenant_scope": "TENANT",
+      "select": ["id", "period_year", "period_month", "scope_type", "scope_id", "wage_calc_mode", "step", "locked_at", "locked_by", "unlocked_at", "unlocked_by", "unlock_reason", "snapshot", "created_by", "created_at", "updated_at"],
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ]
+    },
+    {
+      "id": "attendance.timesheet.get_by_period",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "Timesheet",
+      "tenant_scope": "TENANT",
+      "select": ["id", "period_year", "period_month", "scope_type", "scope_id", "wage_calc_mode", "step", "locked_at", "locked_by"],
+      "filters": [
+        { "field": "scope_type", "op": "EQ", "param": "scope_type", "required": true },
+        { "field": "period_year", "op": "EQ", "param": "period_year", "required": true },
+        { "field": "period_month", "op": "EQ", "param": "period_month", "required": true }
+      ]
+    },
+    {
+      "id": "attendance.timesheet.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "Timesheet",
+      "tenant_scope": "TENANT",
+      "values": {
+        "period_year": { "param": "period_year" },
+        "period_month": { "param": "period_month" },
+        "scope_type": { "param": "scope_type" },
+        "scope_id": { "param": "scope_id", "optional": true, "allow_null": true },
+        "wage_calc_mode": { "param": "wage_calc_mode" },
+        "step": { "param": "step" },
+        "created_by": { "param": "created_by", "optional": true, "allow_null": true }
+      },
+      "returning": ["id", "period_year", "period_month", "scope_type", "scope_id", "step"]
+    },
+    {
+      "id": "attendance.timesheet.update_step",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "Timesheet",
+      "tenant_scope": "TENANT",
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ],
+      "values": {
+        "step": { "param": "step" },
+        "snapshot": { "param": "snapshot", "optional": true, "allow_null": true },
+        "updated_at": { "param": "updated_at" }
+      },
+      "returning": ["id", "step", "updated_at"]
+    },
+    {
+      "id": "attendance.timesheet.lock",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "Timesheet",
+      "tenant_scope": "TENANT",
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ],
+      "values": {
+        "locked_at": { "param": "locked_at" },
+        "locked_by": { "param": "locked_by" },
+        "updated_at": { "param": "updated_at" }
+      },
+      "returning": ["id", "locked_at", "locked_by"]
+    },
+    {
+      "id": "attendance.timesheet.unlock",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "Timesheet",
+      "tenant_scope": "TENANT",
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ],
+      "values": {
+        "locked_at": { "param": "locked_at", "allow_null": true },
+        "locked_by": { "param": "locked_by", "allow_null": true },
+        "unlocked_at": { "param": "unlocked_at" },
+        "unlocked_by": { "param": "unlocked_by" },
+        "unlock_reason": { "param": "unlock_reason" },
+        "updated_at": { "param": "updated_at" }
+      },
+      "returning": ["id", "unlocked_at", "unlock_reason"]
+    },
+    {
+      "id": "attendance.confirmation.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "TimesheetConfirmation",
+      "tenant_scope": "TENANT",
+      "select": ["id", "timesheet_id", "employee_id", "status", "comment", "sent_at", "acted_at", "acted_by"],
+      "filters": [
+        { "field": "timesheet_id", "op": "EQ", "param": "timesheet_id", "required": true },
+        { "field": "status", "op": "EQ", "param": "status", "optional": true }
+      ],
+      "page": { "pageParam": "page", "sizeParam": "size", "maxSize": 500, "defaultSize": 100 }
+    },
+    {
+      "id": "attendance.confirmation.get_by_id",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "TimesheetConfirmation",
+      "tenant_scope": "TENANT",
+      "select": ["id", "timesheet_id", "employee_id", "status", "comment", "sent_at", "acted_at", "acted_by"],
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ]
+    },
+    {
+      "id": "attendance.confirmation.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "TimesheetConfirmation",
+      "tenant_scope": "TENANT",
+      "values": {
+        "timesheet_id": { "param": "timesheet_id" },
+        "employee_id": { "param": "employee_id" },
+        "status": { "param": "status" }
+      },
+      "returning": ["id", "timesheet_id", "employee_id", "status"]
+    },
+    {
+      "id": "attendance.confirmation.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "TimesheetConfirmation",
+      "tenant_scope": "TENANT",
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ],
+      "values": {
+        "status": { "param": "status" },
+        "comment": { "param": "comment", "optional": true, "allow_null": true },
+        "acted_at": { "param": "acted_at" },
+        "acted_by": { "param": "acted_by" }
+      },
+      "returning": ["id", "status", "acted_at"]
+    },
+    {
+      "id": "attendance.export_template.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "ExportTemplate",
+      "tenant_scope": "TENANT",
+      "select": ["id", "name", "columns", "is_default", "created_at", "updated_at"],
+      "sort": [{ "field": "created_at", "direction": "DESC" }],
+      "page": { "pageParam": "page", "sizeParam": "size", "maxSize": 100, "defaultSize": 50 }
+    },
+    {
+      "id": "attendance.export_template.get_by_id",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "ExportTemplate",
+      "tenant_scope": "TENANT",
+      "select": ["id", "name", "columns", "is_default", "created_at", "updated_at"],
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ]
+    },
+    {
+      "id": "attendance.export_template.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "ExportTemplate",
+      "tenant_scope": "TENANT",
+      "values": {
+        "name": { "param": "name" },
+        "columns": { "param": "columns" },
+        "is_default": { "param": "is_default", "optional": true }
+      },
+      "returning": ["id", "name", "is_default"]
+    },
+    {
+      "id": "attendance.export_template.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "ExportTemplate",
+      "tenant_scope": "TENANT",
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ],
+      "values": {
+        "name": { "param": "name", "optional": true },
+        "columns": { "param": "columns", "optional": true },
+        "is_default": { "param": "is_default", "optional": true },
+        "updated_at": { "param": "updated_at" }
+      },
+      "returning": ["id", "name", "is_default", "updated_at"]
+    },
+    {
+      "id": "attendance.export_template.delete",
+      "mode": "WRITE",
+      "operation": "DELETE",
+      "entity": "ExportTemplate",
+      "tenant_scope": "TENANT",
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ],
+      "returning": ["id"]
+    },
+    {
+      "id": "attendance.employee_ref.list_all",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "EmployeeRef",
+      "tenant_scope": "TENANT",
+      "select": ["id", "employee_id", "employee_code", "full_name", "user_id", "primary_branch_id", "primary_department_id", "manager_employee_id", "employment_status"],
+      "sort": [{ "field": "employee_code", "direction": "ASC" }],
+      "page": { "pageParam": "page", "sizeParam": "size", "maxSize": 500, "defaultSize": 200 }
+    },
+    {
+      "id": "attendance.request_type.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "RequestType",
+      "tenant_scope": "TENANT",
+      "select": ["id", "code", "name", "is_system", "is_active", "form_ref", "workflow_definition_key", "status_mapping", "window_days", "sort_order", "created_at", "updated_at"],
+      "filters": [
+        { "field": "is_active", "op": "EQ", "param": "is_active", "optional": true }
+      ],
+      "sort": [{ "field": "sort_order", "direction": "ASC" }],
+      "page": { "pageParam": "page", "sizeParam": "size", "maxSize": 100, "defaultSize": 50 }
+    },
+    {
+      "id": "attendance.request_type.get_by_id",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "RequestType",
+      "tenant_scope": "TENANT",
+      "select": ["id", "code", "name", "is_system", "is_active", "form_ref", "workflow_definition_key", "status_mapping", "window_days", "sort_order", "created_at", "updated_at"],
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ]
+    },
+    {
+      "id": "attendance.request_type.get_by_code",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "RequestType",
+      "tenant_scope": "TENANT",
+      "select": ["id", "code", "name", "is_system", "is_active", "form_ref", "workflow_definition_key", "status_mapping", "window_days", "sort_order", "created_at", "updated_at"],
+      "filters": [
+        { "field": "code", "op": "EQ", "param": "code", "required": true }
+      ]
+    },
+    {
+      "id": "attendance.request_type.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "RequestType",
+      "tenant_scope": "TENANT",
+      "values": {
+        "code": { "param": "code" },
+        "name": { "param": "name" },
+        "is_system": { "param": "is_system", "optional": true },
+        "is_active": { "param": "is_active", "optional": true },
+        "form_ref": { "param": "form_ref", "optional": true, "allow_null": true },
+        "workflow_definition_key": { "param": "workflow_definition_key", "optional": true, "allow_null": true },
+        "status_mapping": { "param": "status_mapping", "optional": true, "allow_null": true },
+        "window_days": { "param": "window_days", "optional": true },
+        "sort_order": { "param": "sort_order", "optional": true }
+      },
+      "returning": ["id", "code", "name", "is_system", "is_active"]
+    },
+    {
+      "id": "attendance.request_type.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "RequestType",
+      "tenant_scope": "TENANT",
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ],
+      "values": {
+        "name": { "param": "name", "optional": true },
+        "is_active": { "param": "is_active", "optional": true },
+        "form_ref": { "param": "form_ref", "optional": true, "allow_null": true },
+        "workflow_definition_key": { "param": "workflow_definition_key", "optional": true, "allow_null": true },
+        "status_mapping": { "param": "status_mapping", "optional": true, "allow_null": true },
+        "window_days": { "param": "window_days", "optional": true },
+        "sort_order": { "param": "sort_order", "optional": true },
+        "updated_at": { "param": "updated_at" }
+      },
+      "returning": ["id", "code", "name", "is_active"]
+    },
+    {
+      "id": "attendance.request_type.delete",
+      "mode": "WRITE",
+      "operation": "DELETE",
+      "entity": "RequestType",
+      "tenant_scope": "TENANT",
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ],
+      "returning": ["id"]
+    },
+    {
+      "id": "attendance.request.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "AttendanceRequest",
+      "tenant_scope": "TENANT",
+      "select": ["id", "request_type_id", "code", "subject_employee_id", "submitted_by_user_id", "form_version", "response", "status", "workflow_instance_id", "approval_mode", "fallback_approver_employee_id", "fallback_comment", "affected_window", "mapping_status", "mapping_error", "created_at", "updated_at"],
+      "filters": [
+        { "field": "subject_employee_id", "op": "EQ", "param": "subject_employee_id", "optional": true },
+        { "field": "status", "op": "EQ", "param": "status", "optional": true },
+        { "field": "request_type_id", "op": "EQ", "param": "request_type_id", "optional": true },
+        { "field": "fallback_approver_employee_id", "op": "EQ", "param": "fallback_approver_employee_id", "optional": true }
+      ],
+      "sort": [{ "field": "created_at", "direction": "DESC" }],
+      "page": { "pageParam": "page", "sizeParam": "size", "maxSize": 200, "defaultSize": 50 }
+    },
+    {
+      "id": "attendance.request.get_by_id",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "AttendanceRequest",
+      "tenant_scope": "TENANT",
+      "select": ["id", "request_type_id", "code", "subject_employee_id", "submitted_by_user_id", "form_version", "response", "status", "workflow_instance_id", "approval_mode", "fallback_approver_employee_id", "fallback_comment", "affected_window", "mapping_status", "mapping_error", "created_at", "updated_at"],
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ]
+    },
+    {
+      "id": "attendance.request.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "AttendanceRequest",
+      "tenant_scope": "TENANT",
+      "values": {
+        "request_type_id": { "param": "request_type_id" },
+        "code": { "param": "code" },
+        "subject_employee_id": { "param": "subject_employee_id" },
+        "submitted_by_user_id": { "param": "submitted_by_user_id" },
+        "form_version": { "param": "form_version", "optional": true },
+        "response": { "param": "response" },
+        "status": { "param": "status" },
+        "workflow_instance_id": { "param": "workflow_instance_id", "optional": true, "allow_null": true },
+        "approval_mode": { "param": "approval_mode" },
+        "fallback_approver_employee_id": { "param": "fallback_approver_employee_id", "optional": true, "allow_null": true },
+        "affected_window": { "param": "affected_window", "optional": true, "allow_null": true },
+        "mapping_status": { "param": "mapping_status" }
+      },
+      "returning": ["id", "code", "status"]
+    },
+    {
+      "id": "attendance.request.update_status",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "AttendanceRequest",
+      "tenant_scope": "TENANT",
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ],
+      "values": {
+        "status": { "param": "status", "optional": true },
+        "workflow_instance_id": { "param": "workflow_instance_id", "optional": true, "allow_null": true },
+        "fallback_approver_employee_id": { "param": "fallback_approver_employee_id", "optional": true, "allow_null": true },
+        "fallback_comment": { "param": "fallback_comment", "optional": true, "allow_null": true },
+        "mapping_status": { "param": "mapping_status", "optional": true },
+        "mapping_error": { "param": "mapping_error", "optional": true, "allow_null": true },
+        "updated_at": { "param": "updated_at" }
+      },
+      "returning": ["id", "code", "status", "mapping_status"]
+    },
+    {
+      "id": "attendance.leave_type.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "LeaveType",
+      "tenant_scope": "TENANT",
+      "select": ["id", "code", "name", "paid", "counts_as_work", "deduct_balance", "allow_negative", "carry_over_max_days", "validity_months", "default_annual_grant", "is_active", "created_at", "updated_at"],
+      "filters": [
+        { "field": "is_active", "op": "EQ", "param": "is_active", "optional": true }
+      ],
+      "sort": [{ "field": "code", "direction": "ASC" }],
+      "page": { "pageParam": "page", "sizeParam": "size", "maxSize": 100, "defaultSize": 50 }
+    },
+    {
+      "id": "attendance.leave_type.get_by_id",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "LeaveType",
+      "tenant_scope": "TENANT",
+      "select": ["id", "code", "name", "paid", "counts_as_work", "deduct_balance", "allow_negative", "carry_over_max_days", "validity_months", "default_annual_grant", "is_active", "created_at", "updated_at"],
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ]
+    },
+    {
+      "id": "attendance.leave_type.get_by_code",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "LeaveType",
+      "tenant_scope": "TENANT",
+      "select": ["id", "code", "name", "paid", "counts_as_work", "deduct_balance", "allow_negative", "carry_over_max_days", "validity_months", "default_annual_grant", "is_active", "created_at", "updated_at"],
+      "filters": [
+        { "field": "code", "op": "EQ", "param": "code", "required": true }
+      ]
+    },
+    {
+      "id": "attendance.leave_type.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "LeaveType",
+      "tenant_scope": "TENANT",
+      "values": {
+        "code": { "param": "code" },
+        "name": { "param": "name" },
+        "paid": { "param": "paid", "optional": true },
+        "counts_as_work": { "param": "counts_as_work", "optional": true },
+        "deduct_balance": { "param": "deduct_balance", "optional": true },
+        "allow_negative": { "param": "allow_negative", "optional": true },
+        "carry_over_max_days": { "param": "carry_over_max_days", "optional": true },
+        "validity_months": { "param": "validity_months", "optional": true, "allow_null": true },
+        "default_annual_grant": { "param": "default_annual_grant", "optional": true, "allow_null": true },
+        "is_active": { "param": "is_active", "optional": true }
+      },
+      "returning": ["id", "code", "name", "is_active"]
+    },
+    {
+      "id": "attendance.leave_type.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "LeaveType",
+      "tenant_scope": "TENANT",
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ],
+      "values": {
+        "name": { "param": "name", "optional": true },
+        "paid": { "param": "paid", "optional": true },
+        "counts_as_work": { "param": "counts_as_work", "optional": true },
+        "deduct_balance": { "param": "deduct_balance", "optional": true },
+        "allow_negative": { "param": "allow_negative", "optional": true },
+        "carry_over_max_days": { "param": "carry_over_max_days", "optional": true },
+        "validity_months": { "param": "validity_months", "optional": true, "allow_null": true },
+        "default_annual_grant": { "param": "default_annual_grant", "optional": true, "allow_null": true },
+        "is_active": { "param": "is_active", "optional": true },
+        "updated_at": { "param": "updated_at" }
+      },
+      "returning": ["id", "code", "name", "is_active"]
+    },
+    {
+      "id": "attendance.leave_type.delete",
+      "mode": "WRITE",
+      "operation": "DELETE",
+      "entity": "LeaveType",
+      "tenant_scope": "TENANT",
+      "filters": [
+        { "field": "id", "op": "EQ", "param": "id", "required": true }
+      ],
+      "returning": ["id"]
+    },
+    {
+      "id": "attendance.leave_ledger.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "LeaveLedger",
+      "tenant_scope": "TENANT",
+      "select": ["id", "employee_id", "leave_type_id", "entry_type", "days", "valid_until", "source_request_id", "source", "note", "created_by", "created_at"],
+      "filters": [
+        { "field": "employee_id", "op": "EQ", "param": "employee_id", "optional": true },
+        { "field": "leave_type_id", "op": "EQ", "param": "leave_type_id", "optional": true },
+        { "field": "entry_type", "op": "EQ", "param": "entry_type", "optional": true }
+      ],
+      "sort": [{ "field": "created_at", "direction": "DESC" }],
+      "page": { "pageParam": "page", "sizeParam": "size", "maxSize": 500, "defaultSize": 100 }
+    },
+    {
+      "id": "attendance.leave_ledger.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "LeaveLedger",
+      "tenant_scope": "TENANT",
+      "values": {
+        "employee_id": { "param": "employee_id" },
+        "leave_type_id": { "param": "leave_type_id" },
+        "entry_type": { "param": "entry_type" },
+        "days": { "param": "days" },
+        "valid_until": { "param": "valid_until", "optional": true, "allow_null": true },
+        "source_request_id": { "param": "source_request_id", "optional": true, "allow_null": true },
+        "source": { "param": "source", "optional": true },
+        "note": { "param": "note", "optional": true, "allow_null": true },
+        "created_by": { "param": "created_by", "optional": true, "allow_null": true }
+      },
+      "returning": ["id", "employee_id", "leave_type_id", "entry_type", "days"]
+    },
+    {
+      "id": "attendance.leave_balance.get",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "LeaveBalance",
+      "tenant_scope": "TENANT",
+      "select": ["id", "employee_id", "leave_type_id", "granted", "used", "remaining", "expiring", "recomputed_at"],
+      "filters": [
+        { "field": "employee_id", "op": "EQ", "param": "employee_id", "required": true },
+        { "field": "leave_type_id", "op": "EQ", "param": "leave_type_id", "required": true }
+      ]
+    },
+    {
+      "id": "attendance.leave_balance.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "LeaveBalance",
+      "tenant_scope": "TENANT",
+      "select": ["id", "employee_id", "leave_type_id", "granted", "used", "remaining", "expiring", "recomputed_at"],
+      "filters": [
+        { "field": "employee_id", "op": "EQ", "param": "employee_id", "optional": true },
+        { "field": "leave_type_id", "op": "EQ", "param": "leave_type_id", "optional": true }
+      ],
+      "page": { "pageParam": "page", "sizeParam": "size", "maxSize": 500, "defaultSize": 100 }
+    },
+    {
+      "id": "attendance.leave_balance.upsert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "LeaveBalance",
+      "tenant_scope": "TENANT",
+      "values": {
+        "employee_id": { "param": "employee_id" },
+        "leave_type_id": { "param": "leave_type_id" },
+        "granted": { "param": "granted" },
+        "used": { "param": "used" },
+        "remaining": { "param": "remaining" },
+        "expiring": { "param": "expiring" },
+        "recomputed_at": { "param": "recomputed_at" }
+      },
+      "returning": ["id", "employee_id", "leave_type_id", "remaining"]
+    },
+    {
+      "id": "attendance.ot_window.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "OvertimeWindow",
+      "tenant_scope": "TENANT",
+      "values": {
+        "employee_id": { "param": "employee_id" },
+        "request_id": { "param": "request_id", "optional": true, "allow_null": true },
+        "work_date": { "param": "work_date" },
+        "start_at": { "param": "start_at" },
+        "end_at": { "param": "end_at" },
+        "status": { "param": "status" }
+      },
+      "returning": ["id", "employee_id", "work_date", "status"]
+    },
+    {
+      "id": "attendance.ot_window.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "OvertimeWindow",
+      "tenant_scope": "TENANT",
+      "select": ["id", "employee_id", "request_id", "work_date", "start_at", "end_at", "status", "created_at"],
+      "filters": [
+        { "field": "employee_id", "op": "EQ", "param": "employee_id", "optional": true },
+        { "field": "work_date", "op": "EQ", "param": "work_date", "optional": true },
+        { "field": "status", "op": "EQ", "param": "status", "optional": true }
+      ],
+      "sort": [{ "field": "start_at", "direction": "ASC" }],
       "page": { "pageParam": "page", "sizeParam": "size", "maxSize": 200, "defaultSize": 50 }
     }
   ]

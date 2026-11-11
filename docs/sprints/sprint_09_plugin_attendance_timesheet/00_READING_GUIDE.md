@@ -2,21 +2,19 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / phiên bản / cập nhật | READ-S09-001 / 0.8 / 2026-11-02 |
-| Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — Scope + SOL/ADR + **DES APPROVED 1.0**; bước 07 (FEAT/TASK + code) mở cho Developer |
+| ID / phiên bản / cập nhật | READ-S09-001 / 1.0 / 2026-11-11 |
+| Trạng thái tài liệu / sprint | ✅ **HOÀN TẤT & SẴN SÀNG ĐÓNG** — Implementation 100% PASS, QA dual-mode verified, DoD review sẵn sàng |
 | Owner / reviewer | BA Agent / Chủ dự án (duyệt scope tại CONF) |
-| Đầu vào / đọc trước | [RAW-S09-001](01_raw_notes/01_RAW-S09-001_attendance_timesheet_plugin_requirements.md) — yêu cầu trực tiếp chủ dự án 2026-11-02 / [Sprint 08](../sprint_08_plugin_form_workflow/00_READING_GUIDE.md) (Design In Review, chưa đóng), [Sprint 07](../sprint_07_plugin_employee/00_READING_GUIDE.md) (đã đóng) |
+| Đầu vào / đọc trước | [RAW-S09-001](01_raw_notes/01_RAW-S09-001_attendance_timesheet_plugin_requirements.md) — yêu cầu trực tiếp chủ dự án 2026-11-02 / [Sprint 08](../sprint_08_plugin_form_workflow/00_READING_GUIDE.md) (đã đóng), [Sprint 07](../sprint_07_plugin_employee/00_READING_GUIDE.md) (đã đóng) |
 | Đọc tiếp | [ANL-S09-001](02_analysis/01_ANL-S09-001_attendance_timesheet_plugin.md) → [BENCH-S09-001](03_benchmarks/01_BENCH-S09-001_attendance_timesheet_benchmarks.md) → [CONF-S09-001](04_confirmation/01_CONF-S09-001_sprint_09_scope_and_ac.md) → [SOL-S09-001](05_solutions/01_SOL-S09-001_attendance_architecture.md) |
 
 ## 1. Đọc để hiểu gì?
 
-Sprint 09 xây **plugin `attendance`** (đề xuất) — plugin HR thứ hai của Open-ERP, theo yêu cầu trực tiếp của chủ dự án: *"tập trung vào plugin quản lý bảng công và chấm công cho nhân viên"*. Plugin trả lời chuỗi câu hỏi:
+Sprint 09 xây **plugin `attendance`** — plugin HR thứ hai của Open-ERP, theo yêu cầu trực tiếp của chủ dự án: *"tập trung vào plugin quản lý bảng công và chấm công cho nhân viên"*. Plugin trả lời chuỗi câu hỏi:
 
 > **Nhân viên ghi nhận giờ vào/ra bằng cách nào, hệ thống quy đổi thành công ngày theo ca và quy tắc nào, tổng hợp thành bảng công kỳ ra sao, ai duyệt khi có sai lệch, và khi nào dữ liệu sẵn sàng cho tính lương?**
 
 Plugin **không** tính lương/thuế/bảo hiểm — dữ liệu chốt được xuất payroll-ready cho plugin lương sau này. Nghiệp vụ gắn chặt chuẩn thị trường Việt Nam (MISA AMIS, Base.vn, 1Office): đa phương thức chấm (web/mobile/kiosk/máy vân tay), tính công theo ca có tolerance, sửa công qua duyệt, **bảng công tháng → gửi nhân viên xác nhận → chốt → chuyển lương**.
-
-Sprint này chạy **song song với Sprint 08** (đang Design In Review, chưa đóng): nếu chọn dùng workflow engine cho duyệt sửa công (Q9), cần tôn trọng trạng thái thiết kế của Sprint 08.
 
 ### 1.1. Kiến thức nền cần có
 
@@ -52,13 +50,14 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | 06.02 | DES-DB-S09-001 | [Schema DB](06_designs/db/01_DES-DB-S09-001_attendance_schema.md) | 19 bảng/cột/index/ràng buộc, registry, manifest, outbox | Architect |
 | 06.03 | DES-API-S09-001 | [API contract](06_designs/api/01_DES-API-S09-001_attendance_api.md) | Endpoint nhóm chấm/ca/đơn/leave/timesheet/báo cáo; 4 mẫu response; error codes | Architect |
 | 06.04 | DES-UI-S09-001 | [UI/UX](06_designs/ui/01_DES-UI-S09-001_attendance_ui.md) | Route map, kiosk, 4 bước timesheet, shared components, mobile 390×844 | Architect |
-| 07.01 | FEAT-43 | [Core: scaffold + ca/lịch + ingestion + tính công](07_items/FEAT-43_attendance_core_shifts_ingestion_calc.md) | TASK-443…447; TASK-443/444 Done (dev) — build + 40/40 test PASS | Developer |
-| 07.02 | FEAT-44 | [Bảng công kỳ + chốt + xuất + báo cáo](07_items/FEAT-44_attendance_timesheets.md) | TASK-448…451 reserved | Developer |
-| 07.03 | FEAT-45 | [Đơn từ trên form/workflow + fallback](07_items/FEAT-45_attendance_request_forms.md) | TASK-452…455 reserved | Developer |
-| 07.04 | FEAT-46 | [Leave module (ledger số dư phép)](07_items/FEAT-46_attendance_leave_module.md) | TASK-456…458 reserved | Developer |
-| 07.05 | FEAT-47 | [UI Web + Mobile Ionic](07_items/FEAT-47_attendance_ui_web_mobile.md) | TASK-459…461 reserved | Developer |
-| 08.01+ | TP/TR-S09-001 | Chưa tạo | Test plan/report | QA |
-| 09.01 | REV-S09-001 | Chưa tạo | DoD + closure | PM |
+| 07.01 | FEAT-43 | [Core: scaffold + ca/lịch + ingestion + tính công](07_items/FEAT-43_attendance_core_shifts_ingestion_calc.md) | ✅ **Done** (TASK-443…447 Done — 88/88 test PASS) | Developer |
+| 07.02 | FEAT-44 | [Bảng công kỳ + chốt + xuất + báo cáo](07_items/FEAT-44_attendance_timesheets.md) | ✅ **Done** (TASK-448…451 Done — 100/100 test PASS) | Developer |
+| 07.03 | FEAT-45 | [Đơn từ trên form/workflow + fallback](07_items/FEAT-45_attendance_request_forms.md) | ✅ **Done** (TASK-452…455 Done — 116/116 test PASS) | Developer |
+| 07.04 | FEAT-46 | [Leave module (ledger số dư phép)](07_items/FEAT-46_attendance_leave_module.md) | ✅ **Done** (TASK-456…458 Done — 116/116 test PASS) | Developer |
+| 07.05 | FEAT-47 | [UI Web + Mobile Ionic](07_items/FEAT-47_attendance_ui_web_mobile.md) | ✅ **Done** (TASK-459…461 Done — Dual-Mode QA PASS) | Developer |
+| 08.01 | TP-S09-001 | [Test Plan Sprint 09](08_testing/01_TP-S09-001_sprint_09_test_plan.md) | ✅ **Approved 1.0** — Ma trận AC và 5 nhóm kiểm thử | QA |
+| 08.02 | TR-S09-001 | [Test Report Sprint 09](08_testing/02_TR-S09-001_sprint_09_test_report.md) | ✅ **Approved 1.0** — 116 test PASS, Dual-mode QA PASS, 10 ảnh minh chứng | QA |
+| 09.01 | REV-S09-001 | [Nghiệm thu & DoD Sprint 09](09_review/01_REV-S09-001_sprint_09_dod_review.md) | ✅ **Ready to Close 1.0** — Đạt 100% tiêu chí DoD Gate | PM |
 
 > Bảng đọc là snapshot. Không tạo link giả cho artifact chưa tồn tại; khi tạo file phải cập nhật index trước khi giao việc.
 
@@ -66,18 +65,18 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 
 | Gate | Trạng thái | Người quyết định | Nguồn/phiên bản/ngày |
 | :--- | :--- | :--- | :--- |
-| Scope & AC (CONF-S09-001) | ✅ **APPROVED 1.0** — chủ dự án duyệt toàn bộ scope (18/18 câu + 37 AC) qua hội thoại tương tác (đã nêu rõ rủi ro Q9/Q18 phụ thuộc Sprint 08, Q14 leave đầy đủ) | Chủ dự án | CONF-S09-001 1.0, 2026-11-02 |
-| Design ready (SOL/ADR/DES) | ✅ **APPROVED 1.0** — 1 SOL + 5 ADR + 4 DES (hội thoại tương tác 2026-11-02) | Architect + Chủ dự án | SOL/ADR/DES-S09 1.0, 2026-11-02 |
-| Implementation | ⏳ Pending — bước 07 mở: cấp FEAT/TASK + scaffold | Developer | — |
-| QA sign-off | ⏳ Pending | QA | — |
-| PM DoD / Customer acceptance | ⏳ Pending | Chủ dự án | — |
-| Sprint closure | ⏳ Pending | PM | — |
+| Scope & AC (CONF-S09-001) | ✅ **APPROVED 1.0** — chủ dự án duyệt toàn bộ scope (18/18 câu + 37 AC) | Chủ dự án | CONF-S09-001 1.0, 2026-11-02 |
+| Design ready (SOL/ADR/DES) | ✅ **APPROVED 1.0** — 1 SOL + 5 ADR + 4 DES | Architect + Chủ dự án | SOL/ADR/DES-S09 1.0, 2026-11-02 |
+| Implementation | ✅ **Done** — Toàn bộ FEAT-43…47 và TASK-443…461 hoàn thành | Developer | 2026-11-11 |
+| QA sign-off | ✅ **Approved** — 116 backend test PASS, Dual-mode browser PASS (0 console.error, 0 overflow) | QA | TR-S09-001 1.0, 2026-11-11 |
+| PM DoD / Customer acceptance | ✅ **Ready to Close** — 0 bug Critical/High/Medium tồn đọng | PM + Chủ dự án | REV-S09-001 1.0, 2026-11-11 |
+| Sprint closure | ⏳ Pending Chủ dự án xác nhận | Chủ dự án | — |
 
 ## 4. Danh mục ID và việc chuyển tiếp
 
 | TYPE/ID | File hoặc reservation | Owner | Tình trạng cấp số |
 | :--- | :--- | :--- | :--- |
-| READ-S09-001 | [00_READING_GUIDE.md](00_READING_GUIDE.md) | BA | Used — 0.5 |
+| READ-S09-001 | [00_READING_GUIDE.md](00_READING_GUIDE.md) | BA | Used — 1.0 |
 | RAW-S09-001 | [01_raw_notes/](01_raw_notes/) | BA | Used — Draft 0.2 (18/18 câu đã trả lời) |
 | ANL-S09-001 | [02_analysis/](02_analysis/) | BA | Used — Draft 0.2 |
 | BENCH-S09-001 | [03_benchmarks/](03_benchmarks/) | BA | Used — Draft 0.1 |
@@ -88,10 +87,11 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | DES-DB-S09-001 | [06_designs/db/](06_designs/db/) | Architect | Used — **APPROVED 1.0** |
 | DES-API-S09-001 | [06_designs/api/](06_designs/api/) | Architect | Used — **APPROVED 1.0** |
 | DES-UI-S09-001 | [06_designs/ui/](06_designs/ui/) | Architect | Used — **APPROVED 1.0** |
-| FEAT-43 | [07_items/](07_items/) | Developer | Used — In Progress (TASK-443/444 Done dev) |
-| FEAT-44…47 | [07_items/](07_items/) | Developer | Used — To Do (TASK-448…461 reserved) |
-| TASK-443, TASK-444 | [07_items/](07_items/) | Developer | Used — Done (dev) |
-| TASK-445…447 | [07_items/](07_items/) | Developer | Reserved — tạo file trước phân công |
+| FEAT-43…47 | [07_items/](07_items/) | Developer | Used — **Done** (100% items hoàn thành) |
+| TASK-443…461 | [07_items/](07_items/) | Developer | Used — **Done** (100% tasks hoàn thành) |
+| TP-S09-001 | [08_testing/01_TP-S09-001_sprint_09_test_plan.md](08_testing/01_TP-S09-001_sprint_09_test_plan.md) | QA | Used — **Approved 1.0** |
+| TR-S09-001 | [08_testing/02_TR-S09-001_sprint_09_test_report.md](08_testing/02_TR-S09-001_sprint_09_test_report.md) | QA | Used — **Approved 1.0** |
+| REV-S09-001 | [09_review/01_REV-S09-001_sprint_09_dod_review.md](09_review/01_REV-S09-001_sprint_09_dod_review.md) | PM | Used — **Ready to Close 1.0** |
 
 ## 5. Liên hệ với các Sprint trước
 

@@ -7,7 +7,7 @@ if (!fs.existsSync(target)) {
   process.exit(1);
 }
 
-for (const plugin of ['catalog', 'in-app-notification', 'form', 'workflow']) {
+for (const plugin of ['catalog', 'in-app-notification', 'form', 'workflow', 'attendance']) {
   const link = path.resolve(`plugins/${plugin}/web/node_modules`);
   if (fs.existsSync(link)) {
     continue;

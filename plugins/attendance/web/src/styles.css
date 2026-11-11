@@ -1,0 +1,12 @@
+@import '../../../../src/frontend/web/src/styles.css';
+
+@source './';
+
+.op-att-grid {
+  border-collapse: collapse;
+}
+
+.op-att-grid th, .op-att-grid td {
+  border: 1px solid var(--op-border, #e5e7eb);
+}
+

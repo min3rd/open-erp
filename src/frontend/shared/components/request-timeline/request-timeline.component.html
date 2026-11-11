@@ -1,0 +1,36 @@
+<div class="relative pl-4 space-y-4 before:content-[''] before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-neutral-200 dark:before:bg-neutral-800">
+  @for (node of nodes(); track $index) {
+    <div class="relative">
+      <div
+        class="absolute -left-4 top-1 w-3 h-3 rounded-none border"
+        [ngClass]="{
+          'bg-success border-success text-white': node.isDone,
+          'bg-danger border-danger text-white': node.isFailed,
+          'bg-primary border-primary': !node.isDone && !node.isFailed
+        }"
+      ></div>
+
+      <div class="text-xs font-mono">
+        <div class="flex items-center justify-between">
+          <span class="font-semibold text-default">{{ node.title }}</span>
+          @if (node.timestamp) {
+            <span class="text-[10px] text-muted">{{ node.timestamp }}</span>
+          }
+        </div>
+
+        @if (node.actorName) {
+          <div class="text-[11px] text-muted">
+            {{ 'attendance.request.by' | translate }}: {{ node.actorName }}
+          </div>
+        }
+
+        @if (node.comment) {
+          <div class="mt-1 p-1.5 text-[11px] bg-surface-muted/50 border border-neutral-200 dark:border-neutral-800 rounded-none italic text-muted">
+            "{{ node.comment }}"
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+

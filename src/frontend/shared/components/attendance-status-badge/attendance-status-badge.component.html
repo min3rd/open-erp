@@ -1,0 +1,24 @@
+<span class="inline-flex items-center gap-1">
+  <span
+    class="inline-flex items-center px-1.5 py-0.5 text-[11px] font-mono font-medium rounded-none uppercase tracking-wider border"
+    [ngClass]="{
+      'bg-success/10 text-success border-success/40': variant() === 'success',
+      'bg-warning/10 text-warning border-warning/40': variant() === 'warning',
+      'bg-danger/10 text-danger border-danger/40': variant() === 'danger',
+      'bg-accent/10 text-accent border-accent/40': variant() === 'info',
+      'bg-surface-muted text-muted border-default': variant() === 'default',
+      'border-dashed border-amber-500 ring-1 ring-amber-500/30': needsReview()
+    }"
+  >
+    {{ i18nKey() | translate }}
+  </span>
+  @if (needsReview()) {
+    <span
+      class="text-[10px] text-amber-600 dark:text-amber-400 font-mono"
+      [title]="'attendance.record.needs_review_title' | translate"
+    >
+      ⚠️
+    </span>
+  }
+</span>
+

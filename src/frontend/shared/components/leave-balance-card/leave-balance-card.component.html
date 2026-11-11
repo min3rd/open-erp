@@ -1,0 +1,51 @@
+<div class="border border-neutral-200 dark:border-neutral-800 bg-surface rounded-none p-3 shadow-none">
+  <div class="flex items-center justify-between mb-2">
+    <span class="font-mono text-xs font-semibold uppercase tracking-wider text-default">
+      {{ leaveTypeName() }}
+    </span>
+    @if (validUntil()) {
+      <span class="text-[11px] text-muted font-mono">
+        {{ 'attendance.leave.valid_until' | translate }}: {{ validUntil() }}
+      </span>
+    }
+  </div>
+
+  <div class="grid grid-cols-4 gap-2 text-center">
+    <div class="border border-neutral-200 dark:border-neutral-800 p-1.5 bg-surface-muted/30">
+      <div class="text-[10px] text-muted uppercase font-mono tracking-wider">
+        {{ 'attendance.leave.granted' | translate }}
+      </div>
+      <div class="text-sm font-mono font-semibold text-default">
+        {{ granted() }}
+      </div>
+    </div>
+
+    <div class="border border-neutral-200 dark:border-neutral-800 p-1.5 bg-surface-muted/30">
+      <div class="text-[10px] text-muted uppercase font-mono tracking-wider">
+        {{ 'attendance.leave.used' | translate }}
+      </div>
+      <div class="text-sm font-mono font-semibold text-warning">
+        {{ used() }}
+      </div>
+    </div>
+
+    <div class="border border-neutral-200 dark:border-neutral-800 p-1.5 bg-primary/5">
+      <div class="text-[10px] text-primary uppercase font-mono tracking-wider">
+        {{ 'attendance.leave.remaining' | translate }}
+      </div>
+      <div class="text-sm font-mono font-bold text-primary">
+        {{ remaining() }}
+      </div>
+    </div>
+
+    <div class="border border-neutral-200 dark:border-neutral-800 p-1.5 bg-surface-muted/30">
+      <div class="text-[10px] text-muted uppercase font-mono tracking-wider">
+        {{ 'attendance.leave.expiring' | translate }}
+      </div>
+      <div class="text-sm font-mono font-semibold text-danger">
+        {{ expiring() }}
+      </div>
+    </div>
+  </div>
+</div>
+
