@@ -1971,5 +1971,8 @@
   "PLUGIN_FORM_CURRENCY_CODE": "Mã tiền tệ",
   "PLUGIN_FORM_CURRENCY_SYMBOL": "Ký hiệu tiền tệ",
   "PLUGIN_FORM_UNDO": "Hoàn tác",
-  "PLUGIN_FORM_REDO": "Làm lại"
+  "PLUGIN_FORM_REDO": "Làm lại",
+  "PLUGIN_WORKFLOW_UNDO": "Hoàn tác",
+  "PLUGIN_WORKFLOW_REDO": "Làm lại",
+  "AUTH_SESSION_EXPIRED": "Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại."
 }

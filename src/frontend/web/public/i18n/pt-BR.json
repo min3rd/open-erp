@@ -1971,5 +1971,8 @@
   "PLUGIN_FORM_CURRENCY_CODE": "Código da moeda",
   "PLUGIN_FORM_CURRENCY_SYMBOL": "Símbolo da moeda",
   "PLUGIN_FORM_UNDO": "Undo",
-  "PLUGIN_FORM_REDO": "Redo"
+  "PLUGIN_FORM_REDO": "Redo",
+  "PLUGIN_WORKFLOW_UNDO": "Desfazer",
+  "PLUGIN_WORKFLOW_REDO": "Refazer",
+  "AUTH_SESSION_EXPIRED": "Sua sessão expirou. Por favor, faça login novamente."
 }

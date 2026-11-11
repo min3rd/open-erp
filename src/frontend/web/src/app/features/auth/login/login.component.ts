@@ -10,6 +10,7 @@ import {
   SharpButtonComponent,
   SharpInputComponent,
   LanguageSwitcherComponent,
+  IconComponent,
   ButtonType,
   apiMessage
 } from '@shared';
@@ -25,7 +26,8 @@ import {
     TranslatePipe,
     SharpButtonComponent,
     SharpInputComponent,
-    LanguageSwitcherComponent
+    LanguageSwitcherComponent,
+    IconComponent
   ],
   templateUrl: './login.component.html'
 })
@@ -43,6 +45,7 @@ export class LoginComponent implements OnInit {
   loading = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
   verifiedNotice = signal<boolean>(false);
+  sessionExpiredNotice = signal<boolean>(false);
 
   private returnUrl = '/dashboard';
 
@@ -53,6 +56,7 @@ export class LoginComponent implements OnInit {
         this.returnUrl = url;
       }
       this.verifiedNotice.set(params['verified'] === '1');
+      this.sessionExpiredNotice.set(params['expired'] === 'true' || params['expired'] === '1');
     });
   }
 

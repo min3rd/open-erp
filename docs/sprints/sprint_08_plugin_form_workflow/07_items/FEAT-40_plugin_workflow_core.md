@@ -18,6 +18,7 @@ Plugin Maven module `plugins/workflow` (`com.vn9melody.openerp.plugins.workflow`
 - [x] Engine thuần: WorkflowEngine + ExpressionEvaluator (đã có, 6/6 test) + AssigneeResolver + ParallelJoinTracker + bộ transition test toàn diện (không DB)
 - [x] Backend services: DefinitionService (validate graph/chống vòng/publish), InstanceService (idempotent trigger), TaskService (inbox/claim/action), SlaScanJob (@Scheduled 60s multi-tenant idempotent), WebhookService, TriggerService
 - [x] Frontend WC: inbox (claim/action + drawer bối cảnh), flows + builder, runs timeline, reports, webhooks; user-menu contribution "Việc của tôi"; i18n 13 locale; đại tu sang `@shared` ERP Workspace layout
+- [x] Undo / Redo Engine cho Workflow Designer Studio ([TASK-448](TASK-448_workflow_builder_undo_redo_engine.md)): 50-step snapshot stack, phím tắt `Ctrl+Z` / `Ctrl+Y`, toolbar buttons có tooltip và Feather icons
 - [x] Internal API: instances/tasks cho plugin khác (employee); bootstrap seed `employee-profile-change`
 - [x] Cấu hình default & locked plugin cho 100% tenant (V8.0.0 migration)
 

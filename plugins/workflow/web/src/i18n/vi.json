@@ -191,5 +191,8 @@
   "PLUGIN_WORKFLOW_SEARCH_USER_PLACEHOLDER": "Gõ tên hoặc email để lọc nhanh...",
   "PLUGIN_WORKFLOW_FLOW_PUBLISHED": "Đã phát hành quy trình.",
   "PLUGIN_WORKFLOW_ERROR_PUBLISH": "Không phát hành được quy trình.",
-  "COMMON_SELECT": "Chọn"
+  "COMMON_SELECT": "Chọn",
+  "PLUGIN_WORKFLOW_UNDO": "Hoàn tác",
+  "PLUGIN_WORKFLOW_REDO": "Làm lại",
+  "AUTH_SESSION_EXPIRED": "Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại."
 }

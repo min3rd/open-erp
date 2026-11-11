@@ -1971,5 +1971,8 @@
   "PLUGIN_FORM_CURRENCY_CODE": "รหัสสกุลเงิน",
   "PLUGIN_FORM_CURRENCY_SYMBOL": "สัญลักษณ์สกุลเงิน",
   "PLUGIN_FORM_UNDO": "Undo",
-  "PLUGIN_FORM_REDO": "Redo"
+  "PLUGIN_FORM_REDO": "Redo",
+  "PLUGIN_WORKFLOW_UNDO": "เลิกทำ",
+  "PLUGIN_WORKFLOW_REDO": "ทำซ้ำ",
+  "AUTH_SESSION_EXPIRED": "เซสชันของคุณหมดอายุแล้ว โปรดเข้าสู่ระบบอีกครั้ง"
 }

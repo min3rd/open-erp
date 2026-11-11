@@ -54,3 +54,4 @@
 | Phím tắt `Ctrl+Y` | Làm lại thành công | `itemCount: 38 -> 39, undoDisabled: false` | ✅ PASS |
 | Thanh Section 1 dòng | Chiều cao $\le 50\text{px}$, cuộn ngang | `height: 47.65px, scrollWidth: 1759px, isSingleRow: true` | ✅ PASS |
 | Console errors | 0 lỗi console | `console.error = 0` | ✅ PASS |
+

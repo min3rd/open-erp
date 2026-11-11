@@ -1591,5 +1591,8 @@
   "PLUGIN_FORM_CURRENCY_CODE": "Código de moneda",
   "PLUGIN_FORM_CURRENCY_SYMBOL": "Símbolo de moneda",
   "PLUGIN_FORM_UNDO": "Undo",
-  "PLUGIN_FORM_REDO": "Redo"
+  "PLUGIN_FORM_REDO": "Redo",
+  "PLUGIN_WORKFLOW_UNDO": "Deshacer",
+  "PLUGIN_WORKFLOW_REDO": "Rehacer",
+  "AUTH_SESSION_EXPIRED": "Su sesión ha expirado. Por favor, inicie sesión de nuevo."
 }

@@ -1591,5 +1591,8 @@
   "PLUGIN_FORM_CURRENCY_CODE": "Код валюты",
   "PLUGIN_FORM_CURRENCY_SYMBOL": "Символ валюты",
   "PLUGIN_FORM_UNDO": "Undo",
-  "PLUGIN_FORM_REDO": "Redo"
+  "PLUGIN_FORM_REDO": "Redo",
+  "PLUGIN_WORKFLOW_UNDO": "Отменить",
+  "PLUGIN_WORKFLOW_REDO": "Повторить",
+  "AUTH_SESSION_EXPIRED": "Время сеанса истекло. Пожалуйста, войдите снова."
 }

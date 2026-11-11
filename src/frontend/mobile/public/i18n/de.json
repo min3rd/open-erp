@@ -1591,5 +1591,8 @@
   "PLUGIN_FORM_CURRENCY_CODE": "Währungscode",
   "PLUGIN_FORM_CURRENCY_SYMBOL": "Währungssymbol",
   "PLUGIN_FORM_UNDO": "Undo",
-  "PLUGIN_FORM_REDO": "Redo"
+  "PLUGIN_FORM_REDO": "Redo",
+  "PLUGIN_WORKFLOW_UNDO": "Rückgängig",
+  "PLUGIN_WORKFLOW_REDO": "Wiederholen",
+  "AUTH_SESSION_EXPIRED": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
 }

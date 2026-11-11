@@ -25,7 +25,8 @@ function clearSessionAndRedirect(router: Router): void {
   localStorage.removeItem(USER_KEY);
   window.dispatchEvent(new CustomEvent('openerp:session-expired'));
   if (!router.url.startsWith('/login')) {
-    router.navigate(['/login']);
+    const returnUrl = router.url;
+    void router.navigate(['/login'], { queryParams: { expired: 'true', returnUrl } });
   }
 }
 

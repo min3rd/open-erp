@@ -320,6 +320,36 @@
               <app-sharp-button size="sm" variant="ghost" [shape]="'sharp'" (clicked)="autoAlignGraph()">
                 <span class="inline-flex items-center gap-1"><app-icon name="refresh-cw" size="sm" [decorative]="true" />{{ 'PLUGIN_WORKFLOW_AUTO_ALIGN' | translate }}</span>
               </app-sharp-button>
+
+              <!-- Undo / Redo Controls -->
+              <div class="inline-flex border border-default bg-surface-muted p-0.5">
+                <app-sharp-button
+                  size="sm"
+                  variant="ghost"
+                  [shape]="'sharp'"
+                  [disabled]="!canUndo()"
+                  [title]="('PLUGIN_WORKFLOW_UNDO' | translate) + ' (Ctrl+Z)'"
+                  (clicked)="undo()"
+                >
+                  <span class="inline-flex items-center gap-1">
+                    <app-icon name="corner-up-left" size="sm" [decorative]="true" />
+                    <span class="hidden md:inline">{{ 'PLUGIN_WORKFLOW_UNDO' | translate }}</span>
+                  </span>
+                </app-sharp-button>
+                <app-sharp-button
+                  size="sm"
+                  variant="ghost"
+                  [shape]="'sharp'"
+                  [disabled]="!canRedo()"
+                  [title]="('PLUGIN_WORKFLOW_REDO' | translate) + ' (Ctrl+Y)'"
+                  (clicked)="redo()"
+                >
+                  <span class="inline-flex items-center gap-1">
+                    <app-icon name="corner-up-right" size="sm" [decorative]="true" />
+                    <span class="hidden md:inline">{{ 'PLUGIN_WORKFLOW_REDO' | translate }}</span>
+                  </span>
+                </app-sharp-button>
+              </div>
             </div>
 
             <div class="flex flex-wrap items-center gap-1">

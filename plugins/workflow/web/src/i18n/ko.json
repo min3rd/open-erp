@@ -191,5 +191,8 @@
   "PLUGIN_WORKFLOW_SEARCH_USER_PLACEHOLDER": "Type name or email to filter...",
   "PLUGIN_WORKFLOW_FLOW_PUBLISHED": "Workflow published.",
   "PLUGIN_WORKFLOW_ERROR_PUBLISH": "Could not publish the workflow.",
-  "COMMON_SELECT": "Select"
+  "COMMON_SELECT": "Select",
+  "PLUGIN_WORKFLOW_UNDO": "실행 취소",
+  "PLUGIN_WORKFLOW_REDO": "다시 실행",
+  "AUTH_SESSION_EXPIRED": "세션이 만료되었습니다. 다시 로그인해 주세요."
 }

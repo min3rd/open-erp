@@ -191,5 +191,8 @@
   "PLUGIN_WORKFLOW_SEARCH_USER_PLACEHOLDER": "Type name or email to filter...",
   "PLUGIN_WORKFLOW_FLOW_PUBLISHED": "Workflow published.",
   "PLUGIN_WORKFLOW_ERROR_PUBLISH": "Could not publish the workflow.",
-  "COMMON_SELECT": "Select"
+  "COMMON_SELECT": "Select",
+  "PLUGIN_WORKFLOW_UNDO": "تراجع",
+  "PLUGIN_WORKFLOW_REDO": "إعادة",
+  "AUTH_SESSION_EXPIRED": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى."
 }

@@ -1971,5 +1971,8 @@
   "PLUGIN_FORM_CURRENCY_CODE": "Kode Mata Uang",
   "PLUGIN_FORM_CURRENCY_SYMBOL": "Simbol Mata Uang",
   "PLUGIN_FORM_UNDO": "Undo",
-  "PLUGIN_FORM_REDO": "Redo"
+  "PLUGIN_FORM_REDO": "Redo",
+  "PLUGIN_WORKFLOW_UNDO": "Urungkan",
+  "PLUGIN_WORKFLOW_REDO": "Ulangi",
+  "AUTH_SESSION_EXPIRED": "Sesi Anda telah kedaluwarsa. Silakan masuk kembali."
 }

@@ -1971,5 +1971,8 @@
   "PLUGIN_FORM_CURRENCY_CODE": "رمز العملة",
   "PLUGIN_FORM_CURRENCY_SYMBOL": "رمز العملة",
   "PLUGIN_FORM_UNDO": "Undo",
-  "PLUGIN_FORM_REDO": "Redo"
+  "PLUGIN_FORM_REDO": "Redo",
+  "PLUGIN_WORKFLOW_UNDO": "تراجع",
+  "PLUGIN_WORKFLOW_REDO": "إعادة",
+  "AUTH_SESSION_EXPIRED": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى."
 }

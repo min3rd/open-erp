@@ -57,8 +57,9 @@
 
 ## 4. Backlog chuyển tiếp
 
-- **BUG-179 (MEDIUM, host-wide)**: Token JWT hết hạn 15 phút chưa tự động refresh hoặc redirect về login (chuyển sang Sprint 09 xử lý cấp Core).
-- **BUG-182 (LOW, dev-env)**: Web-dev container cần rebuild để cập nhật i18n mới nhất trong môi trường dev local.
+- **BUG-179 (MEDIUM, host-wide - ĐÃ GIẢI QUYẾT & VERIFIED)**: Bổ sung cơ chế tự động bắt lỗi HTTP 401 trên toàn bộ request Core và Web Components (`authHeaderInterceptor`, `ApiService`, `auth.interceptor.ts`), xóa sạch token hết hạn, điều hướng người dùng về `/login?expired=true` kèm banner thông báo `AUTH_SESSION_EXPIRED` và ghi nhớ `returnUrl` để chuyển tiếp lại đúng màn hình đang làm việc sau khi đăng nhập lại.
+- **BUG-182 (LOW, dev-env - ĐÃ GIẢI QUYẾT & VERIFIED)**: Bổ sung cơ chế tự động nạp ngầm dictionary i18n qua Angular `HttpClient` khi phát hiện key chưa được nạp (self-healing), hỗ trợ phương thức `refreshAllDictionaries()` và sự kiện `openerp:refresh-i18n` để làm mới nóng từ điển ngay trong môi trường dev mà không cần rebuild container. Tuân thủ tuyệt đối Rule 23 (ZERO fetch trong mã nguồn Angular).
+- **Undo / Redo Engine toàn diện**: Đã tích hợp thành công trên cả Form Builder Studio (`TASK-447`) và Workflow Designer Studio (`TASK-448`) với 50-step snapshot stack, phím tắt `Ctrl+Z` / `Ctrl+Y`, toolbar buttons trực quan.
 - **Mở rộng kịch bản song song (fork/join)**: Hiện đã kiểm thử ở mức unit test engine, sẽ bổ sung thêm các kịch bản thực tế khi các module nghiệp vụ phức tạp tiếp theo yêu cầu.
 
 ## 5. Quyết định và xác nhận

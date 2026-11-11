@@ -1,4 +1,6 @@
 import { Injectable, signal, computed, inject, ApplicationRef } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { LangCode } from '../enums/lang.enum';
 import { DEFAULT_LANG, FALLBACK_LANG, findLanguage, isLangCode } from './language-registry';
 
@@ -8,6 +10,7 @@ const LANG_STORAGE_KEY = 'openerp_lang';
   providedIn: 'root'
 })
 export class I18nService {
+  private http = inject(HttpClient, { optional: true });
   private appRef = inject(ApplicationRef, { optional: true });
   private currentLangSignal = signal<LangCode>(this.readStoredLang());
   public currentLang = computed(() => this.currentLangSignal());
@@ -38,6 +41,10 @@ export class I18nService {
             }
           });
         }
+      });
+
+      window.addEventListener('openerp:refresh-i18n', () => {
+        void this.refreshAllDictionaries();
       });
     }
   }
@@ -96,7 +103,15 @@ export class I18nService {
 
     const current = this.dictionaries.get(this.currentLangSignal());
     const fallback = this.dictionaries.get(FALLBACK_LANG);
-    let text = current?.[code] || fallback?.[code] || this.dictionaries.get(DEFAULT_LANG)?.[code] || code;
+    let text = current?.[code] || fallback?.[code] || this.dictionaries.get(DEFAULT_LANG)?.[code];
+
+    if (!text) {
+      // Key missing: if already loaded and code is an uppercase token, schedule background refresh to heal stale cache (BUG-182)
+      if (this.isLoaded() && typeof window !== 'undefined' && code.includes('_') && code === code.toUpperCase()) {
+        this.triggerStaleDictionaryRefresh(this.currentLangSignal(), code);
+      }
+      text = code;
+    }
 
     if (params) {
       for (const [key, val] of Object.entries(params)) {
@@ -105,6 +120,120 @@ export class I18nService {
     }
 
     return text;
+  }
+
+  private staleCheckSet = new Set<string>();
+
+  private triggerStaleDictionaryRefresh(lang: LangCode, key: string): void {
+    if (this.staleCheckSet.has(key)) return;
+    this.staleCheckSet.add(key);
+    void this.reloadDictionaryHttp(lang).then((updated) => {
+      if (updated && updated[key]) {
+        this.dictVersionSignal.update((v) => v + 1);
+        try {
+          this.appRef?.tick();
+        } catch {
+          /* ignore tick errors */
+        }
+      }
+    });
+  }
+
+  /** Force refresh all loaded dictionaries from server via HttpClient, bypassing browser cache (BUG-182) */
+  async refreshAllDictionaries(): Promise<void> {
+    const langs = [...this.dictionaries.keys()];
+    if (!langs.length) {
+      langs.push(FALLBACK_LANG, this.currentLangSignal());
+    }
+    await Promise.all(langs.map((l) => this.reloadDictionaryHttp(l)));
+    this.dictVersionSignal.update((v) => v + 1);
+    try {
+      this.appRef?.tick();
+    } catch {
+      /* ignore tick errors */
+    }
+  }
+
+  private async requestDictionary(lang: LangCode, force = false): Promise<Record<string, string> | null> {
+    if (!this.http) {
+      return null;
+    }
+    const query = force ? `?_t=${Date.now()}` : '';
+    try {
+      return await firstValueFrom(this.http.get<Record<string, string>>(`i18n/${lang}.json${query}`));
+    } catch {
+      try {
+        return await firstValueFrom(this.http.get<Record<string, string>>(`/i18n/${lang}.json${query}`));
+      } catch (err) {
+        console.warn(`Could not load i18n dictionary for ${lang}`, err);
+        return null;
+      }
+    }
+  }
+
+  private async reloadDictionaryHttp(lang: LangCode): Promise<Record<string, string> | null> {
+    const dict = await this.requestDictionary(lang, true);
+    if (dict) {
+      this.dictionaries.set(lang, dict);
+    }
+    return dict;
+  }
+
+  private staleCheckSet = new Set<string>();
+
+  private triggerStaleDictionaryRefresh(lang: LangCode, key: string): void {
+    if (this.staleCheckSet.has(key)) return;
+    this.staleCheckSet.add(key);
+    void this.reloadDictionaryHttp(lang).then((updated) => {
+      if (updated && updated[key]) {
+        this.dictVersionSignal.update((v) => v + 1);
+        try {
+          this.appRef?.tick();
+        } catch {
+          /* ignore tick errors */
+        }
+      }
+    });
+  }
+
+  /** Force refresh all loaded dictionaries from server via HttpClient, bypassing browser cache (BUG-182) */
+  async refreshAllDictionaries(): Promise<void> {
+    const langs = [...this.dictionaries.keys()];
+    if (!langs.length) {
+      langs.push(FALLBACK_LANG, this.currentLangSignal());
+    }
+    await Promise.all(langs.map((l) => this.reloadDictionaryHttp(l)));
+    this.dictVersionSignal.update((v) => v + 1);
+    try {
+      this.appRef?.tick();
+    } catch {
+      /* ignore tick errors */
+    }
+  }
+
+  private async requestDictionary(lang: LangCode, force = false): Promise<Record<string, string> | null> {
+    if (!this.http) {
+      return null;
+    }
+    const query = force ? `?_t=${Date.now()}` : '';
+    try {
+      return await firstValueFrom(this.http.get<Record<string, string>>(`i18n/${lang}.json${query}`));
+    } catch {
+      try {
+        return await firstValueFrom(this.http.get<Record<string, string>>(`/i18n/${lang}.json${query}`));
+      } catch (err) {
+        console.warn(`Could not load i18n dictionary for ${lang}`, err);
+        return null;
+      }
+    }
+  }
+
+  private async reloadDictionaryHttp(lang: LangCode): Promise<Record<string, string> | null> {
+    const dict = await this.requestDictionary(lang, true);
+    if (dict) {
+      this.dictionaries.set(lang, dict);
+    }
+    return dict;
   }
 
   private async ensureDictionary(lang: LangCode): Promise<void> {
@@ -117,22 +246,9 @@ export class I18nService {
     }
     const request = (async () => {
       try {
-        // Relative to the document base: "/" for core web, "./" for embedded plugin UIs.
-        let response = await fetch(`i18n/${lang}.json`);
-        if (!response.ok) {
-          response = await fetch(`/i18n/${lang}.json`);
-        }
-        if (response.ok) {
-          this.dictionaries.set(lang, await response.json());
-        }
-      } catch (e) {
-        try {
-          const response = await fetch(`/i18n/${lang}.json`);
-          if (response.ok) {
-            this.dictionaries.set(lang, await response.json());
-          }
-        } catch {
-          console.warn(`Could not load i18n dictionary for ${lang}`, e);
+        const dict = await this.requestDictionary(lang, false);
+        if (dict) {
+          this.dictionaries.set(lang, dict);
         }
       } finally {
         this.loading.delete(lang);

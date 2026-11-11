@@ -45,6 +45,22 @@ export class ApiService {
 
   private handleError(error: unknown) {
     if (error instanceof HttpErrorResponse) {
+      if (error.status === 401 && typeof window !== 'undefined') {
+        const path = window.location.pathname;
+        const isPublic = path.startsWith('/login') ||
+          path.startsWith('/public') ||
+          path.startsWith('/verify-email') ||
+          path.startsWith('/reset-password');
+        if (!isPublic) {
+          localStorage.removeItem('openerp_token');
+          localStorage.removeItem('openerp_refresh_token');
+          localStorage.removeItem('openerp_session_id');
+          localStorage.removeItem('openerp_user');
+          window.dispatchEvent(new CustomEvent('openerp:session-expired'));
+          const returnUrl = encodeURIComponent(path + window.location.search);
+          window.location.href = `/login?expired=true&returnUrl=${returnUrl}`;
+        }
+      }
       if (error.error && typeof error.error === 'object' && (error.error as ApiErrorResponse).code) {
         return throwError(() => error.error as ApiErrorResponse);
       }

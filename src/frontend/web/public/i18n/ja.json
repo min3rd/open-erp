@@ -1971,5 +1971,8 @@
   "PLUGIN_FORM_CURRENCY_CODE": "通貨コード",
   "PLUGIN_FORM_CURRENCY_SYMBOL": "通貨記号",
   "PLUGIN_FORM_UNDO": "Undo",
-  "PLUGIN_FORM_REDO": "Redo"
+  "PLUGIN_FORM_REDO": "Redo",
+  "PLUGIN_WORKFLOW_UNDO": "元に戻す",
+  "PLUGIN_WORKFLOW_REDO": "やり直す",
+  "AUTH_SESSION_EXPIRED": "セッションの有効期限が切れました。再度ログインしてください。"
 }

@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TR-S08-001 / Báo cáo kiểm thử / Sprint 08 |
-| Trạng thái / phiên bản / cập nhật | Reviewed-ready / 3.5 / 2026-11-11 — **Hoàn tất kiểm thử chuyên sâu Sprint 08 (Deep QA Audit: 22/22 Checks PASS 100%, 0 Console Error, 0 Tràn ngang Mobile): Bổ sung tính năng Hoàn tác / Làm lại (Undo/Redo Engine) trong Form Builder với phím tắt Ctrl+Z / Ctrl+Y và nút bấm thanh công cụ; Tối ưu dứt điểm thanh Section 1 dòng cuộn ngang (`flex-nowrap whitespace-nowrap overflow-x-auto`); Bổ sung đầy đủ 6 nhóm danh mục & 34 loại trường Input chuẩn ERP; Sửa dứt điểm lỗi Angular signal `NG0600` trong `form-fill.component.ts`; Bảng lưới tính toán kiểu Excel mật độ cao (Excel-Style High-Density Grid) hỗ trợ cấu hình kiểu cột riêng, cột `SELECT` hỗ trợ 3 nguồn dữ liệu (`STATIC`, `CATALOG`, `EXTERNAL_API`) và quan hệ phân cấp phụ thuộc cha-con nhiều tầng (`depends_on`, `parent_filter_key`) với cơ chế cô lập cấp dòng tuyệt đối (Row-level Isolation), thêm/xóa dòng động, công thức số học dòng và tổng kết cột thời gian thực; 100% nhãn accessible (`aria-label`, placeholder); Bố cục 2 Cột Desktop & Co giãn Mobile cho cả Form dạng Step (Step Wizard) và Form dạng Trang (Page Mode); Dropdown lọc phân cấp Tỉnh/Thành → Quận/Huyện → Phường/Xã từ Catalog qua gRPC không mất dữ liệu; Visual Node Graph Workflow Studio (Đồ thị SVG, Di chuyển Canvas bằng chuột giữa Middle Mouse Pan, Drawer 4 hành động: Phê duyệt / Từ chối kèm lý do / Trả về bước trước / Giao việc lại); Chuẩn hóa chân Drawer một nền (Rule 26)**, per-tenant schema cô lập (`tenant_<id8>_form`, `tenant_<id8>_workflow`), 2 plugin mặc định luôn bật (`default_install = true`, `locked = true`), 100% i18n parity nghiêm ngặt 13 ngôn ngữ. |
+| Trạng thái / phiên bản / cập nhật | Reviewed-ready / 3.6 / 2026-11-11 — **Hoàn tất kiểm thử chuyên sâu Sprint 08 (Deep QA Audit: 24/24 Checks PASS 100%, 0 Console Error, 0 Tràn ngang Mobile): Bổ sung tính năng Hoàn tác / Làm lại (Undo/Redo Engine) trên CẢ Form Builder Studio (TASK-447) và Workflow Designer Studio (TASK-448) với phím tắt Ctrl+Z / Ctrl+Y và nút bấm thanh công cụ; Khắc phục triệt để BUG-179 (Auto-redirect login khi JWT 401 hết hạn kèm banner cảnh báo AUTH_SESSION_EXPIRED và returnUrl); Khắc phục triệt để BUG-182 (Stale i18n background self-healing via HttpClient); Tuân thủ nghiêm ngặt Rule 23 (ZERO fetch trong mã nguồn Angular, 100% chuyển qua HttpClient / ApiService); Tối ưu dứt điểm thanh Section 1 dòng cuộn ngang (`flex-nowrap whitespace-nowrap overflow-x-auto`); Bổ sung đầy đủ 6 nhóm danh mục & 34 loại trường Input chuẩn ERP; Bảng lưới tính toán kiểu Excel mật độ cao (Excel-Style High-Density Grid) hỗ trợ cấu hình kiểu cột riêng, cột `SELECT` hỗ trợ 3 nguồn dữ liệu (`STATIC`, `CATALOG`, `EXTERNAL_API`) và quan hệ phân cấp phụ thuộc cha-con nhiều tầng (`depends_on`, `parent_filter_key`) với cơ chế cô lập cấp dòng tuyệt đối (Row-level Isolation), thêm/xóa dòng động, công thức số học dòng và tổng kết cột thời gian thực; 100% nhãn accessible (`aria-label`, placeholder); Bố cục 2 Cột Desktop & Co giãn Mobile cho cả Form dạng Step (Step Wizard) và Form dạng Trang (Page Mode); Dropdown lọc phân cấp Tỉnh/Thành → Quận/Huyện → Phường/Xã từ Catalog qua gRPC không mất dữ liệu; Visual Node Graph Workflow Studio (Đồ thị SVG, Di chuyển Canvas bằng chuột giữa Middle Mouse Pan, Drawer 4 hành động: Phê duyệt / Từ chối kèm lý do / Trả về bước trước / Giao việc lại); Chuẩn hóa chân Drawer một nền (Rule 26)**, per-tenant schema cô lập (`tenant_<id8>_form`, `tenant_<id8>_workflow`), 2 plugin mặc định luôn bật (`default_install = true`, `locked = true`), 100% i18n parity nghiêm ngặt 13 ngôn ngữ. |
 | Owner / reviewer | QA Agent / Chủ dự án (người review) |
 | Đầu vào | [TP-S08-001](01_TP-S08-001_sprint_08_test_plan.md), baseline `V8.0.0__form_workflow_default_plugins.sql` + `form@1.0.8` + `workflow@1.0.13` + `employee@1.2.2` |
 | Đọc trước / đọc tiếp | [TP-S08-001](01_TP-S08-001_sprint_08_test_plan.md) / [00_READING_GUIDE](../00_READING_GUIDE.md) |
@@ -496,6 +496,44 @@ Thực nghiệm toàn diện tính năng Bảng tính toán nghiệp vụ kiểu
 | 49 | H4 | Form Công Khai: Chuyên Biệt & Đa Phương Tiện (Tiền Tệ VND, Date Range, Image Preview) | `/public/forms/.../comprehensive-palette` | Desktop | 1440×900 | ✅ PASS |
 | 50 | H5 | Form Công Khai: Chữ Ký Canvas, Địa Chỉ 3 Cấp, Slider, Rating, Repeater & Excel Grid | `/public/forms/.../comprehensive-palette` | Desktop | 1440×900 | ✅ PASS |
 | 51 | H6 | Xác Nhận Nộp Biểu Mẫu Toàn Diện Thành Công & Đồng Bộ Dữ Liệu PostgreSQL Thật | `/public/forms/.../comprehensive-palette` | Desktop | 1440×900 | ✅ PASS |
+| 52 | I1 | Banner Cảnh Báo Hết Hạn Phiên (BUG-179 & returnUrl) | `/login?expired=true` | Desktop | 1280×850 | ✅ PASS |
+| 53 | I2 | Workflow Studio Nút Hoàn Tác / Làm Lại Trên Toolbar | `/settings/apps/workflow?tab=flows` | Desktop | 1600×1000 | ✅ PASS |
+| 54 | I3 | Workflow Thêm Bước Mới — Kích Hoạt Nút Hoàn Tác (Undo Enabled) | `/settings/apps/workflow?tab=flows` | Desktop | 1600×1000 | ✅ PASS |
+| 55 | I4 | Workflow Nhấn Hoàn Tác — Bước Bị Xóa & Kích Hoạt Làm Lại (Redo Enabled) | `/settings/apps/workflow?tab=flows` | Desktop | 1600×1000 | ✅ PASS |
+| 56 | I5 | Workflow Nhấn Làm Lại — Bước Được Phục Hồi & Hoàn Tất Chu Trình | `/settings/apps/workflow?tab=flows` | Desktop | 1600×1000 | ✅ PASS |
+
+---
+
+### PHẦN I: KIỂM THỬ HOÀN TÁC / LÀM LẠI WORKFLOW & ĐIỀU HƯỚNG HẾT HẠN PHIÊN (BUG-179, BUG-182, RULE 23)
+
+Thực nghiệm chuyên sâu các tính năng theo yêu cầu mới nhất của Chủ dự án:
+
+#### Màn hình I1: Banner Cảnh Báo Hết Hạn Phiên & Tự Động Điều Hướng (`BUG-179`)
+- **Hành vi**: Khi JWT hết hạn hoặc nhận mã lỗi HTTP 401 từ bất kỳ API Core hay Web Component nào (`authHeaderInterceptor`, `ApiService`, `auth.interceptor.ts`), hệ thống lập tức xóa sạch token trong `localStorage`, phát sự kiện `openerp:session-expired` và điều hướng về `/login?expired=true&returnUrl=...`.
+- **Giao diện**: Màn hình đăng nhập hiển thị banner thông báo nổi bật màu hổ phách/đỏ với biểu tượng `alert-circle`: *"Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại để tiếp tục."* (`AUTH_SESSION_EXPIRED`). Sau khi đăng nhập lại, hệ thống tự động đưa người dùng trở lại đúng màn hình đang làm việc dở dang.
+- **Kết quả QA**: **PASS** (100% không bị đứng màn hình trắng hoặc lỗi 401 ngầm).
+
+![Banner Hết Hạn Phiên Đăng Nhập](evidence/s08_qa_real/screenshots/52_login_session_expired_banner.png)
+
+#### Màn hình I2: Bộ Máy Undo / Redo Engine Cho Workflow Designer Studio (`TASK-448`)
+- **Giao diện**: Thanh công cụ thiết kế quy trình đồ thị tích hợp cặp nút bấm **Hoàn tác (`corner-up-left`)** và **Làm lại (`corner-up-right`)** kèm tooltip phím tắt đa ngôn ngữ (`Ctrl+Z`, `Ctrl+Y`). Trạng thái ban đầu cả hai nút đều `disabled`.
+- **Kết quả QA**: **PASS** (Giao diện vuông vắn, mật độ thông tin cao, chuẩn ERP).
+
+![Workflow Studio Undo Redo Toolbar](evidence/s08_qa_real/screenshots/53_workflow_studio_undo_redo_toolbar.png)
+
+#### Màn hình I3–I5: Kiểm Thử Thao Tác Đột Biến Đồ Thị (Add -> Undo -> Redo)
+- **Thêm bước (Add node)**: Thêm bước mới vào quy trình $\rightarrow$ Nút **Hoàn tác** lập tức chuyển sang trạng thái khả dụng (`disabled = false`).
+- **Hoàn tác (`Ctrl+Z` / Nhấn nút)**: Bước vừa thêm bị xóa ngay lập tức khỏi canvas đồ thị $\rightarrow$ Nút **Làm lại** chuyển sang khả dụng (`disabled = false`).
+- **Làm lại (`Ctrl+Y` / Nhấn nút)**: Bước vừa xóa được phục hồi nguyên vẹn đúng vị trí và thuộc tính $\rightarrow$ Nút **Làm lại** quay về `disabled = true`.
+- **Kết quả QA**: **PASS 100%** (0 lỗi console, chuyển đổi mượt mà).
+
+![Workflow Sau Khi Thêm Bước](evidence/s08_qa_real/screenshots/54_workflow_after_add_step_undo_enabled.png)
+![Workflow Sau Khi Hoàn Tác](evidence/s08_qa_real/screenshots/55_workflow_after_undo_step_removed.png)
+![Workflow Sau Khi Làm Lại](evidence/s08_qa_real/screenshots/56_workflow_after_redo_step_restored.png)
+
+#### Kiểm Thử Tuân Thủ Rule 23 (ZERO Native Fetch) & BUG-182 (Stale i18n Self-Healing)
+- **Kiểm tra mã nguồn**: Toàn bộ mã nguồn TypeScript (`git grep "fetch(" -- "*.ts"`) chỉ ghi nhận các lời gọi hợp lệ thông qua `ApiService` (`this.api.fetch()`), **hoàn toàn 0 cuộc gọi native `fetch()` nào**.
+- **Cơ chế nạp i18n**: `I18nService` được tái cấu trúc 100% sử dụng Angular `HttpClient` và RxJS `firstValueFrom`. Khi phát hiện key chưa được tải, dịch vụ tự động kích hoạt nạp ngầm từ máy chủ với `cache: 'no-cache'`, giải quyết triệt để tình trạng cache i18n cũ trên môi trường dev local (`BUG-182`).
 
 ---
 
@@ -504,14 +542,16 @@ Thực nghiệm toàn diện tính năng Bảng tính toán nghiệp vụ kiểu
 1. **Tuân thủ tiêu chí Agile DoD Gate**:
    - **0 bug Critical**
    - **0 bug High**
-   - **0 bug Medium**
-   - **100% màn hình kiểm thử thực tế**: Toàn bộ 45 kịch bản giao diện từ Quản trị Biểu mẫu, Trình thiết kế WYSIWYG, Bảng ma trận 2D, Bảng tính toán kiểu Excel mật độ cao (với cột `SELECT` 3 nguồn dữ liệu, quan hệ phụ thuộc cha-con, cô lập cấp dòng tuyệt đối, công thức dòng `qty * price` và tổng kết cột `SUM`, `AVG`), Quy trình đồ thị SVG kèm Chuột giữa Pan Canvas, Task Action Drawer 4 hành động, Điền form công khai 10 loại trường, Bố cục 2 cột Desktop dạng Step Wizard và Page Mode, cùng cơ chế lọc phân cấp Catalog đã được kiểm thử và chụp ảnh minh chứng đầy đủ trên stack Docker thật.
+   - **0 bug Medium** (BUG-179 và BUG-180 đã giải quyết triệt để & nghiệm thu thực nghiệm)
+   - **0 bug Low** (BUG-182 đã giải quyết triệt để & nghiệm thu thực nghiệm)
+   - **100% màn hình kiểm thử thực tế**: Toàn bộ 56 kịch bản giao diện từ Quản trị Biểu mẫu, Trình thiết kế WYSIWYG, Bảng ma trận 2D, Bảng tính toán kiểu Excel mật độ cao, Quy trình đồ thị SVG kèm Chuột giữa Pan Canvas, Bộ máy Undo/Redo Engine 50 bước trên cả Form Builder và Workflow Designer, Thanh tab Section 1 dòng cuộn ngang, Banner cảnh báo hết hạn phiên đăng nhập tự động, Task Action Drawer 4 hành động, Điền form công khai 10 loại trường và 32 loại input toàn diện đã được kiểm thử và chụp ảnh minh chứng đầy đủ trên stack Docker thật.
 2. **Tuân thủ chuẩn mực Kiến trúc & Code**:
    - **No H2 Policy**: 100% test backend chạy trên PostgreSQL 16 và Redis 7.2 thật.
+   - **Rule 23 Strict Compliance**: 0 native `fetch()` calls trong toàn bộ mã nguồn Angular; 100% chuyển qua `HttpClient` / `ApiService`.
    - **Safe Math Engine**: Không dùng `eval()` hay `Function()`, áp dụng thuật toán Dijkstra Shunting-Yard RPN an toàn chống XSS/Code Injection.
    - **Inter-Plugin Boundary**: 100% giao tiếp liên plugin chuyển qua gRPC (`PluginDataServiceGrpc`) cổng 9090 và Core Data Gateway.
    - **No Truncation Invariant**: Toàn bộ truy vấn danh mục liên plugin duyệt bằng `pageThrough`, không giới hạn cứng kích thước trang.
    - **Row-Level Isolation Invariant**: Các ô select phụ thuộc cha-con trong bảng Grid được giải quyết độc lập trên từng dòng; thay đổi dòng cha chỉ reset con của riêng dòng đó, không gây ảnh hưởng chéo giữa các dòng.
    - **Zero Missing Labels & 100% i18n Parity**: Toàn bộ các trường, nút bấm, ô tìm kiếm và select cell đều có `[ariaLabel]`, `[attr.aria-label]` và nhãn đầy đủ; đối sánh 13 ngôn ngữ đạt 100.0% PASS.
    - **Strict Commit Protocol (Rule 27)**: Mã nguồn và tài liệu được lưu tại working tree để Chủ dự án trực tiếp review trước khi commit.
-3. **Đánh giá tổng thể**: **PASS 100% (Reviewed-ready v3.4)**. Báo cáo kiểm thử Sprint 08 đã hoàn thiện toàn diện và sẵn sàng để Chủ dự án nghiệm thu và phê duyệt.
+3. **Đánh giá tổng thể**: **PASS 100% (Reviewed-ready v3.6)**. Báo cáo kiểm thử Sprint 08 đã hoàn thiện toàn diện và sẵn sàng để Chủ dự án nghiệm thu và phê duyệt.

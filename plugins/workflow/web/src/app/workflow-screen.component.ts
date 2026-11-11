@@ -99,6 +99,12 @@ export interface GraphEdgeView {
   active: boolean;
 }
 
+export interface WorkflowHistorySnapshot {
+  nodes: FlowNode[];
+  selectedNodeIndex: number | null;
+  flowKey: string;
+}
+
 const NODE_TYPES: NodeType[] = [
   'START',
   'APPROVAL',
@@ -223,6 +229,130 @@ export class WorkflowScreenComponent implements OnInit {
   readonly dirty = signal(false);
   readonly nodeJson = signal('');
   readonly pendingPublishId = signal('');
+
+  // History / Undo & Redo (50 steps max, debounced property edits)
+  readonly undoStack = signal<WorkflowHistorySnapshot[]>([]);
+  readonly redoStack = signal<WorkflowHistorySnapshot[]>([]);
+  readonly canUndo = computed(() => this.undoStack().length > 0);
+  readonly canRedo = computed(() => this.redoStack().length > 0);
+
+  private isHistoryAction = false;
+  private lastDebounceKey: string | null = null;
+  private lastDebounceTime = 0;
+  private readonly MAX_HISTORY = 50;
+
+  clearHistory(): void {
+    this.undoStack.set([]);
+    this.redoStack.set([]);
+    this.lastDebounceKey = null;
+    this.lastDebounceTime = 0;
+  }
+
+  private takeSnapshot(): WorkflowHistorySnapshot {
+    return {
+      nodes: JSON.parse(JSON.stringify(this.nodes())),
+      selectedNodeIndex: this.selectedNodeIndex(),
+      flowKey: this.flowKey(),
+    };
+  }
+
+  pushHistory(debounceKey?: string, debounceMs: number = 300): void {
+    if (this.isHistoryAction) return;
+
+    const now = Date.now();
+    if (debounceKey && this.lastDebounceKey === debounceKey && (now - this.lastDebounceTime) < debounceMs) {
+      return;
+    }
+    if (debounceKey) {
+      this.lastDebounceKey = debounceKey;
+      this.lastDebounceTime = now;
+    } else {
+      this.lastDebounceKey = null;
+    }
+
+    const snapshot = this.takeSnapshot();
+    this.undoStack.update((stack) => {
+      const next = [...stack, snapshot];
+      return next.length > this.MAX_HISTORY ? next.slice(-this.MAX_HISTORY) : next;
+    });
+    this.redoStack.set([]);
+  }
+
+  undo(): void {
+    const stack = this.undoStack();
+    if (stack.length === 0) return;
+
+    this.isHistoryAction = true;
+    try {
+      const currentSnapshot = this.takeSnapshot();
+      const nextUndo = [...stack];
+      const previous = nextUndo.pop()!;
+      this.undoStack.set(nextUndo);
+
+      this.redoStack.update((redo) => [...redo, currentSnapshot]);
+
+      this.nodes.set(previous.nodes);
+      this.selectedNodeIndex.set(previous.selectedNodeIndex);
+      this.flowKey.set(previous.flowKey);
+      this.dirty.set(true);
+      this.syncNodeJson();
+    } finally {
+      this.isHistoryAction = false;
+    }
+  }
+
+  redo(): void {
+    const stack = this.redoStack();
+    if (stack.length === 0) return;
+
+    this.isHistoryAction = true;
+    try {
+      const currentSnapshot = this.takeSnapshot();
+      const nextRedo = [...stack];
+      const nextState = nextRedo.pop()!;
+      this.redoStack.set(nextRedo);
+
+      this.undoStack.update((undo) => [...undo, currentSnapshot]);
+
+      this.nodes.set(nextState.nodes);
+      this.selectedNodeIndex.set(nextState.selectedNodeIndex);
+      this.flowKey.set(nextState.flowKey);
+      this.dirty.set(true);
+      this.syncNodeJson();
+    } finally {
+      this.isHistoryAction = false;
+    }
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  onWindowKeyDown(event: KeyboardEvent): void {
+    if (this.tab() !== 'builder') return;
+
+    const isCtrlOrMeta = event.ctrlKey || event.metaKey;
+    if (!isCtrlOrMeta) return;
+
+    const target = event.target as HTMLElement | null;
+    const isInput = target && (
+      target.tagName === 'INPUT' ||
+      target.tagName === 'TEXTAREA' ||
+      target.isContentEditable
+    );
+
+    // Ctrl+Z or Cmd+Z
+    if (event.key.toLowerCase() === 'z' && !event.shiftKey) {
+      if (!isInput) {
+        event.preventDefault();
+        this.undo();
+      }
+    }
+    // Ctrl+Y or Ctrl+Shift+Z or Cmd+Shift+Z
+    else if (event.key.toLowerCase() === 'y' || (event.key.toLowerCase() === 'z' && event.shiftKey)) {
+      if (!isInput) {
+        event.preventDefault();
+        this.redo();
+      }
+    }
+  }
 
   // Runs
   readonly instances = signal<WorkflowInstance[]>([]);
@@ -949,6 +1079,7 @@ export class WorkflowScreenComponent implements OnInit {
   // ------------------------------------------------------------------
 
   startCreateFlow(): void {
+    this.clearHistory();
     const defaultUser = this.actorId() || this.uidOf(this.allKnownUsers()[0] ?? { email: '' });
     const nodes: FlowNode[] = [
       { id: 'start', type: 'START', name: this.i18n.t('PLUGIN_WORKFLOW_NODE_START'), next: 'approve' },
@@ -973,6 +1104,7 @@ export class WorkflowScreenComponent implements OnInit {
   }
 
   editFlow(definition: WorkflowDefinition): void {
+    this.clearHistory();
     this.flowKey.set(definition.key);
     this.savedDefinitionId.set(definition.id);
     this.dirty.set(false);
@@ -999,6 +1131,7 @@ export class WorkflowScreenComponent implements OnInit {
   }
 
   autoAlignGraph(): void {
+    this.pushHistory();
     const next = this.nodes().map((node) => {
       const copy = { ...node };
       delete copy.ui_x;
@@ -1040,6 +1173,7 @@ export class WorkflowScreenComponent implements OnInit {
     if ((event.target as HTMLElement)?.closest('button')) {
       return;
     }
+    this.pushHistory('drag-node', 600);
     this.draggingNodeIndex = index;
     const view = this.graphLayout().nodes[index];
     if (view) {
@@ -1119,6 +1253,7 @@ export class WorkflowScreenComponent implements OnInit {
   }
 
   toggleEdgeBetween(fromIndex: number, toIndex: number): void {
+    this.pushHistory();
     const list = [...this.nodes()];
     const from = list[fromIndex];
     const to = list[toIndex];
@@ -1140,6 +1275,7 @@ export class WorkflowScreenComponent implements OnInit {
   }
 
   removeEdge(fromId: string, toId: string): void {
+    this.pushHistory();
     const list = [...this.nodes()];
     const fromIdx = list.findIndex((n) => n.id === fromId);
     if (fromIdx < 0) return;
@@ -1179,6 +1315,7 @@ export class WorkflowScreenComponent implements OnInit {
   }
 
   appendConnectedStep(fromIndex: number, type: NodeType = 'APPROVAL'): void {
+    this.pushHistory();
     const list = [...this.nodes()];
     const source = list[fromIndex];
     if (!source) return;
@@ -1210,6 +1347,7 @@ export class WorkflowScreenComponent implements OnInit {
   }
 
   addNode(type: NodeType = 'APPROVAL'): void {
+    this.pushHistory();
     const next = [...this.nodes()];
     const id = this.nextNodeId(type);
     const defaultUser = this.actorId() || this.uidOf(this.allKnownUsers()[0] ?? { email: '' });
@@ -1252,6 +1390,7 @@ export class WorkflowScreenComponent implements OnInit {
   }
 
   deleteNode(index: number): void {
+    this.pushHistory();
     const removed = this.nodes()[index];
     const next = this.nodes().filter((_, position) => position !== index);
     if (removed) {
@@ -1276,6 +1415,7 @@ export class WorkflowScreenComponent implements OnInit {
     if (target < 0 || target >= this.nodes().length) {
       return;
     }
+    this.pushHistory();
     const next = [...this.nodes()];
     const [moved] = next.splice(index, 1);
     next.splice(target, 0, moved);
@@ -1289,6 +1429,7 @@ export class WorkflowScreenComponent implements OnInit {
     if (index == null) {
       return;
     }
+    this.pushHistory('update-node-' + index);
     const next = [...this.nodes()];
     next[index] = { ...next[index], ...patch };
     this.nodes.set(next);
@@ -1318,6 +1459,7 @@ export class WorkflowScreenComponent implements OnInit {
     if (!clean || clean === oldId) return;
     const index = this.selectedNodeIndex();
     if (index == null) return;
+    this.pushHistory();
     const next = this.nodes().map((n, idx) => {
       if (idx === index) {
         return { ...n, id: clean };
@@ -1372,6 +1514,7 @@ export class WorkflowScreenComponent implements OnInit {
       this.error.set('PLUGIN_WORKFLOW_ERROR_NODE');
       return false;
     }
+    this.pushHistory();
     const next = [...this.nodes()];
     next[index] = parsed;
     this.nodes.set(next);
