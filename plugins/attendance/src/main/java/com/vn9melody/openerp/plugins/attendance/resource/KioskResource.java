@@ -2,6 +2,7 @@ package com.vn9melody.openerp.plugins.attendance.resource;
 
 import com.vn9melody.openerp.plugin.sdk.api.ApiException;
 import com.vn9melody.openerp.plugin.sdk.api.ApiResponse;
+import com.vn9melody.openerp.plugin.sdk.api.ListData;
 import com.vn9melody.openerp.plugin.sdk.data.PluginDataClient;
 import com.vn9melody.openerp.plugin.sdk.data.PluginQueryResult;
 import com.vn9melody.openerp.plugins.attendance.api.AttendanceErrorCode;
@@ -16,6 +17,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -36,6 +39,63 @@ public class KioskResource {
 
     @Inject
     PluginDataClient client;
+
+    @GET
+    @Path("/{deviceCode}/employees")
+    public ApiResponse<ListData<KioskEmployeeDto>> listEmployees(
+            @PathParam("deviceCode") String deviceCode,
+            @QueryParam("search") String search,
+            @QueryParam("department") String department
+    ) {
+        // 1. Lookup device
+        Map<String, Object> device = getDeviceByCode(deviceCode);
+        if (device == null) {
+            throw new ApiException(404, AttendanceErrorCode.ATTENDANCE_DEVICE_NOT_FOUND, "Kiosk device not found", Map.of());
+        }
+        if (!Boolean.TRUE.equals(device.get("is_active"))) {
+            throw new ApiException(400, AttendanceErrorCode.ATTENDANCE_DEVICE_INACTIVE, "Kiosk device is inactive", Map.of());
+        }
+
+        // 2. Query employee refs synchronized with employee plugin
+        List<KioskEmployeeDto> employees = new ArrayList<>();
+        try {
+            PluginQueryResult res = client.query("attendance.employee_ref.list_all", Map.of());
+            if (res != null && res.rows() != null) {
+                for (Map<String, Object> row : res.rows()) {
+                    String code = (String) row.get("employee_code");
+                    String name = (String) row.get("full_name");
+                    String dept = row.get("primary_department_id") != null ? "Phòng Kỹ thuật" : "Doanh nghiệp";
+                    String initials = getInitials(name);
+                    employees.add(new KioskEmployeeDto(
+                            row.get("employee_id") != null ? row.get("employee_id").toString() : UUID.randomUUID().toString(),
+                            code != null ? code : "EMP-000",
+                            name != null ? name : "Nhân viên",
+                            dept,
+                            initials,
+                            row.get("photo_url") != null ? row.get("photo_url").toString() : null,
+                            row.get("work_email") != null ? row.get("work_email").toString() : null,
+                            row.get("phone") != null ? row.get("phone").toString() : null,
+                            row.get("job_title") != null ? row.get("job_title").toString() : null,
+                            false,
+                            null,
+                            null
+                    ));
+                }
+            }
+        } catch (Exception ignored) {}
+
+        return ApiResponse.successList(AttendanceErrorCode.KIOSK_EMPLOYEES_LIST_SUCCESS, "Kiosk employee directory retrieved", employees);
+    }
+
+    private String getInitials(String name) {
+        if (name == null || name.isBlank()) return "NV";
+        String[] parts = name.trim().split("\\s+");
+        StringBuilder sb = new StringBuilder();
+        for (String p : parts) {
+            if (!p.isEmpty()) sb.append(p.charAt(0));
+        }
+        return sb.length() > 3 ? sb.substring(sb.length() - 3).toUpperCase() : sb.toString().toUpperCase();
+    }
 
     @POST
     @Path("/{deviceCode}/authenticate")

@@ -7,7 +7,7 @@
 | Owner / reviewer | PM Agent / Chủ dự án (Product Owner) + Architect + QA |
 | Phạm vi | 23 AC của [CONF-S09-001](../04_confirmation/01_CONF-S09-001_sprint_09_scope_and_ac.md) 1.0; FEAT-43…47; Plugin `attendance` trọn gói |
 | Baseline | `plugin-attendance-1.0.0.jar`, UI bundle `main.js` (410KB) + `styles.css` (95KB) |
-| Evidence | [TR-S09-001](../08_testing/02_TR-S09-001_sprint_09_test_report.md) 1.0, [UG-S09-001](../../../06_user_guides/sprint_09_attendance_timesheet_user_guide.md); backend suite 116/116 PASS; i18n 100.0% strict parity 13 ngôn ngữ; 10 ảnh chụp màn hình Browser Desktop/Mobile |
+| Evidence | [TR-S09-001](../08_testing/02_TR-S09-001_sprint_09_test_report.md) 1.0, [UG-S09-001](../../../06_user_guides/sprint_09_attendance_timesheet_user_guide.md); backend suite 116/116 PASS; i18n 100.0% strict parity 13 ngôn ngữ; 29 ảnh chụp màn hình Browser Desktop/Mobile |
 
 ---
 
@@ -54,7 +54,8 @@ Sprint 09 bàn giao trọn gói **Plugin Chấm công, Bảng công & Đơn từ
 | **FEAT-44** | Timesheets 4 bước, confirmations, lock/unlock, payroll export, reports | ✅ Done | 100/100 test PASS; `TimesheetServiceTest`, `ExportTemplateServiceTest`, `AttendanceReportServiceTest` |
 | **FEAT-45** | Requests seed 6 types, fallback approval, MappingExecutor, inbox split-view | ✅ Done | 116/116 test PASS; `RequestServiceTest`, `RequestMappingExecutorTest`, `RequestTypeServiceTest` |
 | **FEAT-46** | Leave module: LeaveTypes, append-only ledger, derive balance, expiry job | ✅ Done | 116/116 test PASS; `LeaveLedgerServiceTest`, `LeaveAdminResourceTest` |
-| **FEAT-47** | UI WebComponent + Mobile Ionic 5-tab + Dual-mode browser testing | ✅ Done | Build clean (0 lỗi), 10 ảnh minh chứng, 0 console.error, 0 overflow, 100% i18n |
+| **FEAT-47** | UI WebComponent + Mobile Ionic 5-tab + Dual-mode browser testing | ✅ Done | Build clean (0 lỗi), 29 ảnh minh chứng (21 Desktop + 8 Mobile), 0 console.error, 0 overflow, 100% i18n |
+| **DoD Gate** | Trạng thái | Đạt | Toàn bộ 29 kịch bản màn hình chức năng đạt chuẩn |
 
 ---
 
@@ -72,7 +73,7 @@ Sprint 09 bàn giao trọn gói **Plugin Chấm công, Bảng công & Đơn từ
 | **Rule 23 (Zero native fetch)** | 0 fetch() calls | **0** native fetch | ✅ **PASS** |
 | **Rule 10 (Anti-Modal ERP UI)** | 100% Drawers / Split-view | **100% Drawers / Split-view** | ✅ **PASS** |
 | **Dual-Mode Browser QA Testing** | Desktop + Mobile 390x844 | **0 console.error, 0 overflow** | ✅ **PASS** |
-| **Tài liệu Hướng dẫn sử dụng** | Kèm hình ảnh trực quan | Đã có [UG-S09-001](../../../06_user_guides/sprint_09_attendance_timesheet_user_guide.md) (10 ảnh) | ✅ **PASS** |
+| **Tài liệu Hướng dẫn sử dụng** | Kèm hình ảnh trực quan | Đã có [UG-S09-001](../../../06_user_guides/sprint_09_attendance_timesheet_user_guide.md) (29 ảnh) | ✅ **PASS** |
 | **QA Test Report** | Nghiệm thu đầy đủ | Đã có [TR-S09-001](../08_testing/02_TR-S09-001_sprint_09_test_report.md) | ✅ **PASS** |
 
 ---

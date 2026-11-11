@@ -1,0 +1,83 @@
+<div class="relative flex items-center w-full group/filter-strip select-none">
+  <!-- Left Scroll Button -->
+  @if (canScrollLeft()) {
+    <button
+      type="button"
+      (click)="scrollLeft()"
+      [attr.aria-label]="scrollLeftLabelKey() | translate"
+      class="absolute left-0 z-10 flex h-7 w-6 items-center justify-center bg-white/95 dark:bg-slate-800/95 border border-slate-300 dark:border-slate-600 shadow-xs text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white cursor-pointer"
+    >
+      <app-icon name="chevron-left" size="xs" [decorative]="true" />
+    </button>
+  }
+
+  <!-- Horizontal Scrollable Container -->
+  <div
+    #scrollContainer
+    (scroll)="updateScrollState()"
+    class="flex flex-nowrap items-center gap-1.5 overflow-x-auto whitespace-nowrap scroll-smooth py-1 px-0.5 w-full filter-strip-scroll"
+    role="tablist"
+    [attr.aria-label]="ariaLabelKey() ? (ariaLabelKey() | translate) : ariaLabel()"
+  >
+    @for (item of items(); track item.id; let index = $index) {
+      <button
+        type="button"
+        role="tab"
+        [id]="'filter-item-' + item.id"
+        [attr.data-testid]="item.testId || ('btn-filter-' + item.id)"
+        [attr.aria-selected]="item.id === selectedId()"
+        [attr.tabindex]="item.id === selectedId() ? 0 : -1"
+        [disabled]="item.disabled"
+        (click)="select(item.id)"
+        (keydown)="onKeydown($event, index)"
+        class="inline-flex shrink-0 items-center gap-1.5 transition-colors cursor-pointer font-sans border"
+        [ngClass]="getButtonClasses(item.id === selectedId())"
+      >
+        @if (item.icon) {
+          <app-icon [name]="item.icon" size="xs" [decorative]="true" />
+        }
+        <span>{{ item.labelKey ? (item.labelKey | translate) : item.label }}</span>
+        @if (item.count !== undefined && showCount()) {
+          <span
+            class="px-1 py-0.2 text-[10px] font-bold font-mono"
+            [ngClass]="item.id === selectedId() ? 'bg-white/20 text-white dark:bg-slate-900/30 dark:text-slate-900' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600'"
+          >
+            {{ item.count }}
+          </span>
+        }
+      </button>
+    }
+  </div>
+
+  <!-- Right Scroll Button -->
+  @if (canScrollRight()) {
+    <button
+      type="button"
+      (click)="scrollRight()"
+      [attr.aria-label]="scrollRightLabelKey() | translate"
+      class="absolute right-0 z-10 flex h-7 w-6 items-center justify-center bg-white/95 dark:bg-slate-800/95 border border-slate-300 dark:border-slate-600 shadow-xs text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white cursor-pointer"
+    >
+      <app-icon name="chevron-right" size="xs" [decorative]="true" />
+    </button>
+  }
+</div>
+
+<style>
+  .filter-strip-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+  }
+  .filter-strip-scroll::-webkit-scrollbar {
+    height: 3px;
+  }
+  .filter-strip-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .filter-strip-scroll::-webkit-scrollbar-thumb {
+    background-color: rgba(148, 163, 184, 0.4);
+    border-radius: 0;
+  }
+  .filter-strip-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(100, 116, 139, 0.6);
+  }
+</style>

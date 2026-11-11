@@ -33,3 +33,4 @@ export * from './leave-balance-card/leave-balance-card.component';
 export * from './period-stepper/period-stepper.component';
 export * from './gps-indicator/gps-indicator.component';
 export * from './request-timeline/request-timeline.component';
+export * from './filter-strip/filter-strip.component';

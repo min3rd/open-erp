@@ -1418,5 +1418,47 @@
       "sort": [{ "field": "start_at", "direction": "ASC" }],
       "page": { "pageParam": "page", "sizeParam": "size", "maxSize": 200, "defaultSize": 50 }
     }
-  ]
+  ],
+  "ui_manifest": {
+    "contract_version": "1.0",
+    "screens": [
+      {
+        "route": "/apps/attendance",
+        "title_key": "PLUGIN_ATTENDANCE_TITLE",
+        "render_mode": "WEB_COMPONENT",
+        "entry": "/plugins-runtime/attendance/main.js",
+        "tag_name": "op-attendance-app",
+        "order": 140,
+        "platforms": [
+          "desktop",
+          "mobile"
+        ]
+      }
+    ],
+    "contributions": [
+      {
+        "id": "attendance-my-status-item",
+        "slot": "core.layout.user-menu.items",
+        "title_key": "PLUGIN_ATTENDANCE_MY_ATTENDANCE",
+        "render_mode": "WEB_COMPONENT",
+        "entry": "/plugins-runtime/attendance/main.js",
+        "tag_name": "op-attendance-menu-item",
+        "permission": "attendance:checkin:self",
+        "order": 25,
+        "contract_version": "1.0",
+        "platforms": [
+          "desktop",
+          "mobile"
+        ]
+      }
+    ],
+    "slots": [],
+    "crud": []
+  },
+  "distribution": {
+    "type": "IMAGE_REGISTRY",
+    "registry_url": "",
+    "repository": "open-erp/attendance",
+    "tag": "1.0.0"
+  }
 }

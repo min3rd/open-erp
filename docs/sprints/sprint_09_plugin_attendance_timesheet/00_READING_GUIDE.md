@@ -56,7 +56,7 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | 07.04 | FEAT-46 | [Leave module (ledger số dư phép)](07_items/FEAT-46_attendance_leave_module.md) | ✅ **Done** (TASK-456…458 Done — 116/116 test PASS) | Developer |
 | 07.05 | FEAT-47 | [UI Web + Mobile Ionic](07_items/FEAT-47_attendance_ui_web_mobile.md) | ✅ **Done** (TASK-459…461 Done — Dual-Mode QA PASS) | Developer |
 | 08.01 | TP-S09-001 | [Test Plan Sprint 09](08_testing/01_TP-S09-001_sprint_09_test_plan.md) | ✅ **Approved 1.0** — Ma trận AC và 5 nhóm kiểm thử | QA |
-| 08.02 | TR-S09-001 | [Test Report Sprint 09](08_testing/02_TR-S09-001_sprint_09_test_report.md) | ✅ **Approved 1.0** — 116 test PASS, Dual-mode QA PASS, 10 ảnh minh chứng | QA |
+| 08.02 | TR-S09-001 | [Test Report Sprint 09](08_testing/02_TR-S09-001_sprint_09_test_report.md) | ✅ **Approved 1.0** — 116 test PASS, Dual-mode QA PASS, 29 ảnh minh chứng (21 desktop + 8 mobile) | QA |
 | 09.01 | REV-S09-001 | [Nghiệm thu & DoD Sprint 09](09_review/01_REV-S09-001_sprint_09_dod_review.md) | ✅ **Ready to Close 1.0** — Đạt 100% tiêu chí DoD Gate | PM |
 
 > Bảng đọc là snapshot. Không tạo link giả cho artifact chưa tồn tại; khi tạo file phải cập nhật index trước khi giao việc.

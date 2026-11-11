@@ -2,11 +2,100 @@
 
 @source './';
 
+:root {
+  --op-primary: #0284c7;
+  --op-primary-hover: #0369a1;
+}
+
+.dark {
+  --op-primary: #38bdf8;
+  --op-primary-hover: #0ea5e9;
+}
+
+.bg-primary {
+  background-color: var(--op-primary, #0284c7) !important;
+}
+
+.text-primary {
+  color: var(--op-primary, #0284c7) !important;
+}
+
+.border-primary {
+  border-color: var(--op-primary, #0284c7) !important;
+}
+
 .op-att-grid {
   border-collapse: collapse;
 }
 
 .op-att-grid th, .op-att-grid td {
   border: 1px solid var(--op-border, #e5e7eb);
+}
+
+/* ==========================================================================
+ * High Contrast Light Mode & Deep Contrast Rules (Zero-Faint Text)
+ * ========================================================================== */
+
+/* In Tailwind v4, --color-default was mapped to --op-border (#e5e5e5).
+ * Explicitly ensure .text-default maps to deep ink/slate-900 in light mode. */
+.text-default {
+  color: #0f172a !important; /* slate-900: strong deep dark contrast */
+}
+
+.dark .text-default {
+  color: #f8fafc !important; /* slate-50 */
+}
+
+/* Secondary/muted text in light mode: ensure minimum 7:1 contrast ratio */
+.text-muted {
+  color: #475569 !important; /* slate-600 */
+}
+
+.dark .text-muted {
+  color: #94a3b8 !important; /* slate-400 */
+}
+
+/* Table headers & cells: high-density ERP readability */
+th {
+  color: #1e293b !important; /* slate-800: bold crisp headers */
+  font-weight: 600 !important;
+}
+
+.dark th {
+  color: #e2e8f0 !important; /* slate-200 */
+}
+
+td {
+  color: #0f172a;
+}
+
+.dark td {
+  color: #f1f5f9;
+}
+
+/* Labels */
+label {
+  color: #334155 !important;
+}
+
+.dark label {
+  color: #cbd5e1 !important;
+}
+
+/* Surface backgrounds */
+.bg-surface {
+  background-color: #ffffff !important;
+}
+
+.dark .bg-surface {
+  background-color: #0f172a !important;
+}
+
+.bg-surface-muted {
+  background-color: #f8fafc !important;
+}
+
+.dark .bg-surface-muted {
+  background-color: #020617 !important;
 }
 

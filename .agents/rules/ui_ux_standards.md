@@ -30,3 +30,18 @@
      - **Quy chuẩn chân Drawer (Drawer Footer Invariant)**: Thùng chứa footer của component `app-drawer` đã có sẵn style nền và viền chuẩn (`px-4 py-2.5 border-t border-default bg-surface-muted flex justify-end gap-2`). Thẻ chiếu nội dung `<div drawer-footer>` bắt buộc phải trong suốt (`bg-transparent`), chỉ chứa các lớp bố cục (`flex items-center gap-2`). **Tuyệt đối cấm gán thêm `bg-surface`, `bg-*`, `border-t`, `p-*`** bên trong `[drawer-footer]` vì sẽ tạo ra khối hộp màu đen/2 lớp viền lồng nhau kỳ dị xung quanh nút bấm.
   3. **Chia Màn Hình Đa Phần (Split-Screen / Multi-Pane Layout)**:
      - Chia màn hình thành các cột hiển thị song song (Master-Detail).
+
+## 4. Quy Chuẩn Nhãn Thuần Khiết & Tách Biệt Biểu Tượng (Pure Semantic Labels & Icon Separation)
+- **Cấm Emoji Unicode trong chuỗi văn bản**:
+  - Tuyệt đối không nhúng các ký tự emoji (`⚠️`, `✓`, `✕`, `🔒`, `📍`, `⏱️`, `➕`, `📌`, `💡`...) vào bên trong chuỗi nhãn (label), văn bản nút bấm, thẻ form, tiêu đề hoặc badge.
+  - Chuỗi văn bản hiển thị phải trang trọng, cô đọng, đúng chuẩn ngôn ngữ nghiệp vụ ERP sắc nét.
+- **Biểu tượng (Icon) phải tách biệt hoàn toàn**:
+  - Khi cần biểu tượng minh họa cạnh nhãn (ví dụ icon xác nhận, cảnh báo, vị trí, khóa), bắt buộc phải sử dụng icon component hoặc SVG độc lập, được định kiểu kích thước và màu sắc qua Design Tokens (`inline-flex items-center gap-1.5`).
+  - Biểu tượng đồ họa không bao giờ được nằm lẫn bên trong chuỗi dịch i18n hoặc ghép thủ công cạnh chuỗi i18n trong template.
+
+## 5. 100% Đa Ngôn Ngữ Cho Toàn Bộ Nhãn & Mọi Giá Trị Hiển Thị (Zero-Raw Display Values)
+- **Nguyên tắc không có ngoại lệ (Zero Exceptions)**:
+  - 100% nhãn nút bấm, nhãn input, tiêu đề cột của bảng, tab menu.
+  - **100% giá trị trạng thái enum hiển thị**: Tạo mapping từ điển cho từng trạng thái (`enum.order_status.pending`, `enum.timesheet_status.locked`, `attendance.status.in_office`). Tuyệt đối không để text tiếng Anh thô như `LOCKED`, `ACTIVE`.
+  - **100% chuỗi nội suy tham số**: Đưa toàn bộ định dạng chuỗi vào từ điển kèm `{param}` (ví dụ: `attendance.gps.outside_with_distance`), không dùng phép cộng chuỗi hoặc ghép text cứng trong template HTML / component TypeScript.
+  - **100% thuộc tính ngữ cảnh & trợ năng**: `aria-label`, `title`, tooltip, placeholder và thông báo xác nhận (confirm popup).

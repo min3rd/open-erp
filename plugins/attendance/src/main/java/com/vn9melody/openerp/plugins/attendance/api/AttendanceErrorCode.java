@@ -16,6 +16,7 @@ public final class AttendanceErrorCode {
     public static final String ATTENDANCE_MY_LOGS_SUCCESS = "ATTENDANCE_MY_LOGS_SUCCESS";
     public static final String KIOSK_AUTH_SUCCESS = "KIOSK_AUTH_SUCCESS";
     public static final String KIOSK_PUNCH_SUCCESS = "KIOSK_PUNCH_SUCCESS";
+    public static final String KIOSK_EMPLOYEES_LIST_SUCCESS = "KIOSK_EMPLOYEES_LIST_SUCCESS";
     public static final String ATTENDANCE_LOG_LIST_SUCCESS = "ATTENDANCE_LOG_LIST_SUCCESS";
     public static final String ATTENDANCE_LOG_DELETED = "ATTENDANCE_LOG_DELETED";
     public static final String ATTENDANCE_LOG_ON_BEHALF_SUCCESS = "ATTENDANCE_LOG_ON_BEHALF_SUCCESS";

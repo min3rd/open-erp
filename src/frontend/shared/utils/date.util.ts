@@ -36,7 +36,9 @@ function toDate(value: DateValue): Date | null {
     return null;
   }
   if (DATE_ONLY_PATTERN.test(raw)) {
-    raw = `${raw}T00:00:00Z`;
+    const [y, m, d] = raw.split('-').map(Number);
+    const localDate = new Date(y, m - 1, d);
+    return Number.isNaN(localDate.getTime()) ? null : localDate;
   } else {
     raw = raw.replace(' ', 'T');
     if (!TIMEZONE_SUFFIX_PATTERN.test(raw)) {
@@ -54,7 +56,14 @@ export function formatDateTime(value: DateValue, locale?: string): string {
   if (!date) {
     return EMPTY_PLACEHOLDER;
   }
-  return new Intl.DateTimeFormat(resolveLocale(locale), { dateStyle: 'short', timeStyle: 'short' }).format(date);
+  return new Intl.DateTimeFormat(resolveLocale(locale), {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).format(date);
 }
 
 /** Short date only in the user's locale and machine timezone. */
@@ -63,7 +72,11 @@ export function formatDate(value: DateValue, locale?: string): string {
   if (!date) {
     return EMPTY_PLACEHOLDER;
   }
-  return new Intl.DateTimeFormat(resolveLocale(locale), { dateStyle: 'short' }).format(date);
+  return new Intl.DateTimeFormat(resolveLocale(locale), {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  }).format(date);
 }
 
 /** Medium time only in the user's locale and machine timezone. */

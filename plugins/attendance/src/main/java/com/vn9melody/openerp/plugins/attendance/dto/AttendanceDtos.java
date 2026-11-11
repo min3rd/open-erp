@@ -129,6 +129,21 @@ public final class AttendanceDtos {
             @JsonProperty("occurred_at") Instant occurredAt
     ) {}
 
+    public record KioskEmployeeDto(
+            @JsonProperty("id") String id,
+            @JsonProperty("code") String code,
+            @JsonProperty("name") String name,
+            @JsonProperty("department") String department,
+            @JsonProperty("avatar_initials") String avatarInitials,
+            @JsonProperty("photo_url") String photoUrl,
+            @JsonProperty("work_email") String workEmail,
+            @JsonProperty("phone") String phone,
+            @JsonProperty("job_title") String jobTitle,
+            @JsonProperty("punched_today") boolean punchedToday,
+            @JsonProperty("last_punch_time") String lastPunchTime,
+            @JsonProperty("last_punch_type") String lastPunchType
+    ) {}
+
     public record ImportRowError(
             @JsonProperty("row_index") int rowIndex,
             @JsonProperty("employee_code") String employeeCode,

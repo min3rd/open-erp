@@ -21,7 +21,8 @@ Developer Agent chịu trách nhiệm lập trình và triển khai mã nguồn 
   - **Tách riêng template HTML**: 100% component Angular phải tách riêng file template `.html`. Cấm viết inline `template: \`...\``.
   - **Component-First & Thư Viện Dùng Chung**: Mọi component dùng chung phải đặt tại `src/frontend/shared/` (`@shared/*`) để dùng chung cho cả Web và Mobile trước khi sử dụng.
   - **Tái sử dụng layout component**: Tách các cụm UI lặp lại thành component độc lập (`<app-language-switcher>`, `<app-topbar>`, `<app-navbar>`).
-  - **100% Đa Ngôn Ngữ**: Không hardcode text, dùng `[appTranslate]` và `translate` pipe kết nối từ điển i18n (`vi.json`, `en.json`).
+  - **Quy Chuẩn Nhãn Thuần Khiết (Zero-Emoji in Labels)**: Tuyệt đối nghiêm cấm chèn ký tự đặc biệt, biểu tượng cảm xúc (emoji Unicode như `⚠️`, `✓`, `✕`, `🔒`, `📍`, `⏱️`, `➕`...) vào nhãn, nút bấm, tiêu đề, badge hay inline template. Luôn giữ nhãn văn bản thuần túy ngữ nghĩa; nếu cần icon thì dùng SVG / icon component độc lập.
+  - **100% Đa Ngôn Ngữ & Zero-Raw Display Values**: Không một chuỗi văn bản nào được hiển thị thô trên màn hình mà không qua i18n, bao gồm toàn bộ nhãn, placeholder, tooltip, `aria-label`, tiêu đề và **TOÀN BỘ các giá trị trạng thái enum hiển thị (badge)** cùng các chuỗi nội suy tham số động (dùng `translate: { params }`).
   - **Design Token Enums**: Sử dụng thống nhất bộ `ColorVariant`, `SizeVariant`, `ShapeVariant` từ `@shared/enums/theme.enum`.
 - **Quy Chuẩn Backend & Ranh Giới Inter-Plugin**:
   - **Giao Tiếp Liên Plugin Phải Qua gRPC (`PluginDataServiceGrpc`) - CẤM GỌI CHÉO REST API**: Backend của Plugin A khi cần đọc dữ liệu thuộc Plugin B bắt buộc phải sử dụng `PluginDataClient` chạy qua gRPC (`PluginDataServiceGrpc`) cổng `9090` với mTLS. Tuyệt đối cấm dùng `HttpClient` gọi trực tiếp REST API runtime của Plugin B. Ghi dữ liệu chéo plugin bắt buộc qua Event Hub (`/api/v1/internal/plugin-events`) hoặc Entity Write Proxy (`/api/v1/internal/entity-write/...`).

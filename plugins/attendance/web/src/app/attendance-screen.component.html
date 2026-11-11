@@ -1,15 +1,370 @@
-<div class="op-attendance-container w-full min-h-screen bg-surface text-default flex flex-col font-sans">
+@if (isStandaloneKioskMode()) {
+  <!-- STANDALONE PUBLIC KIOSK TERMINAL (No Open-ERP Shell, No Sidebar, No Topbar) -->
+  <div class="fixed inset-0 bg-slate-950 text-slate-100 flex flex-col justify-between p-6 select-none font-mono z-50">
+    <!-- Header -->
+    <header class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div class="flex items-center gap-3.5">
+        <div class="px-3 py-1.5 bg-emerald-600 text-white font-mono font-black text-sm tracking-widest uppercase shadow-md">
+          ACME KIOSK
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-bold text-white tracking-wide uppercase">
+              {{ 'attendance.kiosk.public_banner' | translate }} — {{ currentKioskBranch().name }}
+            </h1>
+            <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-950/80 border border-emerald-700 text-emerald-300">
+              {{ 'attendance.kiosk.branch_isolation_banner' | translate }}
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">
+            {{ currentKioskBranch().location }} · Mã máy: <span class="font-mono text-emerald-400 font-bold">{{ currentKioskBranch().device }}</span> · {{ 'attendance.kiosk.branch_notice' | translate }}
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-6">
+        <div class="text-right">
+          <div class="text-2xl font-black tracking-widest text-emerald-400 font-mono">
+            {{ currentTimeString() }}
+          </div>
+          <div class="text-xs text-slate-400">
+            {{ currentDateString() }}
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 px-3 py-1 bg-emerald-950/60 border border-emerald-800 text-emerald-400 text-xs font-bold">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>{{ 'attendance.kiosk.system_status_online' | translate }}</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Body: Responsive Dual-Mode (Employee Touch Grid OR Selected Employee PIN Pad) -->
+    <main class="flex-1 flex items-center justify-center p-4 overflow-y-auto">
+      @if (!selectedKioskEmployee()) {
+        <!-- VIEW 1: EMPLOYEE SELECTION GRID (Touch Cards) -->
+        <div class="w-full max-w-5xl bg-slate-900 border-2 border-slate-800 p-6 shadow-2xl space-y-4">
+          <!-- Toolbar: Title, Search, Department Filter -->
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+            <div>
+              <h2 class="text-base font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                <span>{{ 'attendance.kiosk.select_employee_title' | translate }}</span>
+              </h2>
+              <p class="text-xs text-slate-400 mt-1">
+                {{ 'attendance.kiosk.public_instructions' | translate }}
+              </p>
+            </div>
+
+            <!-- Search input -->
+            <div class="w-full md:w-80">
+              <input
+                type="text"
+                data-testid="kiosk-search-input"
+                [ngModel]="kioskSearchTerm()"
+                (ngModelChange)="onKioskSearchChange($event)"
+                [placeholder]="'attendance.kiosk.search_placeholder' | translate"
+                class="w-full text-xs py-2.5 px-3 bg-slate-950 border border-slate-700 text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <!-- Department Filter Strip (Single-line Horizontal Scroll) -->
+          <div class="w-full">
+            <app-filter-strip
+              [items]="kioskDeptFilterItems"
+              [selectedId]="kioskDeptFilter()"
+              (selectedChange)="setKioskDept($event)"
+              size="md"
+              variant="sharp"
+              ariaLabel="Lọc theo phòng ban"
+            />
+          </div>
+
+          <!-- Alphabet Fast Jump Bar (Single-line Horizontal Scroll) -->
+          <div class="flex flex-nowrap overflow-x-auto items-center gap-1 p-2 bg-slate-950 border border-slate-800/80 filter-strip-scroll">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1.5 shrink-0">
+              {{ 'attendance.kiosk.alphabet_filter' | translate }}:
+            </span>
+            @for (letter of alphabetLetters; track letter) {
+              <button
+                type="button"
+                [attr.data-testid]="'btn-kiosk-alpha-' + letter"
+                (click)="setKioskAlphabet(letter)"
+                class="px-2 py-0.5 text-[11px] font-mono font-bold rounded-none cursor-pointer transition-colors shrink-0"
+                [ngClass]="kioskAlphabetFilter() === letter ? 'bg-emerald-500 text-slate-950 font-black' : 'text-slate-400 hover:text-white hover:bg-slate-800'"
+              >
+                {{ letter === 'ALL' ? ('attendance.kiosk.all_letters' | translate) : letter }}
+              </button>
+            }
+          </div>
+
+          <!-- Card Count & Page Indicator Header -->
+          <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 px-1">
+            <div>
+              {{ 'attendance.kiosk.showing_count' | translate: { shown: paginatedKioskEmployees().length, total: filteredKioskEmployees().length } }}
+            </div>
+            <div>
+              {{ 'attendance.kiosk.page_indicator' | translate: { current: kioskPage(), total: kioskTotalPages() } }}
+            </div>
+          </div>
+
+          <!-- Employee Cards Grid with Touch Swipe & Smooth Scroll -->
+          <div
+            data-testid="kiosk-touch-grid"
+            (touchstart)="onKioskTouchStart($event)"
+            (touchend)="onKioskTouchEnd($event)"
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-[46vh] overflow-y-auto overscroll-contain touch-pan-y scrollbar-thin scrollbar-thumb-emerald-700/60 scrollbar-track-slate-950 pr-1.5 scroll-smooth"
+          >
+            @for (emp of paginatedKioskEmployees(); track emp.id) {
+              <div
+                [attr.data-testid]="'kiosk-emp-card-' + emp.code"
+                (click)="selectKioskEmployee(emp)"
+                class="p-3.5 bg-slate-950 hover:bg-slate-800/90 active:bg-slate-700 border-2 border-slate-800 hover:border-emerald-500/80 transition-all cursor-pointer flex flex-col justify-between space-y-3 group min-h-[140px]"
+              >
+                <!-- Top: Avatar + Code -->
+                <div class="flex items-center justify-between">
+                  <div class="w-10 h-10 rounded-full bg-emerald-950 border border-emerald-500 flex items-center justify-center font-bold text-xs text-emerald-400 group-hover:scale-105 transition-transform overflow-hidden flex-shrink-0">
+                    @if (emp.photo_url) {
+                      <img [src]="emp.photo_url" class="w-full h-full object-cover" [alt]="emp.name" />
+                    } @else {
+                      <span>{{ emp.avatar_initials }}</span>
+                    }
+                  </div>
+                  <span class="px-2 py-0.5 text-[10px] font-mono font-bold bg-slate-900 border border-slate-700 text-slate-300">
+                    {{ emp.code }}
+                  </span>
+                </div>
+
+                <!-- Middle: Name, Title & Dept (Linked to Employee Plugin) -->
+                <div>
+                  <div class="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors leading-tight">
+                    {{ emp.name }}
+                  </div>
+                  @if (emp.job_title) {
+                    <div class="text-[11px] text-emerald-400 font-semibold truncate mt-0.5">
+                      {{ emp.job_title }}
+                    </div>
+                  }
+                  <div class="text-[10px] text-slate-400 truncate mt-0.5">
+                    {{ emp.department }}
+                  </div>
+                </div>
+
+                <!-- Bottom: Punch status badge -->
+                <div class="pt-2 border-t border-slate-800/80 text-[10px] flex items-center justify-between">
+                  @if (emp.punched_today) {
+                    <span class="inline-flex items-center gap-1.5 text-emerald-400 font-bold">
+                      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span>{{ 'attendance.kiosk.punched_in_at' | translate: { time: emp.last_punch_time || '08:00' } }}</span>
+                    </span>
+                  } @else {
+                    <span class="inline-flex items-center gap-1.5 text-slate-500">
+                      <span class="w-2 h-2 rounded-full bg-slate-600"></span>
+                      <span>{{ 'attendance.kiosk.not_punched_yet' | translate }}</span>
+                    </span>
+                  }
+                </div>
+              </div>
+            } @empty {
+              <div class="col-span-full py-12 text-center text-xs text-slate-500 italic">
+                {{ 'attendance.kiosk.search_placeholder' | translate }}
+              </div>
+            }
+          </div>
+
+          <!-- Bottom: Swipe Hint & Touch Pagination Controls -->
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-800 text-xs">
+            <div class="text-slate-400 flex items-center gap-2 text-[11px]">
+              <svg class="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>
+              <span>{{ 'attendance.kiosk.swipe_hint' | translate }}</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                data-testid="btn-kiosk-prev-page"
+                (click)="prevKioskPage()"
+                [disabled]="kioskPage() <= 1"
+                class="px-4 py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold border border-slate-700 flex items-center gap-1.5 cursor-pointer text-xs min-h-[40px]"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                <span>{{ 'attendance.kiosk.prev_page' | translate }}</span>
+              </button>
+
+              <span class="px-3.5 py-2 bg-slate-950 border border-slate-800 text-slate-300 font-mono font-bold text-xs min-h-[40px] flex items-center">
+                {{ 'attendance.kiosk.page_indicator' | translate: { current: kioskPage(), total: kioskTotalPages() } }}
+              </span>
+
+              <button
+                type="button"
+                data-testid="btn-kiosk-next-page"
+                (click)="nextKioskPage()"
+                [disabled]="kioskPage() >= kioskTotalPages()"
+                class="px-4 py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold border border-slate-700 flex items-center gap-1.5 cursor-pointer text-xs min-h-[40px]"
+              >
+                <span>{{ 'attendance.kiosk.next_page' | translate }}</span>
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <!-- VIEW 2: PIN PAD TERMINAL FOR SELECTED EMPLOYEE -->
+        <div class="w-full max-w-lg bg-slate-900 border-2 border-slate-800 p-8 shadow-2xl space-y-6">
+          <!-- Back button & Full Linked Employee Profile Card -->
+          <div class="bg-slate-950 border border-slate-800 p-4 space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+              <button
+                type="button"
+                data-testid="btn-kiosk-back"
+                (click)="backToKioskEmployeeGrid()"
+                class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 border border-slate-700 flex items-center gap-1.5 cursor-pointer"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                <span>{{ 'attendance.kiosk.change_employee' | translate }}</span>
+              </button>
+
+              <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-950/80 border border-emerald-700 text-emerald-300">
+                {{ 'attendance.kiosk.profile_linked' | translate }}
+              </span>
+            </div>
+
+            <div class="flex items-center gap-3.5">
+              <div class="w-14 h-14 rounded-full bg-emerald-950 border-2 border-emerald-500 flex items-center justify-center font-bold text-base text-emerald-400 overflow-hidden flex-shrink-0">
+                @if (selectedKioskEmployee()?.photo_url) {
+                  <img [src]="selectedKioskEmployee()?.photo_url" class="w-full h-full object-cover" [alt]="selectedKioskEmployee()?.name" />
+                } @else {
+                  <span>{{ selectedKioskEmployee()?.avatar_initials }}</span>
+                }
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-base font-bold text-white truncate">{{ selectedKioskEmployee()?.name }}</span>
+                  <span class="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-slate-900 border border-slate-700 text-slate-300">{{ selectedKioskEmployee()?.code }}</span>
+                </div>
+                <div class="text-xs text-emerald-400 font-semibold truncate">{{ selectedKioskEmployee()?.job_title || 'Nhân viên chính thức' }}</div>
+                <div class="text-[11px] text-slate-400 truncate">{{ selectedKioskEmployee()?.department }} · {{ selectedKioskEmployee()?.work_email || 'work@acme.com' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Subtitle / Instruction -->
+          <div class="text-center space-y-1">
+            <h2 class="text-sm font-bold uppercase text-slate-300">
+              {{ 'attendance.kiosk.enter_pin_for' | translate: { name: selectedKioskEmployee()?.name } }}
+            </h2>
+            <p class="text-xs text-slate-400">
+              {{ 'attendance.kiosk.enter_pin' | translate }} (4-6 số)
+            </p>
+          </div>
+
+          <!-- Success/Error alert banner -->
+          @if (kioskSuccessMessage()) {
+            <div class="p-4 bg-emerald-950/80 border border-emerald-500 text-emerald-300 text-sm font-bold flex items-center gap-3">
+              <svg class="w-6 h-6 shrink-0 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <div>
+                <div>{{ kioskSuccessMessage() }}</div>
+                <div class="text-xs font-normal text-emerald-400/90 mt-0.5">
+                  {{ 'attendance.kiosk.welcome_punch' | translate: { name: selectedKioskEmployee()?.name, code: selectedKioskEmployee()?.code, time: currentTimeString() } }}
+                </div>
+              </div>
+            </div>
+          }
+          @if (kioskErrorMessage()) {
+            <div class="p-4 bg-rose-950/80 border border-rose-500 text-rose-300 text-sm font-bold flex items-center gap-3">
+              <svg class="w-6 h-6 shrink-0 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>{{ kioskErrorMessage() }}</span>
+            </div>
+          }
+
+          <!-- PIN Display (bullet dots) -->
+          <div class="space-y-1.5">
+            <div class="h-14 bg-slate-950 border border-slate-700 flex items-center justify-center tracking-widest text-2xl font-bold text-emerald-400">
+              @if (kioskPin().length === 0) {
+                <span class="text-slate-600 text-sm font-normal italic">••••</span>
+              } @else {
+                <span>{{ '•'.repeat(kioskPin().length) }}</span>
+              }
+            </div>
+          </div>
+
+          <!-- 3x4 Touch Keypad -->
+          <div class="grid grid-cols-3 gap-2.5">
+            @for (n of ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫']; track n) {
+              <button
+                type="button"
+                [attr.data-testid]="'btn-kiosk-num-' + (n === '⌫' ? 'back' : n)"
+                (click)="n === 'C' ? kioskClear() : (n === '⌫' ? kioskPin.set(kioskPin().slice(0, -1)) : kioskKeypadPress(n))"
+                class="h-14 bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-xl font-bold text-white border border-slate-700 cursor-pointer active:scale-95 transition-transform"
+              >
+                {{ n }}
+              </button>
+            }
+          </div>
+
+          <!-- Punch Action Buttons -->
+          <div class="grid grid-cols-2 gap-3 pt-2">
+            <button
+              type="button"
+              data-testid="btn-kiosk-punch-in"
+              (click)="kioskPunch('IN')"
+              class="h-14 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white text-base font-bold uppercase tracking-wider border border-emerald-500 cursor-pointer flex items-center justify-center gap-2"
+            >
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>{{ 'attendance.kiosk.punch_in' | translate }}</span>
+            </button>
+            <button
+              type="button"
+              data-testid="btn-kiosk-punch-out"
+              (click)="kioskPunch('OUT')"
+              class="h-14 bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white text-base font-bold uppercase tracking-wider border border-rose-500 cursor-pointer flex items-center justify-center gap-2"
+            >
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <span>{{ 'attendance.kiosk.punch_out' | translate }}</span>
+            </button>
+          </div>
+        </div>
+      }
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 pt-3 text-center text-xs text-slate-500 flex items-center justify-between">
+      <div>Open-ERP Attendance Plugin v9.0.0</div>
+      <div>{{ 'attendance.kiosk.support_hotline' | translate }}</div>
+      <div>Security: HMAC-SHA256 Pin Hash</div>
+    </footer>
+  </div>
+} @else {
+<section class="flex min-h-full flex-col bg-surface-muted text-xs text-ink font-sans">
+  <!-- Toast Floating Notification -->
+  @if (toastMessage()) {
+    <div class="fixed top-4 right-4 z-50 flex items-center gap-2 border border-emerald-500 bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-xl animate-fade-in">
+      <app-icon name="check" size="sm" [decorative]="true" />
+      <span>{{ toastMessage() }}</span>
+    </div>
+  }
   <!-- Notifications Banner -->
   @if (successMessage()) {
     <div class="px-4 py-2 bg-success/15 border-b border-success/30 text-success text-xs font-mono flex items-center justify-between">
-      <span>✓ {{ successMessage() }}</span>
-      <button type="button" (click)="successMessage.set(null)" class="text-success hover:underline">✕</button>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        <span>{{ successMessage() }}</span>
+      </div>
+      <button type="button" (click)="successMessage.set(null)" class="text-success hover:opacity-80 p-0.5 cursor-pointer" [attr.aria-label]="'PLUGIN_ACTION_CLOSE' | translate">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
     </div>
   }
   @if (errorMessage()) {
     <div class="px-4 py-2 bg-danger/15 border-b border-danger/30 text-danger text-xs font-mono flex items-center justify-between">
-      <span>⚠️ {{ errorMessage() }}</span>
-      <button type="button" (click)="errorMessage.set(null)" class="text-danger hover:underline">✕</button>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <span>{{ errorMessage() }}</span>
+      </div>
+      <button type="button" (click)="errorMessage.set(null)" class="text-danger hover:opacity-80 p-0.5 cursor-pointer" [attr.aria-label]="'PLUGIN_ACTION_CLOSE' | translate">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
     </div>
   }
 
@@ -46,7 +401,7 @@
                 [disabled]="loading()"
                 class="min-h-12 bg-success text-white font-mono text-sm font-bold uppercase tracking-wider rounded-none active:bg-success/80 flex items-center justify-center gap-2 border border-success"
               >
-                <span>☀️</span>
+                <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
                 <span>{{ 'attendance.checkin.punch_in' | translate }}</span>
               </button>
 
@@ -56,7 +411,7 @@
                 [disabled]="loading()"
                 class="min-h-12 bg-danger text-white font-mono text-sm font-bold uppercase tracking-wider rounded-none active:bg-danger/80 flex items-center justify-center gap-2 border border-danger"
               >
-                <span>🌙</span>
+                <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
                 <span>{{ 'attendance.checkin.punch_out' | translate }}</span>
               </button>
             </div>
@@ -73,10 +428,10 @@
 
             <!-- Last Punch Info -->
             <div class="border border-neutral-200 dark:border-neutral-800 bg-surface-muted/30 p-2 text-xs font-mono flex items-center justify-between">
-              <span class="text-muted">{{ 'attendance.checkin.last_punch' | translate }}:</span>
-              <span class="font-bold text-default">
+              <span class="text-slate-600 dark:text-slate-400">{{ 'attendance.checkin.last_punch' | translate }}:</span>
+              <span class="font-bold text-slate-900 dark:text-slate-100">
                 @if (lastPunch()) {
-                  {{ lastPunch()?.punch_type }} - {{ lastPunch()?.punch_time }}
+                  {{ lastPunch()?.punch_type }} - {{ formatDateTime(lastPunch()?.punch_time) }}
                 } @else {
                   --:--
                 }
@@ -86,7 +441,7 @@
             <!-- Shift Today -->
             <div class="border border-neutral-200 dark:border-neutral-800 p-2 text-xs font-mono">
               <div class="text-[10px] text-muted uppercase">{{ 'attendance.checkin.shift' | translate }}</div>
-              <div class="font-bold text-default mt-0.5">
+              <div class="font-bold text-slate-900 dark:text-slate-100 mt-0.5">
                 {{ currentShift()?.name || ('attendance.checkin.no_shift' | translate) }}
                 @if (currentShift()) {
                   ({{ currentShift()?.start_time }} - {{ currentShift()?.end_time }})
@@ -118,18 +473,18 @@
         <!-- Tab 2: Lịch của tôi (m-schedule) -->
         @if (activeMobileTab() === 'm-schedule') {
           <div class="space-y-2">
-            <div class="text-xs font-mono font-bold uppercase text-muted">
+            <div class="text-xs font-mono font-bold uppercase text-slate-800 dark:text-slate-200">
               {{ 'attendance.schedule.title' | translate }}
             </div>
-            <div class="border border-neutral-200 dark:border-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-800">
+            <div class="border border-neutral-200 dark:border-neutral-800 divide-y divide-neutral-200 dark:divide-neutral-800 bg-white dark:bg-slate-900">
               @for (item of weekSchedule(); track item.date) {
                 <div class="p-2 flex items-center justify-between text-xs font-mono">
                   <div>
                     <span class="font-bold mr-2 text-primary">{{ item.day }}</span>
-                    <span class="text-muted text-[11px]">{{ item.date }}</span>
+                    <span class="text-slate-700 dark:text-slate-300 font-medium text-[11px]">{{ formatDate(item.date) }}</span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <span class="text-[11px]">{{ item.shift }}</span>
+                    <span class="text-[11px] text-slate-800 dark:text-slate-200 font-medium">{{ item.shift }}</span>
                     @if (item.status) {
                       <app-attendance-status-badge [status]="item.status"></app-attendance-status-badge>
                     }
@@ -149,6 +504,7 @@
               </span>
               <button
                 type="button"
+                data-testid="btn-open-request-drawer-mobile"
                 (click)="openNewRequestDrawer()"
                 class="px-2.5 py-1 text-xs font-mono bg-primary text-white rounded-none border border-primary font-semibold"
               >
@@ -160,7 +516,7 @@
               @for (req of myRequestsList(); track req.id) {
                 <div class="p-2.5 text-xs font-mono space-y-1">
                   <div class="flex items-center justify-between">
-                    <span class="font-bold text-default">{{ req.request_number }}</span>
+                    <span class="font-bold text-slate-900 dark:text-slate-100">{{ req.request_number }}</span>
                     <span
                       class="px-1.5 py-0.5 text-[10px] uppercase font-bold border"
                       [ngClass]="{
@@ -177,8 +533,8 @@
                     {{ req.request_type_name || req.request_type_code }}
                   </div>
                   @if (req.submitted_at) {
-                    <div class="text-[10px] text-muted">
-                      {{ req.submitted_at }}
+                    <div class="text-[10px] text-slate-600 dark:text-slate-400">
+                      {{ formatDateTime(req.submitted_at) }}
                     </div>
                   }
                 </div>
@@ -194,7 +550,7 @@
         <!-- Tab 4: Duyệt đơn Manager (m-approvals) -->
         @if (activeMobileTab() === 'm-approvals') {
           <div class="space-y-3">
-            <div class="text-xs font-mono font-bold uppercase text-muted">
+            <div class="text-xs font-mono font-bold uppercase text-slate-800 dark:text-slate-200">
               {{ 'attendance.request.inbox' | translate }}
             </div>
 
@@ -202,16 +558,47 @@
               @for (req of inboxRequestsList(); track req.id) {
                 <div class="p-2.5 text-xs font-mono space-y-2">
                   <div class="flex items-center justify-between">
-                    <span class="font-bold text-default">{{ req.employee_name || req.employee_id }}</span>
+                    <span class="font-bold text-slate-900 dark:text-slate-100">{{ req.employee_name || req.employee_id }}</span>
                     <span class="px-1.5 py-0.5 text-[10px] bg-warning/15 text-warning border border-warning/30">
                       {{ req.request_type_code }}
                     </span>
                   </div>
-                  <div class="text-[11px] text-muted">
-                    {{ req.request_number }} · {{ req.submitted_at }}
+                  <div class="text-[11px] text-slate-600 dark:text-slate-400">
+                    {{ req.request_number }} · {{ formatDateTime(req.submitted_at) }}
                   </div>
                   @if (selectedInboxRequest()?.id === req.id) {
                     <div class="pt-2 space-y-2 border-t border-neutral-200 dark:border-neutral-800">
+                      <!-- Workflow Pipeline Card in Mobile -->
+                      <div class="p-2 bg-surface-muted/40 border border-neutral-200 dark:border-neutral-800 space-y-1.5 text-[11px]">
+                        <div class="flex items-center justify-between font-bold text-primary">
+                          <span>{{ selectedRequestWorkflow()?.workflow_key }}</span>
+                          <span class="text-[10px] text-muted">SLA: {{ selectedRequestWorkflow()?.sla_hours }}h</span>
+                        </div>
+                        <div class="space-y-1">
+                          @for (step of selectedRequestWorkflow()?.steps; track step.step_number) {
+                            <div class="flex items-center justify-between p-1 bg-surface border border-neutral-200 dark:border-neutral-800">
+                              <span class="text-slate-900 dark:text-slate-100 font-medium">B{{ step.step_number }}. {{ step.step_name }}</span>
+                              <span
+                                class="text-[9px] px-1 py-0.2 font-bold uppercase border"
+                                [ngClass]="{
+                                  'bg-success/20 text-success border-success/40': step.status === 'COMPLETED',
+                                  'bg-warning/20 text-warning border-warning/40': step.status === 'PENDING',
+                                  'bg-danger/20 text-danger border-danger/40': step.status === 'REJECTED',
+                                  'bg-neutral-100 text-neutral-500 border-neutral-300': step.status === 'WAITING'
+                                }"
+                              >
+                                {{ ('attendance.workflow.step_' + step.status.toLowerCase()) | translate }}
+                              </span>
+                            </div>
+                          }
+                        </div>
+                        @if (selectedRequestWorkflow()?.form_payload?.reason) {
+                          <div class="text-[10px] text-muted italic border-t border-neutral-200 dark:border-neutral-800 pt-1">
+                            Lý do: {{ selectedRequestWorkflow()?.form_payload?.reason }}
+                          </div>
+                        }
+                      </div>
+
                       <input
                         type="text"
                         [(ngModel)]="approvalComment"
@@ -224,14 +611,14 @@
                           (click)="processApproval('APPROVE')"
                           class="py-1.5 bg-success text-white font-mono text-xs font-bold uppercase rounded-none border border-success"
                         >
-                          ✓ {{ 'attendance.request.approve' | translate }}
+                          {{ 'attendance.request.approve' | translate }}
                         </button>
                         <button
                           type="button"
                           (click)="processApproval('REJECT')"
                           class="py-1.5 bg-danger text-white font-mono text-xs font-bold uppercase rounded-none border border-danger"
                         >
-                          ✕ {{ 'attendance.request.reject' | translate }}
+                          {{ 'attendance.request.reject' | translate }}
                         </button>
                       </div>
                     </div>
@@ -263,26 +650,28 @@
 
             @if (selectedTimesheet()) {
               <div class="border border-neutral-200 dark:border-neutral-800 p-3 space-y-2 text-xs font-mono">
-                <div class="font-bold text-default text-sm">
+                <div class="font-bold text-slate-900 dark:text-slate-100 text-sm">
                   {{ selectedTimesheet()?.name }}
                 </div>
-                <div class="text-muted text-[11px]">
-                  {{ selectedTimesheet()?.period_start }} ~ {{ selectedTimesheet()?.period_end }}
+                <div class="text-slate-700 dark:text-slate-300 font-medium text-[11px]">
+                  {{ formatDate(selectedTimesheet()?.period_start) }} ~ {{ formatDate(selectedTimesheet()?.period_end) }}
                 </div>
                 <div class="grid grid-cols-2 gap-2 pt-2">
                   <button
                     type="button"
+                    data-testid="m-btn-confirm-timesheet"
                     (click)="confirmMyTimesheet()"
                     class="py-2 bg-success text-white font-mono text-xs font-bold uppercase rounded-none border border-success cursor-pointer"
                   >
-                    ✓ {{ 'attendance.timesheet.confirmed' | translate }}
+                    {{ 'attendance.timesheet.confirmed' | translate }}
                   </button>
                   <button
                     type="button"
+                    data-testid="m-btn-dispute-timesheet"
                     (click)="rejectMyTimesheet()"
                     class="py-2 bg-danger text-white font-mono text-xs font-bold uppercase rounded-none border border-danger cursor-pointer"
                   >
-                    ✕ {{ 'attendance.timesheet.reject' | translate }}
+                    {{ 'attendance.timesheet.reject' | translate }}
                   </button>
                 </div>
               </div>
@@ -299,51 +688,56 @@
       <div class="fixed bottom-0 inset-x-0 bg-surface border-t border-neutral-200 dark:border-neutral-800 grid grid-cols-5 z-40">
         <button
           type="button"
+          data-testid="m-tab-punch"
           (click)="activeMobileTab.set('m-punch')"
-          class="min-h-12 flex flex-col items-center justify-center text-[10px] font-mono tracking-tight"
+          class="min-h-12 flex flex-col items-center justify-center text-[10px] font-mono tracking-tight gap-1 cursor-pointer"
           [ngClass]="activeMobileTab() === 'm-punch' ? 'text-primary font-bold bg-primary/5' : 'text-muted'"
         >
-          <span class="text-base">📍</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           <span>{{ 'attendance.checkin.title' | translate }}</span>
         </button>
 
         <button
           type="button"
+          data-testid="m-tab-schedule"
           (click)="activeMobileTab.set('m-schedule')"
-          class="min-h-12 flex flex-col items-center justify-center text-[10px] font-mono tracking-tight"
+          class="min-h-12 flex flex-col items-center justify-center text-[10px] font-mono tracking-tight gap-1 cursor-pointer"
           [ngClass]="activeMobileTab() === 'm-schedule' ? 'text-primary font-bold bg-primary/5' : 'text-muted'"
         >
-          <span class="text-base">📅</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           <span>{{ 'attendance.schedule.title' | translate }}</span>
         </button>
 
         <button
           type="button"
+          data-testid="m-tab-requests"
           (click)="activeMobileTab.set('m-requests')"
-          class="min-h-12 flex flex-col items-center justify-center text-[10px] font-mono tracking-tight"
+          class="min-h-12 flex flex-col items-center justify-center text-[10px] font-mono tracking-tight gap-1 cursor-pointer"
           [ngClass]="activeMobileTab() === 'm-requests' ? 'text-primary font-bold bg-primary/5' : 'text-muted'"
         >
-          <span class="text-base">📝</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           <span>{{ 'attendance.request.title' | translate }}</span>
         </button>
 
         <button
           type="button"
+          data-testid="m-tab-approvals"
           (click)="activeMobileTab.set('m-approvals')"
-          class="min-h-12 flex flex-col items-center justify-center text-[10px] font-mono tracking-tight"
+          class="min-h-12 flex flex-col items-center justify-center text-[10px] font-mono tracking-tight gap-1 cursor-pointer"
           [ngClass]="activeMobileTab() === 'm-approvals' ? 'text-primary font-bold bg-primary/5' : 'text-muted'"
         >
-          <span class="text-base">📥</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
           <span>{{ 'attendance.request.inbox' | translate }}</span>
         </button>
 
         <button
           type="button"
+          data-testid="m-tab-confirm"
           (click)="activeMobileTab.set('m-confirm')"
-          class="min-h-12 flex flex-col items-center justify-center text-[10px] font-mono tracking-tight"
+          class="min-h-12 flex flex-col items-center justify-center text-[10px] font-mono tracking-tight gap-1 cursor-pointer"
           [ngClass]="activeMobileTab() === 'm-confirm' ? 'text-primary font-bold bg-primary/5' : 'text-muted'"
         >
-          <span class="text-base">✅</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           <span>{{ 'attendance.timesheet.confirm' | translate }}</span>
         </button>
       </div>
@@ -353,130 +747,103 @@
   <!-- Desktop View -->
   @if (!isMobile()) {
     <div class="flex-1 flex flex-col">
-      <!-- Desktop Header & Tab Bar -->
-      <div class="border-b border-neutral-200 dark:border-neutral-800 bg-surface px-4 py-2 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="text-base font-bold font-mono text-primary uppercase tracking-tight">
-            {{ 'PLUGIN_ATTENDANCE_TITLE' | translate }}
+      <!-- WORKSPACE HEADER (Consistent with employee & workflow plugins!) -->
+      <header class="border-b border-default bg-surface px-4 py-4 sm:px-6">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted">
+              <app-icon name="grid" size="sm" [decorative]="true" />
+              <span>{{ 'PLUGIN_ATTENDANCE_WORKSPACE' | translate }}</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <h1 class="mt-1 text-lg font-semibold tracking-tight text-ink">{{ 'PLUGIN_ATTENDANCE_TITLE' | translate }}</h1>
+              <span class="inline-flex cursor-help text-muted hover:text-ink" [title]="'PLUGIN_ATTENDANCE_SUBTITLE' | translate">
+                <app-icon name="help-circle" size="xs" [decorative]="true" />
+              </span>
+            </div>
+            <p class="mt-1 max-w-2xl text-xs leading-relaxed text-muted">{{ 'PLUGIN_ATTENDANCE_SUBTITLE' | translate }}</p>
           </div>
-          <span class="text-xs text-muted font-mono hidden md:inline">
-            {{ 'PLUGIN_ATTENDANCE_SUBTITLE' | translate }}
-          </span>
+          <div class="flex flex-wrap items-center gap-2">
+            <app-sharp-button size="sm" shape="sharp" (clicked)="openCreateRequestDrawer()">
+              <span class="inline-flex items-center gap-1"><app-icon name="plus" size="sm" [decorative]="true" />{{ 'attendance.request.new' | translate }}</span>
+            </app-sharp-button>
+            <app-sharp-button variant="outline" size="sm" shape="sharp" (clicked)="exportTimesheets()">
+              <span class="inline-flex items-center gap-1"><app-icon name="download" size="sm" [decorative]="true" />{{ 'attendance.report.export_csv' | translate }}</span>
+            </app-sharp-button>
+            <app-sharp-button variant="ghost" size="sm" shape="sharp" (clicked)="loadInitialData()">
+              <span class="inline-flex items-center gap-1"><app-icon name="refresh-cw" size="sm" [decorative]="true" />{{ 'COMMON_REFRESH' | translate }}</span>
+            </app-sharp-button>
+          </div>
         </div>
 
-        <div class="flex items-center gap-2">
-          <app-attendance-status-badge [status]="todayStatus()"></app-attendance-status-badge>
+        <!-- 4-Card KPI Summary Bar -->
+        <div class="mt-4 grid grid-cols-2 gap-2 xl:grid-cols-4">
+          <div class="border border-default bg-surface p-3">
+            <div class="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
+              <span>{{ 'attendance.kpi.today_status' | translate }}</span>
+              <app-icon name="user" size="sm" [decorative]="true" />
+            </div>
+            <div class="mt-1 flex items-center justify-between">
+              <p class="text-xl font-semibold leading-none text-ink">{{ ('attendance.status.' + todayStatus()) | translate }}</p>
+              <app-attendance-status-badge [status]="todayStatus()"></app-attendance-status-badge>
+            </div>
+          </div>
+
+          <div class="border border-default bg-surface p-3">
+            <div class="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
+              <span>{{ 'attendance.kpi.punches_today' | translate }}</span>
+              <app-icon name="check" size="sm" [decorative]="true" />
+            </div>
+            <p class="mt-1 text-xl font-semibold leading-none text-emerald-600 dark:text-emerald-400">{{ todayPunchesCount() }} / {{ allEmployees().length }}</p>
+            <p class="mt-1 text-[11px] text-muted">{{ 'attendance.kpi.punches_today_hint' | translate }}</p>
+          </div>
+
+          <div class="border border-default bg-surface p-3">
+            <div class="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
+              <span>{{ 'attendance.kpi.pending_approvals' | translate }}</span>
+              <app-icon name="inbox" size="sm" [decorative]="true" />
+            </div>
+            <p class="mt-1 text-xl font-semibold leading-none text-amber-600 dark:text-amber-400">{{ inboxRequestsList().length }}</p>
+            <p class="mt-1 text-[11px] text-muted">{{ 'attendance.kpi.pending_approvals_hint' | translate }}</p>
+          </div>
+
+          <div class="border border-default bg-surface p-3">
+            <div class="flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wider text-muted">
+              <span>{{ 'attendance.kpi.current_period' | translate }}</span>
+              <app-icon name="calendar" size="sm" [decorative]="true" />
+            </div>
+            <p class="mt-1 text-xl font-semibold leading-none text-ink">Tháng 11/2026</p>
+            <p class="mt-1 text-[11px] text-muted">{{ selectedTimesheet()?.locked ? ('attendance.timesheet.status_locked' | translate) : ('attendance.timesheet.status_open' | translate) }}</p>
+          </div>
         </div>
-      </div>
+      </header>
 
-      <!-- Navigation Tabs (High density, sharp aesthetic) -->
-      <div class="border-b border-neutral-200 dark:border-neutral-800 bg-surface-muted/30 px-4 flex items-center gap-1 overflow-x-auto text-xs font-mono">
-        <!-- Self Group -->
-        <button
-          type="button"
-          (click)="activeTab.set('self')"
-          class="px-3 py-2 border-b-2 font-medium transition-colors"
-          [ngClass]="activeTab() === 'self' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
-        >
-          {{ 'PLUGIN_ATTENDANCE_MY_ATTENDANCE' | translate }}
-        </button>
-        <button
-          type="button"
-          (click)="activeTab.set('requests')"
-          class="px-3 py-2 border-b-2 font-medium transition-colors"
-          [ngClass]="activeTab() === 'requests' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
-        >
-          {{ 'PLUGIN_ATTENDANCE_MY_REQUESTS' | translate }}
-        </button>
+      <!-- NAVIGATION TAB STRIP (Consistent with employee & workflow plugins!) -->
+      <nav class="flex gap-1 overflow-x-auto border-b border-default bg-surface px-3 sm:px-5" [attr.aria-label]="'PLUGIN_ATTENDANCE_TITLE' | translate">
+        @for (item of screenTabs(); track item.key) {
+          <button
+            type="button"
+            [attr.data-testid]="'tab-' + item.key"
+            class="inline-flex min-h-10 shrink-0 items-center gap-1.5 border-b-2 px-2.5 text-[11px] font-medium transition-colors cursor-pointer"
+            [class.border-accent]="activeTab() === item.key"
+            [class.text-ink]="activeTab() === item.key"
+            [class.font-bold]="activeTab() === item.key"
+            [class.border-transparent]="activeTab() !== item.key"
+            [class.text-muted]="activeTab() !== item.key"
+            [class.hover:text-ink]="activeTab() !== item.key"
+            (click)="selectTab(item.key)"
+          >
+            <app-icon [name]="item.icon" size="sm" [decorative]="true" />
+            <span>{{ item.labelKey | translate }}</span>
+            @if (item.count !== undefined && item.count > 0) {
+              <span class="min-w-5 border border-default bg-surface-muted px-1 text-center text-[10px] font-semibold text-muted">{{ item.count }}</span>
+            }
+          </button>
+        }
+      </nav>
 
-        <div class="h-4 w-px bg-neutral-300 dark:bg-neutral-700 mx-1"></div>
-
-        <!-- Manager Group -->
-        <button
-          type="button"
-          (click)="activeTab.set('team')"
-          class="px-3 py-2 border-b-2 font-medium transition-colors"
-          [ngClass]="activeTab() === 'team' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
-        >
-          {{ 'PLUGIN_ATTENDANCE_TEAM' | translate }}
-        </button>
-        <button
-          type="button"
-          (click)="activeTab.set('approvals')"
-          class="px-3 py-2 border-b-2 font-medium transition-colors"
-          [ngClass]="activeTab() === 'approvals' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
-        >
-          {{ 'PLUGIN_ATTENDANCE_INBOX' | translate }}
-          @if (inboxRequestsList().length > 0) {
-            <span class="ml-1 px-1 text-[10px] bg-warning/20 text-warning font-bold">
-              {{ inboxRequestsList().length }}
-            </span>
-          }
-        </button>
-
-        <div class="h-4 w-px bg-neutral-300 dark:bg-neutral-700 mx-1"></div>
-
-        <!-- Admin Group -->
-        <button
-          type="button"
-          (click)="activeTab.set('admin-logs')"
-          class="px-3 py-2 border-b-2 font-medium transition-colors"
-          [ngClass]="activeTab() === 'admin-logs' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
-        >
-          {{ 'PLUGIN_ATTENDANCE_ADMIN_LOGS' | translate }}
-        </button>
-        <button
-          type="button"
-          (click)="activeTab.set('admin-shifts')"
-          class="px-3 py-2 border-b-2 font-medium transition-colors"
-          [ngClass]="activeTab() === 'admin-shifts' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
-        >
-          {{ 'PLUGIN_ATTENDANCE_ADMIN_SHIFTS' | translate }}
-        </button>
-        <button
-          type="button"
-          (click)="activeTab.set('admin-records')"
-          class="px-3 py-2 border-b-2 font-medium transition-colors"
-          [ngClass]="activeTab() === 'admin-records' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
-        >
-          {{ 'PLUGIN_ATTENDANCE_ADMIN_RECORDS' | translate }}
-        </button>
-        <button
-          type="button"
-          (click)="activeTab.set('admin-timesheets')"
-          class="px-3 py-2 border-b-2 font-medium transition-colors"
-          [ngClass]="activeTab() === 'admin-timesheets' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
-        >
-          {{ 'PLUGIN_ATTENDANCE_ADMIN_TIMESHEETS' | translate }}
-        </button>
-        <button
-          type="button"
-          (click)="activeTab.set('admin-leave'); loadAdminLeave()"
-          class="px-3 py-2 border-b-2 font-medium transition-colors"
-          [ngClass]="activeTab() === 'admin-leave' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
-        >
-          {{ 'PLUGIN_ATTENDANCE_ADMIN_LEAVE' | translate }}
-        </button>
-        <button
-          type="button"
-          (click)="activeTab.set('admin-reports')"
-          class="px-3 py-2 border-b-2 font-medium transition-colors"
-          [ngClass]="activeTab() === 'admin-reports' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
-        >
-          {{ 'PLUGIN_ATTENDANCE_ADMIN_REPORTS' | translate }}
-        </button>
-        <button
-          type="button"
-          (click)="activeTab.set('kiosk')"
-          class="px-3 py-2 border-b-2 font-medium transition-colors"
-          [ngClass]="activeTab() === 'kiosk' ? 'border-primary text-primary font-bold bg-surface' : 'border-transparent text-muted hover:text-default'"
-        >
-          {{ 'PLUGIN_ATTENDANCE_KIOSK' | translate }}
-        </button>
-      </div>
-
-      <!-- Tab Content Area -->
-      <div class="p-4 flex-1 overflow-y-auto space-y-4">
+      <!-- Main Content Area -->
+      <main class="flex-1 p-4 space-y-4 overflow-y-auto">
         <!-- 1. TAB: SELF (Chấm công của tôi) -->
         @if (activeTab() === 'self') {
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -485,12 +852,12 @@
               <!-- Punch Widget Box -->
               <div class="border border-neutral-200 dark:border-neutral-800 bg-surface p-4 space-y-3">
                 <div class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-2">
-                  <div class="font-mono text-sm font-bold uppercase tracking-wider text-default">
+                  <div class="font-mono text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">
                     {{ 'attendance.checkin.title' | translate }}
                   </div>
                   <div class="text-xs font-mono text-muted">
                     {{ 'attendance.checkin.shift' | translate }}:
-                    <span class="font-bold text-default">
+                    <span class="font-bold text-slate-900 dark:text-slate-100">
                       {{ currentShift()?.name || ('attendance.checkin.no_shift' | translate) }}
                     </span>
                   </div>
@@ -508,21 +875,23 @@
                 <div class="grid grid-cols-2 gap-3 pt-2">
                   <button
                     type="button"
+                    data-testid="btn-punch-in"
                     (click)="executePunch('IN')"
                     [disabled]="loading()"
                     class="py-3 bg-success text-white font-mono text-sm font-bold uppercase tracking-wider rounded-none active:bg-success/80 flex items-center justify-center gap-2 border border-success cursor-pointer"
                   >
-                    <span>☀️</span>
+                    <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
                     <span>{{ 'attendance.checkin.punch_in' | translate }}</span>
                   </button>
 
                   <button
                     type="button"
+                    data-testid="btn-punch-out"
                     (click)="executePunch('OUT')"
                     [disabled]="loading()"
                     class="py-3 bg-danger text-white font-mono text-sm font-bold uppercase tracking-wider rounded-none active:bg-danger/80 flex items-center justify-center gap-2 border border-danger cursor-pointer"
                   >
-                    <span>🌙</span>
+                    <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
                     <span>{{ 'attendance.checkin.punch_out' | translate }}</span>
                   </button>
                 </div>
@@ -530,14 +899,14 @@
 
               <!-- Week Schedule -->
               <div class="border border-neutral-200 dark:border-neutral-800 bg-surface p-3 space-y-2">
-                <div class="font-mono text-xs font-bold uppercase tracking-wider text-muted">
+                <div class="font-mono text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                   {{ 'attendance.schedule.title' | translate }}
                 </div>
                 <div class="grid grid-cols-7 gap-1 text-center font-mono text-xs">
                   @for (item of weekSchedule(); track item.date) {
                     <div class="border border-neutral-200 dark:border-neutral-800 p-2 space-y-1 bg-surface-muted/20">
                       <div class="font-bold text-primary">{{ item.day }}</div>
-                      <div class="text-[10px] text-muted">{{ item.date.slice(5) }}</div>
+                      <div class="text-[10px] text-slate-700 dark:text-slate-300 font-medium">{{ formatDate(item.date) }}</div>
                       <div class="text-[11px] truncate" [title]="item.shift || ''">{{ item.shift }}</div>
                       @if (item.status) {
                         <div class="pt-1">
@@ -551,24 +920,24 @@
 
               <!-- My Punch Logs Table -->
               <div class="border border-neutral-200 dark:border-neutral-800 bg-surface p-3 space-y-2">
-                <div class="font-mono text-xs font-bold uppercase tracking-wider text-muted">
-                  {{ 'PLUGIN_ATTENDANCE_ADMIN_LOGS' | translate }} (30 Days)
+                <div class="font-mono text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                  {{ 'PLUGIN_ATTENDANCE_ADMIN_LOGS' | translate }} ({{ 'attendance.overview.recent_days' | translate: { days: 30 } }})
                 </div>
                 <div class="overflow-x-auto">
                   <table class="w-full text-xs font-mono border-collapse border border-neutral-200 dark:border-neutral-800">
                     <thead>
-                      <tr class="bg-surface-muted/50 border-b border-neutral-200 dark:border-neutral-800 text-muted uppercase text-[10px]">
-                        <th class="p-2 text-left">Time</th>
-                        <th class="p-2 text-left">Type</th>
-                        <th class="p-2 text-left">Source</th>
-                        <th class="p-2 text-left">GPS Status</th>
-                        <th class="p-2 text-left">Note</th>
+                      <tr class="bg-slate-100 dark:bg-slate-800 border-b border-neutral-200 dark:border-neutral-800 text-slate-800 dark:text-slate-200 uppercase text-[10px] font-bold">
+                        <th class="p-2 text-left">{{ 'attendance.table.time' | translate }}</th>
+                        <th class="p-2 text-left">{{ 'attendance.table.type' | translate }}</th>
+                        <th class="p-2 text-left">{{ 'attendance.table.source' | translate }}</th>
+                        <th class="p-2 text-left">{{ 'attendance.table.gps_status' | translate }}</th>
+                        <th class="p-2 text-left">{{ 'attendance.table.note' | translate }}</th>
                       </tr>
                     </thead>
-                    <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800">
+                    <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800 bg-white dark:bg-slate-900">
                       @for (log of myLogsList(); track log.id) {
-                        <tr>
-                          <td class="p-2 font-bold">{{ log.punch_time }}</td>
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                          <td class="p-2 font-bold text-slate-900 dark:text-slate-100">{{ formatDateTime(log.punch_time) }}</td>
                           <td class="p-2">
                             <span
                               class="px-1.5 py-0.5 text-[10px] font-bold border"
@@ -577,17 +946,23 @@
                               {{ log.punch_type }}
                             </span>
                           </td>
-                          <td class="p-2 text-muted">{{ log.source }}</td>
+                          <td class="p-2 text-slate-700 dark:text-slate-300 font-medium">{{ log.source }}</td>
                           <td class="p-2">
                             @if (log.in_geofence === true) {
-                              <span class="text-success text-[10px]">✓ In office</span>
+                              <span class="inline-flex items-center gap-1 text-success text-[10px]">
+                                <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                                <span>{{ 'attendance.checkin.in_office' | translate }}</span>
+                              </span>
                             } @else if (log.in_geofence === false) {
-                              <span class="text-warning text-[10px]">⚠️ Outside ({{ log.distance_meters }}m)</span>
+                              <span class="inline-flex items-center gap-1 text-warning text-[10px]">
+                                <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                <span>{{ 'attendance.checkin.outside_meters' | translate: { meters: log.distance_meters } }}</span>
+                              </span>
                             } @else {
-                              <span class="text-muted text-[10px]">N/A</span>
+                              <span class="text-slate-500 text-[10px]">{{ 'attendance.checkin.not_available' | translate }}</span>
                             }
                           </td>
-                          <td class="p-2 text-muted italic">{{ log.note || '-' }}</td>
+                          <td class="p-2 text-slate-700 dark:text-slate-300 font-medium italic">{{ log.note || '-' }}</td>
                         </tr>
                       } @empty {
                         <tr>
@@ -605,7 +980,7 @@
             <!-- Right Col: Leave Balances breakdown -->
             <div class="space-y-4">
               <div class="border border-neutral-200 dark:border-neutral-800 bg-surface p-4 space-y-3">
-                <div class="font-mono text-sm font-bold uppercase tracking-wider text-default border-b border-neutral-200 dark:border-neutral-800 pb-2">
+                <div class="font-mono text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 border-b border-neutral-200 dark:border-neutral-800 pb-2">
                   {{ 'attendance.leave.title' | translate }}
                 </div>
                 <div class="space-y-3">
@@ -633,35 +1008,36 @@
         @if (activeTab() === 'requests') {
           <div class="border border-neutral-200 dark:border-neutral-800 bg-surface p-4 space-y-3">
             <div class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3">
-              <div class="font-mono text-sm font-bold uppercase tracking-wider text-default">
+              <div class="font-mono text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">
                 {{ 'attendance.request.title' | translate }}
               </div>
               <button
                 type="button"
+                data-testid="btn-open-request-drawer"
                 (click)="openNewRequestDrawer()"
                 class="px-3 py-1.5 text-xs font-mono bg-primary text-white font-semibold rounded-none border border-primary cursor-pointer"
               >
-                + {{ 'attendance.request.new' | translate }}
+                {{ 'attendance.request.new' | translate }}
               </button>
             </div>
 
             <div class="overflow-x-auto">
               <table class="w-full text-xs font-mono border-collapse border border-neutral-200 dark:border-neutral-800">
                 <thead>
-                  <tr class="bg-surface-muted/50 border-b border-neutral-200 dark:border-neutral-800 text-muted uppercase text-[10px]">
-                    <th class="p-2 text-left">Code</th>
-                    <th class="p-2 text-left">Type</th>
-                    <th class="p-2 text-left">Status</th>
-                    <th class="p-2 text-left">Approval Mode</th>
-                    <th class="p-2 text-left">Submitted At</th>
-                    <th class="p-2 text-left">Approved At</th>
+                  <tr class="bg-slate-100 dark:bg-slate-800 border-b border-neutral-200 dark:border-neutral-800 text-slate-800 dark:text-slate-200 uppercase text-[10px] font-bold">
+                    <th class="p-2 text-left">{{ 'attendance.table.code' | translate }}</th>
+                    <th class="p-2 text-left">{{ 'attendance.table.type' | translate }}</th>
+                    <th class="p-2 text-left">{{ 'attendance.table.status' | translate }}</th>
+                    <th class="p-2 text-left">{{ 'attendance.table.approval_mode' | translate }}</th>
+                    <th class="p-2 text-left">{{ 'attendance.table.submitted_at' | translate }}</th>
+                    <th class="p-2 text-left">{{ 'attendance.table.approved_at' | translate }}</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800">
+                <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800 bg-white dark:bg-slate-900">
                   @for (req of myRequestsList(); track req.id) {
-                    <tr>
-                      <td class="p-2 font-bold">{{ req.request_number }}</td>
-                      <td class="p-2">{{ req.request_type_name || req.request_type_code }}</td>
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                      <td class="p-2 font-bold text-sky-700 dark:text-sky-400">{{ req.request_number }}</td>
+                      <td class="p-2 font-medium text-slate-900 dark:text-slate-100">{{ req.request_type_name || req.request_type_code }}</td>
                       <td class="p-2">
                         <span
                           class="px-1.5 py-0.5 text-[10px] font-bold uppercase border"
@@ -672,12 +1048,12 @@
                             'bg-surface-muted text-muted border-neutral-300': req.status === 'CANCELLED'
                           }"
                         >
-                          {{ req.status }}
+                          {{ ('attendance.request.status.' + req.status.toLowerCase()) | translate }}
                         </span>
                       </td>
-                      <td class="p-2 text-muted text-[11px]">{{ req.approval_mode }}</td>
-                      <td class="p-2 text-muted">{{ req.submitted_at }}</td>
-                      <td class="p-2 text-muted">{{ req.approved_at || '-' }}</td>
+                      <td class="p-2 text-slate-700 dark:text-slate-300 font-medium text-[11px]">{{ req.approval_mode }}</td>
+                      <td class="p-2 text-slate-800 dark:text-slate-200 font-medium">{{ formatDateTime(req.submitted_at) }}</td>
+                      <td class="p-2 text-slate-800 dark:text-slate-200 font-medium">{{ req.approved_at ? formatDateTime(req.approved_at) : '-' }}</td>
                     </tr>
                   } @empty {
                     <tr>
@@ -692,102 +1068,387 @@
           </div>
         }
 
-        <!-- 3. TAB: APPROVALS (Hộp thư duyệt đơn Split-view) -->
+        <!-- 3. TAB: APPROVALS (Hộp thư duyệt đơn & Quy trình duyệt Split-view) -->
         @if (activeTab() === 'approvals') {
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[calc(100vh-180px)]">
-            <!-- Left: Requests List -->
-            <div class="border border-neutral-200 dark:border-neutral-800 bg-surface flex flex-col">
-              <div class="p-3 border-b border-neutral-200 dark:border-neutral-800 font-mono text-xs font-bold uppercase tracking-wider text-muted">
-                {{ 'attendance.request.inbox' | translate }} ({{ inboxRequestsList().length }})
+          <div class="space-y-4">
+            <!-- Header Toolbar: View Mode Toggle -->
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200 dark:border-neutral-800 pb-3">
+              <div>
+                <h3 class="font-mono text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                  {{ 'attendance.request.inbox' | translate }}
+                </h3>
+                <p class="font-mono text-xs text-muted mt-0.5">
+                  {{ 'attendance.workflow.pipeline_desc' | translate }}
+                </p>
               </div>
-              <div class="flex-1 overflow-y-auto divide-y divide-neutral-200 dark:divide-neutral-800">
-                @for (req of inboxRequestsList(); track req.id) {
-                  <div
-                    (click)="selectInboxRequest(req)"
-                    class="p-3 font-mono text-xs cursor-pointer transition-colors"
-                    [ngClass]="selectedInboxRequest()?.id === req.id ? 'bg-primary/10 border-l-2 border-primary' : 'hover:bg-surface-muted/30'"
-                  >
-                    <div class="flex items-center justify-between">
-                      <span class="font-bold text-default">{{ req.employee_name || req.employee_id }}</span>
-                      <span class="px-1.5 py-0.5 text-[10px] bg-warning/15 text-warning border border-warning/30">
-                        {{ req.request_type_code }}
-                      </span>
-                    </div>
-                    <div class="text-[11px] text-muted mt-1">
-                      {{ req.request_number }} · {{ req.submitted_at }}
-                    </div>
-                  </div>
-                } @empty {
-                  <div class="p-8 text-center text-xs font-mono text-muted italic">
-                    {{ 'attendance.request.empty' | translate }}
-                  </div>
-                }
+
+              <div class="flex items-center gap-1 border border-neutral-200 dark:border-neutral-800 p-0.5 bg-surface-muted">
+                <button
+                  type="button"
+                  data-testid="btn-approvals-mode-inbox"
+                  (click)="approvalsViewMode.set('inbox')"
+                  class="px-2.5 py-1 text-xs font-mono font-semibold transition-colors cursor-pointer"
+                  [ngClass]="approvalsViewMode() === 'inbox' ? 'bg-surface text-primary font-bold shadow-xs' : 'text-muted hover:text-slate-900 dark:text-slate-100'"
+                >
+                  {{ 'attendance.workflow.view_inbox' | translate }} ({{ inboxRequestsList().length }})
+                </button>
+                <button
+                  type="button"
+                  data-testid="btn-approvals-mode-catalog"
+                  (click)="approvalsViewMode.set('workflow_catalog')"
+                  class="px-2.5 py-1 text-xs font-mono font-semibold transition-colors cursor-pointer"
+                  [ngClass]="approvalsViewMode() === 'workflow_catalog' ? 'bg-surface text-primary font-bold shadow-xs' : 'text-muted hover:text-slate-900 dark:text-slate-100'"
+                >
+                  {{ 'attendance.workflow.view_catalog' | translate }} ({{ workflowCatalogList().length }})
+                </button>
               </div>
             </div>
 
-            <!-- Right: Detail & Actions Split -->
-            <div class="border border-neutral-200 dark:border-neutral-800 bg-surface p-4 flex flex-col justify-between">
-              @if (selectedInboxRequest()) {
-                <div class="space-y-4">
-                  <div class="border-b border-neutral-200 dark:border-neutral-800 pb-2 flex items-center justify-between">
-                    <div>
-                      <div class="font-mono text-sm font-bold text-default">
-                        {{ selectedInboxRequest()?.request_number }}
-                      </div>
-                      <div class="text-xs font-mono text-muted">
-                        {{ selectedInboxRequest()?.request_type_name || selectedInboxRequest()?.request_type_code }}
-                      </div>
-                    </div>
-                    <span class="px-2 py-0.5 text-xs font-mono font-bold bg-warning/20 text-warning border border-warning/40">
-                      {{ selectedInboxRequest()?.status }}
+            <!-- Mode 1: Split-view Inbox -->
+            @if (approvalsViewMode() === 'inbox') {
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-210px)]">
+                <!-- Left: Requests List (5 cols) -->
+                <div class="lg:col-span-5 border border-neutral-200 dark:border-neutral-800 bg-surface flex flex-col">
+                  <div class="p-3 border-b border-neutral-200 dark:border-neutral-800 font-mono text-xs font-bold uppercase tracking-wider text-muted flex items-center justify-between">
+                    <span>{{ 'attendance.request.inbox' | translate }}</span>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-warning/15 text-warning font-bold">
+                      {{ filteredInboxRequests().length }} {{ 'attendance.request.status.pending' | translate }}
                     </span>
                   </div>
 
-                  <!-- Timeline -->
-                  <div class="space-y-2">
-                    <div class="text-xs font-mono font-bold uppercase text-muted">
-                      {{ 'attendance.request.timeline' | translate }}
+                  <!-- Fast Horizontal Scrollable Filter Strip -->
+                  <div class="px-2 py-1.5 border-b border-neutral-200 dark:border-neutral-800 bg-surface-muted/30">
+                    <app-filter-strip
+                      [items]="approvalTypeFilterItems()"
+                      [selectedId]="approvalsRequestTypeFilter()"
+                      (selectedChange)="approvalsRequestTypeFilter.set($event)"
+                      size="xs"
+                      variant="sharp"
+                      ariaLabel="Lọc theo loại đơn từ"
+                    />
+                  </div>
+
+                  <div class="flex-1 overflow-y-auto divide-y divide-neutral-200 dark:divide-neutral-800">
+                    @for (req of filteredInboxRequests(); track req.id) {
+                      <div
+                        [attr.data-testid]="'inbox-item-' + $index"
+                        (click)="selectInboxRequest(req)"
+                        class="p-3 font-mono text-xs cursor-pointer transition-colors"
+                        [ngClass]="selectedInboxRequest()?.id === req.id ? 'bg-sky-50/80 dark:bg-sky-950/40 border-l-3 border-primary' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'"
+                      >
+                        <div class="flex items-center justify-between">
+                          <span class="font-bold text-slate-900 dark:text-slate-100">{{ req.employee_name || req.employee_id }}</span>
+                          <span class="px-1.5 py-0.5 text-[10px] bg-warning/15 text-warning border border-warning/30 font-bold">
+                            {{ req.request_type_code }}
+                          </span>
+                        </div>
+                        <div class="text-[11px] text-slate-600 dark:text-slate-400 mt-1 flex items-center justify-between">
+                          <span class="font-medium text-slate-800 dark:text-slate-200">{{ req.request_number }}</span>
+                          <span>{{ formatDateTime(req.submitted_at) }}</span>
+                        </div>
+                      </div>
+                    } @empty {
+                      <div class="p-8 text-center text-xs font-mono text-muted italic">
+                        {{ 'attendance.request.empty' | translate }}
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <!-- Right: Workflow Detail & Pipeline & Form Payload (7 cols) -->
+                <div class="lg:col-span-7 border border-neutral-200 dark:border-neutral-800 bg-surface p-4 flex flex-col justify-between overflow-y-auto">
+                  @if (selectedInboxRequest()) {
+                    <div class="space-y-4">
+                      <!-- Top Request Header -->
+                      <div class="border-b border-neutral-200 dark:border-neutral-800 pb-3 flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <div class="flex items-center gap-2">
+                            <span class="font-mono text-sm font-bold text-slate-900 dark:text-slate-100">
+                              {{ selectedInboxRequest()?.request_number }}
+                            </span>
+                            <span class="px-2 py-0.5 text-xs font-mono font-bold bg-warning/20 text-warning border border-warning/40">
+                              {{ ('attendance.request.status.' + selectedInboxRequest()?.status?.toLowerCase()) | translate }}
+                            </span>
+                          </div>
+                          <div class="text-xs font-mono text-slate-600 dark:text-slate-400 mt-0.5 flex items-center gap-2">
+                            <span class="font-medium text-slate-800 dark:text-slate-200">{{ selectedInboxRequest()?.request_type_name || selectedInboxRequest()?.request_type_code }}</span>
+                            <span>·</span>
+                            <span class="font-medium text-slate-900 dark:text-slate-100">{{ selectedInboxRequest()?.employee_name }}</span>
+                          </div>
+                        </div>
+
+                        <!-- Workflow Tag -->
+                        <div class="text-right">
+                          <span class="px-2 py-1 bg-primary/10 text-primary border border-primary/30 text-xs font-mono font-bold block">
+                            {{ selectedRequestWorkflow()?.workflow_key }}
+                          </span>
+                          <span class="text-[10px] text-muted font-mono block mt-0.5">
+                            {{ 'attendance.workflow.engine_val' | translate }}
+                          </span>
+                        </div>
+                      </div>
+
+                      <!-- 1. Card: QUY TRÌNH DUYỆT (Workflow Pipeline Multi-Step) -->
+                      <div class="border border-neutral-200 dark:border-neutral-800 bg-surface-muted/30 p-3 space-y-2.5">
+                        <div class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-1.5">
+                          <div class="text-xs font-mono font-bold uppercase text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                            <span>{{ 'attendance.workflow.pipeline' | translate }}</span>
+                          </div>
+                          <div class="text-[11px] font-mono text-muted">
+                            Instance: <span class="font-bold text-slate-900 dark:text-slate-100">{{ selectedRequestWorkflow()?.instance_id }}</span> · SLA: <span class="font-bold text-warning">{{ selectedRequestWorkflow()?.sla_hours }}h</span>
+                          </div>
+                        </div>
+
+                        <!-- Pipeline Steps Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 pt-1 font-mono text-xs">
+                          @for (step of selectedRequestWorkflow()?.steps; track step.step_number) {
+                            <div
+                              class="p-2 border bg-surface space-y-1"
+                              [ngClass]="{
+                                'border-success/50 bg-success/5': step.status === 'COMPLETED',
+                                'border-warning/50 bg-warning/5 ring-1 ring-warning/30': step.status === 'PENDING',
+                                'border-danger/50 bg-danger/5': step.status === 'REJECTED',
+                                'border-neutral-200 dark:border-neutral-800 opacity-60': step.status === 'WAITING'
+                              }"
+                            >
+                              <div class="flex items-center justify-between">
+                                <span class="font-bold text-[11px] text-muted">BƯỚC {{ step.step_number }}</span>
+                                <span
+                                  class="text-[9px] px-1 py-0.2 font-bold uppercase border"
+                                  [ngClass]="{
+                                    'bg-success/20 text-success border-success/40': step.status === 'COMPLETED',
+                                    'bg-warning/20 text-warning border-warning/40 animate-pulse': step.status === 'PENDING',
+                                    'bg-danger/20 text-danger border-danger/40': step.status === 'REJECTED',
+                                    'bg-neutral-100 text-neutral-500 border-neutral-300': step.status === 'WAITING'
+                                  }"
+                                >
+                                  {{ ('attendance.workflow.step_' + step.status.toLowerCase()) | translate }}
+                                </span>
+                              </div>
+                              <div class="font-bold text-slate-900 dark:text-slate-100 text-xs truncate" [title]="step.step_name">
+                                {{ step.step_name }}
+                              </div>
+                              <div class="text-[10px] text-primary truncate" [title]="step.actor_name">
+                                {{ step.actor_name }}
+                              </div>
+                              <div class="text-[9px] text-muted truncate">
+                                {{ step.actor_role }}
+                              </div>
+                              @if (step.comment) {
+                                <div class="text-[10px] text-muted italic border-t border-neutral-200 dark:border-neutral-800 pt-1 mt-1 truncate" [title]="step.comment">
+                                  "{{ step.comment }}"
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+
+                      <!-- 2. Card: DỮ LIỆU ĐƠN TỪ (Form Payload từ Form Builder) -->
+                      <div class="border border-neutral-200 dark:border-neutral-800 p-3 space-y-2">
+                        <div class="text-xs font-mono font-bold uppercase text-muted border-b border-neutral-200 dark:border-neutral-800 pb-1 flex items-center justify-between">
+                          <span>{{ 'attendance.workflow.form_data' | translate }}</span>
+                          <span class="text-[10px] text-primary font-normal">form_version: 1.0</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+                          @if (selectedRequestWorkflow()?.form_payload?.leave_type) {
+                            <div class="p-2 bg-slate-50 dark:bg-slate-800/40 border border-neutral-200 dark:border-neutral-800">
+                              <span class="text-slate-600 dark:text-slate-400 block text-[10px]">{{ 'attendance.workflow.leave_type' | translate }}</span>
+                              <span class="font-bold text-slate-900 dark:text-slate-100">{{ selectedRequestWorkflow()?.form_payload?.leave_type }}</span>
+                            </div>
+                          }
+                          <div class="p-2 bg-slate-50 dark:bg-slate-800/40 border border-neutral-200 dark:border-neutral-800">
+                            <span class="text-slate-600 dark:text-slate-400 block text-[10px]">{{ 'attendance.request.from_date' | translate }} ~ {{ 'attendance.request.to_date' | translate }}</span>
+                            <span class="font-bold text-slate-900 dark:text-slate-100">
+                              {{ formatDate(selectedRequestWorkflow()?.form_payload?.from_date) }} ~ {{ formatDate(selectedRequestWorkflow()?.form_payload?.to_date) }}
+                              @if (selectedRequestWorkflow()?.form_payload?.duration_days) {
+                                ({{ selectedRequestWorkflow()?.form_payload?.duration_days }} ngày)
+                              }
+                              @if (selectedRequestWorkflow()?.form_payload?.overtime_hours) {
+                                ({{ selectedRequestWorkflow()?.form_payload?.overtime_hours }}h OT)
+                              }
+                            </span>
+                          </div>
+                          @if (selectedRequestWorkflow()?.form_payload?.current_balance !== undefined) {
+                            <div class="p-2 bg-slate-50 dark:bg-slate-800/40 border border-neutral-200 dark:border-neutral-800">
+                              <span class="text-slate-600 dark:text-slate-400 block text-[10px]">{{ 'attendance.workflow.balance_check' | translate }}</span>
+                              <span class="font-bold text-success">{{ selectedRequestWorkflow()?.form_payload?.current_balance }} ngày khả dụng</span>
+                            </div>
+                          }
+                          @if (selectedRequestWorkflow()?.form_payload?.handover_colleague) {
+                            <div class="p-2 bg-slate-50 dark:bg-slate-800/40 border border-neutral-200 dark:border-neutral-800">
+                              <span class="text-slate-600 dark:text-slate-400 block text-[10px]">{{ 'attendance.workflow.handover_colleague' | translate }}</span>
+                              <span class="font-bold text-slate-900 dark:text-slate-100">{{ selectedRequestWorkflow()?.form_payload?.handover_colleague }}</span>
+                            </div>
+                          }
+                          @if (selectedRequestWorkflow()?.form_payload?.project_name) {
+                            <div class="p-2 bg-slate-50 dark:bg-slate-800/40 border border-neutral-200 dark:border-neutral-800">
+                              <span class="text-slate-600 dark:text-slate-400 block text-[10px]">{{ 'attendance.workflow.field_project' | translate }}</span>
+                              <span class="font-bold text-slate-900 dark:text-slate-100">{{ selectedRequestWorkflow()?.form_payload?.project_name }} ({{ selectedRequestWorkflow()?.form_payload?.multiplier }})</span>
+                            </div>
+                          }
+                          @if (selectedRequestWorkflow()?.form_payload?.destination) {
+                            <div class="p-2 bg-slate-50 dark:bg-slate-800/40 border border-neutral-200 dark:border-neutral-800">
+                              <span class="text-slate-600 dark:text-slate-400 block text-[10px]">{{ 'attendance.workflow.field_destination' | translate }}</span>
+                              <span class="font-bold text-slate-900 dark:text-slate-100">{{ selectedRequestWorkflow()?.form_payload?.destination }}</span>
+                            </div>
+                          }
+                          @if (selectedRequestWorkflow()?.form_payload?.advance_amount) {
+                            <div class="p-2 bg-slate-50 dark:bg-slate-800/40 border border-neutral-200 dark:border-neutral-800">
+                              <span class="text-slate-600 dark:text-slate-400 block text-[10px]">{{ 'attendance.workflow.field_advance' | translate }}</span>
+                              <span class="font-bold text-warning">{{ selectedRequestWorkflow()?.form_payload?.advance_amount }}</span>
+                            </div>
+                          }
+                          @if (selectedRequestWorkflow()?.form_payload?.missing_punch_type) {
+                            <div class="p-2 bg-slate-50 dark:bg-slate-800/40 border border-neutral-200 dark:border-neutral-800">
+                              <span class="text-slate-600 dark:text-slate-400 block text-[10px]">{{ 'attendance.workflow.field_fix_punch' | translate }}</span>
+                              <span class="font-bold text-primary">{{ selectedRequestWorkflow()?.form_payload?.missing_punch_type }} ({{ formatDate(selectedRequestWorkflow()?.form_payload?.fix_date) }})</span>
+                            </div>
+                          }
+                          @if (selectedRequestWorkflow()?.form_payload?.late_minutes) {
+                            <div class="p-2 bg-surface-muted/30 border border-neutral-200 dark:border-neutral-800">
+                              <span class="text-muted block text-[10px]">{{ 'attendance.workflow.field_late_mins' | translate }}</span>
+                              <span class="font-bold text-warning">{{ selectedRequestWorkflow()?.form_payload?.late_minutes }} phút (Bù: {{ selectedRequestWorkflow()?.form_payload?.makeup_hours }})</span>
+                            </div>
+                          }
+                          @if (selectedRequestWorkflow()?.form_payload?.swap_with_name) {
+                            <div class="p-2 bg-surface-muted/30 border border-neutral-200 dark:border-neutral-800">
+                              <span class="text-muted block text-[10px]">{{ 'attendance.workflow.field_swap_with' | translate }}</span>
+                              <span class="font-bold text-slate-900 dark:text-slate-100">{{ selectedRequestWorkflow()?.form_payload?.swap_with_name }} ({{ selectedRequestWorkflow()?.form_payload?.target_shift }})</span>
+                            </div>
+                          }
+                        </div>
+                        <div class="p-2 bg-surface-muted/30 border border-neutral-200 dark:border-neutral-800 text-xs font-mono">
+                          <span class="text-muted block text-[10px]">{{ 'attendance.request.reason' | translate }}</span>
+                          <span class="text-slate-900 dark:text-slate-100 font-medium">{{ selectedRequestWorkflow()?.form_payload?.reason || '—' }}</span>
+                        </div>
+                      </div>
+
+                      <!-- 3. Card: HÀNH ĐỘNG TỰ ĐỘNG KHI HOÀN TẤT (Post-Actions) -->
+                      <div class="border border-neutral-200 dark:border-neutral-800 p-3 space-y-1.5 font-mono text-xs">
+                        <div class="text-[11px] font-bold uppercase text-muted border-b border-neutral-200 dark:border-neutral-800 pb-1">
+                          {{ 'attendance.workflow.post_actions' | translate }}
+                        </div>
+                        <div class="space-y-1">
+                          @for (action of selectedRequestWorkflow()?.post_actions; track action.type) {
+                            <div class="flex items-center justify-between p-1.5 bg-surface-muted/20 border border-neutral-200 dark:border-neutral-800 text-[11px]">
+                              <div class="flex items-center gap-1.5">
+                                <span class="px-1.5 py-0.2 bg-primary/10 text-primary border border-primary/30 font-bold text-[9px]">{{ action.type }}</span>
+                                <span class="text-slate-900 dark:text-slate-100">{{ action.description }}</span>
+                              </div>
+                              <span
+                                class="text-[9px] px-1.5 py-0.2 font-bold uppercase border"
+                                [ngClass]="action.status === 'APPLIED' ? 'bg-success/20 text-success border-success/40' : 'bg-warning/20 text-warning border-warning/40'"
+                              >
+                                {{ action.status }}
+                              </span>
+                            </div>
+                          }
+                        </div>
+                      </div>
+
+                      <!-- Comment Field -->
+                      <div class="space-y-1 font-mono text-xs">
+                        <label class="text-muted block text-[11px] font-bold">{{ 'attendance.request.comment' | translate }}</label>
+                        <textarea
+                          [(ngModel)]="approvalComment"
+                          rows="2"
+                          class="w-full text-xs font-mono p-2 border border-neutral-300 dark:border-neutral-700 rounded-none bg-surface"
+                          [placeholder]="'attendance.request.comment_placeholder' | translate"
+                        ></textarea>
+                      </div>
                     </div>
-                    <app-request-timeline [nodes]="inboxTimelineNodes()"></app-request-timeline>
-                  </div>
 
-                  <!-- Comment Field -->
-                  <div class="space-y-1">
-                    <label class="text-xs font-mono text-muted">{{ 'attendance.request.comment' | translate }}</label>
-                    <textarea
-                      [(ngModel)]="approvalComment"
-                      rows="3"
-                      class="w-full text-xs font-mono p-2 border border-neutral-200 dark:border-neutral-800 rounded-none bg-surface"
-                      placeholder="Comment or reason..."
-                    ></textarea>
+                    <!-- Action Buttons with High Contrast -->
+                    <div class="grid grid-cols-2 gap-3 pt-3 border-t border-neutral-200 dark:border-neutral-800 mt-4">
+                      <button
+                        type="button"
+                        data-testid="btn-approve-request"
+                        (click)="processApproval('APPROVE')"
+                        [disabled]="loading()"
+                        class="py-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-mono text-xs font-bold uppercase tracking-wider rounded-none border border-emerald-600 shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>{{ 'attendance.request.approve' | translate }}</span>
+                      </button>
+                      <button
+                        type="button"
+                        data-testid="btn-reject-request"
+                        (click)="processApproval('REJECT')"
+                        [disabled]="loading()"
+                        class="py-2.5 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-mono text-xs font-bold uppercase tracking-wider rounded-none border border-rose-600 shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>{{ 'attendance.request.reject' | translate }}</span>
+                      </button>
+                    </div>
+                  } @else {
+                    <div class="flex-1 flex items-center justify-center text-xs font-mono text-muted italic">
+                      {{ 'attendance.request.select_to_review' | translate }}
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Mode 2: Workflow Definitions Catalog Matrix -->
+            @if (approvalsViewMode() === 'workflow_catalog') {
+              <div class="border border-neutral-200 dark:border-neutral-800 bg-surface p-4 space-y-3 font-mono text-xs">
+                <div class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-2">
+                  <div>
+                    <h4 class="font-bold text-slate-900 dark:text-slate-100 uppercase">
+                      {{ 'attendance.workflow.catalog_title' | translate }}
+                    </h4>
+                    <p class="text-muted text-[11px]">
+                      {{ 'attendance.workflow.catalog_subtitle' | translate }}
+                    </p>
                   </div>
+                  <span class="px-2 py-0.5 bg-primary/10 text-primary border border-primary/30 text-xs font-bold">
+                    6 WORKFLOWS CONNECTED
+                  </span>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="grid grid-cols-2 gap-3 pt-4 border-t border-neutral-200 dark:border-neutral-800">
-                  <button
-                    type="button"
-                    (click)="processApproval('APPROVE')"
-                    [disabled]="loading()"
-                    class="py-2.5 bg-success text-white font-mono text-xs font-bold uppercase tracking-wider rounded-none border border-success cursor-pointer"
-                  >
-                    ✓ {{ 'attendance.request.approve' | translate }}
-                  </button>
-                  <button
-                    type="button"
-                    (click)="processApproval('REJECT')"
-                    [disabled]="loading()"
-                    class="py-2.5 bg-danger text-white font-mono text-xs font-bold uppercase tracking-wider rounded-none border border-danger cursor-pointer"
-                  >
-                    ✕ {{ 'attendance.request.reject' | translate }}
-                  </button>
+                <div class="overflow-x-auto border border-neutral-200 dark:border-neutral-800">
+                  <table class="w-full text-left font-mono text-xs">
+                    <thead class="bg-surface-muted text-muted uppercase text-[11px] border-b border-neutral-200 dark:border-neutral-800">
+                      <tr>
+                        <th class="p-2.5">Mã loại đơn</th>
+                        <th class="p-2.5">Tên loại đơn</th>
+                        <th class="p-2.5">Mã quy trình (Workflow Key)</th>
+                        <th class="p-2.5">Tên quy trình</th>
+                        <th class="p-2.5 text-center">{{ 'attendance.workflow.steps_count' | translate }}</th>
+                        <th class="p-2.5 text-center">{{ 'attendance.workflow.sla' | translate }}</th>
+                        <th class="p-2.5">{{ 'attendance.workflow.auto_action' | translate }}</th>
+                        <th class="p-2.5 text-center">Trạng thái</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800">
+                      @for (item of workflowCatalogList(); track item.request_type_code) {
+                        <tr class="hover:bg-surface-muted/30">
+                          <td class="p-2.5 font-bold text-primary">{{ item.request_type_code }}</td>
+                          <td class="p-2.5 font-semibold text-slate-900 dark:text-slate-100">{{ item.request_type_name }}</td>
+                          <td class="p-2.5 text-primary font-bold">
+                            <span class="px-1.5 py-0.5 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
+                              {{ item.workflow_key }}
+                            </span>
+                          </td>
+                          <td class="p-2.5 text-slate-900 dark:text-slate-100">{{ item.workflow_name }}</td>
+                          <td class="p-2.5 text-center font-bold text-slate-900 dark:text-slate-100">{{ item.steps_count }} cấp</td>
+                          <td class="p-2.5 text-center font-bold text-warning">{{ item.sla_hours }}h</td>
+                          <td class="p-2.5 text-muted text-[11px]">{{ item.auto_action }}</td>
+                          <td class="p-2.5 text-center">
+                            <span class="px-1.5 py-0.5 bg-success/15 text-success border border-success/30 font-bold text-[10px]">
+                              ACTIVE
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
                 </div>
-              } @else {
-                <div class="flex-1 flex items-center justify-center text-xs font-mono text-muted italic">
-                  Select a request from the left list to review
-                </div>
-              }
-            </div>
+              </div>
+            }
           </div>
         }
 
@@ -799,11 +1460,11 @@
               <div class="space-y-2">
                 <div class="flex items-center justify-between">
                   <div>
-                    <span class="font-mono text-sm font-bold text-default mr-2">
+                    <span class="font-mono text-sm font-bold text-slate-900 dark:text-slate-100 mr-2">
                       {{ selectedTimesheet()?.name }}
                     </span>
-                    <span class="text-xs font-mono text-muted">
-                      ({{ selectedTimesheet()?.period_start }} ~ {{ selectedTimesheet()?.period_end }})
+                    <span class="text-xs font-mono text-slate-700 dark:text-slate-300 font-medium">
+                      ({{ formatDate(selectedTimesheet()?.period_start) }} ~ {{ formatDate(selectedTimesheet()?.period_end) }})
                     </span>
                   </div>
 
@@ -813,22 +1474,23 @@
                       (click)="sendTimesheetConfirmations()"
                       class="px-2.5 py-1 text-xs font-mono bg-surface-muted border border-neutral-300 dark:border-neutral-700 cursor-pointer"
                     >
-                      📢 {{ 'attendance.timesheet.send_confirmations' | translate }}
+                      {{ 'attendance.timesheet.send_confirmations' | translate }}
                     </button>
                     <button
                       type="button"
                       (click)="exportTimesheetCsv()"
                       class="px-2.5 py-1 text-xs font-mono bg-surface-muted border border-neutral-300 dark:border-neutral-700 cursor-pointer"
                     >
-                      📥 {{ 'attendance.report.export_csv' | translate }}
+                      {{ 'attendance.report.export_csv' | translate }}
                     </button>
                     <button
                       type="button"
+                      data-testid="btn-toggle-lock-timesheet"
                       (click)="toggleLockTimesheet()"
                       class="px-2.5 py-1 text-xs font-mono font-bold border cursor-pointer"
                       [ngClass]="selectedTimesheet()?.locked ? 'bg-danger text-white border-danger' : 'bg-primary text-white border-primary'"
                     >
-                      🔒 {{ (selectedTimesheet()?.locked ? 'attendance.timesheet.unlock' : 'attendance.timesheet.lock') | translate }}
+                      {{ (selectedTimesheet()?.locked ? 'attendance.timesheet.unlock' : 'attendance.timesheet.lock') | translate }}
                     </button>
                   </div>
                 </div>
@@ -838,6 +1500,225 @@
                   [locked]="selectedTimesheet()?.locked || false"
                   (stepChange)="changeTimesheetStep($event)"
                 ></app-period-stepper>
+
+                <!-- COMPREHENSIVE PERIOD CLOSING PIPELINE (Quy trình Chốt Bảng công kỳ) -->
+                <div class="border border-neutral-200 dark:border-neutral-800 bg-surface p-4 space-y-4">
+                  <!-- Header -->
+                  <div class="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200 dark:border-neutral-800 pb-3">
+                    <div>
+                      <h4 class="font-mono text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <span>{{ 'attendance.timesheet.closing_title' | translate }}</span>
+                      </h4>
+                      <p class="font-mono text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                        Kỳ công: <span class="font-bold text-slate-900 dark:text-slate-100">{{ selectedTimesheet()?.name }}</span> ({{ formatDate(selectedTimesheet()?.period_start) }} ~ {{ formatDate(selectedTimesheet()?.period_end) }}) · 45 nhân sự
+                      </p>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                      <button
+                        type="button"
+                        data-testid="btn-export-payroll"
+                        (click)="exportTimesheetCsv()"
+                        class="px-3 py-1.5 bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-100 border border-neutral-300 dark:border-neutral-600 font-mono text-xs font-bold rounded-none shadow-xs cursor-pointer flex items-center gap-1.5"
+                      >
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                        <span>{{ 'attendance.timesheet.export_payroll_btn' | translate }}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        data-testid="btn-lock-pipeline"
+                        (click)="lockPeriodPipeline()"
+                        class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-mono text-xs font-bold uppercase rounded-none border border-rose-600 shadow-xs cursor-pointer flex items-center gap-1.5"
+                      >
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <span>{{ 'attendance.timesheet.lock_period_btn' | translate }}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- 5 Pipeline Steps Grid -->
+                  <div class="grid grid-cols-1 md:grid-cols-5 gap-2.5 font-mono text-xs">
+                    <!-- Step 1: Chốt Đơn từ Tồn đọng -->
+                    <div class="p-3 border border-neutral-200 dark:border-neutral-800 bg-surface-muted/30 flex flex-col justify-between space-y-2">
+                      <div class="space-y-1">
+                        <div class="font-bold text-slate-900 dark:text-slate-100 text-[11px] uppercase flex items-center justify-between">
+                          <span>{{ 'attendance.timesheet.step1_pending_requests' | translate }}</span>
+                          @if (timesheetClosingChecklist().all_requests_resolved) {
+                            <span class="text-[9px] px-1 bg-success/20 text-success border border-success/40 font-bold">XONG</span>
+                          } @else {
+                            <span class="text-[9px] px-1 bg-warning/20 text-warning border border-warning/40 font-bold">4 ĐƠN</span>
+                          }
+                        </div>
+                        <div class="space-y-0.5 text-[10px] text-muted">
+                          <div>· {{ 'attendance.timesheet.pending_leave_badge' | translate: { count: timesheetClosingChecklist().pending_leaves } }}</div>
+                          <div>· {{ 'attendance.timesheet.pending_ot_badge' | translate: { count: timesheetClosingChecklist().pending_ot } }}</div>
+                          <div>· {{ 'attendance.timesheet.pending_trip_badge' | translate: { count: timesheetClosingChecklist().pending_trips } }}</div>
+                          <div>· {{ 'attendance.timesheet.pending_fix_badge' | translate: { count: timesheetClosingChecklist().pending_fixes } }}</div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        data-testid="btn-resolve-all-requests"
+                        (click)="resolveAllPendingRequests()"
+                        [disabled]="timesheetClosingChecklist().all_requests_resolved"
+                        class="w-full py-1 text-[10px] font-bold border transition-colors cursor-pointer"
+                        [ngClass]="timesheetClosingChecklist().all_requests_resolved ? 'bg-success/10 text-success border-success/30 cursor-default' : 'bg-primary text-white border-primary hover:bg-primary/90'"
+                      >
+                        {{ timesheetClosingChecklist().all_requests_resolved ? '100% ĐÃ CHỐT' : ('attendance.timesheet.resolve_all_requests_btn' | translate) }}
+                      </button>
+                    </div>
+
+                    <!-- Step 2: Đối soát Quẹt thẻ & Bất thường -->
+                    <div class="p-3 border border-neutral-200 dark:border-neutral-800 bg-surface-muted/30 flex flex-col justify-between space-y-2">
+                      <div class="space-y-1">
+                        <div class="font-bold text-slate-900 dark:text-slate-100 text-[11px] uppercase flex items-center justify-between">
+                          <span>{{ 'attendance.timesheet.step2_punch_audit' | translate }}</span>
+                          @if (timesheetClosingChecklist().anomalies_resolved) {
+                            <span class="text-[9px] px-1 bg-success/20 text-success border border-success/40 font-bold">CHUẨN HÓA</span>
+                          } @else {
+                            <span class="text-[9px] px-1 bg-warning/20 text-warning border border-warning/40 font-bold">3 LỖI</span>
+                          }
+                        </div>
+                        <div class="space-y-0.5 text-[10px] text-muted">
+                          <div>· {{ 'attendance.timesheet.anomalies_badge' | translate: { count: timesheetClosingChecklist().unresolved_anomalies } }}</div>
+                          <div>· Quên quẹt ra: 1 ca</div>
+                          <div>· Quẹt ngoài bán kính: 2 ca</div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        data-testid="btn-resolve-anomalies"
+                        (click)="resolveAnomalies()"
+                        [disabled]="timesheetClosingChecklist().anomalies_resolved"
+                        class="w-full py-1 text-[10px] font-bold border transition-colors cursor-pointer"
+                        [ngClass]="timesheetClosingChecklist().anomalies_resolved ? 'bg-success/10 text-success border-success/30 cursor-default' : 'bg-primary text-white border-primary hover:bg-primary/90'"
+                      >
+                        {{ timesheetClosingChecklist().anomalies_resolved ? 'ĐÃ ĐỐI SOÁT' : ('attendance.timesheet.resolve_anomalies_btn' | translate) }}
+                      </button>
+                    </div>
+
+                    <!-- Step 3: Động cơ Tính công Tổng hợp -->
+                    <div class="p-3 border border-neutral-200 dark:border-neutral-800 bg-surface-muted/30 flex flex-col justify-between space-y-2">
+                      <div class="space-y-1">
+                        <div class="font-bold text-slate-900 dark:text-slate-100 text-[11px] uppercase flex items-center justify-between">
+                          <span>{{ 'attendance.timesheet.step3_calculate_engine' | translate }}</span>
+                          @if (timesheetClosingChecklist().calculation_completed) {
+                            <span class="text-[9px] px-1 bg-success/20 text-success border border-success/40 font-bold">ĐÃ CHẠY</span>
+                          } @else {
+                            <span class="text-[9px] px-1 bg-muted/20 text-muted border border-neutral-400 font-bold">CHỜ CHẠY</span>
+                          }
+                        </div>
+                        <div class="space-y-0.5 text-[10px] text-muted">
+                          <div>· Tổng hợp 45 nhân viên</div>
+                          <div>· Đồng bộ ngày nghỉ phép</div>
+                          <div>· Đồng bộ giờ làm thêm OT</div>
+                          <div>· Đồng bộ ngày công tác</div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        data-testid="btn-run-batch-engine"
+                        (click)="runBatchCalculation()"
+                        class="w-full py-1 text-[10px] font-bold border transition-colors cursor-pointer bg-sky-600 hover:bg-sky-700 text-white border-sky-600"
+                      >
+                        {{ 'attendance.timesheet.run_batch_engine_btn' | translate }}
+                      </button>
+                    </div>
+
+                    <!-- Step 4: Đối soát Nhân viên & Khiếu nại -->
+                    <div class="p-3 border border-neutral-200 dark:border-neutral-800 bg-surface-muted/30 flex flex-col justify-between space-y-2">
+                      <div class="space-y-1">
+                        <div class="font-bold text-slate-900 dark:text-slate-100 text-[11px] uppercase flex items-center justify-between">
+                          <span>{{ 'attendance.timesheet.step4_dispute_resolution' | translate }}</span>
+                          @if (timesheetClosingChecklist().disputes_resolved) {
+                            <span class="text-[9px] px-1 bg-success/20 text-success border border-success/40 font-bold">100% OK</span>
+                          } @else {
+                            <span class="text-[9px] px-1 bg-warning/20 text-warning border border-warning/40 font-bold">2 KHIẾU NẠI</span>
+                          }
+                        </div>
+                        <div class="space-y-0.5 text-[10px] text-muted">
+                          <div>· 43/45 đã bấm xác nhận</div>
+                          <div>· {{ 'attendance.timesheet.disputes_badge' | translate: { count: timesheetClosingChecklist().dispute_count } }}</div>
+                          <div>· Đã phản hồi điều chỉnh</div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        data-testid="btn-resolve-disputes"
+                        (click)="resolveDisputes()"
+                        [disabled]="timesheetClosingChecklist().disputes_resolved"
+                        class="w-full py-1 text-[10px] font-bold border transition-colors cursor-pointer"
+                        [ngClass]="timesheetClosingChecklist().disputes_resolved ? 'bg-success/10 text-success border-success/30 cursor-default' : 'bg-primary text-white border-primary hover:bg-primary/90'"
+                      >
+                        {{ timesheetClosingChecklist().disputes_resolved ? 'ĐỒNG THUẬN 100%' : ('attendance.timesheet.resolve_disputes_btn' | translate) }}
+                      </button>
+                    </div>
+
+                    <!-- Step 5: Ký duyệt & Khóa sổ -->
+                    <div class="p-3 border border-neutral-200 dark:border-neutral-800 bg-surface-muted/30 flex flex-col justify-between space-y-2">
+                      <div class="space-y-1">
+                        <div class="font-bold text-slate-900 dark:text-slate-100 text-[11px] uppercase flex items-center justify-between">
+                          <span>{{ 'attendance.timesheet.step5_lock_payroll' | translate }}</span>
+                          @if (selectedTimesheet()?.locked) {
+                            <span class="text-[9px] px-1 bg-rose-600 text-white font-bold">ĐÃ KHÓA</span>
+                          } @else {
+                            <span class="text-[9px] px-1 bg-primary/20 text-primary border border-primary/40 font-bold">SẴN SÀNG</span>
+                          }
+                        </div>
+                        <div class="space-y-0.5 text-[10px] text-muted">
+                          <div>· Trưởng phòng NS: Đã ký</div>
+                          <div>· Giám đốc tài chính: Phê duyệt</div>
+                          <div>· Bất biến: SHA-256 Audit</div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        (click)="lockPeriodPipeline()"
+                        class="w-full py-1 text-[10px] font-bold border transition-colors cursor-pointer bg-rose-600 hover:bg-rose-700 text-white border-rose-600"
+                      >
+                        {{ selectedTimesheet()?.locked ? 'ĐÃ KHÓA SỔ' : ('attendance.timesheet.lock_period_btn' | translate) }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Integrated Timesheet Employee Rows Summary Table -->
+                  <div class="overflow-x-auto border border-neutral-200 dark:border-neutral-800">
+                    <table class="w-full text-xs font-mono border-collapse">
+                      <thead>
+                        <tr class="bg-surface-muted/60 border-b border-neutral-200 dark:border-neutral-800 text-muted uppercase text-[10px]">
+                          <th class="p-2 text-left">{{ 'attendance.table.code' | translate }}</th>
+                          <th class="p-2 text-left">{{ 'attendance.table.employee_name' | translate }}</th>
+                          <th class="p-2 text-left">Phòng ban</th>
+                          <th class="p-2 text-center">{{ 'attendance.timesheet.col_std_days' | translate }}</th>
+                          <th class="p-2 text-center">{{ 'attendance.timesheet.col_actual_days' | translate }}</th>
+                          <th class="p-2 text-center">{{ 'attendance.timesheet.col_leave_paid' | translate }}</th>
+                          <th class="p-2 text-center">{{ 'attendance.timesheet.col_ot_hours' | translate }}</th>
+                          <th class="p-2 text-center">{{ 'attendance.timesheet.col_trip_days' | translate }}</th>
+                          <th class="p-2 text-center">Phút muộn</th>
+                          <th class="p-2 text-center font-bold text-primary">{{ 'attendance.timesheet.col_final_days' | translate }}</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800">
+                        @for (row of timesheetEmployeeSummaries(); track row.employee_code) {
+                          <tr class="hover:bg-surface-muted/20">
+                            <td class="p-2 font-bold">{{ row.employee_code }}</td>
+                            <td class="p-2">{{ row.employee_name }}</td>
+                            <td class="p-2 text-muted text-[11px]">{{ row.department }}</td>
+                            <td class="p-2 text-center">{{ row.std_days }}d</td>
+                            <td class="p-2 text-center font-bold">{{ row.actual_days }}d</td>
+                            <td class="p-2 text-center text-success font-bold">+{{ row.leave_paid_days }}d</td>
+                            <td class="p-2 text-center text-primary font-bold">{{ row.ot_hours }}h</td>
+                            <td class="p-2 text-center text-warning font-bold">{{ row.trip_days }}d</td>
+                            <td class="p-2 text-center text-muted">{{ row.late_minutes }}p</td>
+                            <td class="p-2 text-center font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5">{{ row.total_paid_days }} công</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             }
 
@@ -852,47 +1733,54 @@
                   (click)="newTimesheetDrawerOpen.set(true)"
                   class="px-2.5 py-1 text-xs font-mono bg-primary text-white font-semibold rounded-none cursor-pointer"
                 >
-                  + {{ 'attendance.timesheet.create' | translate }}
+                  {{ 'attendance.timesheet.create' | translate }}
                 </button>
               </div>
 
               <div class="overflow-x-auto">
                 <table class="w-full text-xs font-mono border-collapse border border-neutral-200 dark:border-neutral-800">
                   <thead>
-                    <tr class="bg-surface-muted/50 border-b border-neutral-200 dark:border-neutral-800 text-muted uppercase text-[10px]">
-                      <th class="p-2 text-left">Period Name</th>
-                      <th class="p-2 text-left">Start Date</th>
-                      <th class="p-2 text-left">End Date</th>
-                      <th class="p-2 text-left">Current Step</th>
-                      <th class="p-2 text-left">Locked</th>
-                      <th class="p-2 text-left">Actions</th>
+                    <tr class="bg-slate-100 dark:bg-slate-800 border-b border-neutral-200 dark:border-neutral-800 text-slate-800 dark:text-slate-200 uppercase text-[10px] font-bold">
+                      <th class="p-2 text-left">{{ 'attendance.table.period_name' | translate }}</th>
+                      <th class="p-2 text-left">{{ 'attendance.table.start_date' | translate }}</th>
+                      <th class="p-2 text-left">{{ 'attendance.table.end_date' | translate }}</th>
+                      <th class="p-2 text-left">{{ 'attendance.table.current_step' | translate }}</th>
+                      <th class="p-2 text-left">{{ 'attendance.table.locked' | translate }}</th>
+                      <th class="p-2 text-left">{{ 'attendance.table.actions' | translate }}</th>
                     </tr>
                   </thead>
-                  <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800">
+                  <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800 bg-white dark:bg-slate-900">
                     @for (ts of timesheetsList(); track ts.id) {
-                      <tr [ngClass]="selectedTimesheet()?.id === ts.id ? 'bg-primary/5' : ''">
-                        <td class="p-2 font-bold">{{ ts.name }}</td>
-                        <td class="p-2">{{ ts.period_start }}</td>
-                        <td class="p-2">{{ ts.period_end }}</td>
+                      <tr [ngClass]="selectedTimesheet()?.id === ts.id ? 'bg-sky-50/50 dark:bg-sky-950/20' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'">
+                        <td class="p-2 font-bold text-slate-900 dark:text-slate-100">{{ ts.name }}</td>
+                        <td class="p-2 font-medium text-slate-800 dark:text-slate-200">{{ formatDate(ts.period_start) }}</td>
+                        <td class="p-2 font-medium text-slate-800 dark:text-slate-200">{{ formatDate(ts.period_end) }}</td>
                         <td class="p-2">
-                          <span class="px-1.5 py-0.5 text-[10px] bg-primary/10 text-primary border border-primary/30">
+                          <span class="px-1.5 py-0.5 text-[10px] bg-primary/10 text-primary border border-primary/30 font-bold">
                             {{ ts.step }}
                           </span>
                         </td>
                         <td class="p-2">
                           @if (ts.locked) {
-                            <span class="text-danger font-bold">🔒 LOCKED</span>
+                            <span class="inline-flex items-center gap-1 text-danger font-bold">
+                              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                              <span>{{ 'attendance.timesheet.status_locked' | translate }}</span>
+                            </span>
                           } @else {
-                            <span class="text-success font-bold">🔓 OPEN</span>
+                            <span class="inline-flex items-center gap-1 text-success font-bold">
+                              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                              <span>{{ 'attendance.timesheet.status_open' | translate }}</span>
+                            </span>
                           }
                         </td>
                         <td class="p-2">
                           <button
                             type="button"
+                            [attr.data-testid]="'btn-select-timesheet-' + $index"
                             (click)="selectTimesheet(ts)"
-                            class="px-2 py-0.5 text-[11px] bg-surface-muted border border-neutral-300 dark:border-neutral-700 cursor-pointer"
+                            class="px-2 py-0.5 text-[11px] bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-semibold cursor-pointer"
                           >
-                            Open Stepper
+                            {{ 'attendance.timesheet.open_stepper' | translate }}
                           </button>
                         </td>
                       </tr>
@@ -904,87 +1792,746 @@
           </div>
         }
 
-        <!-- 5. TAB: KIOSK MODE (Fullscreen PIN Pad) -->
-        @if (activeTab() === 'kiosk') {
-          <div class="max-w-md mx-auto border-2 border-neutral-300 dark:border-neutral-700 bg-surface p-6 shadow-sm space-y-4 font-mono text-center">
-            <div class="text-lg font-bold text-primary tracking-wide">
-              {{ 'attendance.kiosk.title' | translate }}
-            </div>
-            <div class="text-xs text-muted">
-              Device: KIOSK-LOBBY-01 · {{ 'attendance.kiosk.enter_pin' | translate }}
-            </div>
-
-            @if (kioskSuccessMessage()) {
-              <div class="p-3 bg-success/20 text-success text-xs font-bold border border-success/40">
-                ✓ {{ kioskSuccessMessage() }}
+        <!-- 5. TAB: KIOSK DEVICES MANAGEMENT (Quản trị Thiết bị Kiosk) -->
+        @if (activeTab() === 'kiosk' || activeTab() === 'admin-kiosk') {
+          <div class="space-y-4 text-xs">
+            <!-- Header Toolbar -->
+            <div class="p-4 bg-surface border border-default space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-default pb-3">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-ink">
+                      {{ 'attendance.kiosk.admin_title' | translate }}
+                    </h3>
+                    <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/80 dark:border-emerald-700 dark:text-emerald-300">
+                      {{ 'attendance.kiosk.branch_isolation_banner' | translate }}
+                    </span>
+                  </div>
+                  <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                    Quản lý Điểm Chấm công Sảnh và Xuất Đường dẫn Riêng cho từng Chi nhánh. Đảm bảo bảo mật danh tính nhân viên 100% giữa các chi nhánh.
+                  </p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <app-sharp-button variant="outline" size="sm" shape="sharp" (clicked)="openPublicKiosk()">
+                    <span class="inline-flex items-center gap-1"><app-icon name="external-link" size="sm" [decorative]="true" />{{ 'attendance.kiosk.open_public' | translate }}</span>
+                  </app-sharp-button>
+                </div>
               </div>
-            }
-            @if (kioskErrorMessage()) {
-              <div class="p-3 bg-danger/20 text-danger text-xs font-bold border border-danger/40">
-                ⚠️ {{ kioskErrorMessage() }}
+
+              <!-- Metrics Summary Cards -->
+              <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div class="p-3 border border-default bg-surface">
+                  <div class="text-[10px] text-slate-600 dark:text-slate-400 uppercase font-bold">{{ 'attendance.kiosk.total_devices' | translate }}</div>
+                  <div class="text-xl font-bold text-ink mt-1">{{ kioskDevicesList().length }} máy</div>
+                </div>
+                <div class="p-3 border border-default bg-surface">
+                  <div class="text-[10px] text-slate-600 dark:text-slate-400 uppercase font-bold">Chi nhánh triển khai</div>
+                  <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">3 chi nhánh</div>
+                </div>
+                <div class="p-3 border border-default bg-surface">
+                  <div class="text-[10px] text-slate-600 dark:text-slate-400 uppercase font-bold">{{ 'attendance.kiosk.online_devices' | translate }}</div>
+                  <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">2 máy trực tuyến</div>
+                </div>
+                <div class="p-3 border border-default bg-surface">
+                  <div class="text-[10px] text-slate-600 dark:text-slate-400 uppercase font-bold">{{ 'attendance.kiosk.today_punches' | translate }}</div>
+                  <div class="text-xl font-bold text-ink mt-1">142 lượt</div>
+                </div>
               </div>
-            }
 
-            <div class="space-y-2 text-left">
-              <label class="text-[11px] text-muted">{{ 'attendance.kiosk.employee_code' | translate }}</label>
-              <input
-                type="text"
-                [(ngModel)]="kioskEmployeeCode"
-                placeholder="EMP-001"
-                class="w-full text-center text-sm font-bold p-2 border border-neutral-300 dark:border-neutral-700 rounded-none bg-surface"
-              />
+              <!-- Kiosk Devices by Branch Table -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <div class="font-bold text-xs uppercase text-slate-800 dark:text-slate-200">
+                    Danh mục Điểm Chấm công Kiosk theo Chi nhánh & Đường dẫn Chuyên biệt
+                  </div>
+                  <span class="text-[11px] text-slate-600 dark:text-slate-400 italic">
+                    {{ 'attendance.kiosk.branch_notice' | translate }}
+                  </span>
+                </div>
+                <div class="overflow-x-auto border border-default">
+                  <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 uppercase text-[10px] font-bold tracking-wider border-b border-default">
+                      <tr>
+                        <th class="p-2.5">{{ 'attendance.kiosk.branch_name' | translate }}</th>
+                        <th class="p-2.5">Mã thiết bị</th>
+                        <th class="p-2.5">{{ 'attendance.kiosk.location' | translate }}</th>
+                        <th class="p-2.5">{{ 'attendance.kiosk.ip_address' | translate }}</th>
+                        <th class="p-2.5 text-center">Trạng thái</th>
+                        <th class="p-2.5">Phạm vi Nhân sự (Bảo mật)</th>
+                        <th class="p-2.5 text-center">{{ 'attendance.kiosk.today_punches' | translate }}</th>
+                        <th class="p-2.5 text-center">Hành động Phân lập</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-default bg-surface text-ink">
+                      @for (dev of kioskDevicesList(); track dev.id) {
+                        <tr class="hover:bg-surface-muted transition-colors">
+                          <td class="p-2.5">
+                            <div class="font-bold text-ink">{{ dev.branch_name }}</div>
+                            <div class="text-[10px] font-mono text-muted">{{ dev.branch_code }}</div>
+                          </td>
+                          <td class="p-2.5 font-mono font-bold text-accent">{{ dev.device_code }}</td>
+                          <td class="p-2.5 font-medium text-ink">{{ dev.location_name }}</td>
+                          <td class="p-2.5 font-mono text-slate-600 dark:text-slate-400">{{ dev.ip_address }}</td>
+                          <td class="p-2.5 text-center">
+                            @if (dev.status === 'ONLINE') {
+                              <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-700">ONLINE</span>
+                            } @else {
+                              <span class="px-2 py-0.5 text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-700">OFFLINE</span>
+                            }
+                          </td>
+                          <td class="p-2.5">
+                            <span class="px-2 py-0.5 text-[10px] font-bold bg-slate-100 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700">
+                              Chỉ nhân viên {{ dev.branch_name }}
+                            </span>
+                          </td>
+                          <td class="p-2.5 text-center font-bold font-mono">{{ dev.today_punches }}</td>
+                          <td class="p-2.5 text-center">
+                            <div class="inline-flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                [attr.data-testid]="'btn-copy-kiosk-' + dev.device_code"
+                                (click)="copyBranchKioskLink(dev)"
+                                class="px-2.5 py-1 text-[11px] font-semibold bg-white dark:bg-slate-800 hover:bg-slate-50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 flex items-center gap-1 cursor-pointer shadow-xs"
+                                [title]="'attendance.kiosk.copy_branch_link' | translate"
+                              >
+                                <svg class="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                <span>{{ 'attendance.kiosk.copy_branch_link' | translate }}</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                [attr.data-testid]="'btn-open-kiosk-' + dev.device_code"
+                                (click)="openBranchKiosk(dev)"
+                                class="px-2 py-1 text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 cursor-pointer"
+                                [title]="'attendance.kiosk.open_branch_kiosk' | translate"
+                              >
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                              </button>
+
+                              <button
+                                type="button"
+                                [attr.data-testid]="'btn-rotate-kiosk-' + dev.device_code"
+                                (click)="rotateKioskToken(dev)"
+                                class="px-2 py-1 text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 cursor-pointer"
+                                [title]="'attendance.kiosk.rotate_token' | translate"
+                              >
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- 6. TAB: TEAM ATTENDANCE (Công phòng ban) -->
+        @if (activeTab() === 'team') {
+          <div class="space-y-4">
+            <div class="p-4 bg-surface border border-neutral-200 dark:border-neutral-800">
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200 dark:border-neutral-800 pb-3">
+                <div>
+                  <h3 class="font-mono text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                    {{ 'PLUGIN_ATTENDANCE_TEAM' | translate }}
+                  </h3>
+                  <p class="font-mono text-xs text-muted mt-0.5">
+                    {{ 'attendance.team.subtitle' | translate }}
+                  </p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="font-mono text-xs text-muted">{{ 'attendance.team.date' | translate }}:</span>
+                  <span class="font-mono text-xs font-semibold px-2 py-1 bg-surface-muted border border-neutral-200 dark:border-neutral-800">2026-11-11</span>
+                </div>
+              </div>
+
+              <!-- Metrics row -->
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 my-4">
+                <div class="p-3 bg-surface-muted border border-neutral-200 dark:border-neutral-800 font-mono">
+                  <div class="text-[11px] text-muted uppercase">{{ 'attendance.report.total_employees' | translate }}</div>
+                  <div class="text-lg font-bold text-slate-900 dark:text-slate-100">45</div>
+                </div>
+                <div class="p-3 bg-success/10 border border-success/30 font-mono">
+                  <div class="text-[11px] text-success uppercase">{{ 'attendance.report.present' | translate }}</div>
+                  <div class="text-lg font-bold text-success">42</div>
+                </div>
+                <div class="p-3 bg-warning/10 border border-warning/30 font-mono">
+                  <div class="text-[11px] text-warning uppercase">{{ 'attendance.report.late' | translate }}</div>
+                  <div class="text-lg font-bold text-warning">3</div>
+                </div>
+                <div class="p-3 bg-danger/10 border border-danger/30 font-mono">
+                  <div class="text-[11px] text-danger uppercase">{{ 'attendance.report.absent' | translate }}</div>
+                  <div class="text-lg font-bold text-danger">1</div>
+                </div>
+                <div class="p-3 bg-primary/10 border border-primary/30 font-mono">
+                  <div class="text-[11px] text-primary uppercase">{{ 'attendance.report.on_leave' | translate }}</div>
+                  <div class="text-lg font-bold text-primary">2</div>
+                </div>
+              </div>
+
+              <!-- Team Table -->
+              <div class="overflow-x-auto border border-neutral-200 dark:border-neutral-800">
+                <table class="w-full text-left font-mono text-xs">
+                  <thead class="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 uppercase text-[11px] font-bold border-b border-neutral-200 dark:border-neutral-800">
+                    <tr>
+                      <th class="p-2.5">{{ 'attendance.table.emp_code' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.table.emp_name' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.table.department' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.checkin.shift' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.table.check_in' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.table.check_out' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.table.status' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800 bg-white dark:bg-slate-900">
+                    @for (item of teamMetricsList(); track item.employee_id) {
+                      <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td class="p-2.5 font-bold text-sky-700 dark:text-sky-400">{{ item.employee_code }}</td>
+                        <td class="p-2.5 font-medium text-slate-900 dark:text-slate-100">{{ item.employee_name }}</td>
+                        <td class="p-2.5 text-slate-700 dark:text-slate-300 font-medium">{{ item.department_name }}</td>
+                        <td class="p-2.5 text-slate-700 dark:text-slate-300 font-medium">{{ item.shift_name }}</td>
+                        <td class="p-2.5 font-medium text-slate-900 dark:text-slate-100">{{ item.check_in || '—' }}</td>
+                        <td class="p-2.5 font-medium text-slate-900 dark:text-slate-100">{{ item.check_out || '—' }}</td>
+                        <td class="p-2.5">
+                          <app-attendance-status-badge [status]="item.status" />
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- 7. TAB: ADMIN LOGS (Nhật ký chấm công toàn công ty) -->
+        @if (activeTab() === 'admin-logs') {
+          <div class="space-y-4">
+            <div class="p-4 bg-surface border border-neutral-200 dark:border-neutral-800 space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200 dark:border-neutral-800 pb-3">
+                <div>
+                  <h3 class="font-mono text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                    {{ 'PLUGIN_ATTENDANCE_ADMIN_LOGS' | translate }}
+                  </h3>
+                  <p class="font-mono text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                    {{ 'attendance.logs.subtitle' | translate }}
+                  </p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button
+                    type="button"
+                    data-testid="btn-import-logs"
+                    (click)="importLogsDrawerOpen.set(true)"
+                    class="px-2.5 py-1 text-xs font-mono border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold cursor-pointer"
+                  >
+                    {{ 'attendance.logs.import_csv' | translate }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Logs Table -->
+              <div class="overflow-x-auto border border-neutral-200 dark:border-neutral-800">
+                <table class="w-full text-left font-mono text-xs">
+                  <thead class="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 uppercase text-[11px] font-bold border-b border-neutral-200 dark:border-neutral-800">
+                    <tr>
+                      <th class="p-2.5">{{ 'attendance.table.time' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.table.emp_code' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.table.emp_name' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.table.type' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.table.source' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.table.gps_status' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.table.note' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800 bg-white dark:bg-slate-900">
+                    @for (log of adminLogsList(); track log.id) {
+                      <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td class="p-2.5 font-medium text-slate-900 dark:text-slate-100">{{ formatDateTime(log.punch_time) }}</td>
+                        <td class="p-2.5 font-bold text-sky-700 dark:text-sky-400">{{ log.employee_code || 'EMP-001' }}</td>
+                        <td class="p-2.5 font-medium text-slate-900 dark:text-slate-100">{{ log.employee_name || 'Nguyễn Văn A' }}</td>
+                        <td class="p-2.5">
+                          <span
+                            class="px-2 py-0.5 text-[11px] font-bold"
+                            [ngClass]="log.punch_type === 'IN' ? 'bg-success/15 text-success border border-success/30' : 'bg-danger/15 text-danger border border-danger/30'"
+                          >
+                            {{ ('attendance.kiosk.punch_' + log.punch_type.toLowerCase()) | translate }}
+                          </span>
+                        </td>
+                        <td class="p-2.5 text-slate-700 dark:text-slate-300 font-medium">{{ log.source }}</td>
+                        <td class="p-2.5">
+                          @if (log.in_geofence) {
+                            <span class="text-success">{{ 'attendance.checkin.in_office' | translate }}</span>
+                          } @else {
+                            <span class="text-warning">{{ 'attendance.checkin.outside_meters' | translate: { meters: log.distance_meters || 0 } }}</span>
+                          }
+                        </td>
+                        <td class="p-2.5 text-slate-700 dark:text-slate-300 font-medium">{{ log.note || '—' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        }
+
+                <!-- 10. TAB: APPROVAL WORKFLOWS CONFIGURATION (Cấu hình Luồng Xử lý & RACI Matrix) -->
+        @if (activeTab() === 'admin-workflows') {
+          <div class="space-y-4 text-xs font-sans">
+            <!-- Header Toolbar -->
+            <div class="p-4 bg-surface border border-default space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-default pb-3">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-ink flex items-center gap-1.5">
+                      <app-icon name="git-branch" size="sm" [decorative]="true" />
+                      <span>{{ 'attendance.workflows.title' | translate }}</span>
+                    </h3>
+                    <span class="px-2 py-0.5 text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-300 dark:bg-sky-950/80 dark:border-sky-700 dark:text-sky-300">
+                      {{ 'attendance.workflows.configured_by_banner' | translate }}
+                    </span>
+                  </div>
+                  <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                    {{ 'attendance.workflows.subtitle' | translate }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- RACI Responsibility Matrix Card -->
+              <div class="p-3 bg-slate-50 dark:bg-slate-900 border border-default space-y-2">
+                <div class="flex items-center gap-2 font-bold text-xs text-ink uppercase">
+                  <app-icon name="users" size="sm" [decorative]="true" />
+                  <span>{{ 'attendance.workflows.raci_matrix' | translate }}</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-2.5 pt-1">
+                  <div class="p-2.5 bg-surface border border-default space-y-1">
+                    <div class="flex items-center justify-between">
+                      <span class="font-bold text-sky-700 dark:text-sky-300">HR Admin / System Admin</span>
+                      <span class="px-1.5 py-0.2 text-[9px] font-bold bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-200">Accountable</span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 dark:text-slate-400">
+                      Người cấu hình chính: Thiết lập chính sách, định nghĩa số cấp duyệt, điều kiện rẽ nhánh và kiểm soát thời hạn SLA.
+                    </p>
+                  </div>
+                  <div class="p-2.5 bg-surface border border-default space-y-1">
+                    <div class="flex items-center justify-between">
+                      <span class="font-bold text-emerald-700 dark:text-emerald-300">Line Manager (Quản lý trực tiếp)</span>
+                      <span class="px-1.5 py-0.2 text-[9px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">Responsible</span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 dark:text-slate-400">
+                      Thẩm định và duyệt Cấp 1 các đơn nghỉ phép, làm thêm giờ OT và phân ca làm việc của nhân viên trong nhóm.
+                    </p>
+                  </div>
+                  <div class="p-2.5 bg-surface border border-default space-y-1">
+                    <div class="flex items-center justify-between">
+                      <span class="font-bold text-amber-700 dark:text-amber-300">HR Manager / Giám đốc</span>
+                      <span class="px-1.5 py-0.2 text-[9px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">Approver</span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 dark:text-slate-400">
+                      Phê duyệt Cấp 2 cho đơn nghỉ phép dài ngày, phê duyệt ngân sách lương OT và thẩm định/ký duyệt chốt bảng công kỳ.
+                    </p>
+                  </div>
+                  <div class="p-2.5 bg-surface border border-default space-y-1">
+                    <div class="flex items-center justify-between">
+                      <span class="font-bold text-indigo-700 dark:text-indigo-300">Nhân viên (Employee)</span>
+                      <span class="px-1.5 py-0.2 text-[9px] font-bold bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">Informed</span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 dark:text-slate-400">
+                      Nộp đơn theo mẫu, nhận thông báo tiến trình phê duyệt đa cấp theo thời gian thực và bấm xác nhận bảng công.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <!-- PIN Display (Masked) -->
-            <div class="p-3 bg-surface-muted border border-neutral-300 dark:border-neutral-700 text-center tracking-widest text-lg font-bold h-12 flex items-center justify-center">
-              {{ kioskPin() ? '••••••'.slice(0, kioskPin().length) : 'PIN' }}
-            </div>
+            <!-- Workflow Policies List -->
+            <div class="space-y-3">
+              @for (policy of workflowPolicies(); track policy.id) {
+                <div class="p-4 bg-surface border border-default space-y-3 shadow-xs">
+                  <div class="flex flex-wrap items-center justify-between gap-3 border-b border-default pb-2.5">
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <span class="font-bold text-sm text-ink">{{ policy.name }}</span>
+                        @if (policy.active) {
+                          <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-700">ĐANG KÍCH HOẠT</span>
+                        } @else {
+                          <span class="px-2 py-0.5 text-[10px] font-bold bg-slate-200 text-slate-700 border border-slate-300 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700">TẠM DỪNG</span>
+                        }
+                      </div>
+                      <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">{{ policy.description }}</p>
+                    </div>
 
-            <!-- Numeric Keypad -->
-            <div class="grid grid-cols-3 gap-2">
-              @for (n of ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫']; track n) {
-                <button
-                  type="button"
-                  (click)="n === 'C' ? kioskClear() : (n === '⌫' ? kioskPin.set(kioskPin().slice(0, -1)) : kioskKeypadPress(n))"
-                  class="h-12 bg-surface hover:bg-surface-muted text-base font-bold border border-neutral-300 dark:border-neutral-700 rounded-none cursor-pointer active:scale-95 transition-transform"
-                >
-                  {{ n }}
-                </button>
+                    <div class="flex items-center gap-2">
+                      <div class="text-right text-[11px] text-slate-600 dark:text-slate-400 mr-2">
+                        <div>SLA: <span class="font-bold text-ink">{{ policy.sla_hours }} giờ</span></div>
+                        <div class="text-[10px] text-slate-600 dark:text-slate-400">Cập nhật: {{ formatDate(policy.updated_at) }}</div>
+                      </div>
+                      <button
+                        type="button"
+                        [attr.data-testid]="'btn-edit-policy-' + policy.id"
+                        (click)="openWorkflowPolicyDrawer(policy)"
+                        class="px-3 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 font-semibold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs"
+                      >
+                        <app-icon name="edit-2" size="xs" [decorative]="true" />
+                        <span>{{ 'attendance.workflows.edit_policy' | translate }}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Visual Approval Levels Stepper -->
+                  <div class="space-y-1.5">
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                      {{ 'attendance.workflows.approval_levels' | translate }} ({{ policy.levels_count }} cấp phê duyệt)
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      @for (lvl of policy.approval_levels; track lvl.level) {
+                        <div class="p-2.5 bg-slate-50 dark:bg-slate-900 border border-default flex items-start gap-2.5">
+                          <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 flex items-center justify-center font-bold text-xs shrink-0 border border-slate-300 dark:border-slate-700">
+                            {{ lvl.level }}
+                          </div>
+                          <div class="flex-1 min-w-0 space-y-0.5">
+                            <div class="font-bold text-xs text-ink">{{ lvl.role_name }}</div>
+                            <div class="text-[11px] text-slate-600 dark:text-slate-400 leading-tight">{{ lvl.description }}</div>
+                            @if (lvl.condition) {
+                              <div class="text-[10px] text-sky-700 dark:text-sky-300 font-semibold pt-0.5">
+                                · {{ lvl.condition }}
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
               }
             </div>
+          </div>
+        }
 
-            <!-- Punch In / Out Actions -->
-            <div class="grid grid-cols-2 gap-3 pt-2">
-              <button
-                type="button"
-                (click)="kioskPunch('IN')"
-                class="h-12 bg-success text-white text-sm font-bold uppercase rounded-none border border-success cursor-pointer"
-              >
-                {{ 'attendance.kiosk.punch_in' | translate }}
-              </button>
-              <button
-                type="button"
-                (click)="kioskPunch('OUT')"
-                class="h-12 bg-danger text-white text-sm font-bold uppercase rounded-none border border-danger cursor-pointer"
-              >
-                {{ 'attendance.kiosk.punch_out' | translate }}
-              </button>
+        <!-- 8. TAB: SHIFTS (Quản lý ca làm việc & Lịch phân ca) -->
+        @if (activeTab() === 'admin-shifts') {
+          <div class="space-y-4">
+            <div class="p-4 bg-surface border border-neutral-200 dark:border-neutral-800 space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200 dark:border-neutral-800 pb-3">
+                <div>
+                  <h3 class="font-mono text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                    {{ 'PLUGIN_ATTENDANCE_ADMIN_SHIFTS' | translate }}
+                  </h3>
+                  <p class="font-mono text-xs text-muted mt-0.5">
+                    {{ 'attendance.shifts.subtitle' | translate }}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  data-testid="btn-open-shift-drawer"
+                  (click)="openNewShiftDrawer()"
+                  class="px-2.5 py-1 text-xs font-mono bg-primary text-white font-semibold rounded-none cursor-pointer"
+                >
+                  + {{ 'attendance.shifts.create' | translate }}
+                </button>
+              </div>
+
+              <!-- Shifts Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                @for (shift of shiftsList(); track shift.id) {
+                  <div class="p-3 border border-neutral-200 dark:border-neutral-800 bg-surface-muted/20 font-mono space-y-2">
+                    <div class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-1.5">
+                      <span class="font-bold text-primary text-xs">{{ shift.code }}</span>
+                      <span class="text-[11px] px-1.5 py-0.5 bg-success/15 text-success border border-success/30 font-semibold">
+                        {{ 'PLUGIN_STATUS_ACTIVE' | translate }}
+                      </span>
+                    </div>
+                    <div class="text-sm font-bold text-slate-900 dark:text-slate-100">{{ shift.name }}</div>
+                    <div class="text-xs text-muted space-y-1">
+                      <div class="flex justify-between">
+                        <span>{{ 'attendance.shifts.time_window' | translate }}:</span>
+                        <span class="font-semibold text-slate-900 dark:text-slate-100">{{ shift.start_time }} - {{ shift.end_time }}</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>{{ 'attendance.shifts.grace_period' | translate }}:</span>
+                        <span class="font-semibold text-slate-900 dark:text-slate-100">{{ shift.grace_in_minutes }}m / {{ shift.grace_out_minutes }}m</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>{{ 'attendance.shifts.work_hours' | translate }}:</span>
+                        <span class="font-semibold text-slate-900 dark:text-slate-100">{{ shift.work_hours }}h</span>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
             </div>
           </div>
         }
 
-        <!-- Other Tabs (Logs, Shifts, Records, Leave, Reports) -->
-        @if (activeTab() === 'admin-logs' || activeTab() === 'admin-shifts' || activeTab() === 'admin-records' || activeTab() === 'admin-leave' || activeTab() === 'admin-reports' || activeTab() === 'team') {
-          <div class="border border-neutral-200 dark:border-neutral-800 bg-surface p-4 space-y-3">
-            <div class="font-mono text-sm font-bold uppercase tracking-wider text-default border-b border-neutral-200 dark:border-neutral-800 pb-2">
-              {{ ('PLUGIN_ATTENDANCE_' + activeTab().toUpperCase().replace('-', '_')) | translate }}
-            </div>
-            <div class="text-xs font-mono text-muted">
-              Showing active management views for {{ activeTab() }}
+        <!-- 9. TAB: DAILY RECORDS (Công ngày & Tính toán công) -->
+        @if (activeTab() === 'admin-records') {
+          <div class="space-y-4">
+            <div class="p-4 bg-surface border border-neutral-200 dark:border-neutral-800 space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200 dark:border-neutral-800 pb-3">
+                <div>
+                  <h3 class="font-mono text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                    {{ 'PLUGIN_ATTENDANCE_ADMIN_RECORDS' | translate }}
+                  </h3>
+                  <p class="font-mono text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                    {{ 'attendance.records.subtitle' | translate }}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  data-testid="btn-recalc-records"
+                  class="px-2.5 py-1 text-xs font-mono bg-primary text-white font-semibold rounded-none cursor-pointer"
+                >
+                  {{ 'attendance.records.recalculate' | translate }}
+                </button>
+              </div>
+
+              <!-- Records Table -->
+              <div class="overflow-x-auto border border-neutral-200 dark:border-neutral-800">
+                <table class="w-full text-left font-mono text-xs">
+                  <thead class="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 uppercase text-[11px] font-bold border-b border-neutral-200 dark:border-neutral-800">
+                    <tr>
+                      <th class="p-2.5">{{ 'attendance.table.start_date' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.table.emp_code' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.table.emp_name' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.checkin.shift' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.table.check_in' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.table.check_out' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.records.work_hours' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.records.late_mins' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.records.ot_hours' | translate }}</th>
+                      <th class="p-2.5">{{ 'attendance.table.status' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800 bg-white dark:bg-slate-900">
+                    @for (rec of adminRecordsList(); track rec.id) {
+                      <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td class="p-2.5 font-medium text-slate-900 dark:text-slate-100">{{ formatDate(rec.work_date) }}</td>
+                        <td class="p-2.5 font-bold text-sky-700 dark:text-sky-400">{{ rec.employee_code || rec.employee_id }}</td>
+                        <td class="p-2.5 font-medium text-slate-900 dark:text-slate-100">{{ rec.employee_name || '—' }}</td>
+                        <td class="p-2.5 text-slate-700 dark:text-slate-300 font-medium">{{ rec.shift_code }}</td>
+                        <td class="p-2.5 font-medium text-slate-900 dark:text-slate-100">{{ rec.in_time || '—' }}</td>
+                        <td class="p-2.5 font-medium text-slate-900 dark:text-slate-100">{{ rec.out_time || '—' }}</td>
+                        <td class="p-2.5 font-bold text-slate-900 dark:text-slate-100">{{ rec.work_hours }}h</td>
+                        <td class="p-2.5 font-medium" [ngClass]="rec.late_minutes > 0 ? 'text-amber-700 dark:text-amber-400 font-bold' : 'text-slate-600 dark:text-slate-400'">
+                          {{ rec.late_minutes > 0 ? rec.late_minutes + 'm' : '0' }}
+                        </td>
+                        <td class="p-2.5 text-sky-700 dark:text-sky-400 font-bold">
+                          {{ rec.ot_hours > 0 ? rec.ot_hours + 'h' : '0' }}
+                        </td>
+                        <td class="p-2.5">
+                          <app-attendance-status-badge [status]="rec.status" />
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         }
-      </div>
+
+        <!-- 10. TAB: LEAVE MANAGEMENT (Quản lý số dư phép & Sổ cái) -->
+        @if (activeTab() === 'admin-leave') {
+          <div class="space-y-4">
+            <div class="p-4 bg-surface border border-neutral-200 dark:border-neutral-800 space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200 dark:border-neutral-800 pb-3">
+                <div>
+                  <h3 class="font-mono text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                    {{ 'PLUGIN_ATTENDANCE_ADMIN_LEAVE' | translate }}
+                  </h3>
+                  <p class="font-mono text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                    {{ 'attendance.leave.admin_subtitle' | translate }}
+                  </p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button
+                    type="button"
+                    class="px-2.5 py-1 text-xs font-mono bg-primary text-white font-semibold rounded-none cursor-pointer"
+                  >
+                    + {{ 'attendance.leave.grant_new' | translate }}
+                  </button>
+                  <button
+                    type="button"
+                    class="px-2.5 py-1 text-xs font-mono border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold cursor-pointer"
+                  >
+                    {{ 'attendance.leave.adjust' | translate }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Leave Balances Table -->
+              <div>
+                <div class="font-mono text-xs font-bold uppercase text-slate-800 dark:text-slate-200 mb-2">
+                  {{ 'attendance.leave.balances_heading' | translate }}
+                </div>
+                <div class="overflow-x-auto border border-neutral-200 dark:border-neutral-800">
+                  <table class="w-full text-left font-mono text-xs">
+                    <thead class="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 uppercase text-[11px] font-bold border-b border-neutral-200 dark:border-neutral-800">
+                      <tr>
+                        <th class="p-2.5">{{ 'attendance.table.emp_name' | translate }}</th>
+                        <th class="p-2.5">{{ 'attendance.request.type' | translate }}</th>
+                        <th class="p-2.5">{{ 'attendance.leave.granted' | translate }}</th>
+                        <th class="p-2.5">{{ 'attendance.leave.used' | translate }}</th>
+                        <th class="p-2.5">{{ 'attendance.leave.remaining' | translate }}</th>
+                        <th class="p-2.5">{{ 'attendance.leave.expiring' | translate }}</th>
+                        <th class="p-2.5">{{ 'attendance.leave.valid_until' | translate }}</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800 bg-white dark:bg-slate-900">
+                      @for (lb of adminLeaveBalancesList(); track lb.id) {
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                          <td class="p-2.5 font-bold text-slate-900 dark:text-slate-100">{{ lb.employee_name || 'Nguyễn Văn A' }}</td>
+                          <td class="p-2.5 text-primary">{{ lb.leave_type_name }}</td>
+                          <td class="p-2.5 text-slate-800 dark:text-slate-200 font-medium">{{ lb.granted }}</td>
+                          <td class="p-2.5 text-danger font-semibold">{{ lb.used }}</td>
+                          <td class="p-2.5 text-success font-bold">{{ lb.remaining }}</td>
+                          <td class="p-2.5 text-warning">{{ lb.expiring }}</td>
+                          <td class="p-2.5 text-slate-800 dark:text-slate-200 font-medium">{{ formatDate(lb.valid_until) }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Leave Ledger History -->
+              <div>
+                <div class="font-mono text-xs font-bold uppercase text-slate-800 dark:text-slate-200 mb-2">
+                  {{ 'attendance.leave.ledger_heading' | translate }}
+                </div>
+                <div class="overflow-x-auto border border-neutral-200 dark:border-neutral-800">
+                  <table class="w-full text-left font-mono text-xs">
+                    <thead class="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 uppercase text-[11px] font-bold border-b border-neutral-200 dark:border-neutral-800">
+                      <tr>
+                        <th class="p-2.5">{{ 'attendance.table.time' | translate }}</th>
+                        <th class="p-2.5">{{ 'attendance.table.emp_name' | translate }}</th>
+                        <th class="p-2.5">{{ 'attendance.table.type' | translate }}</th>
+                        <th class="p-2.5">{{ 'attendance.leave.change_days' | translate }}</th>
+                        <th class="p-2.5">{{ 'attendance.table.note' | translate }}</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800 bg-white dark:bg-slate-900">
+                      @for (entry of leaveLedgerList(); track entry.id) {
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                          <td class="p-2.5 text-slate-800 dark:text-slate-200 font-medium">{{ formatDate(entry.created_at || '2026-11-01') }}</td>
+                          <td class="p-2.5 text-slate-900 dark:text-slate-100 font-bold">{{ entry.employee_name || 'Nguyễn Văn A' }}</td>
+                          <td class="p-2.5 text-primary">{{ entry.entry_type }}</td>
+                          <td class="p-2.5 font-bold" [ngClass]="entry.days > 0 ? 'text-success' : 'text-danger'">
+                            {{ entry.days > 0 ? '+' + entry.days : entry.days }}
+                          </td>
+                          <td class="p-2.5 text-slate-700 dark:text-slate-300 font-medium">{{ entry.note || '—' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- 11. TAB: REPORTS & EXPORT (Báo cáo & Xuất dữ liệu) -->
+        @if (activeTab() === 'admin-reports') {
+          <div class="space-y-4">
+            <div class="p-4 bg-surface border border-neutral-200 dark:border-neutral-800 space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200 dark:border-neutral-800 pb-3">
+                <div>
+                  <h3 class="font-mono text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                    {{ 'PLUGIN_ATTENDANCE_ADMIN_REPORTS' | translate }}
+                  </h3>
+                  <p class="font-mono text-xs text-muted mt-0.5">
+                    {{ 'attendance.report.subtitle' | translate }}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  data-testid="btn-export-csv"
+                  (click)="exportTimesheetCsv()"
+                  class="px-3 py-1.5 text-xs font-mono bg-primary text-white font-semibold rounded-none cursor-pointer"
+                >
+                  {{ 'attendance.report.export_csv' | translate }}
+                </button>
+              </div>
+
+              <!-- Metrics cards -->
+              <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div class="p-3 bg-surface-muted border border-neutral-200 dark:border-neutral-800 font-mono">
+                  <div class="text-[11px] text-muted uppercase">{{ 'attendance.report.attendance_rate' | translate }}</div>
+                  <div class="text-2xl font-bold text-primary">93.3%</div>
+                </div>
+                <div class="p-3 bg-surface-muted border border-neutral-200 dark:border-neutral-800 font-mono">
+                  <div class="text-[11px] text-muted uppercase">{{ 'attendance.report.total_employees' | translate }}</div>
+                  <div class="text-2xl font-bold text-slate-900 dark:text-slate-100">45</div>
+                </div>
+                <div class="p-3 bg-surface-muted border border-neutral-200 dark:border-neutral-800 font-mono">
+                  <div class="text-[11px] text-muted uppercase">{{ 'attendance.report.total_ot' | translate }}</div>
+                  <div class="text-2xl font-bold text-warning">180h</div>
+                </div>
+                <div class="p-3 bg-surface-muted border border-neutral-200 dark:border-neutral-800 font-mono">
+                  <div class="text-[11px] text-muted uppercase">{{ 'attendance.report.total_leaves' | translate }}</div>
+                  <div class="text-2xl font-bold text-success">14d</div>
+                </div>
+              </div>
+
+              <!-- Two column reports -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <!-- Top Late -->
+                <div class="border border-neutral-200 dark:border-neutral-800 p-3 space-y-2">
+                  <div class="font-mono text-xs font-bold uppercase text-slate-900 dark:text-slate-100 border-b border-neutral-200 dark:border-neutral-800 pb-1.5">
+                    {{ 'attendance.report.top_late' | translate }}
+                  </div>
+                  <table class="w-full text-left font-mono text-xs">
+                    <thead class="text-muted text-[11px]">
+                      <tr>
+                        <th class="py-1">{{ 'attendance.table.emp_name' | translate }}</th>
+                        <th class="py-1">{{ 'attendance.report.late_count' | translate }}</th>
+                        <th class="py-1">{{ 'attendance.report.late_minutes' | translate }}</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800">
+                      @for (item of topLateList(); track item.employee_id) {
+                        <tr>
+                          <td class="py-1.5 font-semibold text-slate-900 dark:text-slate-100">{{ item.employee_name }}</td>
+                          <td class="py-1.5 text-warning font-bold">{{ item.late_count }}</td>
+                          <td class="py-1.5 text-danger font-bold">{{ item.total_late_minutes }}m</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Overtime summary -->
+                <div class="border border-neutral-200 dark:border-neutral-800 p-3 space-y-2">
+                  <div class="font-mono text-xs font-bold uppercase text-slate-900 dark:text-slate-100 border-b border-neutral-200 dark:border-neutral-800 pb-1.5">
+                    {{ 'attendance.report.overtime' | translate }}
+                  </div>
+                  <table class="w-full text-left font-mono text-xs">
+                    <thead class="text-muted text-[11px]">
+                      <tr>
+                        <th class="py-1">{{ 'attendance.table.department' | translate }}</th>
+                        <th class="py-1">{{ 'attendance.report.ot_weekday' | translate }}</th>
+                        <th class="py-1">{{ 'attendance.report.ot_weekend' | translate }}</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800">
+                      @for (item of overtimeList(); track item.department_id) {
+                        <tr>
+                          <td class="py-1.5 font-semibold text-slate-900 dark:text-slate-100">{{ item.department_name }}</td>
+                          <td class="py-1.5 text-primary font-bold">{{ item.weekday_ot_hours }}h</td>
+                          <td class="py-1.5 text-warning font-bold">{{ item.weekend_ot_hours }}h</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </main>
     </div>
   }
 
@@ -1011,7 +2558,7 @@
 
       <div class="grid grid-cols-2 gap-2">
         <div>
-          <label class="block text-muted text-[11px] mb-1">From Date</label>
+          <label class="block text-muted text-[11px] mb-1">{{ 'attendance.request.from_date' | translate }}</label>
           <input
             type="date"
             [(ngModel)]="requestFromDate"
@@ -1019,7 +2566,7 @@
           />
         </div>
         <div>
-          <label class="block text-muted text-[11px] mb-1">To Date</label>
+          <label class="block text-muted text-[11px] mb-1">{{ 'attendance.request.to_date' | translate }}</label>
           <input
             type="date"
             [(ngModel)]="requestToDate"
@@ -1034,7 +2581,7 @@
           [(ngModel)]="requestReason"
           rows="4"
           class="w-full p-2 border border-neutral-300 dark:border-neutral-700 bg-surface rounded-none"
-          placeholder="Reason for request..."
+          [placeholder]="'attendance.request.reason_placeholder' | translate"
         ></textarea>
       </div>
     </div>
@@ -1043,16 +2590,17 @@
     <div drawer-footer class="flex items-center justify-end gap-2">
       <button
         type="button"
+        data-testid="btn-cancel-request-drawer"
         (click)="newRequestDrawerOpen.set(false)"
-        class="px-3 py-1.5 text-xs font-mono border border-neutral-300 dark:border-neutral-700 cursor-pointer"
+        class="px-3.5 py-1.5 text-xs font-mono font-medium bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 rounded-none shadow-xs cursor-pointer"
       >
-        Cancel
+        {{ 'PLUGIN_ACTION_CANCEL' | translate }}
       </button>
       <button
         type="button"
         (click)="submitNewRequest()"
         [disabled]="loading() || !requestReason()"
-        class="px-4 py-1.5 text-xs font-mono bg-primary text-white font-semibold cursor-pointer border border-primary"
+        class="px-4 py-1.5 text-xs font-mono font-bold bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white border border-sky-600 rounded-none shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {{ 'attendance.request.submit' | translate }}
       </button>
@@ -1066,15 +2614,16 @@
     (close)="lockDrawerOpen.set(false)"
   >
     <div class="space-y-3 font-mono text-xs">
-      <div class="p-3 bg-warning/15 text-warning border border-warning/30 text-xs">
-        ⚠️ {{ 'attendance.timesheet.lock_confirm' | translate }}
+      <div class="p-3 bg-warning/15 text-warning border border-warning/30 text-xs flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <span>{{ 'attendance.timesheet.lock_confirm' | translate }}</span>
       </div>
       <div>
-        <label class="block text-muted text-[11px] mb-1">Audit Reason</label>
+        <label class="block text-muted text-[11px] mb-1">{{ 'attendance.timesheet.lock_audit_reason' | translate }}</label>
         <input
           type="text"
           [(ngModel)]="lockReason"
-          placeholder="Reason for locking period..."
+          [placeholder]="'attendance.timesheet.lock_audit_placeholder' | translate"
           class="w-full p-2 border border-neutral-300 dark:border-neutral-700 bg-surface rounded-none"
         />
       </div>
@@ -1084,19 +2633,184 @@
     <div drawer-footer class="flex items-center justify-end gap-2">
       <button
         type="button"
+        data-testid="btn-cancel-lock-drawer"
         (click)="lockDrawerOpen.set(false)"
-        class="px-3 py-1.5 text-xs font-mono border border-neutral-300 dark:border-neutral-700 cursor-pointer"
+        class="px-3.5 py-1.5 text-xs font-mono font-medium bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 rounded-none shadow-xs cursor-pointer"
       >
-        Cancel
+        {{ 'PLUGIN_ACTION_CANCEL' | translate }}
       </button>
       <button
         type="button"
         (click)="confirmLockTimesheet()"
-        class="px-4 py-1.5 text-xs font-mono bg-danger text-white font-bold cursor-pointer border border-danger"
+        class="px-4 py-1.5 text-xs font-mono font-bold bg-red-600 hover:bg-red-700 active:bg-red-800 text-white border border-red-600 rounded-none shadow-xs cursor-pointer"
       >
-        🔒 {{ 'attendance.timesheet.lock' | translate }}
+        {{ 'attendance.timesheet.lock' | translate }}
       </button>
     </div>
   </app-drawer>
-</div>
+
+  <!-- 3. Drawer: Shift Definition -->
+  <app-drawer
+    [isOpen]="shiftDrawerOpen()"
+    [title]="'attendance.shifts.create' | translate"
+    [subtitle]="'attendance.shifts.subtitle' | translate"
+    (close)="shiftDrawerOpen.set(false)"
+  >
+    <div class="space-y-3 font-mono text-xs">
+      <div>
+        <label class="block text-muted uppercase text-[11px] mb-1">{{ 'attendance.shifts.code' | translate }}</label>
+        <input
+          type="text"
+          [value]="editingShift().code || ''"
+          (input)="editingShift().code = $any($event.target).value"
+          placeholder="HC, SANG, CHIEU..."
+          class="w-full p-2 border border-neutral-300 dark:border-neutral-700 bg-surface rounded-none"
+        />
+      </div>
+      <div>
+        <label class="block text-muted uppercase text-[11px] mb-1">{{ 'attendance.shifts.name' | translate }}</label>
+        <input
+          type="text"
+          [value]="editingShift().name || ''"
+          (input)="editingShift().name = $any($event.target).value"
+          placeholder="Ca hành chính, Ca sáng..."
+          class="w-full p-2 border border-neutral-300 dark:border-neutral-700 bg-surface rounded-none"
+        />
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block text-muted uppercase text-[11px] mb-1">{{ 'attendance.shifts.start_time' | translate }}</label>
+          <input
+            type="time"
+            [value]="editingShift().start_time || '08:00'"
+            (input)="editingShift().start_time = $any($event.target).value"
+            class="w-full p-2 border border-neutral-300 dark:border-neutral-700 bg-surface rounded-none"
+          />
+        </div>
+        <div>
+          <label class="block text-muted uppercase text-[11px] mb-1">{{ 'attendance.shifts.end_time' | translate }}</label>
+          <input
+            type="time"
+            [value]="editingShift().end_time || '17:00'"
+            (input)="editingShift().end_time = $any($event.target).value"
+            class="w-full p-2 border border-neutral-300 dark:border-neutral-700 bg-surface rounded-none"
+          />
+        </div>
+      </div>
+    </div>
+    <div drawer-footer class="flex items-center justify-end gap-2">
+      <button
+        type="button"
+        data-testid="btn-cancel-shift-drawer"
+        (click)="shiftDrawerOpen.set(false)"
+        class="px-3.5 py-1.5 text-xs font-mono font-medium bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 rounded-none shadow-xs cursor-pointer"
+      >
+        {{ 'PLUGIN_ACTION_CANCEL' | translate }}
+      </button>
+      <button
+        type="button"
+        (click)="saveShift()"
+        class="px-4 py-1.5 text-xs font-mono font-bold bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white border border-sky-600 rounded-none shadow-xs cursor-pointer"
+      >
+        {{ 'COMMON_SAVE' | translate }}
+      </button>
+    </div>
+  </app-drawer>
+
+  <!-- DRAWER: CẤU HÌNH QUY TRÌNH PHÊ DUYỆT (HR ADMIN / SYSTEM ADMIN) -->
+  <app-drawer
+    [isOpen]="isWorkflowDrawerOpen()"
+    [title]="selectedWorkflowPolicy()?.name || 'Cấu hình Quy trình'"
+    (close)="closeWorkflowPolicyDrawer()"
+  >
+    <div class="space-y-4 font-mono text-xs">
+      <div class="p-3 bg-sky-50 dark:bg-sky-950/40 border border-sky-300 dark:border-sky-800 text-sky-900 dark:text-sky-200 space-y-1">
+        <div class="font-bold text-xs flex items-center gap-1.5">
+          <app-icon name="shield" size="xs" [decorative]="true" />
+          <span>{{ 'attendance.workflows.configured_by_banner' | translate }}</span>
+        </div>
+        <p class="text-[11px] leading-relaxed">
+          Chính sách phê duyệt này được áp dụng tự động cho toàn bộ nhân sự khi nộp đơn từ trong phân hệ Chấm công.
+        </p>
+      </div>
+
+      @if (selectedWorkflowPolicy(); as policy) {
+        <div class="space-y-3">
+          <!-- Active Toggle -->
+          <div class="flex items-center justify-between p-3 border border-neutral-200 dark:border-neutral-800 bg-surface">
+            <div>
+              <div class="font-bold text-slate-900 dark:text-slate-100">Trạng thái kích hoạt quy trình</div>
+              <div class="text-[11px] text-slate-600 dark:text-slate-400">Cho phép áp dụng luồng phê duyệt này trong thực tế</div>
+            </div>
+            <button
+              type="button"
+              (click)="policy.active = !policy.active"
+              class="px-3 py-1.5 text-xs font-bold border cursor-pointer"
+              [ngClass]="policy.active ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-200 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'"
+            >
+              {{ policy.active ? 'ĐANG KÍCH HOẠT' : 'TẠM DỪNG' }}
+            </button>
+          </div>
+
+          <!-- SLA Input -->
+          <div class="p-3 border border-neutral-200 dark:border-neutral-800 bg-surface space-y-1.5">
+            <label class="font-bold text-slate-900 dark:text-slate-100 block">{{ 'attendance.workflows.sla_hours' | translate }}</label>
+            <div class="flex items-center gap-2">
+              <input
+                type="number"
+                [(ngModel)]="policy.sla_hours"
+                class="w-28 p-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-xs font-mono font-bold"
+              />
+              <span class="text-slate-600 dark:text-slate-400">giờ (Tự động nhắc nhở khi quá hạn)</span>
+            </div>
+          </div>
+
+          <!-- Levels List in Drawer -->
+          <div class="p-3 border border-neutral-200 dark:border-neutral-800 bg-surface space-y-2.5">
+            <div class="font-bold text-slate-900 dark:text-slate-100 text-xs uppercase tracking-wider">
+              Danh sách Các Cấp Phê duyệt (Approval Tiers)
+            </div>
+            @for (lvl of policy.approval_levels; track lvl.level) {
+              <div class="p-3 bg-slate-50 dark:bg-slate-900 border border-neutral-200 dark:border-neutral-800 space-y-2">
+                <div class="flex items-center justify-between font-bold text-slate-900 dark:text-slate-100">
+                  <span>{{ 'attendance.workflows.level' | translate }} {{ lvl.level }}: {{ lvl.role_name }}</span>
+                  <span class="text-[10px] px-1.5 py-0.5 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-mono">BẮT BUỘC</span>
+                </div>
+                <div class="text-[11px] text-slate-600 dark:text-slate-400">
+                  {{ lvl.description }}
+                </div>
+                @if (lvl.condition) {
+                  <div class="text-[11px] text-sky-700 dark:text-sky-300 font-semibold bg-sky-50 dark:bg-sky-950/30 p-1.5 border border-sky-200 dark:border-sky-800">
+                    {{ 'attendance.workflows.condition' | translate }}: {{ lvl.condition }}
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Rule 26: Drawer Footer Invariant - Pure layout inside drawer-footer -->
+    <div drawer-footer class="flex items-center justify-end gap-2">
+      <button
+        type="button"
+        data-testid="btn-cancel-workflow-drawer"
+        (click)="closeWorkflowPolicyDrawer()"
+        class="px-3.5 py-1.5 text-xs font-mono font-medium bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 rounded-none shadow-xs cursor-pointer"
+      >
+        {{ 'PLUGIN_ACTION_CANCEL' | translate }}
+      </button>
+      <button
+        type="button"
+        data-testid="btn-save-workflow-drawer"
+        (click)="saveWorkflowPolicy()"
+        class="px-4 py-1.5 text-xs font-mono font-bold bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white border border-sky-600 rounded-none shadow-xs cursor-pointer"
+      >
+        {{ 'COMMON_SAVE' | translate }}
+      </button>
+    </div>
+  </app-drawer>
+</section>
+}
 

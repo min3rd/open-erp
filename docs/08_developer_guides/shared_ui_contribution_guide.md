@@ -33,6 +33,12 @@ Trước khi tạo mới, tìm trong [components/index.ts](../../src/frontend/sh
 | `TabStripComponent` | Tab dùng chung cho `/settings/system` | Plugin tab lấy từ slot `core.settings.system.tabs` |
 | WC/MF loaders | Nạp `main.js`/`remoteEntry.js`, gán context, forward event | Entry qua gateway + `plugin_token` ngắn hạn |
 
+### 1.2. Shared ERP filter & navigation components
+
+| Component | Vai trò | Ghi chú |
+| :--- | :--- | :--- |
+| `FilterStripComponent` (`<app-filter-strip>`) | Dải nút lọc ngang trên 1 dòng cố định, cuộn ngang bằng con lăn chuột (`wheel` -> `scrollLeft`), cảm ứng, phím mũi tên hoặc nút điều hướng | Chống tràn vỡ dòng, hỗ trợ badge số lượng, chuẩn ERP Sharp/Compact |
+
 Plugin **không** render layout Core; plugin chỉ khai báo `ui_manifest.screens/contributions/slots` và cung cấp custom element.
 
 ## 2. Tiêu Chuẩn Thiết Kế Component Trong `shared-ui-lib`

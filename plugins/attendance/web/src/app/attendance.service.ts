@@ -7,6 +7,7 @@ import {
   AttendanceRecord,
   AttendanceRequest,
   AttendanceSummary,
+  KioskEmployee,
   LeaveBalance,
   LeaveLedgerEntry,
   LeaveType,
@@ -56,12 +57,24 @@ export class AttendanceService {
     return this.api.post<PunchResponse>(this.url('/api/v1/attendance/kiosk/punch'), payload);
   }
 
+  kioskEmployees(deviceCode = 'KIOSK-LOBBY-01'): Observable<ApiResponse<ListData<KioskEmployee>>> {
+    return this.api.get<ListData<KioskEmployee>>(this.url(`/api/v1/attendance/kiosks/${deviceCode}/employees`));
+  }
+
   myStatus(): Observable<ApiResponse<any>> {
     return this.api.get<any>(this.url('/api/v1/attendance/my-status'));
   }
 
   myLogs(page = 1, size = 30): Observable<ApiResponse<PagedData<AttendanceLog>>> {
     return this.api.get<PagedData<AttendanceLog>>(this.url(`/api/v1/attendance/my-logs?page=${page}&size=${size}`));
+  }
+
+  adminLogs(page = 1, size = 50): Observable<ApiResponse<PagedData<AttendanceLog>>> {
+    return this.api.get<PagedData<AttendanceLog>>(this.url(`/api/v1/attendance/admin/logs?page=${page}&size=${size}`));
+  }
+
+  adminRecords(page = 1, size = 50): Observable<ApiResponse<PagedData<AttendanceRecord>>> {
+    return this.api.get<PagedData<AttendanceRecord>>(this.url(`/api/v1/attendance/admin/records?page=${page}&size=${size}`));
   }
 
   // Requests
