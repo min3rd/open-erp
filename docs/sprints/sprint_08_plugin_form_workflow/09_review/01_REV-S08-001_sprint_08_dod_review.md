@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | REV-S08-001 / Sprint review & DoD / Sprint 08 |
-| Trạng thái / phiên bản / ngày | **Chờ chủ dự án nghiệm thu (Ready for Acceptance)** / 1.1 / 2026-11-09 |
+| Trạng thái / phiên bản / ngày | **ĐÃ ĐÓNG (CLOSED)** / 1.2 / 2026-11-11 |
 | Owner / reviewer | PM Agent / Chủ dự án (Product Owner) + Architect + QA |
 | Phạm vi | 30 AC của [CONF-S08-001](../04_confirmation/01_CONF-S08-001_sprint_08_scope_and_ac.md) 1.0; FEAT-39…42; 2 plugin default locked (per-tenant schema); UI overhaul dùng `@shared` |
 | Baseline | Flyway `V8.0.0__form_workflow_default_plugins.sql`, form 1.0.8, workflow 1.0.13, employee 1.2.2 |
@@ -53,7 +53,7 @@
 | Frontend Web & Mobile Builds | Clean build, 0 error | `web:build`, `mobile:build`, `form/workflow:ui:build` | ✅ PASS |
 | QA Sign-off | Đã ký duyệt | [TR-S08-001](../08_testing/02_TR-S08-001_sprint_08_test_report.md) 1.3 | ✅ PASS |
 | PM DoD Review | Đạt mọi điều kiện | REV-S08-001 1.0 | ✅ PASS |
-| Khách hàng nghiệm thu | Chờ ký duyệt | Bảng mục 5 bên dưới | ⏳ Chờ PO duyệt |
+| Khách hàng nghiệm thu | Đã nghiệm thu | Bảng mục 5 bên dưới | ✅ PASS |
 
 ## 4. Backlog chuyển tiếp
 
@@ -66,10 +66,10 @@
 
 | Quyết định | Trạng thái | Người/ngày/nguồn |
 | :--- | :---: | :--- |
-| QA Sign-off | ✅ **PASS** | QA Agent / TR-S08-001 1.3 / 2026-11-09 |
-| PM DoD Review | ✅ **PASS** | PM Agent / REV-S08-001 1.0 / 2026-11-09 |
-| Khách hàng nghiệm thu (Customer Acceptance) | ⏳ **Chờ chủ dự án nghiệm thu** | Chủ dự án / Hội thoại trực tiếp |
-| Đóng Sprint (Sprint Closure) | ⏳ **Chờ nghiệm thu** | PM Agent |
+| QA Sign-off | ✅ **PASS** | QA Agent / TR-S08-001 3.6 / 2026-11-11 |
+| PM DoD Review | ✅ **PASS** | PM Agent / REV-S08-001 1.2 / 2026-11-11 |
+| Khách hàng nghiệm thu (Customer Acceptance) | ✅ **ACCEPTED** | Chủ dự án / Xác nhận trực tiếp "ok đóng sprint 8 ở đây" (2026-11-11) |
+| Đóng Sprint (Sprint Closure) | ✅ **CLOSED** | PM Agent / 2026-11-11 |
 
 ## 6. Release Notes
 

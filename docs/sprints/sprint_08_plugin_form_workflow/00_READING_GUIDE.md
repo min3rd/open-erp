@@ -2,8 +2,8 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / phiên bản / cập nhật | READ-S08-001 / 1.4 / 2026-11-10 |
-| Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — Rework theo chỉ đạo chủ dự án (2026-11-10): 1) Default/locked plugin cho 100% tenant (`V8.0.0__form_workflow_default_plugins.sql`), 2) Đại tu toàn diện UI Form & Workflow sang `@shared` components theo layout ERP Workspace chuẩn, 3) Bảng lưới tính toán kiểu Excel mật độ cao (`GRID`) với công thức và tổng kết cột |
+| ID / phiên bản / cập nhật | READ-S08-001 / 1.6 / 2026-11-11 |
+| Trạng thái tài liệu / sprint | ✅ **ĐÃ ĐÓNG (CLOSED)** — Hoàn thành 100% mục tiêu Sprint 08, đạt tiêu chí DoD Gate (0 Critical, 0 High, 0 Medium, 0 Low), tích hợp trọn bộ 32 loại trường Form, Excel-style Grid, Undo/Redo Engine cho cả Form và Workflow, sửa dứt điểm BUG-179/182, tuân thủ Rule 23 (ZERO fetch). Chủ dự án nghiệm thu và phê duyệt đóng Sprint ngày 2026-11-11 |
 | Owner / reviewer | BA Agent / Chủ dự án (duyệt scope tại CONF) |
 | Đầu vào / đọc trước | [RAW-S08-001](01_raw_notes/01_RAW-S08-001_form_workflow_plugin_requirements.md) — yêu cầu trực tiếp chủ dự án 2026-11-02 / [Sprint 07](../sprint_07_plugin_employee/00_READING_GUIDE.md) (đã đóng), [Sprint 06](../sprint_06_plugin_dev_platform/00_READING_GUIDE.md) |
 | Đọc tiếp | [ANL-S08-001](02_analysis/01_ANL-S08-001_form_builder_plugin.md) → [ANL-S08-002](02_analysis/02_ANL-S08-002_workflow_plugin.md) → [BENCH-S08-001](03_benchmarks/01_BENCH-S08-001_form_builder_survey_benchmarks.md) → [BENCH-S08-002](03_benchmarks/02_BENCH-S08-002_workflow_engine_benchmark.md) → [CONF-S08-001](04_confirmation/01_CONF-S08-001_sprint_08_scope_and_ac.md) |
@@ -91,8 +91,8 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | 07.06 | TASK-446 | [Bộ 32 loại trường Form Builder](07_items/TASK-446_form_builder_comprehensive_field_palette.md) | Tích hợp đầy đủ 32 loại trường qua 6 nhóm nghiệp vụ: Basic Inputs, Choice, Specialized, Media, Advanced, Structural — Done | Developer |
 | 07.07 | TASK-447 | [Form Builder Undo/Redo Engine & Single-Row Tabs](07_items/TASK-447_form_builder_undo_redo_engine.md) | Bộ máy Undo/Redo 50 bước, phím tắt Ctrl+Z/Ctrl+Y, section tabs 1 hàng scroll ngang theo góp ý UX, 10/10 automated tests PASS — Done | Developer |
 | 08.01 | TP-S08-001 | [Test plan](08_testing/01_TP-S08-001_sprint_08_test_plan.md) | Ma trận AC → TC-N/I/E/B/S | QA |
-| 08.02 | TR-S08-001 | [Test report](08_testing/02_TR-S08-001_sprint_08_test_report.md) | 391/391 PASS (18 unit engine + 254 core + 34 plugin + 13 CLI/manifest + 22 E2E + 5 bảo mật + 45 màn hình browser thực tế Dual-Mode Desktop/Mobile kèm ảnh chụp nhúng đầy đủ: Bảng tính Excel Grid, Cột Select Cascading & Row Isolation, Inspector Configuration, Step Wizard 2 cột, Page Mode 2 cột, Cascading Catalog) | QA |
-| 09.01 | REV-S08-001 | [Nghiệm thu & đóng Sprint 08](09_review/01_REV-S08-001_sprint_08_dod_review.md) | PM DoD Review — chờ Chủ dự án nghiệm thu | PM |
+| 08.02 | TR-S08-001 | [Test report](08_testing/02_TR-S08-001_sprint_08_test_report.md) | 100% PASS (18 unit engine + 254 core + 34 plugin + 13 CLI/manifest + 22 E2E + 5 bảo mật + 56 màn hình browser thực tế Dual-Mode Desktop/Mobile kèm ảnh chụp nhúng đầy đủ: Undo/Redo Form & Workflow, Session Expired Banner, Bảng tính Excel Grid, Cột Select Cascading & Row Isolation, Inspector Configuration, Step Wizard 2 cột, Page Mode 2 cột, Cascading Catalog) | QA |
+| 09.01 | REV-S08-001 | [Nghiệm thu & đóng Sprint 08](09_review/01_REV-S08-001_sprint_08_dod_review.md) | PM DoD Review — **ĐÃ ĐÓNG (CLOSED 2026-11-11)** | PM |
 
 > Bảng đọc là snapshot. Không tạo link giả cho artifact chưa tồn tại; khi tạo file phải cập nhật index trước khi giao việc.
 
@@ -102,10 +102,10 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | :--- | :--- | :--- | :--- |
 | Scope & AC (CONF-S08-001) | ✅ **APPROVED 1.0** — 16/16 câu trả lời; chủ dự án duyệt qua hội thoại tương tác (đã nhắc rõ rủi ro Q3) | Chủ dự án | CONF-S08-001 1.0, 2026-11-02 |
 | Design ready (SOL/ADR/DES) | ✅ **APPROVED 1.0** — duyệt sau khi bổ sung version semantics (DES 0.2) | Architect + Chủ dự án | Design review 2026-11-02 |
-| Implementation | ✅ **Done (QA-ready)** — Hoàn tất Rework per-tenant schema + default locked plugins + `@shared` ERP Workspace UI | Developer + QA | TR-S08-001 1.4, 2026-11-09 |
-| QA sign-off | ✅ **Reviewed-ready 3.3** — 391/391 test PASS + 45 màn hình browser Desktop/Mobile đã chụp ảnh thực tế nhúng trong TR-S08-001 3.3 | QA Agent | TR-S08-001 3.3, 2026-11-10 |
-| PM DoD / Customer acceptance | ⏳ Pending (Chờ Chủ dự án review & nghiệm thu) | Chủ dự án | REV-S08-001 1.1 |
-| Sprint closure | ⏳ Pending | PM | — |
+| Implementation | ✅ **Done** — Hoàn tất 100% backend, Web Components, Undo/Redo Engine, 32 loại trường, Excel Grid, sửa BUG-179/182 | Developer + QA | TR-S08-001 3.6, 2026-11-11 |
+| QA sign-off | ✅ **Reviewed-ready 3.6** — 100% test PASS + 56 màn hình browser Desktop/Mobile đã chụp ảnh thực tế nhúng trong TR-S08-001 3.6 | QA Agent | TR-S08-001 3.6, 2026-11-11 |
+| PM DoD / Customer acceptance | ✅ **ACCEPTED** — Chủ dự án nghiệm thu trực tiếp "ok đóng sprint 8 ở đây" (2026-11-11) | Chủ dự án | REV-S08-001 1.2, 2026-11-11 |
+| Sprint closure | ✅ **CLOSED (ĐÃ ĐÓNG 2026-11-11)** | PM Agent | REV-S08-001 1.2, 2026-11-11 |
 
 ## 4. Danh mục ID và việc chuyển tiếp
 
@@ -160,3 +160,4 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi ch�
 | 1.3 | 2026-11-09 | **Rework Sprint 08 theo yêu cầu khách hàng**: (1) Chuyển 2 plugin `form` và `workflow` thành **plugin mặc định và luôn bật (default locked)** cho 100% tenant (`default_install = true`, `locked = true`, backfill toàn bộ tenant hiện tại và tự động provision khi đăng ký tenant mới qua `V8.0.0__form_workflow_default_plugins.sql`); (2) **Đại tu giao diện toàn diện** theo chuẩn ERP Workspace dùng 100% component chung `@shared` (`SharpInput`, `SharpSelect`, `SharpButton`, `SharpTextarea`, `SharpToggle`, `Badge`, `Drawer`, `Table`, `Icon`), bổ sung 4-card KPI summary header, tab navigation badges, filter bar, xóa bỏ hoàn toàn raw HTML inputs; (3) Parity 100% 13 ngôn ngữ; Full suite 254 backend tests + 11 CLI tests + Web/Mobile build PASS | Developer/QA; working tree |
 | 1.4 | 2026-11-11 | **Nâng cấp chuyên sâu theo yêu cầu PO**: (1) Bảng tính toán Excel Grid mật độ cao với cấu hình loại cột, cột Select 3 nguồn dữ liệu (Static, Catalog, API) và cascading cha-con cô lập cấp dòng (`TASK-445`); (2) Tích hợp trọn bộ 32 loại trường Form Builder qua 6 nhóm nghiệp vụ ERP (`TASK-446`); (3) Bộ máy Undo/Redo Engine 50 bước, phím tắt Ctrl+Z/Ctrl+Y, tối ưu UX thanh tab Section 1 hàng cuộn ngang (`TASK-447`); (4) 100% strict i18n parity 13 ngôn ngữ; 0 console error | Developer/QA; working tree |
 | 1.5 | 2026-11-11 | **Hoàn thiện Workflow Designer Undo/Redo, fix BUG-179/182 & tuân thủ Rule 23**: (1) Bổ sung bộ máy Undo/Redo Engine cho Workflow Designer Studio (`TASK-448`) với 50-step stack, shortcut Ctrl+Z/Ctrl+Y, toolbar buttons có icon feather và tooltip đa ngôn ngữ; (2) Khắc phục triệt để BUG-179: tự động bắt lỗi HTTP 401 khi token hết hạn, xóa token, chuyển hướng về `/login?expired=true` kèm banner cảnh báo `AUTH_SESSION_EXPIRED` và lưu `returnUrl`; (3) Khắc phục triệt để BUG-182: cơ chế tự động nạp ngầm i18n khi thiếu key và hỗ trợ refresh nóng; (4) Tuân thủ triệt để Rule 23: loại bỏ 100% lệnh `fetch()` trong toàn bộ mã nguồn Angular, chuyển hoàn toàn sang `HttpClient` / `ApiService` | Developer/QA; working tree |
+| 1.6 | 2026-11-11 | **CHÍNH THỨC ĐÓNG SPRINT 08 (CLOSED)**: Chủ dự án nghiệm thu trực tiếp ("ok đóng sprint 8 ở đây"). Toàn bộ 30/30 AC gốc, 5 nhiệm vụ nâng cao (Grid, 32 loại trường, Single-row tabs, Undo/Redo trên cả 2 Studio), 0 lỗi Critical/High/Medium/Low, 100% strict i18n parity 13 ngôn ngữ, 56 màn hình browser walkthrough đã được kiểm chứng và đóng gói trọn vẹn. Sẵn sàng khởi động Sprint 09 | PM Agent; hội thoại nghiệm thu trực tiếp |
