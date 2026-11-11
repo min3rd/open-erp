@@ -14,9 +14,12 @@
 - Sprint 08 bàn giao **2 plugin nền tảng cốt lõi của hệ thống**:
   1. **Plugin `form` (Form Builder)**: Thiết kế biểu mẫu kiểu Google Forms, sections, đa dạng câu hỏi, skip logic forward-only, link thu thập public, quản lý phản hồi, mapping entity write proxy.
   2. **Plugin `workflow` (Workflow Engine)**: Định nghĩa quy trình versioned, rẽ nhánh điều kiện, phê duyệt nhiều chế độ (ANY, ALL, VOTE_RATIO), inbox nhiệm vụ, timeline tiến trình, SLA scan, webhook và tích hợp sự kiện liên plugin.
-- **Rework hoàn tất theo yêu cầu chủ dự án**:
+- **Rework & Nâng cấp chuyên sâu hoàn tất theo yêu cầu chủ dự án**:
   1. **Plugin mặc định & luôn bật (Default Locked Plugins)**: Chuyển `form` và `workflow` thành plugin mặc định (`default_install = true`, `locked = true`). Cả 2 plugin được backfill tự động cho 100% tenant hiện tại qua Flyway `V8.0.0` và tự động kích hoạt khi đăng ký tenant mới.
   2. **Đại tu giao diện toàn diện sang Shared Components (`@shared`)**: Thay thế 100% raw HTML tags bằng các component chuẩn của hệ thống (`SharpInput`, `SharpSelect`, `SharpButton`, `SharpTextarea`, `SharpToggle`, `Badge`, `Drawer`, `Table`, `Icon`), áp dụng layout ERP Workspace với 4-card KPI grid, nav tab badges, filter bar.
+  3. **Bảng tính toán Excel Grid & Cascading Select cô lập cấp dòng (`TASK-445`)**: Hỗ trợ đầy đủ kiểu cột, Select với 3 nguồn dữ liệu (Static, Catalog, API), cascading cha-con cô lập độc lập từng hàng, công thức tính toán và dòng tổng kết.
+  4. **Bộ 32 loại trường Form Builder toàn diện qua 6 nhóm ERP (`TASK-446`)**: Basic Inputs, Choice & Selection, Specialized Inputs, Media & Upload, Advanced & Interactive, Layout & Structural.
+  5. **Bộ máy Undo/Redo Engine & Single-Row Section Tabs (`TASK-447`)**: Lịch sử 50 bước, phím tắt Ctrl+Z/Ctrl+Y, tối ưu UX thanh tab Section 1 dòng cuộn ngang gọn gàng.
 - **Tích hợp Core Event Hub & Cutover Employee**:
   - Core Event Hub (V7.0.8) chuyển tiếp sự kiện bất đồng bộ qua Vert.x eventbus.
   - Plugin `employee` (1.2.2) đã cutover thành công cơ chế duyệt sang Workflow Engine chung.
