@@ -9,7 +9,12 @@
   "core_version_compatibility": ">=1.0.0 <2.0.0",
   "migration_policy": "COMPATIBLE",
   "rollback_strategy": "SNAPSHOT_RESTORE",
-  "dependencies": [],
+  "dependencies": [
+    {
+      "key": "org-structure",
+      "min_version": "1.1.0"
+    }
+  ],
   "event_subscriptions": [
     {
       "source": "*",

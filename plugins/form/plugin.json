@@ -9,7 +9,12 @@
   "core_version_compatibility": ">=1.0.0 <2.0.0",
   "migration_policy": "COMPATIBLE",
   "rollback_strategy": "SNAPSHOT_RESTORE",
-  "dependencies": [],
+  "dependencies": [
+    {
+      "key": "catalog",
+      "min_version": "1.0.0"
+    }
+  ],
   "public_access": true,
   "event_publications": [
     {
