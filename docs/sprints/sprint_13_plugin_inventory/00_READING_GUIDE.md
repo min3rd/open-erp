@@ -50,6 +50,7 @@ Xây dựng **Plugin Quản Lý Kho Hàng (`plugins/inventory`)** hoàn toàn đ
 | **Plugin `form` (Sprint 08)** | Tùy biến biểu mẫu Kho (`Warehouse/Bin`, `SKU`, `Phiếu Nhập/QC`, `Xuất/Giữ hàng`, `Chuyển kho`, `Kiểm kê`) theo Tenant, Chi nhánh (`branch_id`) & Kho qua 32 loại trường + `GRID` công thức + `SIGNATURE` | Bảo vệ `System Locked Core Fields`; lưu `custom_fields_data` (`JSONB`) kèm `form_version` qua Entity Registry |
 | **Plugin `workflow` (Sprint 08)** | Phê duyệt nhiều cấp cho Phiếu đề nghị nhập/xuất/chuyển/kiểm kê vượt ngưỡng | Tái sử dụng Workflow Engine thay vì tự viết luồng duyệt riêng |
 | **Plugin `in-app-notification`** | Cảnh báo tồn kho dưới `Min`, hàng cận hạn `FEFO`, phiếu chờ xác nhận nhận hàng | Gửi notification bất đồng bộ qua Event Hub / Outbox |
+| **Plugin `document-template` (Sprint 16 — Ưu tiên trước Sprint 13)** | Kết xuất & in Phiếu Nhập/Xuất/QC/Chuyển kho/Kiểm kê (`PDF/DOCX/XLSX`), **Tem mã vạch `Barcode/QR`** (`mm`), đóng dấu `Watermark` nháp/bản sao, `QR Verify` & Gửi Email trả NCC | Giao tiếp qua `PluginDataServiceGrpc` / Kafka & nhúng Drawer `Print & Email` — xem [Sprint 16 Reading Guide](../sprint_16_plugin_document_template/00_READING_GUIDE.md) |
 | **Các Plugin Nghiệp vụ Tương lai** *(Mua hàng, Bán hàng, Nội bộ...)* | Tách biệt hoàn toàn khỏi Sprint 13; khi triển khai sẽ gọi vào `inventory` qua gRPC/Kafka thông qua tham chiếu tổng quát (`reference_type`, `reference_id`) | `plugins/inventory` đứng độc lập hoàn toàn |
 
 ---
