@@ -1,12 +1,12 @@
-# [TASK-445] Ingestion 5 nguồn: Web, Mobile GPS, Kiosk PIN, Import CSV, Core Push API
+# [TASK-464] Ingestion 5 nguồn: Web, Mobile GPS, Kiosk PIN, Import CSV, Core Push API
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / loại / sprint | TASK-445 / Task / Sprint 09 |
+| ID / loại / sprint | TASK-464 / Task / Sprint 09 |
 | Severity / trạng thái | High / **Done (dev)** — Ingestion 5 nguồn + Core Push hoàn tất, 100% tests PASS |
 | Owner/agent / reviewer | Developer / QA |
 | Cập nhật / input version | 2026-11-11 / [ADR-S09-005](../05_solutions/06_ADR-S09-005_multi_source_log_ingestion.md), [DES-DB-S09-001](../06_designs/db/01_DES-DB-S09-001_attendance_schema.md), [DES-API-S09-001](../06_designs/api/01_DES-API-S09-001_attendance_api.md) 1.0 |
-| depends_on / blocks / parent | TASK-443, TASK-444 / TASK-446, TASK-447 / [FEAT-43](FEAT-43_attendance_core_shifts_ingestion_calc.md) |
+| depends_on / blocks / parent | TASK-443, TASK-444 / TASK-465, TASK-466 / [FEAT-43](FEAT-43_attendance_core_shifts_ingestion_calc.md) |
 | Write scope | `plugins/attendance/**`, `src/backend/**/modules/attendance/**` |
 
 ## 1. Mục tiêu

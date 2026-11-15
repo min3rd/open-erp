@@ -50,6 +50,11 @@ public class PluginPublicSessionResource {
             @com.fasterxml.jackson.annotation.JsonProperty("tenant_slug") String tenantSlug,
             @com.fasterxml.jackson.annotation.JsonProperty("ref") String ref) {}
 
+    public record KioskSessionRequest(
+            @com.fasterxml.jackson.annotation.JsonProperty("tenant_slug") String tenantSlug,
+            @com.fasterxml.jackson.annotation.JsonProperty("device_code") String deviceCode,
+            @com.fasterxml.jackson.annotation.JsonProperty("device_token") String deviceToken) {}
+
     public record PublicSession(String token,
             @com.fasterxml.jackson.annotation.JsonProperty("expires_in") long expiresInSeconds,
             @com.fasterxml.jackson.annotation.JsonProperty("plugin_key") String pluginKey) {}
@@ -86,6 +91,53 @@ public class PluginPublicSessionResource {
         session.persist();
         return ApiResponse.success("PLUGIN_PUBLIC_SESSION_ISSUED",
                 "Public session issued.",
+                new PublicSession(token, TOKEN_MINUTES * 60, pluginKey));
+    }
+
+    /**
+     * Device-scoped kiosk session: the token is bound to one device code and
+     * the runtime gateway rejects any request outside `/kiosks/{device}/`.
+     * The device token itself is verified by the plugin on every call.
+     */
+    @POST
+    @Path("/{pluginKey}/kiosk")
+    @jakarta.transaction.Transactional
+    public ApiResponse<PublicSession> issueKiosk(@PathParam("pluginKey") String pluginKey,
+            @Context RoutingContext routingContext, KioskSessionRequest request) {
+        rateLimiter.check(clientIp(routingContext));
+        if (request == null || request.tenantSlug() == null || request.tenantSlug().isBlank()) {
+            throw new ApiException(400, "TENANT_SLUG_REQUIRED", "tenant_slug is required");
+        }
+        if (request.deviceCode() == null || request.deviceCode().isBlank()) {
+            throw new ApiException(400, "KIOSK_DEVICE_REQUIRED", "device_code is required");
+        }
+        if (request.deviceToken() == null || request.deviceToken().isBlank()) {
+            throw new ApiException(400, "KIOSK_DEVICE_TOKEN_REQUIRED", "device_token is required");
+        }
+        Tenant tenant = Tenant.findBySlug(request.tenantSlug().trim().toLowerCase());
+        if (tenant == null) {
+            throw new ApiException(404, "PUBLIC_TENANT_NOT_FOUND", "Workspace is not available");
+        }
+        if (!manifestAccessService.activeLedger(tenant.id, pluginKey).isPresent()) {
+            throw new ApiException(404, "PUBLIC_PLUGIN_NOT_AVAILABLE",
+                    "This surface is not available");
+        }
+        if (!manifestAccessService.publicAccessEnabled(tenant.id, pluginKey)) {
+            throw new ApiException(404, "PUBLIC_PLUGIN_NOT_AVAILABLE",
+                    "This surface is not available");
+        }
+        String deviceCode = request.deviceCode().trim();
+        String token = jwtTokenService.generatePluginKioskToken(
+                tenant.id, pluginKey, deviceCode, TOKEN_MINUTES);
+        PluginPublicSession session = new PluginPublicSession();
+        session.tenantId = tenant.id;
+        session.pluginKey = pluginKey;
+        session.tokenHash = sha256(token);
+        session.expiresAt = OffsetDateTime.now().plus(Duration.ofMinutes(TOKEN_MINUTES));
+        session.ipHash = hashIp(clientIp(routingContext));
+        session.persist();
+        return ApiResponse.success("PLUGIN_KIOSK_SESSION_ISSUED",
+                "Kiosk session issued.",
                 new PublicSession(token, TOKEN_MINUTES * 60, pluginKey));
     }
 

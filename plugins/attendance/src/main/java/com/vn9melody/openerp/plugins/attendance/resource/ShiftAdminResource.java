@@ -11,15 +11,20 @@ import com.vn9melody.openerp.plugin.sdk.runtime.TenantContext;
 import com.vn9melody.openerp.plugins.attendance.api.AttendanceErrorCode;
 import com.vn9melody.openerp.plugins.attendance.dto.AttendanceDtos.*;
 import com.vn9melody.openerp.plugins.attendance.model.DeviceType;
+import com.vn9melody.openerp.plugins.attendance.service.AttendanceAuditService;
 import com.vn9melody.openerp.plugins.attendance.service.KioskSecurityService;
+import com.vn9melody.openerp.plugins.attendance.service.OrgDirectoryService;
+import com.vn9melody.openerp.plugins.attendance.service.PluginDataPager;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
+import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Path("/admin")
@@ -37,6 +42,12 @@ public class ShiftAdminResource {
     @Inject
     KioskSecurityService securityService;
 
+    @Inject
+    AttendanceAuditService auditService;
+
+    @Inject
+    OrgDirectoryService orgDirectory;
+
     // --- SHIFTS ---
 
     @GET
@@ -49,7 +60,7 @@ public class ShiftAdminResource {
     ) {
         Map<String, Object> params = new LinkedHashMap<>();
         if (isActive != null) params.put("is_active", isActive);
-        params.put("page", page);
+        params.put("page", page > 0 ? page - 1 : 0);
         params.put("size", size);
 
         PluginQueryResult result = client.query("attendance.shift.list", params);
@@ -65,6 +76,72 @@ public class ShiftAdminResource {
                 page,
                 size,
                 result.totalRows() > 0 ? result.totalRows() : items.size()
+        );
+    }
+
+    @GET
+    @Path("/shift-coverage")
+    @RequirePermission("attendance:shift:manage")
+    public ApiResponse<ListData<ShiftCoverageDto>> shiftCoverage(
+            @QueryParam("month") String monthStr
+    ) {
+        java.time.YearMonth month;
+        try {
+            month = monthStr != null && !monthStr.isBlank()
+                    ? java.time.YearMonth.parse(monthStr) : java.time.YearMonth.now();
+        } catch (RuntimeException e) {
+            throw new ApiException(400, AttendanceErrorCode.ATTENDANCE_VALIDATION_ERROR,
+                    "month must use yyyy-MM", Map.of());
+        }
+        LocalDate from = month.atDay(1);
+        LocalDate to = month.atEndOfMonth();
+
+        Map<UUID, Set<UUID>> employeesByShift = new LinkedHashMap<>();
+        for (Map<String, Object> shift : PluginDataPager.listAll(client, "attendance.shift.list",
+                Map.of(), 100)) {
+            if (shift.get("id") != null) {
+                employeesByShift.put(UUID.fromString(shift.get("id").toString()), new LinkedHashSet<>());
+            }
+        }
+        for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
+            for (Map<String, Object> row : PluginDataPager.listAll(client, "attendance.assignment.list_by_date",
+                    Map.of("work_date", date.toString()), 500)) {
+                if (row.get("shift_definition_id") == null || row.get("employee_id") == null) {
+                    continue;
+                }
+                UUID shiftId = UUID.fromString(row.get("shift_definition_id").toString());
+                UUID employeeId = UUID.fromString(row.get("employee_id").toString());
+                employeesByShift.computeIfAbsent(shiftId, key -> new LinkedHashSet<>()).add(employeeId);
+            }
+        }
+
+        Map<UUID, OrgDirectoryService.EmployeeOrg> org = orgDirectory.employeeOrg();
+        List<ShiftCoverageDto> items = new ArrayList<>();
+        employeesByShift.forEach((shiftId, employeeIds) -> {
+            Set<String> departments = new TreeSet<>();
+            Set<String> branches = new TreeSet<>();
+            for (UUID employeeId : employeeIds) {
+                OrgDirectoryService.EmployeeOrg employeeOrg = org.get(employeeId);
+                if (employeeOrg == null) {
+                    continue;
+                }
+                if (employeeOrg.departmentName() != null) {
+                    departments.add(employeeOrg.departmentName());
+                }
+                if (employeeOrg.branchName() != null) {
+                    branches.add(employeeOrg.branchName());
+                }
+            }
+            items.add(new ShiftCoverageDto(
+                    shiftId,
+                    employeeIds.size(),
+                    new ArrayList<>(departments),
+                    new ArrayList<>(branches)));
+        });
+        return ApiResponse.successList(
+                AttendanceErrorCode.ATTENDANCE_SHIFT_LIST_SUCCESS,
+                "Shift coverage retrieved",
+                items
         );
     }
 
@@ -121,8 +198,99 @@ public class ShiftAdminResource {
         return ApiResponse.success(AttendanceErrorCode.ATTENDANCE_SHIFT_CREATED, "Shift created successfully", created);
     }
 
-    // --- DEVICES ---
+    @POST
+    @Path("/shift-assignments/bulk")
+    @RequirePermission("attendance:shift:manage")
+    public ApiResponse<Map<String, Object>> bulkAssignShifts(BulkShiftAssignRequest req) {
+        if (req == null || req.shiftDefinitionId() == null || req.from() == null) {
+            throw new ApiException(400, AttendanceErrorCode.ATTENDANCE_VALIDATION_ERROR,
+                    "shift_definition_id and from are required", Map.of());
+        }
+        LocalDate from = req.from();
+        LocalDate to = req.to() != null ? req.to() : from;
+        if (to.isBefore(from)) {
+            throw new ApiException(400, AttendanceErrorCode.ATTENDANCE_VALIDATION_ERROR,
+                    "to must be on or after from", Map.of());
+        }
+        // Keep each call under the 30s plugin gateway timeout; the UI sends weekly chunks.
+        if (ChronoUnit.DAYS.between(from, to) > 10) {
+            throw new ApiException(400, AttendanceErrorCode.ATTENDANCE_VALIDATION_ERROR,
+                    "Range must not exceed 10 days per call", Map.of());
+        }
 
+        List<Map<String, Object>> shifts = PluginDataPager.listAll(client, "attendance.shift.list",
+                Map.of("is_active", true), 100);
+        boolean shiftExists = shifts.stream()
+                .anyMatch(row -> req.shiftDefinitionId().toString().equals(String.valueOf(row.get("id"))));
+        if (!shiftExists) {
+            throw new ApiException(404, AttendanceErrorCode.ATTENDANCE_SHIFT_NOT_FOUND,
+                    "Shift definition not found", Map.of("id", req.shiftDefinitionId().toString()));
+        }
+
+        List<Map<String, Object>> employees = PluginDataPager.listAll(client,
+                "attendance.employee_ref.list_all", Map.of(), 500);
+        UUID currentUserId = tenantContext.userId();
+        Set<UUID> requestedEmployeeIds = req.employeeIds() != null
+                ? new LinkedHashSet<>(req.employeeIds()) : Set.of();
+
+        int assigned = 0;
+        int skipped = 0;
+        for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
+            // ponytail: weekend is treated as non-working; a work-week setting would refine this.
+            if (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+                continue;
+            }
+            Set<String> assignedEmployeeIds = new HashSet<>();
+            for (Map<String, Object> row : PluginDataPager.listAll(client, "attendance.assignment.list_by_date",
+                    Map.of("work_date", date.toString()), 500)) {
+                if (row.get("employee_id") != null) {
+                    assignedEmployeeIds.add(row.get("employee_id").toString());
+                }
+            }
+            for (Map<String, Object> emp : employees) {
+                if (emp.get("employee_id") == null) {
+                    continue;
+                }
+                if (!"ACTIVE".equalsIgnoreCase(String.valueOf(emp.get("employment_status")))) {
+                    continue;
+                }
+                String employeeId = emp.get("employee_id").toString();
+                if (!requestedEmployeeIds.isEmpty()
+                        && !requestedEmployeeIds.contains(UUID.fromString(employeeId))) {
+                    continue;
+                }
+                if (assignedEmployeeIds.contains(employeeId)) {
+                    skipped++;
+                    continue;
+                }
+                Map<String, Object> params = new LinkedHashMap<>();
+                params.put("employee_id", employeeId);
+                params.put("work_date", date.toString());
+                params.put("shift_definition_id", req.shiftDefinitionId());
+                params.put("source", "HR");
+                params.put("reason", "Bulk assign " + date.getYear() + "-" + date.getMonthValue());
+                params.put("created_by", currentUserId);
+                client.write("attendance.assignment.insert", params);
+                assigned++;
+            }
+        }
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("assigned", assigned);
+        result.put("skipped", skipped);
+        result.put("from", from.toString());
+        result.put("to", to.toString());
+
+        auditService.record("SHIFT_BULK_ASSIGN", "ShiftAssignment", null,
+                Map.of("shift_definition_id", req.shiftDefinitionId().toString(),
+                        "from", from.toString(), "to", to.toString(),
+                        "assigned", assigned, "skipped", skipped));
+
+        return ApiResponse.success(AttendanceErrorCode.ATTENDANCE_ASSIGNMENT_CREATED,
+                "Shift assignments created", result);
+    }
+
+    // --- DEVICES ---
     @GET
     @Path("/devices")
     @RequirePermission("attendance:settings:manage")
@@ -135,7 +303,7 @@ public class ShiftAdminResource {
         Map<String, Object> params = new LinkedHashMap<>();
         if (deviceTypeStr != null && !deviceTypeStr.isBlank()) params.put("device_type", deviceTypeStr);
         if (isActive != null) params.put("is_active", isActive);
-        params.put("page", page);
+        params.put("page", page > 0 ? page - 1 : 0);
         params.put("size", size);
 
         PluginQueryResult result = client.query("attendance.device.list", params);
@@ -163,6 +331,10 @@ public class ShiftAdminResource {
         }
 
         String pinHash = req.pin() != null && !req.pin().isBlank() ? securityService.hashPin(req.pin()) : null;
+        String deviceToken = req.ingestSecret() != null && !req.ingestSecret().isBlank()
+                ? req.ingestSecret().trim()
+                : UUID.randomUUID().toString().replace("-", "");
+        String deviceTokenHash = securityService.hashPin(deviceToken);
 
         Map<String, Object> params = new LinkedHashMap<>();
         params.put("name", req.name() != null ? req.name().trim() : req.deviceCode());
@@ -170,8 +342,9 @@ public class ShiftAdminResource {
         params.put("branch_id", req.branchId());
         params.put("device_code", req.deviceCode().trim());
         params.put("pin_hash", pinHash);
-        params.put("ingest_secret_hash", null);
+        params.put("ingest_secret_hash", deviceTokenHash);
         params.put("is_active", true);
+        params.put("public_token", deviceToken);
 
         PluginQueryResult result = client.write("attendance.device.insert", params);
         UUID id = !result.rows().isEmpty() && result.rows().get(0).get("id") != null
@@ -186,12 +359,54 @@ public class ShiftAdminResource {
                 true,
                 false,
                 null,
-                null,
                 Instant.now(),
-                Instant.now()
+                Instant.now(),
+                Instant.now(),
+                deviceToken,
+                deviceToken
         );
 
         return ApiResponse.success(AttendanceErrorCode.ATTENDANCE_DEVICE_CREATED, "Device created successfully", resp);
+    }
+
+    @POST
+    @Path("/devices/{id}/rotate")
+    @RequirePermission("attendance:settings:manage")
+    public ApiResponse<DeviceResponse> rotateDeviceToken(@PathParam("id") UUID id) {
+        PluginQueryResult result = client.query("attendance.device.list", Map.of("page", 0, "size", 100));
+        Map<String, Object> row = result.rows().stream()
+                .filter(item -> item.get("id") != null && id.toString().equals(item.get("id").toString()))
+                .findFirst().orElse(null);
+        if (row == null) {
+            throw new ApiException(404, AttendanceErrorCode.ATTENDANCE_DEVICE_NOT_FOUND,
+                    "Device not found", Map.of("id", id.toString()));
+        }
+        String deviceToken = UUID.randomUUID().toString().replace("-", "");
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("id", id);
+        params.put("ingest_secret_hash", securityService.hashPin(deviceToken));
+        params.put("public_token", deviceToken);
+        params.put("secret_rotated_at", Instant.now());
+        client.write("attendance.device.set_public_token", params);
+
+        UUID branchId = row.get("branch_id") != null ? UUID.fromString(row.get("branch_id").toString()) : null;
+        DeviceResponse resp = new DeviceResponse(
+                id,
+                (String) row.get("name"),
+                DeviceType.valueOf((String) row.get("device_type")),
+                branchId,
+                (String) row.get("device_code"),
+                !Boolean.FALSE.equals(row.get("is_active")),
+                false,
+                null,
+                Instant.now(),
+                Instant.now(),
+                Instant.now(),
+                deviceToken,
+                deviceToken
+        );
+        return ApiResponse.success(AttendanceErrorCode.ATTENDANCE_DEVICE_CREATED,
+                "Device token rotated", resp);
     }
 
     // --- SETTINGS ---
@@ -248,10 +463,11 @@ public class ShiftAdminResource {
         Instant lockedUntil = row.get("locked_until") != null ? Instant.parse(row.get("locked_until").toString()) : null;
         boolean isLocked = lockedUntil != null && lockedUntil.isAfter(Instant.now());
         Instant secretRotated = row.get("secret_rotated_at") != null ? Instant.parse(row.get("secret_rotated_at").toString()) : null;
+        String publicToken = row.get("public_token") != null ? row.get("public_token").toString() : null;
 
         return new DeviceResponse(
                 id, name, type, branchId, code, active, isLocked, lockedUntil, secretRotated,
-                Instant.now(), Instant.now()
+                Instant.now(), Instant.now(), null, publicToken
         );
     }
 }

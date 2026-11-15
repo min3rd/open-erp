@@ -63,7 +63,7 @@ const mockLogs = {
     items: [
       { id: "1", employee_id: "emp-1", employee_code: "EMP-001", employee_name: "Nguyễn Văn A", punch_time: "2026-11-11 08:02:14", punch_type: "IN", source: "WEB", in_geofence: true, distance_meters: 15, note: "Đúng giờ" },
       { id: "2", employee_id: "emp-1", employee_code: "EMP-001", employee_name: "Nguyễn Văn A", punch_time: "2026-11-10 17:05:30", punch_type: "OUT", source: "WEB", in_geofence: true, distance_meters: 12, note: "Tan ca" },
-      { id: "3", employee_id: "emp-1", employee_code: "EMP-001", employee_name: "Nguyễn Văn A", punch_time: "2026-11-10 08:00:02", punch_type: "IN", source: "MOBILE", in_geofence: true, distance_meters: 45, note: "Mobile punch" },
+      { id: "3", employee_id: "emp-1", employee_code: "EMP-001", employee_name: "Nguyễn Văn A", punch_time: "2026-11-10 08:00:02", punch_type: "IN", source: "MOBILE", in_geofence: true, distance_meters: 45, note: "Chấm công di động" },
       { id: "4", employee_id: "emp-1", employee_code: "EMP-001", employee_name: "Nguyễn Văn A", punch_time: "2026-11-09 17:01:10", punch_type: "OUT", source: "WEB", in_geofence: true, distance_meters: 10, note: "Tan ca" },
       { id: "5", employee_id: "emp-1", employee_code: "EMP-001", employee_name: "Nguyễn Văn A", punch_time: "2026-11-09 08:05:00", punch_type: "IN", source: "WEB", in_geofence: true, distance_meters: 18, note: "Đúng giờ" }
     ],
@@ -96,11 +96,11 @@ const mockLeaveLedger = {
   code: "ATTENDANCE_LEAVE_LEDGER_SUCCESS",
   data: {
     items: [
-      { id: "ll-1", employee_name: "Nguyễn Văn A", entry_type: "CẤP_MỚI (GRANT)", days: 12, note: "Cấp phép đầu năm 2026", created_at: "2026-01-01" },
-      { id: "ll-2", employee_name: "Nguyễn Văn A", entry_type: "NGHỈ_PHÉP (USAGE)", days: -1.5, note: "Nghỉ phép việc gia đình (REQ-2026-0001)", created_at: "2026-06-15" },
-      { id: "ll-3", employee_name: "Nguyễn Văn A", entry_type: "NGHỈ_PHÉP (USAGE)", days: -1, note: "Nghỉ phép cá nhân", created_at: "2026-10-20" },
+      { id: "ll-1", employee_name: "Nguyễn Văn A", entry_type: "GRANT", days: 12, note: "Cấp phép đầu năm 2026", created_at: "2026-01-01" },
+      { id: "ll-2", employee_name: "Nguyễn Văn A", entry_type: "USAGE", days: -1.5, note: "Nghỉ phép việc gia đình (REQ-2026-0001)", created_at: "2026-06-15" },
+      { id: "ll-3", employee_name: "Nguyễn Văn A", entry_type: "USAGE", days: -1, note: "Nghỉ phép cá nhân", created_at: "2026-10-20" },
       { id: "ll-4", employee_name: "Trần Thị B", entry_type: "CẤP_MỚI (GRANT)", days: 14, note: "Cấp phép thâm niên", created_at: "2026-01-01" },
-      { id: "ll-5", employee_name: "Trần Thị B", entry_type: "ĐIỀU_CHỈNH (ADJUST)", days: 1, note: "Bổ sung phép thưởng dự án", created_at: "2026-09-01" }
+      { id: "ll-5", employee_name: "Trần Thị B", entry_type: "ADJUSTMENT", days: 1, note: "Bổ sung phép thưởng dự án", created_at: "2026-09-01" }
     ],
     page: 1,
     size: 50,
@@ -292,7 +292,12 @@ function generateKioskStandaloneHtml() {
 /**
  * Generates the authentic Open-ERP Application Shell HTML hosting the plugin
  */
-function generateShellHtml(isMobile = false) {
+function generateShellHtml(isMobile = false, role = 'TENANT_ADMIN') {
+  const roleLabel = role === 'EMPLOYEE' ? 'NHÂN VIÊN'
+    : role === 'LINE_MANAGER' ? 'QUẢN LÝ TRỰC TIẾP'
+    : role === 'HR_ADMIN' ? 'QUẢN TRỊ NHÂN SỰ'
+    : role === 'SYSTEM_ADMIN' ? 'QUẢN TRỊ HỆ THỐNG'
+    : 'QUẢN TRỊ VIÊN';
   return `<!doctype html>
 <html lang="vi">
 <head>
@@ -381,7 +386,7 @@ function generateShellHtml(isMobile = false) {
       </div>
     </header>
     <div class="flex-1 overflow-y-auto bg-slate-50">
-      <op-attendance-app is-mobile="true"></op-attendance-app>
+      <op-attendance-app is-mobile="true" user-role="${role}"></op-attendance-app>
     </div>
   </div>
   ` : `
@@ -394,13 +399,16 @@ function generateShellHtml(isMobile = false) {
         </div>
         <span class="text-neutral-300">/</span>
         <span class="text-muted font-medium">Tập đoàn Acme (Enterprise)</span>
-        <span class="px-2 py-0.5 text-[10px] bg-primary/10 text-primary border border-primary/30 font-bold">TENANT_ADMIN</span>
+        <span class="px-2 py-0.5 text-[10px] bg-primary/10 text-primary border border-primary/30 font-bold">${roleLabel}</span>
       </div>
       <div class="flex items-center gap-4">
         <div class="flex items-center gap-1 px-2.5 py-1 bg-surface-muted border border-neutral-200 text-muted text-xs">
           <span>Tìm kiếm chức năng... (Ctrl+K)</span>
         </div>
-        <div class="px-2 py-0.5 border border-neutral-200 text-xs">VN Tiếng Việt</div>
+        <div class="flex items-center gap-1 px-2 py-0.5 border border-neutral-200 text-xs" title="Tiếng Việt">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span>VI</span>
+        </div>
         <div class="flex items-center gap-2">
           <div class="text-right">
             <div class="font-bold text-xs">Vũ Văn Minh</div>
@@ -424,7 +432,7 @@ function generateShellHtml(isMobile = false) {
         <div class="p-3 flex-1 overflow-y-auto">
           <div class="flex items-center justify-between text-[10px] font-bold text-muted uppercase tracking-wider mb-2">
             <span>Ứng dụng & Plugins</span>
-            <span class="px-1.5 py-0.2 bg-neutral-200 text-[9px] font-bold">6 ACTIVE</span>
+            <span class="px-1.5 py-0.2 bg-neutral-200 text-[9px] font-bold">6 đang bật</span>
           </div>
           <div class="space-y-1">
             <div class="px-2 py-1.5 text-xs text-muted hover:bg-neutral-100 cursor-pointer">Danh mục chung</div>
@@ -451,17 +459,17 @@ function generateShellHtml(isMobile = false) {
           </div>
           <div class="flex items-center gap-2">
             <span class="text-[11px] px-2 py-0.5 bg-neutral-100 border border-neutral-300 text-neutral-600 font-bold">
-              plugin: attendance (v1.0.0)
+              Plugin: Chấm công (v1.0.0)
             </span>
             <span class="text-[11px] px-2 py-0.5 bg-emerald-50 border border-emerald-300 text-emerald-700 font-bold flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              Active
+              Đang hoạt động
             </span>
           </div>
         </div>
 
         <div class="bg-white border border-neutral-200 shadow-none">
-          <op-attendance-app is-mobile="false"></op-attendance-app>
+          <op-attendance-app is-mobile="false" user-role="${role}"></op-attendance-app>
         </div>
       </main>
     </div>
@@ -571,6 +579,17 @@ const server = http.createServer((req, res) => {
     res.end(JSON.stringify(mockOvertime));
     return;
   }
+  if (cleanUrl.match(/^\/api\/v1\/attendance\/timesheets\/[^/]+\/(confirm|reject)$/)) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      success: true,
+      code: cleanUrl.endsWith('/confirm') ? 'ATTENDANCE_TIMESHEET_CONFIRMED' : 'ATTENDANCE_TIMESHEET_REJECTED',
+      message: 'OK',
+      params: {},
+      data: {}
+    }));
+    return;
+  }
   if (cleanUrl === '/api/v1/attendance/punch') {
     currentTodayStatus = "PRESENT";
     currentLastPunch = {
@@ -596,6 +615,39 @@ const server = http.createServer((req, res) => {
     }));
     return;
   }
+  if (cleanUrl.match(/^\/api\/v1\/attendance\/kiosks\/[^/]+\/employees$/)) {
+    const device = cleanUrl.split('/')[5];
+    const items = [
+      { id: 'kemp-1', code: 'EMP-001', name: 'Nguyễn Văn A', department: 'Kỹ thuật', avatar_initials: 'NVA', branch_code: 'BRANCH-HN' },
+      { id: 'kemp-2', code: 'EMP-002', name: 'Trần Thị B', department: 'Kỹ thuật', avatar_initials: 'TTB', branch_code: 'BRANCH-HN' },
+      { id: 'kemp-3', code: 'EMP-013', name: 'Ngô Bảo N', department: 'Nhân sự', avatar_initials: 'NBN', branch_code: 'BRANCH-HCM' },
+    ].filter((e) => device.includes('HN') ? e.branch_code === 'BRANCH-HN' : device.includes('HCM') ? e.branch_code === 'BRANCH-HCM' : true);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true, code: 'KIOSK_EMPLOYEES_LIST_SUCCESS', message: 'OK', params: {}, data: { items } }));
+    return;
+  }
+  if (cleanUrl.match(/^\/api\/v1\/attendance\/kiosks\/[^/]+\/authenticate$/)) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      success: true,
+      code: 'KIOSK_AUTH_SUCCESS',
+      message: 'OK',
+      params: {},
+      data: { session_token: 'mock-session-token', expires_in_seconds: 300, employee_code: 'EMP-013', employee_name: 'Ngô Bảo N' }
+    }));
+    return;
+  }
+  if (cleanUrl.match(/^\/api\/v1\/attendance\/kiosks\/[^/]+\/punch$/)) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      success: true,
+      code: 'KIOSK_PUNCH_SUCCESS',
+      message: 'OK',
+      params: {},
+      data: { log_id: 'kiosk-log-1', employee_code: 'EMP-013', event_type: 'IN', occurred_at: new Date().toISOString() }
+    }));
+    return;
+  }
   if (cleanUrl === '/api/v1/attendance/kiosk/punch') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
@@ -618,13 +670,15 @@ const server = http.createServer((req, res) => {
     return;
   }
   if (cleanUrl === '/' || cleanUrl === '/desktop') {
+    const role = (new URL(req.url, 'http://localhost').searchParams.get('role') || 'TENANT_ADMIN').toUpperCase();
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-    res.end(generateShellHtml(false));
+    res.end(generateShellHtml(false, role));
     return;
   }
   if (cleanUrl === '/mobile') {
+    const role = (new URL(req.url, 'http://localhost').searchParams.get('role') || 'TENANT_ADMIN').toUpperCase();
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-    res.end(generateShellHtml(true));
+    res.end(generateShellHtml(true, role));
     return;
   }
 
@@ -724,13 +778,9 @@ server.listen(PORT, async () => {
 
     // 06: Request Drawer - Overtime Form
     console.log('Capturing 06: Desktop Request Drawer Overtime...');
-    run(`agent-browser --session ${sess} eval "
-      const select = document.querySelector('select');
-      if (select) { select.selectedIndex = 1; select.dispatchEvent(new Event('change')); }
-      const reason = document.querySelector('textarea');
-      if (reason) { reason.value = 'Làm thêm giờ dự án golive'; reason.dispatchEvent(new Event('input')); }
-    "`);
-    await sleep(800);
+    run(`agent-browser --session ${sess} select "app-drawer select" OVERTIME`);
+    run(`agent-browser --session ${sess} fill "app-drawer textarea" "Làm thêm giờ dự án golive"`);
+    await sleep(1200);
     saveScreen('06_desktop_request_drawer_overtime.png');
 
     // Close request drawer
@@ -825,18 +875,18 @@ server.listen(PORT, async () => {
 
     // Close lock drawer
     run(`agent-browser --session ${sess} click "[data-testid='btn-cancel-lock-drawer']"`);
-    await sleep(800);
+    await sleep(2200);
 
     // 17: Leave Balances & Ledger
     console.log('Capturing 17: Desktop Admin Leave Balances...');
-    run(`agent-browser --session ${sess} click "[data-testid='tab-admin-leave']"`);
-    await sleep(1000);
+    run(`agent-browser --session ${sess} eval "document.querySelector('[data-testid=\\"tab-admin-leave\\"]')?.click()"`);
+    await sleep(2500);
     saveScreen('17_desktop_admin_leave_balances.png');
 
     // 18: Reports & Analytics
     console.log('Capturing 18: Desktop Admin Reports Analytics...');
-    run(`agent-browser --session ${sess} click "[data-testid='tab-admin-reports']"`);
-    await sleep(1000);
+    run(`agent-browser --session ${sess} eval "document.querySelector('[data-testid=\\"tab-admin-reports\\"]')?.click()"`);
+    await sleep(2500);
     saveScreen('18_desktop_admin_reports_analytics.png');
 
     // Group E: Workflow Configuration & Branch Kiosk Management (Inside Open-ERP Shell)
@@ -851,8 +901,24 @@ server.listen(PORT, async () => {
     run(`agent-browser --session ${sess} click "[data-testid='btn-edit-policy-wf-policy-leave']"`);
     await sleep(1000);
     saveScreen('20_desktop_workflow_edit_drawer.png');
-    run(`agent-browser --session ${sess} click "[data-testid='btn-cancel-workflow-drawer']"`);
+
+    // 41-43: Thêm bước duyệt -> lưu -> kiểm tra bảng -> bỏ bước -> lưu
+    console.log('Capturing 41: Workflow Add Approval Step...');
+    run(`agent-browser --session ${sess} click "[data-testid='btn-add-workflow-level']"`);
+    await sleep(600);
+    saveScreen('41_desktop_workflow_added_step.png');
+    run(`agent-browser --session ${sess} click "[data-testid='btn-save-workflow-drawer']"`);
+    await sleep(1000);
+    saveScreen('42_desktop_workflow_saved_table.png');
+
+    console.log('Capturing 43: Workflow Remove Approval Step...');
+    run(`agent-browser --session ${sess} click "[data-testid='btn-edit-policy-wf-policy-leave']"`);
     await sleep(800);
+    run(`agent-browser --session ${sess} eval "Array.from(document.querySelectorAll('[data-testid=\\"btn-remove-workflow-level\\"]')).at(-1)?.click()"`);
+    await sleep(600);
+    run(`agent-browser --session ${sess} click "[data-testid='btn-save-workflow-drawer']"`);
+    await sleep(1000);
+    saveScreen('43_desktop_workflow_removed_step.png');
 
     // 21: Tab Quản trị Kiosk Chi nhánh (admin-kiosk)
     console.log('Capturing 21: Desktop Admin Kiosk Branches Table & Links...');
@@ -863,13 +929,13 @@ server.listen(PORT, async () => {
     // Group F: Standalone Public Kiosks with Branch Identity Isolation (/kiosk)
     // 22: Standalone Kiosk - Hanoi Branch Isolation (12 employees)
     console.log('Capturing 22: Standalone Kiosk Hanoi Branch Isolation...');
-    run(`agent-browser --session ${sess} open "http://localhost:${PORT}/kiosk?branch=BRANCH-HN"`);
+    run(`agent-browser --session ${sess} open "http://localhost:${PORT}/kiosk?branch=BRANCH-HN&device=KIOSK-HN-01&token=kiosk_sec_hn_8849bf20"`);
     await sleep(2500);
     saveScreen('22_desktop_kiosk_hanoi_branch.png');
 
     // 23: Standalone Kiosk - HCMC Branch Isolation (6 employees)
     console.log('Capturing 23: Standalone Kiosk HCMC Branch Isolation...');
-    run(`agent-browser --session ${sess} open "http://localhost:${PORT}/kiosk?branch=BRANCH-HCM"`);
+    run(`agent-browser --session ${sess} open "http://localhost:${PORT}/kiosk?branch=BRANCH-HCM&device=KIOSK-HCM-01&token=kiosk_sec_hcm_3910c812"`);
     await sleep(2500);
     saveScreen('23_desktop_kiosk_hcm_branch.png');
 
@@ -890,10 +956,52 @@ server.listen(PORT, async () => {
     await sleep(1200);
     saveScreen('25_desktop_kiosk_punch_success.png');
 
+    // 39: Unauthorized kiosk link (no device/token) must be denied
+    console.log('Capturing 39: Kiosk Access Denied (missing token)...');
+    run(`agent-browser --session ${sess} open "http://localhost:${PORT}/kiosk?branch=BRANCH-HCM"`);
+    await sleep(1500);
+    saveScreen('39_desktop_kiosk_access_denied.png');
+
     // Backwards compatibility copies for legacy artifacts
     fs.copyFileSync(path.join(evidenceDir, '21_desktop_admin_kiosk_branches.png'), path.join(evidenceDir, '05_desktop_kiosk_mode.png'));
     fs.copyFileSync(path.join(evidenceDir, '21_desktop_admin_kiosk_branches.png'), path.join(guideAssetDir, '05_desktop_kiosk_mode.png'));
     fs.copyFileSync(path.join(evidenceDir, '21_desktop_admin_kiosk_branches.png'), path.join(artifactDir, '05_desktop_kiosk_mode.png'));
+
+    // Group H: Role-based screens (Employee, Line Manager, HR Admin, System Admin)
+    const roleScenarios = [
+      { role: 'EMPLOYEE', tab: 'tab-self', file: '34_desktop_role_employee.png' },
+      { role: 'LINE_MANAGER', tab: 'tab-approvals', file: '35_desktop_role_manager.png' },
+      { role: 'HR_ADMIN', tab: 'tab-admin-timesheets', file: '36_desktop_role_hr_admin.png' },
+      { role: 'SYSTEM_ADMIN', tab: 'tab-admin-workflows', file: '37_desktop_role_system_admin.png' },
+    ];
+    for (const scenario of roleScenarios) {
+      console.log(`Capturing role ${scenario.role}...`);
+      run(`agent-browser --session ${sess} open "http://localhost:${PORT}/desktop?role=${scenario.role}"`);
+      await sleep(2500);
+      run(`agent-browser --session ${sess} click "[data-testid='${scenario.tab}']"`);
+      await sleep(1000);
+      saveScreen(scenario.file);
+    }
+
+    // Employee timesheet view
+    console.log('Capturing 40: Employee My Timesheet...');
+    run(`agent-browser --session ${sess} open "http://localhost:${PORT}/desktop?role=EMPLOYEE"`);
+    await sleep(2500);
+    run(`agent-browser --session ${sess} click "[data-testid='tab-my-timesheet']"`);
+    await sleep(1000);
+    saveScreen('40_desktop_employee_my_timesheet.png');
+
+    // Context menu evidence (right-click on admin log row)
+    console.log('Capturing 38: Desktop Context Menu...');
+    run(`agent-browser --session ${sess} open "http://localhost:${PORT}/desktop?role=HR_ADMIN"`);
+    await sleep(2500);
+    run(`agent-browser --session ${sess} click "[data-testid='tab-admin-logs']"`);
+    await sleep(1000);
+    run(`agent-browser --session ${sess} mouse move 500 495`);
+    run(`agent-browser --session ${sess} mouse down right`);
+    run(`agent-browser --session ${sess} mouse up right`);
+    await sleep(800);
+    saveScreen('38_desktop_context_menu_logs.png');
 
     // Check desktop errors
     const desktopErrors = run(`agent-browser --session ${sess} errors`);
@@ -964,12 +1072,14 @@ server.listen(PORT, async () => {
     console.log('Capturing 32: Mobile Confirm Timesheet...');
     run(`agent-browser --session ${sess} click "[data-testid='m-tab-confirm']"`);
     await sleep(1000);
+    run(`agent-browser --session ${sess} click "[data-testid='m-btn-confirm-timesheet']"`);
+    await sleep(900);
     saveScreen('32_mobile_confirm_timesheet.png');
 
     // 33: Mobile Dispute Timesheet
     console.log('Capturing 33: Mobile Dispute Timesheet...');
     run(`agent-browser --session ${sess} click "[data-testid='m-btn-dispute-timesheet']"`);
-    await sleep(1000);
+    await sleep(900);
     saveScreen('33_mobile_dispute_timesheet.png');
 
     // Legacy sync

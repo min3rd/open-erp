@@ -33,13 +33,19 @@ public class TimesheetService {
     @Inject
     ExportTemplateService exportTemplateService;
 
+    @Inject
+    AttendanceAuditService auditService;
+
+    @Inject
+    AttendanceCalculationService calculationService;
+
     public PagedData<TimesheetDto> listTimesheets(Integer year, Integer month, String scopeType, String step, int page, int size) {
         Map<String, Object> params = new LinkedHashMap<>();
         if (year != null) params.put("period_year", year);
         if (month != null) params.put("period_month", month);
         if (scopeType != null && !scopeType.isBlank()) params.put("scope_type", scopeType);
         if (step != null && !step.isBlank()) params.put("step", step);
-        params.put("page", page > 0 ? page : 1);
+        params.put("page", page > 0 ? page - 1 : 0);
         params.put("size", size > 0 ? size : 20);
 
         PluginQueryResult result = client.query("attendance.timesheet.list", params);
@@ -48,6 +54,46 @@ public class TimesheetService {
             items.add(mapTimesheetRow(row));
         }
 
+        long total = result.totalRows() > 0 ? result.totalRows() : items.size();
+        return PagedData.of(items, page > 0 ? page : 1, size > 0 ? size : 20, total);
+    }
+
+    /** Periods where the given employee appears in the snapshot, newest first. */
+    public PagedData<MyTimesheetDto> listMyTimesheets(UUID employeeId, int page, int size) {
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("page", page > 0 ? page - 1 : 0);
+        params.put("size", size > 0 ? Math.min(size, 50) : 20);
+        PluginQueryResult result = client.query("attendance.timesheet.list", params);
+        List<MyTimesheetDto> items = new ArrayList<>();
+        for (Map<String, Object> row : result.rows()) {
+            TimesheetStep step = TimesheetStep.valueOf(row.get("step").toString());
+            Map<String, Object> snapshot = parseSnapshot(row.get("snapshot"));
+            Map<String, Object> summary = null;
+            Object employeesObj = snapshot.get("employees");
+            if (employeesObj instanceof List<?> employees) {
+                for (Object candidate : employees) {
+                    if (candidate instanceof Map<?, ?> map
+                            && map.get("employee_id") != null
+                            && employeeId.toString().equals(map.get("employee_id").toString())) {
+                        Map<String, Object> copy = new LinkedHashMap<>();
+                        map.forEach((key, value) -> copy.put(String.valueOf(key), value));
+                        summary = copy;
+                        break;
+                    }
+                }
+            }
+            if (summary == null) {
+                continue;
+            }
+            items.add(new MyTimesheetDto(
+                    UUID.fromString(row.get("id").toString()),
+                    ((Number) row.get("period_year")).intValue(),
+                    ((Number) row.get("period_month")).intValue(),
+                    step,
+                    row.get("locked_at") != null,
+                    summary
+            ));
+        }
         long total = result.totalRows() > 0 ? result.totalRows() : items.size();
         return PagedData.of(items, page > 0 ? page : 1, size > 0 ? size : 20, total);
     }
@@ -101,6 +147,8 @@ public class TimesheetService {
 
         PluginQueryResult result = client.write("attendance.timesheet.insert", insertParams);
         UUID id = UUID.fromString(result.rows().get(0).get("id").toString());
+        auditService.record("TIMESHEET_CREATE", "AttendanceTimesheet", id,
+                Map.of("period", req.periodYear() + "-" + req.periodMonth(), "scope_type", scopeType.name()));
         return getTimesheet(id);
     }
 
@@ -130,7 +178,9 @@ public class TimesheetService {
 
         Map<String, Object> snapshot = current.snapshot();
 
-        // At Step 3 (S3_CALCULATE): Run batch calculation & create snapshot
+        // At Step 3 (S3_CALCULATE): build the snapshot from daily records.
+        // Records are (re)calculated beforehand via the chunked recalculate endpoint
+        // so this request stays under the plugin gateway timeout.
         if (targetStep == TimesheetStep.S3_CALCULATE || (targetStep.order() >= TimesheetStep.S3_CALCULATE.order() && snapshot == null)) {
             snapshot = computePeriodSnapshot(current);
         }
@@ -142,6 +192,8 @@ public class TimesheetService {
         updateParams.put("updated_at", Instant.now().toString());
 
         client.write("attendance.timesheet.update_step", updateParams);
+        auditService.record("TIMESHEET_STEP", "AttendanceTimesheet", timesheetId,
+                Map.of("from", current.step().name(), "to", targetStep.name()));
         return getTimesheet(timesheetId);
     }
 
@@ -289,6 +341,9 @@ public class TimesheetService {
         // Publish outbox event
         publishTimesheetLockedEvent(timesheetId, ts);
 
+        auditService.record("TIMESHEET_LOCK", "AttendanceTimesheet", timesheetId,
+                Map.of("period", ts.periodYear() + "-" + ts.periodMonth()));
+
         return getTimesheet(timesheetId);
     }
 
@@ -314,6 +369,8 @@ public class TimesheetService {
         unlockParams.put("updated_at", now.toString());
 
         client.write("attendance.timesheet.unlock", unlockParams);
+        auditService.record("TIMESHEET_UNLOCK", "AttendanceTimesheet", timesheetId,
+                Map.of("period", ts.periodYear() + "-" + ts.periodMonth(), "reason", reason.trim()));
         return getTimesheet(timesheetId);
     }
 
@@ -348,8 +405,9 @@ public class TimesheetService {
         // Also check if any record in the period has is_override = true
         LocalDate from = LocalDate.of(ts.periodYear(), ts.periodMonth(), 1);
         LocalDate to = from.withDayOfMonth(from.lengthOfMonth());
-        PluginQueryResult recs = client.query("attendance.record.list_range", Map.of("from", from.toString(), "to", to.toString()));
-        for (Map<String, Object> r : recs.rows()) {
+        List<Map<String, Object>> recs = PluginDataPager.listAll(client, "attendance.record.list_range",
+                Map.of("from", from.toString(), "to", to.toString()), 1000);
+        for (Map<String, Object> r : recs) {
             if (Boolean.TRUE.equals(r.get("is_override"))) {
                 return true;
             }
@@ -361,11 +419,13 @@ public class TimesheetService {
         LocalDate from = LocalDate.of(ts.periodYear(), ts.periodMonth(), 1);
         LocalDate to = from.withDayOfMonth(from.lengthOfMonth());
 
-        PluginQueryResult recordsResult = client.query("attendance.record.list_range", Map.of("from", from.toString(), "to", to.toString()));
-        PluginQueryResult empResult = client.query("attendance.employee_ref.list_all", Map.of());
+        List<Map<String, Object>> recordsResult = PluginDataPager.listAll(client, "attendance.record.list_range",
+                Map.of("from", from.toString(), "to", to.toString()), 1000);
+        List<Map<String, Object>> empResult = PluginDataPager.listAll(client, "attendance.employee_ref.list_all",
+                Map.of(), 500);
 
         Map<UUID, Map<String, Object>> employeeMap = new LinkedHashMap<>();
-        for (Map<String, Object> emp : empResult.rows()) {
+        for (Map<String, Object> emp : empResult) {
             UUID empId = UUID.fromString(emp.get("employee_id").toString());
             Map<String, Object> summary = new LinkedHashMap<>();
             summary.put("employee_id", empId.toString());
@@ -383,7 +443,7 @@ public class TimesheetService {
         }
 
         boolean hasOverrides = false;
-        for (Map<String, Object> rec : recordsResult.rows()) {
+        for (Map<String, Object> rec : recordsResult) {
             UUID empId = rec.get("employee_id") != null ? UUID.fromString(rec.get("employee_id").toString()) : null;
             if (empId == null) continue;
 
@@ -446,8 +506,9 @@ public class TimesheetService {
     private void lockPeriodRecords(TimesheetDto ts) {
         LocalDate from = LocalDate.of(ts.periodYear(), ts.periodMonth(), 1);
         LocalDate to = from.withDayOfMonth(from.lengthOfMonth());
-        PluginQueryResult recs = client.query("attendance.record.list_range", Map.of("from", from.toString(), "to", to.toString()));
-        for (Map<String, Object> r : recs.rows()) {
+        List<Map<String, Object>> recs = PluginDataPager.listAll(client, "attendance.record.list_range",
+                Map.of("from", from.toString(), "to", to.toString()), 1000);
+        for (Map<String, Object> r : recs) {
             UUID recId = UUID.fromString(r.get("id").toString());
             client.write("attendance.record.lock_by_id", Map.of(
                     "id", recId,
@@ -489,9 +550,10 @@ public class TimesheetService {
             if (!ids.isEmpty()) return ids;
         }
 
-        PluginQueryResult empResult = client.query("attendance.employee_ref.list_all", Map.of());
+        List<Map<String, Object>> empResult = PluginDataPager.listAll(client, "attendance.employee_ref.list_all",
+                Map.of(), 500);
         List<UUID> ids = new ArrayList<>();
-        for (Map<String, Object> r : empResult.rows()) {
+        for (Map<String, Object> r : empResult) {
             ids.add(UUID.fromString(r.get("employee_id").toString()));
         }
         return ids;

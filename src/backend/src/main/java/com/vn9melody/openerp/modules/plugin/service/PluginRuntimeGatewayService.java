@@ -61,23 +61,35 @@ public class PluginRuntimeGatewayService {
     public record GatewayResponse(int status, String contentType, byte[] body) {}
 
     private record PluginTokenPrincipal(UUID tenantId, UUID userId, java.util.Set<String> permissions,
-                                        java.util.Set<String> roles) {}
+                                        java.util.Set<String> roles, String kioskDevice) {}
 
     public GatewayResponse forward(UUID tenantId, UUID userId, java.util.Set<String> permissions,
                                    java.util.Set<String> roles, java.util.Set<UUID> branchIds,
                                    String pluginKey, String pluginToken,
                                    String method, String path, String query, String contentType, byte[] body) {
+        String kioskDevice = null;
         if (pluginToken != null && !pluginToken.isBlank()) {
             PluginTokenPrincipal principal = verifyPluginToken(pluginToken, pluginKey);
             tenantId = principal.tenantId();
             userId = principal.userId();
             permissions = principal.permissions();
             roles = principal.roles();
+            kioskDevice = principal.kioskDevice();
             try {
                 UserSecurityContext context = securityContextService.getContext(tenantId, userId);
                 branchIds = context.effectiveBranchIds();
             } catch (Exception e) {
                 branchIds = java.util.Set.of();
+            }
+        }
+        if (kioskDevice != null) {
+            String normalized = normalizePath(path);
+            boolean deviceScoped = normalized.contains("/kiosks/" + kioskDevice + "/");
+            boolean staticAsset = !normalized.startsWith("/api/")
+                    && normalized.lastIndexOf('.') > normalized.lastIndexOf('/');
+            if (normalized.contains("..") || (!deviceScoped && !staticAsset)) {
+                throw new ApiException(403, PluginErrorCode.PLUGIN_RUNTIME_TOKEN_INVALID,
+                        "Kiosk token is scoped to device " + kioskDevice);
             }
         }
         TenantPlugin ledger = tenantPluginRepository.findByTenantAndKey(tenantId, pluginKey)
@@ -141,8 +153,10 @@ public class PluginRuntimeGatewayService {
             }
             String subject = jwt.getSubject();
             UUID userId = subject == null || subject.isBlank() ? null : UUID.fromString(subject);
+            String kioskDevice = jwt.getClaim("kiosk_device");
             return new PluginTokenPrincipal(UUID.fromString(tenantId), userId,
-                    stringSet(jwt.getClaim("permissions")), stringSet(jwt.getClaim("roles")));
+                    stringSet(jwt.getClaim("permissions")), stringSet(jwt.getClaim("roles")),
+                    kioskDevice == null || kioskDevice.isBlank() ? null : kioskDevice);
         } catch (ParseException e) {
             throw new ApiException(401, PluginErrorCode.PLUGIN_RUNTIME_TOKEN_INVALID,
                     "Plugin runtime token is expired or invalid");

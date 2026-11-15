@@ -101,6 +101,15 @@ public final class TimesheetDtos {
             @JsonProperty("updated_at") Instant updatedAt
     ) {}
 
+    public record MyTimesheetDto(
+            @JsonProperty("id") UUID id,
+            @JsonProperty("period_year") int periodYear,
+            @JsonProperty("period_month") int periodMonth,
+            @JsonProperty("step") TimesheetStep step,
+            @JsonProperty("locked") boolean locked,
+            @JsonProperty("summary") Map<String, Object> summary
+    ) {}
+
     public record TimesheetConfirmationDto(
             @JsonProperty("id") UUID id,
             @JsonProperty("timesheet_id") UUID timesheetId,
@@ -135,6 +144,7 @@ public final class TimesheetDtos {
             @JsonProperty("total_ot_hours") double totalOtHours,
             @JsonProperty("late_count") int lateCount,
             @JsonProperty("absence_count") int absenceCount,
+            @JsonProperty("present_count") int presentCount,
             @JsonProperty("by_department") List<DepartmentReportDto> byDepartment
     ) {}
 

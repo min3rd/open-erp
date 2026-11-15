@@ -47,6 +47,10 @@ public final class AttendanceDtos {
             @JsonProperty("source") LogSource source
     ) {}
 
+    public record SetKioskPinRequest(
+            @JsonProperty("pin") String pin
+    ) {}
+
     public record LogDto(
             @JsonProperty("id") UUID id,
             @JsonProperty("employee_id") UUID employeeId,
@@ -91,7 +95,8 @@ public final class AttendanceDtos {
             @JsonProperty("open_checkin") LogDto openCheckIn,
             @JsonProperty("last_log") LogDto lastLog,
             @JsonProperty("today_record") RecordSummaryDto todayRecord,
-            @JsonProperty("shift") ShiftSummaryDto shift
+            @JsonProperty("shift") ShiftSummaryDto shift,
+            @JsonProperty("week_schedule") List<Map<String, Object>> weekSchedule
     ) {}
 
     public record OnBehalfLogRequest(
@@ -201,7 +206,9 @@ public final class AttendanceDtos {
             @JsonProperty("locked_until") Instant lockedUntil,
             @JsonProperty("secret_rotated_at") Instant secretRotatedAt,
             @JsonProperty("created_at") Instant createdAt,
-            @JsonProperty("updated_at") Instant updatedAt
+            @JsonProperty("updated_at") Instant updatedAt,
+            @JsonProperty("device_token") String deviceToken,
+            @JsonProperty("public_token") String publicToken
     ) {}
 
     public record ShiftDto(
@@ -240,6 +247,7 @@ public final class AttendanceDtos {
             @JsonProperty("employee_id") UUID employeeId,
             @JsonProperty("work_date") LocalDate workDate,
             @JsonProperty("shift_definition_id") UUID shiftDefinitionId,
+            @JsonProperty("shift_name") String shiftName,
             @JsonProperty("source") String source,
             @JsonProperty("reason") String reason,
             @JsonProperty("created_by") UUID createdBy,
@@ -298,6 +306,43 @@ public final class AttendanceDtos {
             @JsonProperty("employee_ids") List<UUID> employeeIds,
             @JsonProperty("from") LocalDate from,
             @JsonProperty("to") LocalDate to
+    ) {}
+
+    public record EmployeeRefDto(
+            @JsonProperty("employee_id") UUID employeeId,
+            @JsonProperty("employee_code") String employeeCode,
+            @JsonProperty("full_name") String fullName,
+            @JsonProperty("user_id") UUID userId,
+            @JsonProperty("primary_department_id") UUID primaryDepartmentId,
+            @JsonProperty("employment_status") String employmentStatus,
+            @JsonProperty("department_name") String departmentName,
+            @JsonProperty("branch_id") UUID branchId,
+            @JsonProperty("branch_name") String branchName
+    ) {}
+
+    public record BulkShiftAssignRequest(
+            @JsonProperty("shift_definition_id") UUID shiftDefinitionId,
+            @JsonProperty("from") java.time.LocalDate from,
+            @JsonProperty("to") java.time.LocalDate to,
+            @JsonProperty("employee_ids") java.util.List<UUID> employeeIds
+    ) {}
+
+    public record EmployeeDirectoryDto(
+            @JsonProperty("employee_id") UUID employeeId,
+            @JsonProperty("employee_code") String employeeCode,
+            @JsonProperty("full_name") String fullName,
+            @JsonProperty("department_id") UUID departmentId,
+            @JsonProperty("department_name") String departmentName,
+            @JsonProperty("branch_id") UUID branchId,
+            @JsonProperty("branch_name") String branchName,
+            @JsonProperty("employment_status") String employmentStatus
+    ) {}
+
+    public record ShiftCoverageDto(
+            @JsonProperty("shift_definition_id") UUID shiftDefinitionId,
+            @JsonProperty("employee_count") int employeeCount,
+            @JsonProperty("department_names") java.util.List<String> departmentNames,
+            @JsonProperty("branch_names") java.util.List<String> branchNames
     ) {}
 
     public record SettingsDto(

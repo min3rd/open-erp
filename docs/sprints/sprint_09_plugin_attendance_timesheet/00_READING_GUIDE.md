@@ -2,8 +2,8 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / phiên bản / cập nhật | READ-S09-001 / 1.0 / 2026-11-11 |
-| Trạng thái tài liệu / sprint | ✅ **HOÀN TẤT & SẴN SÀNG ĐÓNG** — Implementation 100% PASS, QA dual-mode verified, DoD review sẵn sàng |
+| ID / phiên bản / cập nhật | READ-S09-001 / 1.2 / 2026-11-14 |
+| Trạng thái tài liệu / sprint | ✅ **HOÀN TẤT & SẴN SÀNG ĐÓNG** — Implementation 100% PASS, DB-backed suite 260 test (0F/0E, 1 skip), QA dual-mode + role UI verified, DoD review sẵn sàng |
 | Owner / reviewer | BA Agent / Chủ dự án (duyệt scope tại CONF) |
 | Đầu vào / đọc trước | [RAW-S09-001](01_raw_notes/01_RAW-S09-001_attendance_timesheet_plugin_requirements.md) — yêu cầu trực tiếp chủ dự án 2026-11-02 / [Sprint 08](../sprint_08_plugin_form_workflow/00_READING_GUIDE.md) (đã đóng), [Sprint 07](../sprint_07_plugin_employee/00_READING_GUIDE.md) (đã đóng) |
 | Đọc tiếp | [ANL-S09-001](02_analysis/01_ANL-S09-001_attendance_timesheet_plugin.md) → [BENCH-S09-001](03_benchmarks/01_BENCH-S09-001_attendance_timesheet_benchmarks.md) → [CONF-S09-001](04_confirmation/01_CONF-S09-001_sprint_09_scope_and_ac.md) → [SOL-S09-001](05_solutions/01_SOL-S09-001_attendance_architecture.md) |
@@ -51,13 +51,14 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | 06.03 | DES-API-S09-001 | [API contract](06_designs/api/01_DES-API-S09-001_attendance_api.md) | Endpoint nhóm chấm/ca/đơn/leave/timesheet/báo cáo; 4 mẫu response; error codes | Architect |
 | 06.04 | DES-UI-S09-001 | [UI/UX](06_designs/ui/01_DES-UI-S09-001_attendance_ui.md) | Route map, kiosk, 4 bước timesheet, shared components, mobile 390×844 | Architect |
 | 07.01 | FEAT-43 | [Core: scaffold + ca/lịch + ingestion + tính công](07_items/FEAT-43_attendance_core_shifts_ingestion_calc.md) | ✅ **Done** (TASK-443…447 Done — 88/88 test PASS) | Developer |
-| 07.02 | FEAT-44 | [Bảng công kỳ + chốt + xuất + báo cáo](07_items/FEAT-44_attendance_timesheets.md) | ✅ **Done** (TASK-448…451 Done — 100/100 test PASS) | Developer |
+| 07.02 | FEAT-44 | [Bảng công kỳ + chốt + xuất + báo cáo](07_items/FEAT-44_attendance_timesheets.md) | ✅ **Done** (TASK-467…451 Done — 100/100 test PASS) | Developer |
 | 07.03 | FEAT-45 | [Đơn từ trên form/workflow + fallback](07_items/FEAT-45_attendance_request_forms.md) | ✅ **Done** (TASK-452…455 Done — 116/116 test PASS) | Developer |
 | 07.04 | FEAT-46 | [Leave module (ledger số dư phép)](07_items/FEAT-46_attendance_leave_module.md) | ✅ **Done** (TASK-456…458 Done — 116/116 test PASS) | Developer |
 | 07.05 | FEAT-47 | [UI Web + Mobile Ionic](07_items/FEAT-47_attendance_ui_web_mobile.md) | ✅ **Done** (TASK-459…461 Done — Dual-Mode QA PASS) | Developer |
 | 08.01 | TP-S09-001 | [Test Plan Sprint 09](08_testing/01_TP-S09-001_sprint_09_test_plan.md) | ✅ **Approved 1.0** — Ma trận AC và 5 nhóm kiểm thử | QA |
 | 08.02 | TR-S09-001 | [Test Report Sprint 09](08_testing/02_TR-S09-001_sprint_09_test_report.md) | ✅ **Approved 1.0** — 116 test PASS, Dual-mode QA PASS, 29 ảnh minh chứng (21 desktop + 8 mobile) | QA |
-| 09.01 | REV-S09-001 | [Nghiệm thu & DoD Sprint 09](09_review/01_REV-S09-001_sprint_09_dod_review.md) | ✅ **Ready to Close 1.0** — Đạt 100% tiêu chí DoD Gate | PM |
+| 08.03 | TR-S09-003 | [DB/Role/UI Test Report](08_testing/04_TR-S09-003_db_role_ui_retest_report.md) | ✅ **Reviewed 1.0 (2026-11-14)** — PostgreSQL/Redis thật 260 test (0F/0E, 1 skip); plugin 118/118; sửa BUG-183/184; role screens + Bảng công của tôi; kiosk token/branch isolation; pagination/context menu PASS | QA |
+| 09.01 | REV-S09-001 | [Nghiệm thu & DoD Sprint 09](09_review/01_REV-S09-001_sprint_09_dod_review.md) | ✅ **Ready to Close 1.1** — DoD Gate đạt; re-test 2026-11-14 PASS; O1/O4/O6 Medium theo dõi | PM |
 
 > Bảng đọc là snapshot. Không tạo link giả cho artifact chưa tồn tại; khi tạo file phải cập nhật index trước khi giao việc.
 
@@ -67,9 +68,9 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | :--- | :--- | :--- | :--- |
 | Scope & AC (CONF-S09-001) | ✅ **APPROVED 1.0** — chủ dự án duyệt toàn bộ scope (18/18 câu + 37 AC) | Chủ dự án | CONF-S09-001 1.0, 2026-11-02 |
 | Design ready (SOL/ADR/DES) | ✅ **APPROVED 1.0** — 1 SOL + 5 ADR + 4 DES | Architect + Chủ dự án | SOL/ADR/DES-S09 1.0, 2026-11-02 |
-| Implementation | ✅ **Done** — Toàn bộ FEAT-43…47 và TASK-443…461 hoàn thành | Developer | 2026-11-11 |
-| QA sign-off | ✅ **Approved** — 116 backend test PASS, Dual-mode browser PASS (0 console.error, 0 overflow) | QA | TR-S09-001 1.0, 2026-11-11 |
-| PM DoD / Customer acceptance | ✅ **Ready to Close** — 0 bug Critical/High/Medium tồn đọng | PM + Chủ dự án | REV-S09-001 1.0, 2026-11-11 |
+| Implementation | ✅ **Done** — Toàn bộ FEAT-43…47, TASK-443…463 và BUG-183/184 (Fixed) hoàn thành | Developer | 2026-11-14 |
+| QA sign-off | ✅ **PASS (DB + re-test 2026-11-14)** — PostgreSQL/Redis thật 260 test (0F/0E, 1 skip); plugin unit 118/118; 3 build PASS; role screens + Bảng công của tôi; kiosk token/branch isolation; pagination/context menu PASS | QA | TR-S09-003 1.0, 2026-11-14 |
+| PM DoD / Customer acceptance | ✅ **Ready to Close** — 0 bug sản phẩm Critical/High; BUG-183/184 High đã Fixed; còn Medium về catalog/permission DB test cần theo dõi | PM + Chủ dự án | REV-S09-001 1.2, 2026-11-14 |
 | Sprint closure | ⏳ Pending Chủ dự án xác nhận | Chủ dự án | — |
 
 ## 4. Danh mục ID và việc chuyển tiếp
@@ -88,10 +89,28 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | DES-API-S09-001 | [06_designs/api/](06_designs/api/) | Architect | Used — **APPROVED 1.0** |
 | DES-UI-S09-001 | [06_designs/ui/](06_designs/ui/) | Architect | Used — **APPROVED 1.0** |
 | FEAT-43…47 | [07_items/](07_items/) | Developer | Used — **Done** (100% items hoàn thành) |
-| TASK-443…461 | [07_items/](07_items/) | Developer | Used — **Done** (100% tasks hoàn thành) |
+| TASK-443…461, TASK-462…463 | [07_items/](07_items/) | Developer | Used — **Done** (100% tasks hoàn thành; 462/463 bổ sung 2026-11-14) |
+| TASK-464…468 | [07_items/](07_items/) | Developer | Used — **Done source** (ingestion, calc job, API, timesheet lifecycle, audit trail; QA chờ xác nhận UI) |
+| TASK-469…470 | [07_items/](07_items/) | Developer/QA | Used — **Done** (route-driven URL state; QA API trên DB thật) |
+| BUG-185…195 | [07_items/](07_items/) | Developer | Used — **Fixed source** (runtime install, payload contract, pagination, calc no-op, list truncation, UI model, route shadowing) |
+| BUG-196 | [07_items/BUG-196_attendance_leave_ledger_and_names.md](07_items/BUG-196_attendance_leave_ledger_and_names.md) | Developer | Used — **Fixed source** (sổ cái phép, tên nhân sự, path đơn của tôi, giờ công ca) |
+| BUG-197 | [07_items/BUG-197_attendance_pipeline_and_report_mocks.md](07_items/BUG-197_attendance_pipeline_and_report_mocks.md) | Developer | Used — **Fixed source** (checklist chốt kỳ, công phòng ban, báo cáo) |
+| BUG-198 | [07_items/BUG-198_attendance_employee_identity.md](07_items/BUG-198_attendance_employee_identity.md) | Developer | Used — **Fixed source** (đơn từ/số dư phép theo employee ref) |
+| BUG-199 | [07_items/BUG-199_attendance_department_directory_grpc.md](07_items/BUG-199_attendance_department_directory_grpc.md) | Developer | Used — **Fixed source** (tên phòng ban qua gRPC chéo plugin) |
+| BUG-200 | [07_items/BUG-200_attendance_ui_density_filters.md](07_items/BUG-200_attendance_ui_density_filters.md) | Developer | Used — **Fixed source** (header gọn, tab 1 hàng, lọc + sub-tab + filter URL) |
+| BUG-201 | [07_items/BUG-201_attendance_my_timesheet_empty.md](07_items/BUG-201_attendance_my_timesheet_empty.md) | Developer | Used — **Fixed source + data verified** (my-records/my-timesheets) |
+| BUG-202 | [07_items/BUG-202_attendance_table_detail_theme_scope.md](07_items/BUG-202_attendance_table_detail_theme_scope.md) | Developer | Used — **Fixed source, QA 23/23** (sticky table, detail, theme, shift scope, report filters) |
+| BUG-203 | [07_items/BUG-203_attendance_full_qa_runtime_fixes.md](07_items/BUG-203_attendance_full_qa_runtime_fixes.md) | Developer | Used — **Fixed source, retest PASS** (punch, role gate, mapping, i18n, kiosk, unit tests) |
+| BUG-204 | [07_items/BUG-204_attendance_sort_approvals_kiosk_pin.md](07_items/BUG-204_attendance_sort_approvals_kiosk_pin.md) | Developer | Used — **Fixed, QA PASS** (sort, duyệt đơn 2 cột, page 100, Kiosk link lưu/rotate, public route + device-scoped token, PIN cá nhân, theme, 51 nhân sự, audit dễ đọc) |
 | TP-S09-001 | [08_testing/01_TP-S09-001_sprint_09_test_plan.md](08_testing/01_TP-S09-001_sprint_09_test_plan.md) | QA | Used — **Approved 1.0** |
 | TR-S09-001 | [08_testing/02_TR-S09-001_sprint_09_test_report.md](08_testing/02_TR-S09-001_sprint_09_test_report.md) | QA | Used — **Approved 1.0** |
-| REV-S09-001 | [09_review/01_REV-S09-001_sprint_09_dod_review.md](09_review/01_REV-S09-001_sprint_09_dod_review.md) | PM | Used — **Ready to Close 1.0** |
+| TR-S09-003 | [08_testing/04_TR-S09-003_db_role_ui_retest_report.md](08_testing/04_TR-S09-003_db_role_ui_retest_report.md) | QA | Used — **Reviewed 1.0** (DB + role + UI 2026-11-14) |
+| TR-S09-004 | [08_testing/05_TR-S09-004_full_screen_flow_qa.md](08_testing/05_TR-S09-004_full_screen_flow_qa.md) | QA | Used — **QA PASS 1.1** (14 tab, 6 loại đơn, 3 vai trò, mobile, 18 ảnh dữ liệu thật, 2026-11-15 18:15) |
+| BUG-183 | [07_items/BUG-183_v8_0_1_migration_joined_at.md](07_items/BUG-183_v8_0_1_migration_joined_at.md) | Developer | Used — **Fixed** (DB test 2026-11-14) |
+| BUG-184 | [07_items/BUG-184_plugin_provisioning_transaction_rollback.md](07_items/BUG-184_plugin_provisioning_transaction_rollback.md) | Developer | Used — **Fixed** (DB test 2026-11-14) |
+| TASK-462 | [07_items/TASK-462_attendance_ui_pagination_context_menu.md](07_items/TASK-462_attendance_ui_pagination_context_menu.md) | Developer | Used — **Done** |
+| TASK-463 | [07_items/TASK-463_attendance_role_based_ui_qa.md](07_items/TASK-463_attendance_role_based_ui_qa.md) | Developer | Used — **Done** |
+| REV-S09-001 | [09_review/01_REV-S09-001_sprint_09_dod_review.md](09_review/01_REV-S09-001_sprint_09_dod_review.md) | PM | Used — **Ready to Close 1.1** (re-test 2026-11-14) |
 
 ## 5. Liên hệ với các Sprint trước
 
@@ -116,3 +135,7 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | 0.7 | 2026-11-02 | Architect soạn **DES-ARCH/DB/API/UI-S09-001** (Draft 0.1): 19 bảng schema, API contract 4 khuôn mẫu + 31 error codes, sequence 4 luồng, route map Web + 5 tab Mobile; Design **In Review** chờ duyệt | Architect |
 | 0.8 | 2026-11-02 | **DES APPROVED 1.0** — chủ dự án chốt ("ok chốt"); bước 07 mở: cấp FEAT/TASK, Developer bắt đầu scaffold plugin attendance | Architect/PM; hội thoại tương tác chủ dự án |
 | 0.9 | 2026-11-02 | Developer cấp **FEAT-43…47 + TASK-443…461** (reservation); scaffold `plugins/attendance` (pom, manifest 12 entities, migration V1 12 bảng) + engine thuần ShiftResolver/AttendanceCalculator; **build PASS, 40/40 unit test PASS**; TASK-443/444 Done (dev) | Developer; working tree |
+| 1.0 | 2026-11-11 | QA hoàn tất TR-S09-001 (116/116 test PASS, dual-mode 29 ảnh); PM REV-S09-001 Ready to Close; Sprint chờ Chủ dự án xác nhận đóng | QA/PM; working tree |
+| 1.1 | 2026-11-14 | **Re-test Sprint 09 theo yêu cầu Chủ dự án**: 120/120 backend test PASS (116 plugin + 4 core ingest), 3 build frontend PASS, i18n 100% strict parity, 32/33 ảnh dual-mode phân biệt; kết quả được gộp vào báo cáo TR-S09-003 để tập trung tài liệu; ghi nhận O1/O4/O6 Medium | QA Agent; yêu cầu chủ dự án 2026-11-14 |
+| 1.2 | 2026-11-14 | **DB + Role + UI round**: PostgreSQL/Redis thật 260 test (0F/0E, 1 skip), attendance schema 20 bảng PASS; sửa **BUG-183** (migration V8.0.1 `joined_at`) và **BUG-184** (provisioning rollback transaction); thêm **TASK-462** (pagination 11 bảng + context menu 12 loại hàng) và **TASK-463** (role-based tabs/KPI + ảnh Employee/Manager/HR Admin/System Admin + Bảng công của tôi); kiosk bắt buộc device token + branch isolation; mobile footer icon-only; plugin unit 118/118; tạo TR-S09-003 1.0 (gộp toàn bộ báo cáo test) | QA/Developer; yêu cầu chủ dự án 2026-11-14 |
+| 1.3 | 2026-11-15 | **Runtime + dữ liệu thật**: fix provisioning sau commit, migration manifest, rest path, quyền admin, jsonb/time/numeric cast, pagination 0-based, signal binding, payload đơn từ, route shadowing `/admin` (**BUG-185…195**); thêm **TASK-468** audit trail; phân ca hàng loạt + recalculate thật + snapshot 51 nhân sự; bỏ dữ liệu mẫu ở duyệt đơn, bảng công, kiosk; thêm drawer tạo kỳ công, loại phép, cấp phép | Developer; yêu cầu chủ dự án 2026-11-15 |

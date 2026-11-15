@@ -1,0 +1,35 @@
+<div class="relative inline-flex w-full min-w-32 items-center">
+  <input
+    type="text"
+    inputmode="numeric"
+    autocomplete="off"
+    [value]="display()"
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    [attr.aria-label]="ariaLabel() || null"
+    [class.border-danger]="invalid()"
+    [class.text-danger]="invalid()"
+    (input)="onInput($event)"
+    (blur)="onBlur($event)"
+    (change)="onDisplayChange($event)"
+    class="w-full border border-default bg-surface px-1.5 py-1 pr-7 text-xs text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+  />
+  <button
+    type="button"
+    class="absolute right-0.5 inline-flex h-5 w-5 items-center justify-center text-muted hover:text-ink disabled:opacity-40"
+    [disabled]="disabled()"
+    [attr.aria-label]="ariaLabel() || null"
+    (click)="openPicker(picker)"
+  >
+    <app-icon name="calendar" size="xs" [decorative]="true" />
+  </button>
+  <input
+    #picker
+    type="date"
+    tabindex="-1"
+    aria-hidden="true"
+    class="pointer-events-none absolute bottom-0 left-0 h-0 w-0 opacity-0"
+    [value]="value()"
+    (change)="onNativeChange($event)"
+  />
+</div>

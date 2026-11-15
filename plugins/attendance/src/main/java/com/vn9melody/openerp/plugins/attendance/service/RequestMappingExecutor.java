@@ -2,6 +2,7 @@ package com.vn9melody.openerp.plugins.attendance.service;
 
 import com.vn9melody.openerp.plugin.sdk.data.PluginDataClient;
 import com.vn9melody.openerp.plugin.sdk.data.PluginQueryResult;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vn9melody.openerp.plugins.attendance.dto.LeaveDtos.LeaveTypeDto;
 import com.vn9melody.openerp.plugins.attendance.dto.RequestDtos.RequestDto;
 import com.vn9melody.openerp.plugins.attendance.model.AttendanceStatus;
@@ -25,6 +26,9 @@ public class RequestMappingExecutor {
 
     @Inject
     AttendanceCalculationService calculationService;
+
+    @Inject
+    ObjectMapper objectMapper;
 
     /**
      * Idempotently executes attendance mapping for an APPROVED request.
@@ -71,8 +75,10 @@ public class RequestMappingExecutor {
         }
 
         // Update daily record(s)
-        LocalDate startDate = parseLocalDate(resp.get("start_date"), parseLocalDate(window.get("start_date"), LocalDate.now()));
-        LocalDate endDate = parseLocalDate(resp.get("end_date"), parseLocalDate(window.get("end_date"), startDate));
+        LocalDate startDate = parseLocalDate(resp.get("start_date"),
+                parseLocalDate(resp.get("from_date"), LocalDate.now()));
+        LocalDate endDate = parseLocalDate(resp.get("end_date"),
+                parseLocalDate(resp.get("to_date"), startDate));
 
         LocalDate curr = startDate;
         while (!curr.isAfter(endDate)) {
@@ -115,7 +121,7 @@ public class RequestMappingExecutor {
         logParams.put("occurred_at", occurredAt.toString());
         logParams.put("work_date", workDate.toString());
         logParams.put("source", LogSource.MANUAL.name());
-        logParams.put("meta", Map.of("reason", "Giải trình công được duyệt: " + req.code()));
+        logParams.put("meta", serializeJson(Map.of("reason", "Giải trình công được duyệt: " + req.code())));
 
         client.write("attendance.log.insert", logParams);
     }
@@ -135,8 +141,10 @@ public class RequestMappingExecutor {
     }
 
     private void mapBusinessTripRequest(RequestDto req, UUID empId, Map<String, Object> resp, Map<String, Object> window) {
-        LocalDate startDate = parseLocalDate(resp.get("start_date"), parseLocalDate(window.get("start_date"), LocalDate.now()));
-        LocalDate endDate = parseLocalDate(resp.get("end_date"), parseLocalDate(window.get("end_date"), startDate));
+        LocalDate startDate = parseLocalDate(resp.get("start_date"),
+                parseLocalDate(resp.get("from_date"), LocalDate.now()));
+        LocalDate endDate = parseLocalDate(resp.get("end_date"),
+                parseLocalDate(resp.get("to_date"), startDate));
 
         LocalDate curr = startDate;
         while (!curr.isAfter(endDate)) {
@@ -163,6 +171,14 @@ public class RequestMappingExecutor {
         assignParams.put("reason", "Đổi ca theo đơn: " + req.code());
 
         client.write("attendance.assignment.insert", assignParams);
+    }
+
+    private String serializeJson(Object value) {
+        try {
+            return objectMapper.writeValueAsString(value);
+        } catch (Exception e) {
+            return "{}";
+        }
     }
 
     private double parseDouble(Object val, double fallback) {

@@ -20,9 +20,12 @@ WC screens theo route map DES-UI (tổng quan self, kiosk fullscreen, đơn củ
 | [TASK-459](TASK-459_attendance_shared_components_i18n.md) | Shared components + i18n vi/en + 13 locales parity | Done |
 | [TASK-460](TASK-460_attendance_web_screens.md) | Web screens self/manager/admin + kiosk | Done |
 | [TASK-461](TASK-461_attendance_mobile_dual_mode_qa.md) | Mobile Ionic 5 tab + QA browser 2 chế độ | Done |
+| [TASK-462](TASK-462_attendance_ui_pagination_context_menu.md) | Phân trang bảng dữ liệu lớn + context menu chức năng | Done |
+| [TASK-463](TASK-463_attendance_role_based_ui_qa.md) | Lọc tab theo vai trò + QA screens Employee/Manager/HR Admin/System Admin | Done |
 
 ## 3. Lịch sử
 
 | Phiên bản | Ngày | Thay đổi |
 | :--- | :--- | :--- |
 | 0.1 | 2026-11-02 | Khởi tạo + reservation TASK-459…461 |
+| 0.2 | 2026-11-14 | Bổ sung TASK-462 (pagination + context menu) và TASK-463 (role-based tabs + QA screens) theo phản hồi chủ dự án |

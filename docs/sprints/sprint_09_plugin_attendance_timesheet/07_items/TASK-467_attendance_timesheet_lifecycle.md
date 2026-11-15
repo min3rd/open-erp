@@ -1,8 +1,8 @@
-# [TASK-448] Timesheets CRUD + Quy trình 4 bước Base + Snapshot
+# [TASK-467] Timesheets CRUD + Quy trình 4 bước Base + Snapshot
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / loại / sprint | TASK-448 / Task / Sprint 09 |
+| ID / loại / sprint | TASK-467 / Task / Sprint 09 |
 | Severity / trạng thái | High / Done |
 | Owner/agent / reviewer | Developer / QA |
 | Cập nhật / input version | 2026-11-11 / [DES-DB-S09-001](../06_designs/db/01_DES-DB-S09-001_attendance_schema.md) 1.0, [DES-API-S09-001](../06_designs/api/01_DES-API-S09-001_attendance_api.md) §8 |

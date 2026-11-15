@@ -1,0 +1,10 @@
+<div class="fixed inset-0 z-50 flex flex-col bg-surface text-ink">
+  @if (status() === 'failed') {
+    <div class="flex h-full flex-col items-center justify-center gap-2 p-6 text-center font-mono text-sm">
+      <span class="text-danger">{{ 'attendance.kiosk.access_denied_title' | translate }}</span>
+      <span class="text-xs text-muted">{{ 'attendance.kiosk.access_denied_hint' | translate }}</span>
+    </div>
+  } @else {
+    <div #host class="h-full w-full"></div>
+  }
+</div>

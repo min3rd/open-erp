@@ -9,6 +9,7 @@ import com.vn9melody.openerp.plugins.attendance.dto.RequestDtos.*;
 import com.vn9melody.openerp.plugins.attendance.model.ApprovalMode;
 import com.vn9melody.openerp.plugins.attendance.model.MappingStatus;
 import com.vn9melody.openerp.plugins.attendance.model.RequestStatus;
+import com.vn9melody.openerp.plugins.attendance.service.AttendanceEmployeeResolver;
 import com.vn9melody.openerp.plugins.attendance.service.RequestService;
 import com.vn9melody.openerp.plugins.attendance.service.RequestTypeService;
 import org.junit.jupiter.api.BeforeEach;
@@ -113,6 +114,13 @@ class RequestResourceTest {
         requestResource = new RequestResource();
         setField(requestResource, "requestService", stubRequestService);
         setField(requestResource, "tenantContext", stubTenantContext);
+        AttendanceEmployeeResolver resolver = new AttendanceEmployeeResolver() {
+            @Override
+            public java.util.UUID resolve(java.util.UUID userId) {
+                return currentUserId;
+            }
+        };
+        setField(requestResource, "employeeResolver", resolver);
 
         requestTypeResource = new RequestTypeAdminResource();
         setField(requestTypeResource, "requestTypeService", stubRequestTypeService);

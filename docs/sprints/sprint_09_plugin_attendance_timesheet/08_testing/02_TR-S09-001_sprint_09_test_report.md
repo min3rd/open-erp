@@ -3,10 +3,10 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | TR-S09-001 / Test Report / Sprint 09 |
-| Trạng thái / phiên bản / cập nhật | Approved / 1.0 / 2026-11-11 |
+| Trạng thái / phiên bản / cập nhật | Approved / 1.0 / 2026-11-11 (link fix 2026-11-14) |
 | Owner / reviewer | QA Agent / Solution Architect |
 | Đầu vào | [TP-S09-001](01_TP-S09-001_sprint_09_test_plan.md) 1.0, [CONF-S09-001](../04_confirmation/01_CONF-S09-001_sprint_09_scope_and_ac.md) |
-| Đọc trước / đọc tiếp | [TP-S09-001](01_TP-S09-001_sprint_09_test_plan.md) / [01_SPRINT_REVIEW.md](../09_review/01_SPRINT_REVIEW.md) |
+| Đọc trước / đọc tiếp | [TP-S09-001](01_TP-S09-001_sprint_09_test_plan.md) / [REV-S09-001](../09_review/01_REV-S09-001_sprint_09_dod_review.md) |
 
 ---
 

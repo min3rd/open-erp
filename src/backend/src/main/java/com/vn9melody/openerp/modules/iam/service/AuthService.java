@@ -3,6 +3,9 @@ package com.vn9melody.openerp.modules.iam.service;
 import io.quarkus.narayana.jta.QuarkusTransaction;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Status;
+import jakarta.transaction.Synchronization;
+import jakarta.transaction.TransactionSynchronizationRegistry;
 import jakarta.transaction.Transactional;
 import java.security.SecureRandom;
 import java.time.Duration;
@@ -50,6 +53,9 @@ public class AuthService {
 
     @Inject
     PluginProvisioningService pluginProvisioningService;
+
+    @Inject
+    TransactionSynchronizationRegistry transactionSynchronizationRegistry;
 
     @Inject
     SessionManager sessionManager;
@@ -232,7 +238,21 @@ public class AuthService {
         // TASK-307 / Gate Q5: apply system-default plugins to the new tenant.
         // Sprint 07: org-structure is an always-on locked default; its bootstrap
         // seeder provisions HQ/GENERAL + owner membership after deployment.
-        pluginProvisioningService.provisionDefaults(tenant.id);
+        // The tenant row must be committed first: the install saga runs in its own
+        // transaction and references tenant_plugins.tenant_id.
+        transactionSynchronizationRegistry.registerInterposedSynchronization(new Synchronization() {
+            @Override
+            public void beforeCompletion() {
+                // no-op
+            }
+
+            @Override
+            public void afterCompletion(int status) {
+                if (status == Status.STATUS_COMMITTED) {
+                    pluginProvisioningService.provisionDefaults(tenant.id);
+                }
+            }
+        });
 
         emailNotificationService.sendBusinessWelcomeEmail(user.email, tenant.name, tenant.slug);
 

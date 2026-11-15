@@ -6,7 +6,7 @@
 | Severity / trạng thái | High / Done |
 | Owner/agent / reviewer | Developer / QA |
 | Cập nhật / input version | 2026-11-11 / [DES-DB-S09-001](../06_designs/db/01_DES-DB-S09-001_attendance_schema.md), [DES-API-S09-001](../06_designs/api/01_DES-API-S09-001_attendance_api.md) §8 |
-| depends_on / blocks / parent | TASK-448 / TASK-450 / [FEAT-44](FEAT-44_attendance_timesheets.md) |
+| depends_on / blocks / parent | TASK-467 / TASK-450 / [FEAT-44](FEAT-44_attendance_timesheets.md) |
 | Write scope | `plugins/attendance/src/main/java/**` |
 
 ## 1. Mục tiêu

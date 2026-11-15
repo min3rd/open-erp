@@ -6,6 +6,7 @@ import com.vn9melody.openerp.plugin.sdk.runtime.RequirePermission;
 import com.vn9melody.openerp.plugin.sdk.runtime.TenantContext;
 import com.vn9melody.openerp.plugins.attendance.api.AttendanceErrorCode;
 import com.vn9melody.openerp.plugins.attendance.dto.RequestDtos.*;
+import com.vn9melody.openerp.plugins.attendance.service.AttendanceEmployeeResolver;
 import com.vn9melody.openerp.plugins.attendance.service.RequestService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -26,13 +27,15 @@ public class RequestResource {
     @Inject
     TenantContext tenantContext;
 
+    @Inject
+    AttendanceEmployeeResolver employeeResolver;
+
     @POST
     @Path("/requests")
     @RequirePermission("attendance:request:submit")
     public ApiResponse<RequestDto> submitRequest(RequestSubmitRequest request) {
         UUID currentUserId = tenantContext.userId();
-        // By default subject employee is the current user's employee ref (or current user ID)
-        UUID subjectEmployeeId = currentUserId;
+        UUID subjectEmployeeId = employeeResolver.resolve(currentUserId);
         RequestDto submitted = requestService.submitRequest(subjectEmployeeId, currentUserId, request);
         return ApiResponse.success(
                 AttendanceErrorCode.ATTENDANCE_REQUEST_CREATED,
@@ -50,8 +53,8 @@ public class RequestResource {
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("size") @DefaultValue("20") int size
     ) {
-        UUID currentUserId = tenantContext.userId();
-        PagedData<RequestDto> paged = requestService.getMyRequests(currentUserId, status, typeCode, page, size);
+        UUID employeeId = employeeResolver.resolve(tenantContext.userId());
+        PagedData<RequestDto> paged = requestService.getMyRequests(employeeId, status, typeCode, page, size);
         return ApiResponse.successPaged(
                 AttendanceErrorCode.ATTENDANCE_REQUEST_LIST_SUCCESS,
                 "My requests retrieved",

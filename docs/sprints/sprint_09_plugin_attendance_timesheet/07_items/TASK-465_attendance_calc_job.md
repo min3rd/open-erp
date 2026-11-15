@@ -1,12 +1,12 @@
-# [TASK-446] Engine tính công tích hợp: CalcJob, Hanging Check, Manual Override & OT Windows
+# [TASK-465] Engine tính công tích hợp: CalcJob, Hanging Check, Manual Override & OT Windows
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / loại / sprint | TASK-446 / Task / Sprint 09 |
+| ID / loại / sprint | TASK-465 / Task / Sprint 09 |
 | Severity / trạng thái | High / **Done (dev)** — CalcJob + Hanging check + Override + OT hoàn tất, 100% test PASS |
 | Owner/agent / reviewer | Developer / QA |
 | Cập nhật / input version | 2026-11-11 / [ADR-S09-003](../05_solutions/04_ADR-S09-003_attendance_calculation_engine.md), [DES-DB-S09-001](../06_designs/db/01_DES-DB-S09-001_attendance_schema.md) 1.0 |
-| depends_on / blocks / parent | TASK-444, TASK-445 / TASK-447 / [FEAT-43](FEAT-43_attendance_core_shifts_ingestion_calc.md) |
+| depends_on / blocks / parent | TASK-444, TASK-464 / TASK-466 / [FEAT-43](FEAT-43_attendance_core_shifts_ingestion_calc.md) |
 | Write scope | `plugins/attendance/src/main/java/**/service/**`, `plugins/attendance/src/main/java/**/job/**` |
 
 ## 1. Mục tiêu

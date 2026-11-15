@@ -6,7 +6,7 @@
 | Severity / trạng thái | High / **Done (dev)** — 40/40 unit test PASS |
 | Owner/agent / reviewer | Developer / QA |
 | Cập nhật / input version | 2026-11-02 / [ADR-S09-001](../05_solutions/02_ADR-S09-001_shift_structure_in_plugin.md), [ADR-S09-003](../05_solutions/04_ADR-S09-003_attendance_calculation_engine.md) 1.0 |
-| depends_on / blocks / parent | TASK-443 / TASK-446 / [FEAT-43](FEAT-43_attendance_core_shifts_ingestion_calc.md) |
+| depends_on / blocks / parent | TASK-443 / TASK-465 / [FEAT-43](FEAT-43_attendance_core_shifts_ingestion_calc.md) |
 | Write scope / baseline | `plugins/attendance/src/main/java/**/engine/**`, `src/test/java/**` |
 
 ## 1. Mục tiêu
@@ -31,7 +31,7 @@ Ghi chú thiết kế rút ra khi implement: grace_in dịch ngưỡng muộn **
 
 ## 4. Bàn giao
 
-- Files: `engine/**`, `model/**`, `src/test/**`. Chưa chạy: integration (TASK-446).
+- Files: `engine/**`, `model/**`, `src/test/**`. Chưa chạy: integration (TASK-465).
 
 ## 5. Lịch sử
 

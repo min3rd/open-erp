@@ -318,7 +318,7 @@ BEGIN
         SELECT user_id INTO v_owner_user_id
         FROM user_tenants
         WHERE tenant_id = p_tenant_id
-        ORDER BY created_at ASC
+        ORDER BY joined_at ASC
         LIMIT 1;
 
         IF v_owner_user_id IS NOT NULL THEN

@@ -101,6 +101,24 @@ public class JwtTokenService {
                 .sign();
     }
 
+    /**
+     * Kiosk terminal token: anonymous, empty permissions, and bound to one
+     * device code so the runtime gateway can reject any other kiosk path.
+     */
+    public String generatePluginKioskToken(UUID tenantId, String pluginKey, String deviceCode, long minutes) {
+        return Jwt.issuer(issuer)
+                .subject("")
+                .claim("jti", UUID.randomUUID().toString())
+                .claim("type", TYPE_PLUGIN_RUNTIME)
+                .claim("tenant_id", tenantId != null ? tenantId.toString() : null)
+                .claim("plugin_key", pluginKey)
+                .claim("permissions", java.util.List.of())
+                .claim("roles", java.util.List.of())
+                .claim("kiosk_device", deviceCode)
+                .expiresIn(Duration.ofMinutes(minutes))
+                .sign();
+    }
+
     public JsonWebToken parseToken(String token) throws ParseException {
         return jwtParser.parse(token);
     }

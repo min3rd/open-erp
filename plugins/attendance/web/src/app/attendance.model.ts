@@ -36,6 +36,7 @@ export interface AttendanceRecord {
   work_date: string;
   shift_id?: string | null;
   shift_code?: string | null;
+  shift_name_snapshot?: string | null;
   status: AttendanceStatus;
   in_time?: string | null;
   out_time?: string | null;
@@ -62,23 +63,57 @@ export interface ShiftDefinition {
   is_active: boolean;
 }
 
+export interface EmployeeDirectory {
+  employee_id: string;
+  employee_code: string;
+  full_name: string;
+  user_id?: string | null;
+  primary_department_id?: string | null;
+  employment_status?: string | null;
+  department_name?: string | null;
+  branch_id?: string | null;
+  branch_name?: string | null;
+}
+
+export interface ShiftCoverage {
+  shift_definition_id: string;
+  employee_count: number;
+  department_names: string[];
+  branch_names: string[];
+}
+
+export interface AuditLogEntry {
+  id: string;
+  actor_user_id?: string | null;
+  action: string;
+  entity_type?: string | null;
+  entity_id?: string | null;
+  detail: Record<string, unknown>;
+  created_at: string;
+}
+
 export interface AttendanceRequest {
   id: string;
   request_number: string;
+  code?: string;
   request_type_code: string;
   request_type_name?: string;
   employee_id: string;
   employee_code?: string;
   employee_name?: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
-  approval_mode: 'ENGINE' | 'INTERNAL_FALLBACK';
+  approval_mode: 'ENGINE' | 'INTERNAL_FALLBACK' | string;
   approval_flow?: string;
   reason?: string;
   data: Record<string, unknown>;
+  response?: Record<string, unknown>;
+  affected_window?: Record<string, unknown>;
+  workflow_instance_id?: string | null;
   submitted_at: string;
   approved_at?: string | null;
   comment?: string | null;
   mapping_status?: 'NOT_APPLICABLE' | 'PENDING' | 'APPLIED' | 'FAILED';
+  mapping_error?: string | null;
 }
 
 export interface RequestType {
@@ -133,17 +168,56 @@ export interface LeaveLedgerEntry {
   created_at: string;
 }
 
+export interface TimesheetSnapshotEmployee {
+  employee_id: string;
+  employee_code: string;
+  full_name: string;
+  standard_days: number;
+  actual_days: number;
+  paid_leave_days: number;
+  unpaid_leave_days: number;
+  ot_minutes: number;
+  ot_hours: number;
+  late_minutes: number;
+  early_leave_minutes: number;
+}
+
+export interface TimesheetSnapshot {
+  employees?: TimesheetSnapshotEmployee[];
+  total_employees?: number;
+  calculated_at?: string;
+}
+
 export interface Timesheet {
   id: string;
-  name: string;
-  period_start: string;
-  period_end: string;
+  period_year: number;
+  period_month: number;
+  scope_type?: string;
+  wage_calc_mode?: string;
   step: 'S1_LOGS' | 'S2_SCHEDULE' | 'S3_CALCULATE' | 'S4_ADJUST' | 'DONE';
   locked: boolean;
   locked_at?: string | null;
+  unlocked_at?: string | null;
+  unlock_reason?: string | null;
+  snapshot?: TimesheetSnapshot | null;
+  created_at?: string;
+  updated_at?: string;
+  /** Derived display fields built by AttendanceService. */
+  name: string;
+  period_start: string;
+  period_end: string;
   total_employees?: number;
   total_work_hours?: number;
   total_ot_hours?: number;
+}
+
+export interface MyTimesheet {
+  id: string;
+  period_year: number;
+  period_month: number;
+  step: string;
+  locked: boolean;
+  summary: TimesheetSnapshotEmployee | null;
 }
 
 export interface TimesheetEntry {
@@ -171,12 +245,14 @@ export interface TimesheetConfirmation {
 }
 
 export interface AttendanceSummary {
-  total_employees: number;
-  present_count: number;
-  absent_count: number;
-  on_leave_count: number;
-  late_count: number;
   attendance_rate: number;
+  total_ot_hours: number;
+  total_employees?: number;
+  present_count?: number;
+  absent_count?: number;
+  absence_count?: number;
+  on_leave_count?: number;
+  late_count: number;
 }
 
 export interface PunchResponse {
@@ -308,6 +384,7 @@ export interface KioskDevice {
   id: string;
   device_code: string;
   location_name: string;
+  branch_id?: string | null;
   branch_code: string;
   branch_name: string;
   ip_address: string;

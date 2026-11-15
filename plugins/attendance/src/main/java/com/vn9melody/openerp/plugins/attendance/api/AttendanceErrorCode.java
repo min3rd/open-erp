@@ -14,6 +14,7 @@ public final class AttendanceErrorCode {
     public static final String ATTENDANCE_CHECKOUT_SUCCESS = "ATTENDANCE_CHECKOUT_SUCCESS";
     public static final String ATTENDANCE_MY_STATUS_SUCCESS = "ATTENDANCE_MY_STATUS_SUCCESS";
     public static final String ATTENDANCE_MY_LOGS_SUCCESS = "ATTENDANCE_MY_LOGS_SUCCESS";
+    public static final String ATTENDANCE_MY_KIOSK_PIN_SUCCESS = "ATTENDANCE_MY_KIOSK_PIN_SUCCESS";
     public static final String KIOSK_AUTH_SUCCESS = "KIOSK_AUTH_SUCCESS";
     public static final String KIOSK_PUNCH_SUCCESS = "KIOSK_PUNCH_SUCCESS";
     public static final String KIOSK_EMPLOYEES_LIST_SUCCESS = "KIOSK_EMPLOYEES_LIST_SUCCESS";
@@ -45,6 +46,7 @@ public final class AttendanceErrorCode {
     public static final String ATTENDANCE_HOLIDAY_DELETED = "ATTENDANCE_HOLIDAY_DELETED";
 
     public static final String ATTENDANCE_RECORD_LIST_SUCCESS = "ATTENDANCE_RECORD_LIST_SUCCESS";
+    public static final String ATTENDANCE_EMPLOYEE_LIST_SUCCESS = "ATTENDANCE_EMPLOYEE_LIST_SUCCESS";
     public static final String ATTENDANCE_RECORD_RETRIEVED = "ATTENDANCE_RECORD_RETRIEVED";
     public static final String ATTENDANCE_RECORD_OVERRIDDEN = "ATTENDANCE_RECORD_OVERRIDDEN";
     public static final String ATTENDANCE_RECALC_QUEUED = "ATTENDANCE_RECALC_QUEUED";
@@ -103,6 +105,7 @@ public final class AttendanceErrorCode {
     public static final String ATTENDANCE_BALANCE_LIST_SUCCESS = "ATTENDANCE_BALANCE_LIST_SUCCESS";
     public static final String ATTENDANCE_LEDGER_LIST_SUCCESS = "ATTENDANCE_LEDGER_LIST_SUCCESS";
     public static final String ATTENDANCE_EVENT_HANDLED = "ATTENDANCE_EVENT_HANDLED";
+    public static final String ATTENDANCE_AUDIT_LIST_SUCCESS = "ATTENDANCE_AUDIT_LIST_SUCCESS";
 
     // Error codes
     public static final String ATTENDANCE_ALREADY_CHECKED_IN = "ATTENDANCE_ALREADY_CHECKED_IN";
@@ -120,6 +123,8 @@ public final class AttendanceErrorCode {
     public static final String KIOSK_AUTH_FAILED = "KIOSK_AUTH_FAILED";
     public static final String KIOSK_DEVICE_LOCKED = "KIOSK_DEVICE_LOCKED";
     public static final String KIOSK_SESSION_EXPIRED = "KIOSK_SESSION_EXPIRED";
+    public static final String KIOSK_DEVICE_TOKEN_INVALID = "KIOSK_DEVICE_TOKEN_INVALID";
+    public static final String KIOSK_DEVICE_BRANCH_REQUIRED = "KIOSK_DEVICE_BRANCH_REQUIRED";
 
     public static final String ATTENDANCE_SHIFT_IN_USE = "ATTENDANCE_SHIFT_IN_USE";
     public static final String ATTENDANCE_SHIFT_INVALID_TIME = "ATTENDANCE_SHIFT_INVALID_TIME";

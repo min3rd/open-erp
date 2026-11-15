@@ -56,6 +56,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
   },
   {
+    path: 'public/kiosk/:tenantSlug/:deviceCode',
+    loadComponent: () => import('./features/public-kiosk/public-kiosk.component').then(m => m.PublicKioskComponent)
+  },
+  {
     path: 'register/personal',
     loadComponent: () => import('./features/auth/register-personal/register-personal.component').then(m => m.RegisterPersonalComponent)
   },

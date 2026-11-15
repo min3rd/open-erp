@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Path("/")
+@Path("/admin")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
@@ -36,7 +36,7 @@ public class RequestTypeAdminResource {
     }
 
     @POST
-    @Path("/admin/request-types")
+    @Path("/request-types")
     @RequirePermission("attendance:settings:manage")
     public ApiResponse<RequestTypeDto> createCustomType(RequestTypeCreateRequest request) {
         RequestTypeDto created = requestTypeService.createCustomType(request);
@@ -48,7 +48,7 @@ public class RequestTypeAdminResource {
     }
 
     @PUT
-    @Path("/admin/request-types/{id}")
+    @Path("/request-types/{id}")
     @RequirePermission("attendance:settings:manage")
     public ApiResponse<RequestTypeDto> updateRequestType(
             @PathParam("id") UUID id,
@@ -63,7 +63,7 @@ public class RequestTypeAdminResource {
     }
 
     @DELETE
-    @Path("/admin/request-types/{id}")
+    @Path("/request-types/{id}")
     @RequirePermission("attendance:settings:manage")
     public ApiResponse<Map<String, Object>> deleteRequestType(@PathParam("id") UUID id) {
         requestTypeService.deleteRequestType(id);

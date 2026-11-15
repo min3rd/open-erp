@@ -212,6 +212,18 @@ class TimesheetServiceTest {
         setField(timesheetService, "tenantContext", tenantContext);
         setField(timesheetService, "objectMapper", objectMapper);
         setField(timesheetService, "exportTemplateService", exportTemplateService);
+        setField(timesheetService, "auditService", new AttendanceAuditService() {
+            @Override
+            public void record(String action, String entityType, UUID entityId, Map<String, Object> detail) {
+                // no-op for unit test
+            }
+        });
+        setField(timesheetService, "calculationService", new AttendanceCalculationService() {
+            @Override
+            public int recalculateRange(java.time.LocalDate from, java.time.LocalDate to) {
+                return 0;
+            }
+        });
     }
 
     private void setField(Object target, String fieldName, Object value) throws Exception {

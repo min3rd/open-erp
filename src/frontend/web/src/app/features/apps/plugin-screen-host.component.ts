@@ -89,6 +89,15 @@ export class PluginScreenHostComponent implements OnInit {
     void this.router.navigateByUrl(target, { replaceUrl: true });
   }
 
+  /** Cross-app navigation requested by a plugin (`op:navigate`). */
+  onNavigate(path: string): void {
+    if (!path) {
+      return;
+    }
+    const target = path.startsWith('/') ? path : `/${path}`;
+    void this.router.navigateByUrl(target);
+  }
+
   private routeFromUrl(url: string): string {
     const base = `/settings/apps/${this.pluginKey()}`;
     const [path, query] = url.split('?');

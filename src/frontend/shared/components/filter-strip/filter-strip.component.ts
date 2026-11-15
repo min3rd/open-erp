@@ -25,6 +25,7 @@ export interface FilterItem<T = string> {
 
 export type FilterStripSize = 'xs' | 'sm' | 'md';
 export type FilterStripVariant = 'sharp' | 'pill';
+export type FilterStripTone = 'default' | 'inverse';
 
 /**
  * Compact, single-line horizontal scrollable filter strip component.
@@ -51,6 +52,7 @@ export class FilterStripComponent<T = string> {
   scrollRightLabelKey = input<string>('COMMON_NEXT_PAGE');
   size = input<FilterStripSize>('sm');
   variant = input<FilterStripVariant>('sharp');
+  tone = input<FilterStripTone>('default');
   showCount = input<boolean>(true);
 
   readonly canScrollLeft = signal<boolean>(false);
@@ -141,6 +143,12 @@ export class FilterStripComponent<T = string> {
           : 'px-2.5 py-1 text-xs min-h-[28px]';
 
     const shapeCls = this.variant() === 'pill' ? 'rounded-sm' : 'rounded-none';
+
+    if (this.tone() === 'inverse') {
+      return isSelected
+        ? `${sizeCls} ${shapeCls} bg-emerald-500 text-slate-950 border-emerald-400 font-bold shadow-xs`
+        : `${sizeCls} ${shapeCls} bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800 hover:text-white font-medium`;
+    }
 
     if (isSelected) {
       return `${sizeCls} ${shapeCls} bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 border-slate-900 dark:border-slate-100 font-bold shadow-xs`;

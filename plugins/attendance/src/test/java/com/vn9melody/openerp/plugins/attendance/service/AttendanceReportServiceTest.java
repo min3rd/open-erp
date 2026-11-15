@@ -42,6 +42,15 @@ class AttendanceReportServiceTest {
         Field cf = reportService.getClass().getDeclaredField("client");
         cf.setAccessible(true);
         cf.set(reportService, client);
+
+        Field of = reportService.getClass().getDeclaredField("orgDirectory");
+        of.setAccessible(true);
+        of.set(reportService, new OrgDirectoryService() {
+            @Override
+            public Map<UUID, DepartmentRef> departmentByEmployee() {
+                return Map.of();
+            }
+        });
     }
 
     @Test

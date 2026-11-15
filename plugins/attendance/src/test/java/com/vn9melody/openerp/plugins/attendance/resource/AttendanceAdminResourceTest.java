@@ -11,6 +11,8 @@ import com.vn9melody.openerp.plugins.attendance.dto.AttendanceDtos.*;
 import com.vn9melody.openerp.plugins.attendance.model.AttendanceStatus;
 import com.vn9melody.openerp.plugins.attendance.model.LogEventType;
 import com.vn9melody.openerp.plugins.attendance.model.LogSource;
+import com.vn9melody.openerp.plugins.attendance.service.AttendanceAuditService;
+import com.vn9melody.openerp.plugins.attendance.service.AttendanceCalculationService;
 import com.vn9melody.openerp.plugins.attendance.service.AttendanceLogService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -107,6 +109,24 @@ class AttendanceAdminResourceTest {
         Field clientField = AttendanceAdminResource.class.getDeclaredField("client");
         clientField.setAccessible(true);
         clientField.set(resource, testDataClient);
+
+        Field auditField = AttendanceAdminResource.class.getDeclaredField("auditService");
+        auditField.setAccessible(true);
+        auditField.set(resource, new AttendanceAuditService() {
+            @Override
+            public void record(String action, String entityType, UUID entityId, Map<String, Object> detail) {
+                // no-op for unit test
+            }
+        });
+
+        Field calcField = AttendanceAdminResource.class.getDeclaredField("calculationService");
+        calcField.setAccessible(true);
+        calcField.set(resource, new AttendanceCalculationService() {
+            @Override
+            public int recalculateRange(LocalDate from, LocalDate to) {
+                return 0;
+            }
+        });
     }
 
     @Test

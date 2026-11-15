@@ -1,0 +1,40 @@
+<div class="relative inline-block text-[11px]">
+  <button
+    type="button"
+    (click)="open.set(!open())"
+    class="inline-flex items-center gap-1 border border-default bg-surface px-2 py-1 text-ink cursor-pointer"
+    [attr.aria-label]="'attendance.table.columns' | translate"
+    [title]="'attendance.table.columns' | translate"
+  >
+    <app-icon name="settings" size="xs" [decorative]="true" />
+    <span>{{ 'attendance.table.columns' | translate }}</span>
+  </button>
+  @if (open()) {
+    <div class="absolute right-0 z-30 mt-1 w-56 border border-default bg-surface p-2 shadow-lg">
+      @for (column of ordered(); track column.key) {
+        <div class="flex items-center gap-1 py-0.5">
+          <input
+            type="checkbox"
+            [checked]="!isHidden(column.key)"
+            (change)="toggle(column.key)"
+            [attr.aria-label]="column.labelKey | translate"
+            class="h-3 w-3"
+          />
+          <span class="min-w-0 flex-1 truncate text-ink">{{ column.labelKey | translate }}</span>
+          <button
+            type="button"
+            (click)="move(column.key, -1)"
+            class="border border-default px-1 text-[10px] text-ink cursor-pointer"
+            [title]="'attendance.table.move_up' | translate"
+          >&uarr;</button>
+          <button
+            type="button"
+            (click)="move(column.key, 1)"
+            class="border border-default px-1 text-[10px] text-ink cursor-pointer"
+            [title]="'attendance.table.move_down' | translate"
+          >&darr;</button>
+        </div>
+      }
+    </div>
+  }
+</div>

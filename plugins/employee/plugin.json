@@ -2265,6 +2265,51 @@
       "maxRows": 200
     },
     {
+      "id": "employee.assignment.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "EmployeeAssignment",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "employee_id",
+        "branch_id",
+        "department_id",
+        "job_title",
+        "is_primary",
+        "valid_from",
+        "valid_to",
+        "status"
+      ],
+      "filters": [
+        {
+          "field": "employee_id",
+          "op": "EQ",
+          "param": "employee_id",
+          "optional": true
+        },
+        {
+          "field": "status",
+          "op": "EQ",
+          "param": "status",
+          "optional": true
+        }
+      ],
+      "sort": [
+        {
+          "field": "valid_from",
+          "direction": "DESC"
+        }
+      ],
+      "page": {
+        "pageParam": "page",
+        "sizeParam": "size",
+        "maxSize": 500,
+        "defaultSize": 200
+      },
+      "maxRows": 500
+    },
+    {
       "id": "assignment.insert",
       "mode": "WRITE",
       "operation": "INSERT",

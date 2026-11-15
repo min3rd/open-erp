@@ -20,6 +20,7 @@
             [context]="pluginContext.context()"
             [route]="initialRoute()"
             (routeChange)="onRouteChange($event)"
+            (navigate)="onNavigate($event)"
             (failed)="onFailed($event)"
           />
         }

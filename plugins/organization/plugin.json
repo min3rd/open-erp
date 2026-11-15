@@ -436,6 +436,30 @@
       "maxRows": 500
     },
     {
+      "id": "org-structure.branch.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "OrgBranch",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "code",
+        "name",
+        "phone",
+        "address",
+        "is_default",
+        "status",
+        "created_at"
+      ],
+      "sort": [
+        {
+          "field": "code",
+          "direction": "ASC"
+        }
+      ],
+      "maxRows": 500
+    },
+    {
       "id": "branch.insert",
       "mode": "WRITE",
       "operation": "INSERT",
@@ -478,6 +502,30 @@
     },
     {
       "id": "department.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "OrgDepartment",
+      "tenant_scope": "TENANT",
+      "select": [
+        "id",
+        "branch_id",
+        "parent_id",
+        "code",
+        "name",
+        "manager_user_id",
+        "status",
+        "created_at"
+      ],
+      "sort": [
+        {
+          "field": "code",
+          "direction": "ASC"
+        }
+      ],
+      "maxRows": 1000
+    },
+    {
+      "id": "org-structure.department.list",
       "mode": "READ",
       "operation": "LIST",
       "entity": "OrgDepartment",

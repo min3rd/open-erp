@@ -84,6 +84,10 @@ class RequestMappingExecutorTest {
         Field lsf = executor.getClass().getDeclaredField("leaveLedgerService");
         lsf.setAccessible(true);
         lsf.set(executor, leaveLedgerService);
+
+        Field om = executor.getClass().getDeclaredField("objectMapper");
+        om.setAccessible(true);
+        om.set(executor, new com.fasterxml.jackson.databind.ObjectMapper());
     }
 
     @Test

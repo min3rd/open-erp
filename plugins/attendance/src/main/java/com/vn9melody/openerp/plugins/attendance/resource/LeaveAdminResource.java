@@ -7,6 +7,7 @@ import com.vn9melody.openerp.plugin.sdk.runtime.RequirePermission;
 import com.vn9melody.openerp.plugin.sdk.runtime.TenantContext;
 import com.vn9melody.openerp.plugins.attendance.api.AttendanceErrorCode;
 import com.vn9melody.openerp.plugins.attendance.dto.LeaveDtos.*;
+import com.vn9melody.openerp.plugins.attendance.service.AttendanceAuditService;
 import com.vn9melody.openerp.plugins.attendance.service.LeaveLedgerService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Path("/")
+@Path("/admin")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
@@ -29,10 +30,13 @@ public class LeaveAdminResource {
     @Inject
     TenantContext tenantContext;
 
+    @Inject
+    AttendanceAuditService auditService;
+
     // --- LEAVE TYPES ---
 
     @GET
-    @Path("/admin/leave-types")
+    @Path("/leave-types")
     @RequirePermission("attendance:leave:manage")
     public ApiResponse<ListData<LeaveTypeDto>> listLeaveTypes(@QueryParam("active_only") Boolean activeOnly) {
         List<LeaveTypeDto> list = leaveLedgerService.listLeaveTypes(activeOnly);
@@ -44,10 +48,12 @@ public class LeaveAdminResource {
     }
 
     @POST
-    @Path("/admin/leave-types")
+    @Path("/leave-types")
     @RequirePermission("attendance:leave:manage")
     public ApiResponse<LeaveTypeDto> createLeaveType(LeaveTypeCreateRequest request) {
         LeaveTypeDto created = leaveLedgerService.createLeaveType(request);
+        auditService.record("LEAVE_TYPE_CREATE", "LeaveType", created.id(),
+                Map.of("code", String.valueOf(created.code()), "name", String.valueOf(created.name())));
         return ApiResponse.success(
                 AttendanceErrorCode.ATTENDANCE_LEAVE_TYPE_CREATED,
                 "Leave type created successfully",
@@ -56,13 +62,14 @@ public class LeaveAdminResource {
     }
 
     @PUT
-    @Path("/admin/leave-types/{id}")
+    @Path("/leave-types/{id}")
     @RequirePermission("attendance:leave:manage")
     public ApiResponse<LeaveTypeDto> updateLeaveType(
             @PathParam("id") UUID id,
             LeaveTypeUpdateRequest request
     ) {
         LeaveTypeDto updated = leaveLedgerService.updateLeaveType(id, request);
+        auditService.record("LEAVE_TYPE_UPDATE", "LeaveType", id, Map.of("code", String.valueOf(updated.code())));
         return ApiResponse.success(
                 AttendanceErrorCode.ATTENDANCE_LEAVE_TYPE_UPDATED,
                 "Leave type updated successfully",
@@ -71,7 +78,7 @@ public class LeaveAdminResource {
     }
 
     @DELETE
-    @Path("/admin/leave-types/{id}")
+    @Path("/leave-types/{id}")
     @RequirePermission("attendance:leave:manage")
     public ApiResponse<Map<String, Object>> deleteLeaveType(@PathParam("id") UUID id) {
         leaveLedgerService.deleteLeaveType(id);
@@ -85,11 +92,13 @@ public class LeaveAdminResource {
     // --- GRANTS & ADJUSTMENTS ---
 
     @POST
-    @Path("/admin/leave-ledger/grants")
+    @Path("/leave-ledger/grants")
     @RequirePermission("attendance:leave:manage")
     public ApiResponse<Map<String, Object>> grantLeave(LeaveGrantRequest request) {
         UUID currentUserId = tenantContext.userId();
         int count = leaveLedgerService.grantLeave(currentUserId, request);
+        auditService.record("LEAVE_GRANT", "LeaveBalance", request.leaveTypeId(),
+                Map.of("days", request.days(), "employees", count));
         return ApiResponse.success(
                 AttendanceErrorCode.ATTENDANCE_GRANT_SUCCESS,
                 "Leave granted successfully",
@@ -98,11 +107,14 @@ public class LeaveAdminResource {
     }
 
     @POST
-    @Path("/admin/leave-ledger/adjustments")
+    @Path("/leave-ledger/adjustments")
     @RequirePermission("attendance:leave:manage")
     public ApiResponse<LeaveBalanceDto> adjustLeave(LeaveAdjustmentRequest request) {
         UUID currentUserId = tenantContext.userId();
         LeaveBalanceDto balance = leaveLedgerService.adjustLeave(currentUserId, request);
+        auditService.record("LEAVE_ADJUST", "LeaveBalance", balance.leaveTypeId(),
+                Map.of("employee_id", String.valueOf(balance.employeeId()),
+                        "days", request.days(), "remaining", balance.remaining()));
         return ApiResponse.success(
                 AttendanceErrorCode.ATTENDANCE_ADJUSTMENT_SUCCESS,
                 "Leave balance adjusted successfully",
@@ -113,20 +125,7 @@ public class LeaveAdminResource {
     // --- BALANCES & LEDGER ---
 
     @GET
-    @Path("/my-leave-balances")
-    @RequirePermission("attendance:checkin:self")
-    public ApiResponse<ListData<LeaveBalanceDto>> getMyLeaveBalances() {
-        UUID currentUserId = tenantContext.userId();
-        List<LeaveBalanceDto> list = leaveLedgerService.getMyLeaveBalances(currentUserId);
-        return ApiResponse.successList(
-                AttendanceErrorCode.ATTENDANCE_BALANCE_LIST_SUCCESS,
-                "My leave balances retrieved",
-                list
-        );
-    }
-
-    @GET
-    @Path("/admin/leave-balances")
+    @Path("/leave-balances")
     @RequirePermission("attendance:leave:manage")
     public ApiResponse<PagedData<LeaveBalanceDto>> getAdminLeaveBalances(
             @QueryParam("employee_id") String empIdStr,
@@ -148,7 +147,7 @@ public class LeaveAdminResource {
     }
 
     @GET
-    @Path("/admin/leave-ledger")
+    @Path("/leave-ledger")
     @RequirePermission("attendance:leave:manage")
     public ApiResponse<PagedData<LeaveLedgerEntryDto>> listLeaveLedger(
             @QueryParam("employee_id") String empIdStr,

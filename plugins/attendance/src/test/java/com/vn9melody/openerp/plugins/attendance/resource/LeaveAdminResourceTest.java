@@ -8,6 +8,8 @@ import com.vn9melody.openerp.plugins.attendance.api.AttendanceErrorCode;
 import com.vn9melody.openerp.plugins.attendance.dto.LeaveDtos.*;
 import com.vn9melody.openerp.plugins.attendance.model.LeaveLedgerEntryType;
 import com.vn9melody.openerp.plugins.attendance.model.LeaveLedgerSource;
+import com.vn9melody.openerp.plugins.attendance.service.AttendanceAuditService;
+import com.vn9melody.openerp.plugins.attendance.service.AttendanceEmployeeResolver;
 import com.vn9melody.openerp.plugins.attendance.service.LeaveLedgerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class LeaveAdminResourceTest {
 
     private LeaveAdminResource resource;
+    private MyLeaveResource myLeaveResource;
     private StubLeaveLedgerService stubService;
     private StubTenantContext stubTenantContext;
     private UUID currentUserId;
@@ -41,11 +44,11 @@ class LeaveAdminResourceTest {
                 UUID.randomUUID(), "ANNUAL", "Phép năm", true, true, true, false, 5, 12, 12.0, true, Instant.now(), Instant.now()
         );
         LeaveBalanceDto sampleBalance = new LeaveBalanceDto(
-                UUID.randomUUID(), UUID.randomUUID(), "ANNUAL", "Phép năm", 12.0, 2.0, 10.0, 0.0, Instant.now()
+                UUID.randomUUID(), UUID.randomUUID(), "ANNUAL", "Phép năm", 12.0, 2.0, 10.0, 0.0, Instant.now(), null
         );
         LeaveLedgerEntryDto sampleEntry = new LeaveLedgerEntryDto(
                 UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), LeaveLedgerEntryType.GRANT,
-                12.0, LocalDate.now().plusMonths(6), null, LeaveLedgerSource.HR, "Cấp đầu năm", UUID.randomUUID(), Instant.now()
+                12.0, LocalDate.now().plusMonths(6), null, LeaveLedgerSource.HR, "Cấp đầu năm", UUID.randomUUID(), Instant.now(), null
         );
 
         @Override
@@ -108,6 +111,34 @@ class LeaveAdminResourceTest {
         Field tf = resource.getClass().getDeclaredField("tenantContext");
         tf.setAccessible(true);
         tf.set(resource, stubTenantContext);
+
+        Field auditField = resource.getClass().getDeclaredField("auditService");
+        auditField.setAccessible(true);
+        auditField.set(resource, new AttendanceAuditService() {
+            @Override
+            public void record(String action, String entityType, java.util.UUID entityId, java.util.Map<String, Object> detail) {
+                // no-op for unit test
+            }
+        });
+
+        myLeaveResource = new MyLeaveResource();
+        Field msf = myLeaveResource.getClass().getDeclaredField("leaveLedgerService");
+        msf.setAccessible(true);
+        msf.set(myLeaveResource, stubService);
+
+        Field mtf = myLeaveResource.getClass().getDeclaredField("tenantContext");
+        mtf.setAccessible(true);
+        mtf.set(myLeaveResource, stubTenantContext);
+
+        AttendanceEmployeeResolver resolver = new AttendanceEmployeeResolver() {
+            @Override
+            public java.util.UUID resolve(java.util.UUID userId) {
+                return currentUserId;
+            }
+        };
+        Field mrf = myLeaveResource.getClass().getDeclaredField("employeeResolver");
+        mrf.setAccessible(true);
+        mrf.set(myLeaveResource, resolver);
     }
 
     @Test
@@ -134,7 +165,7 @@ class LeaveAdminResourceTest {
         assertTrue(adjust.isSuccess());
         assertEquals(AttendanceErrorCode.ATTENDANCE_ADJUSTMENT_SUCCESS, adjust.getCode());
 
-        ApiResponse<ListData<LeaveBalanceDto>> myBalances = resource.getMyLeaveBalances();
+        ApiResponse<ListData<LeaveBalanceDto>> myBalances = myLeaveResource.getMyLeaveBalances();
         assertTrue(myBalances.isSuccess());
 
         ApiResponse<PagedData<LeaveBalanceDto>> adminBalances = resource.getAdminLeaveBalances(null, null, 1, 50);

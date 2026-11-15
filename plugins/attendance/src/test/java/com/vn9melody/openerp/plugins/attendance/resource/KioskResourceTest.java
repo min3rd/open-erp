@@ -2,6 +2,7 @@ package com.vn9melody.openerp.plugins.attendance.resource;
 
 import com.vn9melody.openerp.plugin.sdk.api.ApiException;
 import com.vn9melody.openerp.plugin.sdk.api.ApiResponse;
+import com.vn9melody.openerp.plugin.sdk.api.ListData;
 import com.vn9melody.openerp.plugin.sdk.data.PluginDataClient;
 import com.vn9melody.openerp.plugin.sdk.data.PluginQueryResult;
 import com.vn9melody.openerp.plugins.attendance.api.AttendanceErrorCode;
@@ -10,6 +11,7 @@ import com.vn9melody.openerp.plugins.attendance.model.LogEventType;
 import com.vn9melody.openerp.plugins.attendance.model.LogSource;
 import com.vn9melody.openerp.plugins.attendance.service.AttendanceLogService;
 import com.vn9melody.openerp.plugins.attendance.service.KioskSecurityService;
+import com.vn9melody.openerp.plugins.attendance.service.OrgDirectoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,8 @@ class KioskResourceTest {
     private UUID employeeId;
     private String rawPin;
     private String hashedPin;
+    private String rawDeviceToken;
+    private UUID branchId;
 
     static class StubLogService extends AttendanceLogService {
         @Override
@@ -65,6 +69,8 @@ class KioskResourceTest {
         employeeId = UUID.randomUUID();
         rawPin = "123456";
         hashedPin = securityService.hashPin(rawPin);
+        rawDeviceToken = "device-secret-token";
+        branchId = UUID.randomUUID();
 
         Field secField = KioskResource.class.getDeclaredField("securityService");
         secField.setAccessible(true);
@@ -78,6 +84,15 @@ class KioskResourceTest {
         clientField.setAccessible(true);
         clientField.set(resource, testDataClient);
 
+        Field orgField = KioskResource.class.getDeclaredField("orgDirectory");
+        orgField.setAccessible(true);
+        orgField.set(resource, new OrgDirectoryService() {
+            @Override
+            public Map<UUID, EmployeeOrg> employeeOrg() {
+                return Map.of();
+            }
+        });
+
         // Setup mock device response
         Map<String, Object> deviceRow = new HashMap<>();
         deviceRow.put("id", deviceId.toString());
@@ -85,6 +100,8 @@ class KioskResourceTest {
         deviceRow.put("device_type", "KIOSK");
         deviceRow.put("device_code", "KIOSK_T1");
         deviceRow.put("pin_hash", hashedPin);
+        deviceRow.put("ingest_secret_hash", securityService.hashPin(rawDeviceToken));
+        deviceRow.put("branch_id", branchId.toString());
         deviceRow.put("is_active", true);
 
         testDataClient.queryResponses.put("attendance.device.get_by_code", List.of(deviceRow));
@@ -94,6 +111,7 @@ class KioskResourceTest {
         empRow.put("employee_id", employeeId.toString());
         empRow.put("employee_code", "EMP001");
         empRow.put("full_name", "Nguyen Van A");
+        empRow.put("primary_branch_id", branchId.toString());
 
         testDataClient.queryResponses.put("attendance.employee_ref.get_by_code", List.of(empRow));
     }
@@ -102,7 +120,7 @@ class KioskResourceTest {
     @DisplayName("Kiosk authenticate with valid PIN succeeds and returns token")
     void authenticateSuccess() {
         KioskAuthRequest req = new KioskAuthRequest("EMP001", rawPin);
-        ApiResponse<KioskAuthResponse> resp = resource.authenticate("KIOSK_T1", req);
+        ApiResponse<KioskAuthResponse> resp = resource.authenticate("KIOSK_T1", rawDeviceToken, req);
 
         assertTrue(resp.isSuccess());
         assertEquals(AttendanceErrorCode.KIOSK_AUTH_SUCCESS, resp.getCode());
@@ -116,7 +134,7 @@ class KioskResourceTest {
     void authenticateInvalidPin() {
         KioskAuthRequest req = new KioskAuthRequest("EMP001", "wrong");
         ApiException ex = assertThrows(ApiException.class, () ->
-                resource.authenticate("KIOSK_T1", req)
+                resource.authenticate("KIOSK_T1", rawDeviceToken, req)
         );
         assertEquals(AttendanceErrorCode.KIOSK_AUTH_FAILED, ex.getErrorCode());
     }
@@ -125,12 +143,12 @@ class KioskResourceTest {
     @DisplayName("Kiosk punch with valid session token succeeds")
     void punchSuccess() {
         // Authenticate first
-        ApiResponse<KioskAuthResponse> authResp = resource.authenticate("KIOSK_T1", new KioskAuthRequest("EMP001", rawPin));
+        ApiResponse<KioskAuthResponse> authResp = resource.authenticate("KIOSK_T1", rawDeviceToken, new KioskAuthRequest("EMP001", rawPin));
         String token = authResp.getData().sessionToken();
 
         // Punch IN
         KioskPunchRequest punchReq = new KioskPunchRequest("EMP001", LogEventType.IN);
-        ApiResponse<KioskPunchResponse> punchResp = resource.punch("KIOSK_T1", token, punchReq);
+        ApiResponse<KioskPunchResponse> punchResp = resource.punch("KIOSK_T1", rawDeviceToken, token, null, punchReq);
 
         assertTrue(punchResp.isSuccess());
         assertEquals(AttendanceErrorCode.KIOSK_PUNCH_SUCCESS, punchResp.getCode());
@@ -138,17 +156,44 @@ class KioskResourceTest {
     }
 
     @Test
+    @DisplayName("Kiosk employees list rejects missing device token")
+    void employeesRejectsMissingToken() {
+        ApiException ex = assertThrows(ApiException.class, () ->
+                resource.listEmployees("KIOSK_T1", null, null, null)
+        );
+        assertEquals(AttendanceErrorCode.KIOSK_DEVICE_TOKEN_INVALID, ex.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("Kiosk employees list only returns employees of the device branch")
+    void employeesAreBranchIsolated() {
+        Map<String, Object> otherEmployee = new HashMap<>();
+        otherEmployee.put("employee_id", UUID.randomUUID().toString());
+        otherEmployee.put("employee_code", "EMP999");
+        otherEmployee.put("full_name", "Other Branch");
+        otherEmployee.put("primary_branch_id", UUID.randomUUID().toString());
+        testDataClient.queryResponses.put("attendance.employee_ref.list_all", List.of(
+                testDataClient.queryResponses.get("attendance.employee_ref.get_by_code").get(0),
+                otherEmployee
+        ));
+
+        ApiResponse<ListData<KioskEmployeeDto>> resp = resource.listEmployees("KIOSK_T1", rawDeviceToken, null, null);
+        assertEquals(1, resp.getData().getItems().size());
+        assertEquals("EMP001", resp.getData().getItems().get(0).code());
+    }
+
+    @Test
     @DisplayName("Kiosk punch with expired/consumed session token throws KIOSK_SESSION_EXPIRED")
     void punchConsumedTokenThrows() {
-        ApiResponse<KioskAuthResponse> authResp = resource.authenticate("KIOSK_T1", new KioskAuthRequest("EMP001", rawPin));
+        ApiResponse<KioskAuthResponse> authResp = resource.authenticate("KIOSK_T1", rawDeviceToken, new KioskAuthRequest("EMP001", rawPin));
         String token = authResp.getData().sessionToken();
 
         // First punch consumes token
-        resource.punch("KIOSK_T1", token, new KioskPunchRequest("EMP001", LogEventType.IN));
+        resource.punch("KIOSK_T1", rawDeviceToken, token, null, new KioskPunchRequest("EMP001", LogEventType.IN));
 
         // Second punch with same token fails
         ApiException ex = assertThrows(ApiException.class, () ->
-                resource.punch("KIOSK_T1", token, new KioskPunchRequest("EMP001", LogEventType.OUT))
+                resource.punch("KIOSK_T1", rawDeviceToken, token, null, new KioskPunchRequest("EMP001", LogEventType.OUT))
         );
         assertEquals(AttendanceErrorCode.KIOSK_SESSION_EXPIRED, ex.getErrorCode());
     }

@@ -171,7 +171,9 @@ public class PluginDescriptorRegistry {
             query.values().forEach((field, spec) -> {
                 field(entity, query, field);
                 if (spec.type() != null && !spec.type().isBlank()
-                        && !List.of("json", "jsonb", "text[]", "varchar[]", "uuid[]")
+                        && !List.of("json", "jsonb", "text[]", "varchar[]", "uuid[]",
+                                    "time", "date", "timestamp", "timestamptz",
+                                    "uuid", "integer", "bigint", "numeric", "boolean")
                         .contains(spec.type())) {
                     fail(query, "unsupported value type " + spec.type());
                 }

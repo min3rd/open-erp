@@ -32,6 +32,8 @@
     "form:ui:build": "node scripts/link-plugin-node-modules.mjs && npm --prefix src/frontend/web exec ng build form-plugin",
     "workflow:ui:build": "node scripts/link-plugin-node-modules.mjs && npm --prefix src/frontend/web exec ng build workflow-plugin",
     "attendance:ui:build": "node scripts/link-plugin-node-modules.mjs && npm --prefix src/frontend/web exec ng build attendance-plugin",
+    "qa:attendance-api": "node scripts/qa/run-attendance-api-qa.mjs",
+    "qa:attendance-kiosk": "node scripts/qa/run-attendance-kiosk-qa.mjs",
     "mobile": "docker compose --profile dev up -d mobile-dev",
     "mobile:build": "npm --prefix src/frontend/mobile run build",
     "cli": "node tools/open-erp-cli/bin/open-erp.js",

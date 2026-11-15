@@ -30,7 +30,7 @@ Scaffold Maven module `plugin-attendance` theo template 2.0 (pattern `plugin-for
 ## 4. Bàn giao
 
 - Files: `plugins/attendance/**`, `plugins/pom.xml`.
-- Chưa chạy: cài đặt plugin lên tenant (sau khi có API — TASK-445/447).
+- Chưa chạy: cài đặt plugin lên tenant (sau khi có API — TASK-464/447).
 
 ## 5. Lịch sử
 

@@ -32,70 +32,84 @@
   border: 1px solid var(--op-border, #e5e7eb);
 }
 
-/* ==========================================================================
- * High Contrast Light Mode & Deep Contrast Rules (Zero-Faint Text)
- * ========================================================================== */
-
-/* In Tailwind v4, --color-default was mapped to --op-border (#e5e5e5).
- * Explicitly ensure .text-default maps to deep ink/slate-900 in light mode. */
-.text-default {
-  color: #0f172a !important; /* slate-900: strong deep dark contrast */
+/* Data tables: header stays visible, only the rows scroll inside the panel. */
+.op-table-scroll {
+  max-height: var(--op-table-max-height, calc(100vh - 20rem));
+  overflow: auto;
 }
 
-.dark .text-default {
-  color: #f8fafc !important; /* slate-50 */
+/* Kiosk employee grid: finger-follow swipe settles with a short slide. */
+@keyframes kiosk-slide-next {
+  from { opacity: 0.35; transform: translateX(28px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
-/* Secondary/muted text in light mode: ensure minimum 7:1 contrast ratio */
-.text-muted {
-  color: #475569 !important; /* slate-600 */
+@keyframes kiosk-slide-prev {
+  from { opacity: 0.35; transform: translateX(-28px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
-.dark .text-muted {
-  color: #94a3b8 !important; /* slate-400 */
+.kiosk-slide-next {
+  animation: kiosk-slide-next 260ms ease-out;
 }
 
-/* Table headers & cells: high-density ERP readability */
-th {
-  color: #1e293b !important; /* slate-800: bold crisp headers */
-  font-weight: 600 !important;
+.kiosk-slide-prev {
+  animation: kiosk-slide-prev 260ms ease-out;
 }
 
-.dark th {
-  color: #e2e8f0 !important; /* slate-200 */
+@media (prefers-reduced-motion: reduce) {
+  .kiosk-slide-next,
+  .kiosk-slide-prev {
+    animation: none;
+  }
 }
 
-td {
-  color: #0f172a;
+.op-table-scroll table {
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
-.dark td {
-  color: #f1f5f9;
+.op-table-scroll table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--op-surface-muted);
+  box-shadow: inset 0 -1px 0 var(--op-border);
 }
 
-/* Labels */
-label {
-  color: #334155 !important;
+.op-table-scroll table tbody tr:last-child td {
+  border-bottom: 0;
 }
 
-.dark label {
-  color: #cbd5e1 !important;
+.approvals-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
 }
 
-/* Surface backgrounds */
-.bg-surface {
-  background-color: #ffffff !important;
+@media (min-width: 1024px) {
+  .approvals-split {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    height: calc(100vh - 215px);
+  }
 }
 
-.dark .bg-surface {
-  background-color: #0f172a !important;
+th[data-sort] {
+  color: var(--op-accent) !important;
 }
 
-.bg-surface-muted {
-  background-color: #f8fafc !important;
+th[data-sort='asc']::after,
+th[data-sort='desc']::after {
+  display: inline-block;
+  margin-left: 0.25rem;
+  font-size: 0.55rem;
+  vertical-align: middle;
 }
 
-.dark .bg-surface-muted {
-  background-color: #020617 !important;
+th[data-sort='asc']::after {
+  content: '▲';
 }
 
+th[data-sort='desc']::after {
+  content: '▼';
+}

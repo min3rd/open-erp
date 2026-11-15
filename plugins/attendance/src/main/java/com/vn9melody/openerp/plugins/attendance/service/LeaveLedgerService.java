@@ -211,7 +211,7 @@ public class LeaveLedgerService {
 
         for (Map<String, Object> row : entries.rows()) {
             LeaveLedgerEntryType type = LeaveLedgerEntryType.valueOf(row.get("entry_type").toString());
-            double days = ((Number) row.get("days")).doubleValue();
+            double days = toDouble(row.get("days"), 0);
             LocalDate validUntil = row.get("valid_until") != null ? LocalDate.parse(row.get("valid_until").toString()) : null;
 
             switch (type) {
@@ -246,7 +246,7 @@ public class LeaveLedgerService {
 
         return new LeaveBalanceDto(
                 employeeId, leaveTypeId, lt.code(), lt.name(),
-                granted, used, remaining, expiringThisMonth, Instant.now()
+                granted, used, remaining, expiringThisMonth, Instant.now(), null
         );
     }
 
@@ -263,15 +263,20 @@ public class LeaveLedgerService {
         Map<String, Object> params = new LinkedHashMap<>();
         if (employeeId != null) params.put("employee_id", employeeId);
         if (leaveTypeId != null) params.put("leave_type_id", leaveTypeId);
-        params.put("page", page > 0 ? page : 1);
+        params.put("page", page > 0 ? page - 1 : 0);
         params.put("size", size > 0 ? size : 50);
 
         PluginQueryResult result = client.query("attendance.leave_balance.list", params);
+        Map<UUID, String> names = loadEmployeeNames();
         List<LeaveBalanceDto> list = new ArrayList<>();
         for (Map<String, Object> row : result.rows()) {
             UUID empId = UUID.fromString(row.get("employee_id").toString());
             UUID ltId = UUID.fromString(row.get("leave_type_id").toString());
-            list.add(deriveBalance(empId, ltId));
+            LeaveBalanceDto derived = deriveBalance(empId, ltId);
+            list.add(new LeaveBalanceDto(derived.employeeId(), derived.leaveTypeId(),
+                    derived.leaveTypeCode(), derived.leaveTypeName(), derived.granted(),
+                    derived.used(), derived.remaining(), derived.expiring(),
+                    derived.recomputedAt(), names.get(empId)));
         }
         long total = result.totalRows() > 0 ? result.totalRows() : list.size();
         return PagedData.of(list, page > 0 ? page : 1, size > 0 ? size : 50, total);
@@ -282,13 +287,18 @@ public class LeaveLedgerService {
         if (employeeId != null) params.put("employee_id", employeeId);
         if (leaveTypeId != null) params.put("leave_type_id", leaveTypeId);
         if (entryType != null && !entryType.isBlank()) params.put("entry_type", entryType);
-        params.put("page", page > 0 ? page : 1);
+        params.put("page", page > 0 ? page - 1 : 0);
         params.put("size", size > 0 ? size : 50);
 
         PluginQueryResult result = client.query("attendance.leave_ledger.list", params);
+        Map<UUID, String> names = loadEmployeeNames();
         List<LeaveLedgerEntryDto> list = new ArrayList<>();
         for (Map<String, Object> row : result.rows()) {
-            list.add(mapLedgerRow(row));
+            LeaveLedgerEntryDto entry = mapLedgerRow(row);
+            list.add(new LeaveLedgerEntryDto(entry.id(), entry.employeeId(), entry.leaveTypeId(),
+                    entry.entryType(), entry.days(), entry.validUntil(), entry.sourceRequestId(),
+                    entry.source(), entry.note(), entry.createdBy(), entry.createdAt(),
+                    names.get(entry.employeeId())));
         }
         long total = result.totalRows() > 0 ? result.totalRows() : list.size();
         return PagedData.of(list, page > 0 ? page : 1, size > 0 ? size : 50, total);
@@ -326,6 +336,33 @@ public class LeaveLedgerService {
         return expiredCount;
     }
 
+    private Map<UUID, String> loadEmployeeNames() {
+        Map<UUID, String> names = new LinkedHashMap<>();
+        for (Map<String, Object> row : PluginDataPager.listAll(client, "attendance.employee_ref.list_all",
+                Map.of(), 500)) {
+            if (row.get("employee_id") != null) {
+                names.put(UUID.fromString(row.get("employee_id").toString()),
+                        row.get("full_name") != null ? row.get("full_name").toString() : null);
+            }
+        }
+        return names;
+    }
+
+    /** Gateway may surface NUMERIC as String or Number; accept both. */
+    private static double toDouble(Object value, double fallback) {
+        if (value == null) {
+            return fallback;
+        }
+        if (value instanceof Number number) {
+            return number.doubleValue();
+        }
+        try {
+            return Double.parseDouble(value.toString());
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
+    }
+
     private LeaveTypeDto mapLeaveTypeRow(Map<String, Object> row) {
         UUID id = UUID.fromString(row.get("id").toString());
         String code = (String) row.get("code");
@@ -334,9 +371,9 @@ public class LeaveLedgerService {
         boolean countsAsWork = Boolean.TRUE.equals(row.get("counts_as_work"));
         boolean deductBalance = Boolean.TRUE.equals(row.get("deduct_balance"));
         boolean allowNegative = Boolean.TRUE.equals(row.get("allow_negative"));
-        int carryOver = row.get("carry_over_max_days") != null ? ((Number) row.get("carry_over_max_days")).intValue() : 0;
-        Integer validity = row.get("validity_months") != null ? ((Number) row.get("validity_months")).intValue() : null;
-        Double annualGrant = row.get("default_annual_grant") != null ? ((Number) row.get("default_annual_grant")).doubleValue() : null;
+        int carryOver = (int) toDouble(row.get("carry_over_max_days"), 0);
+        Integer validity = row.get("validity_months") != null ? (int) toDouble(row.get("validity_months"), 0) : null;
+        Double annualGrant = row.get("default_annual_grant") != null ? toDouble(row.get("default_annual_grant"), 0) : null;
         boolean isActive = Boolean.TRUE.equals(row.get("is_active"));
         Instant createdAt = row.get("created_at") != null ? Instant.parse(row.get("created_at").toString()) : Instant.now();
         Instant updatedAt = row.get("updated_at") != null ? Instant.parse(row.get("updated_at").toString()) : Instant.now();
@@ -349,7 +386,7 @@ public class LeaveLedgerService {
         UUID empId = UUID.fromString(row.get("employee_id").toString());
         UUID ltId = UUID.fromString(row.get("leave_type_id").toString());
         LeaveLedgerEntryType type = LeaveLedgerEntryType.valueOf(row.get("entry_type").toString());
-        double days = ((Number) row.get("days")).doubleValue();
+        double days = toDouble(row.get("days"), 0);
         LocalDate validUntil = row.get("valid_until") != null ? LocalDate.parse(row.get("valid_until").toString()) : null;
         UUID reqId = row.get("source_request_id") != null ? UUID.fromString(row.get("source_request_id").toString()) : null;
         LeaveLedgerSource src = row.get("source") != null ? LeaveLedgerSource.valueOf(row.get("source").toString()) : LeaveLedgerSource.HR;
@@ -357,6 +394,6 @@ public class LeaveLedgerService {
         UUID createdBy = row.get("created_by") != null ? UUID.fromString(row.get("created_by").toString()) : null;
         Instant createdAt = row.get("created_at") != null ? Instant.parse(row.get("created_at").toString()) : Instant.now();
 
-        return new LeaveLedgerEntryDto(id, empId, ltId, type, days, validUntil, reqId, src, note, createdBy, createdAt);
+        return new LeaveLedgerEntryDto(id, empId, ltId, type, days, validUntil, reqId, src, note, createdBy, createdAt, null);
     }
 }

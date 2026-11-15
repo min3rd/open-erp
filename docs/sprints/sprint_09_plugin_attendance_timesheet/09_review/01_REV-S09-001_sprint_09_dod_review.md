@@ -3,11 +3,11 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | REV-S09-001 / Sprint review & DoD / Sprint 09 |
-| Trạng thái / phiên bản / ngày | **SẴN SÀNG ĐÓNG (READY TO CLOSE)** / 1.0 / 2026-11-11 |
+| Trạng thái / phiên bản / ngày | **SẴN SÀNG ĐÓNG (READY TO CLOSE)** / 1.2 / 2026-11-14 |
 | Owner / reviewer | PM Agent / Chủ dự án (Product Owner) + Architect + QA |
 | Phạm vi | 23 AC của [CONF-S09-001](../04_confirmation/01_CONF-S09-001_sprint_09_scope_and_ac.md) 1.0; FEAT-43…47; Plugin `attendance` trọn gói |
 | Baseline | `plugin-attendance-1.0.0.jar`, UI bundle `main.js` (410KB) + `styles.css` (95KB) |
-| Evidence | [TR-S09-001](../08_testing/02_TR-S09-001_sprint_09_test_report.md) 1.0, [UG-S09-001](../../../06_user_guides/sprint_09_attendance_timesheet_user_guide.md); backend suite 116/116 PASS; i18n 100.0% strict parity 13 ngôn ngữ; 29 ảnh chụp màn hình Browser Desktop/Mobile |
+| Evidence | [TR-S09-001](../08_testing/02_TR-S09-001_sprint_09_test_report.md) 1.0, [TR-S09-003](../08_testing/04_TR-S09-003_db_role_ui_retest_report.md) 1.0, [UG-S09-001](../../../06_user_guides/sprint_09_attendance_timesheet_user_guide.md); backend DB-backed 260 test (0F/0E, 1 skip); i18n 100.0%; role screens + ảnh browser |
 
 ---
 
@@ -54,7 +54,7 @@ Sprint 09 bàn giao trọn gói **Plugin Chấm công, Bảng công & Đơn từ
 | **FEAT-44** | Timesheets 4 bước, confirmations, lock/unlock, payroll export, reports | ✅ Done | 100/100 test PASS; `TimesheetServiceTest`, `ExportTemplateServiceTest`, `AttendanceReportServiceTest` |
 | **FEAT-45** | Requests seed 6 types, fallback approval, MappingExecutor, inbox split-view | ✅ Done | 116/116 test PASS; `RequestServiceTest`, `RequestMappingExecutorTest`, `RequestTypeServiceTest` |
 | **FEAT-46** | Leave module: LeaveTypes, append-only ledger, derive balance, expiry job | ✅ Done | 116/116 test PASS; `LeaveLedgerServiceTest`, `LeaveAdminResourceTest` |
-| **FEAT-47** | UI WebComponent + Mobile Ionic 5-tab + Dual-mode browser testing | ✅ Done | Build clean (0 lỗi), 29 ảnh minh chứng (21 Desktop + 8 Mobile), 0 console.error, 0 overflow, 100% i18n |
+| **FEAT-47** | UI WebComponent + Mobile Ionic + Dual-mode browser testing + pagination/context menu + role-based tabs + my-timesheet | ✅ Done | TASK-459…463; build 0 warning; ảnh minh chứng gồm 4 role + Bảng công của tôi + kiosk access denied; 0 console.error, 0 overflow, 100% i18n |
 | **DoD Gate** | Trạng thái | Đạt | Toàn bộ 29 kịch bản màn hình chức năng đạt chuẩn |
 
 ---
@@ -65,7 +65,9 @@ Sprint 09 bàn giao trọn gói **Plugin Chấm công, Bảng công & Đơn từ
 | :--- | :--- | :---: | :---: |
 | **Bug Critical / High tồn đọng** | 0 item | **0** | ✅ **PASS** |
 | **Bug Medium tồn đọng** | 0 item ảnh hưởng | **0** | ✅ **PASS** |
-| **Backend Tests (No H2, Real DB)** | 100% PASS | **116 / 116 PASS** | ✅ **PASS** |
+| **Backend Tests (No H2)** | 100% PASS | **260 test, 0 failures, 0 errors, 1 skip** trên PostgreSQL/Redis thật; plugin unit 118/118 | ✅ **PASS** |
+| **DB Schema (PostgreSQL thật)** | 20 bảng apply sạch | **20/20 bảng**, unique constraint PASS | ✅ **PASS** |
+| **Re-test 2026-11-14 (TR-S09-003)** | Không regression | **DB 260 test, plugin 118/118, role + Bảng công của tôi, kiosk token/branch isolation, pagination/context menu, 0 console.error/overflow** | ✅ **PASS** |
 | **Frontend WebComponent Build** | Build clean | **SUCCESS** (`main.js` + `styles.css`) | ✅ **PASS** |
 | **Frontend Web App Build** | Build clean | **SUCCESS** (`npm run web:build`) | ✅ **PASS** |
 | **Frontend Mobile Ionic Build** | Build clean | **SUCCESS** (`npm run mobile:build`) | ✅ **PASS** |
@@ -80,5 +82,11 @@ Sprint 09 bàn giao trọn gói **Plugin Chấm công, Bảng công & Đơn từ
 
 ## 4. Kết luận & Đề xuất
 
-Sprint 09 đã hoàn thành xuất sắc toàn bộ khối lượng công việc theo thiết kế được duyệt. Hệ thống sẵn sàng để Chủ dự án kiểm tra và ký duyệt đóng Sprint 09.
+Sprint 09 đã hoàn thành toàn bộ khối lượng công việc theo thiết kế được duyệt. Vòng DB test ngày 2026-11-14 phát hiện và đã sửa 2 lỗi High: migration `V8.0.1` dùng sai cột `created_at` (BUG-183) và default plugin provisioning làm rollback transaction đăng ký tenant (BUG-184). Sau sửa: **260 test, 0 failures, 0 errors, 1 skip** trên PostgreSQL/Redis thật.
+
+UI được bổ sung theo phản hồi chủ dự án: phân trang cho 11 bảng dữ liệu lớn, context menu chức năng cho 12 loại hàng (TASK-462), và lọc tab/KPI theo 4 vai trò Employee/Line Manager/HR Admin/System Admin kèm ảnh QA (TASK-463). Attendance UI build sạch 0 warning.
+
+Các mục Medium còn theo dõi trước production: bổ sung `plugin_versions` PUBLISHED cho `employee` và migration bundle `org-structure`; integration test DB thật cho plugin `attendance`; xử lý trùng mã `TASK-464…448`; fake geolocation để chụp ảnh GPS ngoài bán kính. Chi tiết tại [TR-S09-003](../08_testing/04_TR-S09-003_db_role_ui_retest_report.md).
+
+Hệ thống sẵn sàng để Chủ dự án kiểm tra và ký duyệt đóng Sprint 09.
 

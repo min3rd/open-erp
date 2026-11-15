@@ -14,9 +14,15 @@ const USER_KEY = 'openerp_user';
 export const authHeaderInterceptor: HttpInterceptorFn = (req, next) => {
   const token = localStorage.getItem(TOKEN_KEY);
   const sessionId = localStorage.getItem(SESSION_ID_KEY);
+  const publicPluginToken =
+    typeof window !== 'undefined' ? (window as unknown as { __opPluginToken?: string }).__opPluginToken : undefined;
 
   let authReq = req;
-  if (token || sessionId) {
+  if (publicPluginToken && req.url.includes('/api/v1/plugins/runtime/')) {
+    // Anonymous public surfaces (e.g. kiosk) mint a short-lived, device-scoped
+    // plugin token; prefer it over any stale core session on the same origin.
+    authReq = req.clone({ setHeaders: { 'X-Plugin-Token': publicPluginToken } });
+  } else if (token || sessionId) {
     const headers: Record<string, string> = {};
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;

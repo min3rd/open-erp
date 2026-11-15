@@ -88,7 +88,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     '/api/v1/auth/refresh',
     '/api/v1/auth/resend-verification',
     '/api/v1/auth/2fa/verify-login',
-    '/api/v1/auth/select-tenant'
+    '/api/v1/auth/select-tenant',
+    '/api/v1/plugins/public-session/'
   ];
   const isPublicAuthRequest = PUBLIC_AUTH_PATHS.some((path) => req.url.includes(path));
 
@@ -104,7 +105,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: unknown) => {
       const isUnauthorized = error instanceof HttpErrorResponse && error.status === 401;
       const isAuthEndpoint = req.url.includes('/api/v1/auth/');
+      const isPublicSession = req.url.includes('/api/v1/plugins/public-session/');
       const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+
+      if (isPublicSession) {
+        return throwError(() => error);
+      }
 
       if (impersonationToken) {
         if (isUnauthorized) {

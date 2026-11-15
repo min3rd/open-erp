@@ -6,7 +6,10 @@ import com.vn9melody.openerp.modules.plugin.model.PluginCatalog;
 import com.vn9melody.openerp.modules.plugin.model.PluginVersion;
 import com.vn9melody.openerp.modules.plugin.repository.PluginCatalogRepository;
 import com.vn9melody.openerp.modules.plugin.repository.PluginVersionRepository;
+import io.quarkus.narayana.jta.QuarkusTransaction;
+import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -54,6 +57,47 @@ public class PluginProvisioningService {
             defaultValue = "00000000-0000-0000-0000-000000000001")
     String systemTenantId;
 
+    @ConfigProperty(name = "openerp.plugin.provisioning.reconcile-on-startup", defaultValue = "true")
+    boolean reconcileOnStartup;
+
+    /**
+     * Backfills locked default plugins for tenants created before provisioning
+     * was introduced (or whose best-effort install failed). Only tenants that
+     * are missing at least one ACTIVE locked default are touched.
+     */
+    void reconcileTenantDefaults(@Observes StartupEvent event) {
+        if (!reconcileOnStartup) {
+            return;
+        }
+        try {
+            @SuppressWarnings("unchecked")
+            List<Object> tenantIds = QuarkusTransaction.requiringNew().call(() ->
+                    entityManager.createNativeQuery("""
+                            select t.id from tenants t
+                            where t.status = 'ACTIVE' and t.id <> :systemTenant
+                              and exists (
+                                select 1 from plugin_catalog c
+                                where c.default_install = true and c.locked = true
+                                  and c.catalog_status = 'ACTIVE'
+                                  and not exists (
+                                    select 1 from tenant_plugins tp
+                                    where tp.tenant_id = t.id and tp.plugin_key = c.plugin_key
+                                      and tp.status = 'ACTIVE'
+                                  )
+                              )
+                            """)
+                            .setParameter("systemTenant", UUID.fromString(systemTenantId))
+                            .getResultList());
+            for (Object id : tenantIds) {
+                UUID tenantId = UUID.fromString(id.toString());
+                LOG.infof("Backfilling default plugins for tenant %s", tenantId);
+                provisionDefaults(tenantId);
+            }
+        } catch (RuntimeException e) {
+            LOG.warnf("Default plugin reconciliation failed: %s", e.getMessage());
+        }
+    }
+
     @Transactional
     public int provisionDefaults(UUID tenantId) {
         if (tenantId == null || tenantId.toString().equals(systemTenantId)) {
@@ -67,12 +111,24 @@ public class PluginProvisioningService {
         int provisioned = 0;
         for (PluginCatalog catalog : sorted) {
             try {
-                if (!entitlementService.grantIfExists(tenantId, catalog.pluginKey)) {
+                // Commit the entitlement ledger before the install saga runs in its
+                // own transaction; otherwise the new transaction cannot see the row
+                // and install() fails with PLUGIN_NOT_ENTITLED.
+                Boolean granted = QuarkusTransaction.requiringNew().call(() -> {
+                    if (!entitlementService.grantIfExists(tenantId, catalog.pluginKey)) {
+                        return false;
+                    }
+                    ensureAllowedPlugin(tenantId, catalog.pluginKey);
+                    return true;
+                });
+                if (!Boolean.TRUE.equals(granted)) {
                     continue;
                 }
-                ensureAllowedPlugin(tenantId, catalog.pluginKey);
                 if (catalog.locked) {
-                    lifecycleService.install(tenantId, catalog.pluginKey, null, null);
+                    // Best-effort provisioning: a failed default plugin must not
+                    // mark the caller's transaction (tenant registration) rollback-only.
+                    QuarkusTransaction.requiringNew()
+                            .run(() -> lifecycleService.install(tenantId, catalog.pluginKey, null, null));
                 }
                 provisioned++;
             } catch (RuntimeException e) {

@@ -15,6 +15,7 @@ import com.vn9melody.openerp.plugins.attendance.dto.RequestDtos.*;
 import com.vn9melody.openerp.plugins.attendance.model.ApprovalMode;
 import com.vn9melody.openerp.plugins.attendance.model.MappingStatus;
 import com.vn9melody.openerp.plugins.attendance.model.RequestStatus;
+import com.vn9melody.openerp.plugins.attendance.service.PluginDataPager;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -42,6 +43,9 @@ public class RequestService {
 
     @Inject
     ObjectMapper objectMapper;
+
+    @Inject
+    AttendanceAuditService auditService;
 
     public RequestDto submitRequest(UUID subjectEmployeeId, UUID currentUserId, RequestSubmitRequest req) {
         if (req == null || req.requestTypeCode() == null || req.requestTypeCode().isBlank()) {
@@ -95,6 +99,9 @@ public class RequestService {
         // Publish outbox event
         publishRequestCreatedEvent(id, requestCode, type.code(), subjectEmployeeId);
 
+        auditService.record("REQUEST_SUBMIT", "AttendanceRequest", id,
+                Map.of("code", requestCode, "type", type.code(), "target_date", targetDate.toString()));
+
         return getRequest(id);
     }
 
@@ -133,6 +140,12 @@ public class RequestService {
         updateParams.put("updated_at", Instant.now().toString());
 
         client.write("attendance.request.update_status", updateParams);
+
+        auditService.record(newStatus == RequestStatus.APPROVED ? "REQUEST_APPROVE" : "REQUEST_REJECT",
+                "AttendanceRequest", requestId,
+                Map.of("code", existing.code(), "type", existing.requestTypeCode(),
+                        "mapping_status", mappingStatus.name()));
+
         return getRequest(requestId);
     }
 
@@ -162,6 +175,11 @@ public class RequestService {
         updateParams.put("updated_at", Instant.now().toString());
 
         client.write("attendance.request.update_status", updateParams);
+
+        auditService.record(approved ? "WORKFLOW_APPROVE" : "WORKFLOW_REJECT",
+                "AttendanceRequest", requestId,
+                Map.of("code", existing.code(), "type", existing.requestTypeCode(),
+                        "mapping_status", mappingStatus.name()));
     }
 
     public RequestDto getRequest(UUID id) {
@@ -170,20 +188,33 @@ public class RequestService {
             throw new ApiException(404, AttendanceErrorCode.ATTENDANCE_REQUEST_NOT_FOUND,
                     "Request not found", Map.of("id", id.toString()));
         }
-        return mapRequestRow(result.rows().get(0));
+        return mapRequestRow(result.rows().get(0), employeeNames());
+    }
+
+    private Map<UUID, String> employeeNames() {
+        Map<UUID, String> names = new LinkedHashMap<>();
+        for (Map<String, Object> row : PluginDataPager.listAll(client, "attendance.employee_ref.list_all",
+                Map.of(), 500)) {
+            if (row.get("employee_id") != null) {
+                names.put(UUID.fromString(row.get("employee_id").toString()),
+                        row.get("full_name") != null ? row.get("full_name").toString() : "");
+            }
+        }
+        return names;
     }
 
     public PagedData<RequestDto> getMyRequests(UUID employeeId, String status, String typeCode, int page, int size) {
         Map<String, Object> params = new LinkedHashMap<>();
         params.put("subject_employee_id", employeeId);
         if (status != null && !status.isBlank()) params.put("status", status);
-        params.put("page", page > 0 ? page : 1);
+        params.put("page", page > 0 ? page - 1 : 0);
         params.put("size", size > 0 ? size : 20);
 
         PluginQueryResult result = client.query("attendance.request.list", params);
+        Map<UUID, String> names = employeeNames();
         List<RequestDto> items = new ArrayList<>();
         for (Map<String, Object> row : result.rows()) {
-            items.add(mapRequestRow(row));
+            items.add(mapRequestRow(row, names));
         }
         long total = result.totalRows() > 0 ? result.totalRows() : items.size();
         return PagedData.of(items, page > 0 ? page : 1, size > 0 ? size : 20, total);
@@ -192,13 +223,14 @@ public class RequestService {
     public PagedData<RequestDto> getInboxRequests(UUID approverEmployeeId, int page, int size) {
         Map<String, Object> params = new LinkedHashMap<>();
         params.put("status", RequestStatus.PENDING.name());
-        params.put("page", page > 0 ? page : 1);
+        params.put("page", page > 0 ? page - 1 : 0);
         params.put("size", size > 0 ? size : 20);
 
         PluginQueryResult result = client.query("attendance.request.list", params);
+        Map<UUID, String> names = employeeNames();
         List<RequestDto> items = new ArrayList<>();
         for (Map<String, Object> row : result.rows()) {
-            items.add(mapRequestRow(row));
+            items.add(mapRequestRow(row, names));
         }
         long total = result.totalRows() > 0 ? result.totalRows() : items.size();
         return PagedData.of(items, page > 0 ? page : 1, size > 0 ? size : 20, total);
@@ -281,7 +313,7 @@ public class RequestService {
         } catch (Exception ignored) {}
     }
 
-    private RequestDto mapRequestRow(Map<String, Object> row) {
+    private RequestDto mapRequestRow(Map<String, Object> row, Map<UUID, String> employeeNames) {
         UUID id = UUID.fromString(row.get("id").toString());
         UUID typeId = UUID.fromString(row.get("request_type_id").toString());
         String code = (String) row.get("code");
@@ -310,7 +342,8 @@ public class RequestService {
         } catch (Exception ignored) {}
 
         return new RequestDto(
-                id, code, typeId, typeCode, typeName, subjectEmpId, "",
+                id, code, typeId, typeCode, typeName, subjectEmpId,
+                employeeNames.getOrDefault(subjectEmpId, ""),
                 submittedUserId, formVersion, resp, status, wfInstanceId,
                 approvalMode, fallbackApprover, fallbackComment, affectedWindow,
                 mappingStatus, mappingError, createdAt, updatedAt

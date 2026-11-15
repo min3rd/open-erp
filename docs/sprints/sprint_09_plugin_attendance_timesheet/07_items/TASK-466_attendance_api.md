@@ -1,12 +1,12 @@
-# [TASK-447] REST API: Chấm công Self, Quản trị Ca, Lịch, Lễ & Records
+# [TASK-466] REST API: Chấm công Self, Quản trị Ca, Lịch, Lễ & Records
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / loại / sprint | TASK-447 / Task / Sprint 09 |
+| ID / loại / sprint | TASK-466 / Task / Sprint 09 |
 | Severity / trạng thái | High / **Done (dev)** — REST API Chấm công, Kiosk, Quản trị Ca & Records hoàn tất, 100% tests PASS |
 | Owner/agent / reviewer | Developer / QA |
 | Cập nhật / input version | 2026-11-11 / [DES-API-S09-001](../06_designs/api/01_DES-API-S09-001_attendance_api.md) 1.0, [DES-ARCH-S09-001](../06_designs/arch/01_DES-ARCH-S09-001_components_and_flows.md) 1.0 |
-| depends_on / blocks / parent | TASK-445, TASK-446 / [FEAT-44](FEAT-44_attendance_timesheets.md), [FEAT-45](FEAT-45_attendance_request_forms.md) / [FEAT-43](FEAT-43_attendance_core_shifts_ingestion_calc.md) |
+| depends_on / blocks / parent | TASK-464, TASK-465 / [FEAT-44](FEAT-44_attendance_timesheets.md), [FEAT-45](FEAT-45_attendance_request_forms.md) / [FEAT-43](FEAT-43_attendance_core_shifts_ingestion_calc.md) |
 | Write scope | `plugins/attendance/src/main/java/**/resource/**`, `plugins/attendance/src/main/java/**/dto/**` |
 
 ## 1. Mục tiêu

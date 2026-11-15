@@ -142,6 +142,12 @@ class RequestServiceTest {
         setField(requestService, "leaveLedgerService", leaveLedgerService);
         setField(requestService, "mappingExecutor", mappingExecutor);
         setField(requestService, "objectMapper", objectMapper);
+        setField(requestService, "auditService", new AttendanceAuditService() {
+            @Override
+            public void record(String action, String entityType, UUID entityId, Map<String, Object> detail) {
+                // no-op for unit test
+            }
+        });
     }
 
     private void setField(Object target, String fieldName, Object value) throws Exception {

@@ -80,7 +80,8 @@ public final class LeaveDtos {
             @JsonProperty("used") double used,
             @JsonProperty("remaining") double remaining,
             @JsonProperty("expiring") double expiring,
-            @JsonProperty("recomputed_at") Instant recomputedAt
+            @JsonProperty("recomputed_at") Instant recomputedAt,
+            @JsonProperty("employee_name") String employeeName
     ) {}
 
     public record LeaveLedgerEntryDto(
@@ -94,7 +95,8 @@ public final class LeaveDtos {
             @JsonProperty("source") LeaveLedgerSource source,
             @JsonProperty("note") String note,
             @JsonProperty("created_by") UUID createdBy,
-            @JsonProperty("created_at") Instant createdAt
+            @JsonProperty("created_at") Instant createdAt,
+            @JsonProperty("employee_name") String employeeName
     ) {}
 }
 

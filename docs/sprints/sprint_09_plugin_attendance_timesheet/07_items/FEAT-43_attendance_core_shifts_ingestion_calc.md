@@ -21,9 +21,9 @@ AC truy vết: AC-A01…A07, AC-S01…S04, AC-C01…C03, AC-M01 (phần chấm m
 | :--- | :--- | :--- |
 | [TASK-443](TASK-443_attendance_scaffold_schema.md) | Scaffold module + plugin.json + migration V1 + registry | Done (dev) |
 | [TASK-444](TASK-444_attendance_engines_pure.md) | Engine thuần ShiftResolver + AttendanceCalculator + unit test | Done (dev) |
-| [TASK-445](TASK-445_attendance_ingestion_multi_source.md) | Ingestion 5 nguồn + kiosk + import + push Core | Done (dev) |
-| [TASK-446](TASK-446_attendance_calc_job.md) | CalcJob + hanging check + override + ot_windows | Done (dev) |
-| [TASK-447](TASK-447_attendance_api.md) | API self check-in + admin logs/records | Done (dev) |
+| [TASK-464](TASK-464_attendance_ingestion_multi_source.md) | Ingestion 5 nguồn + kiosk + import + push Core | Done (dev) |
+| [TASK-465](TASK-465_attendance_calc_job.md) | CalcJob + hanging check + override + ot_windows | Done (dev) |
+| [TASK-466](TASK-466_attendance_api.md) | API self check-in + admin logs/records | Done (dev) |
 
 ## 3. Lịch sử
 

@@ -17,7 +17,7 @@ Timesheets theo kỳ + đơn vị + wage_calc_mode (Q8); vòng đời 4 bước 
 
 | TASK | Nội dung | Trạng thái |
 | :--- | :--- | :--- |
-| [TASK-448](TASK-448_attendance_timesheet_lifecycle.md) | Timesheets CRUD + 4 bước + snapshot | Done |
+| [TASK-467](TASK-467_attendance_timesheet_lifecycle.md) | Timesheets CRUD + 4 bước + snapshot | Done |
 | [TASK-449](TASK-449_attendance_confirmations_lock.md) | Confirmations + lock/unlock + notification | Done |
 | [TASK-450](TASK-450_attendance_export_payroll.md) | Export templates + Excel/CSV payroll-ready | Done |
 | [TASK-451](TASK-451_attendance_reports.md) | Reports summary/team/top-late | Done |
@@ -26,5 +26,5 @@ Timesheets theo kỳ + đơn vị + wage_calc_mode (Q8); vòng đời 4 bước 
 
 | Phiên bản | Ngày | Thay đổi |
 | :--- | :--- | :--- |
-| 1.0 | 2026-11-11 | Hoàn tất hiện thực FEAT-44 (TASK-448..451) + 100/100 test PASS |
-| 0.1 | 2026-11-02 | Khởi tạo + reservation TASK-448…451 |
+| 1.0 | 2026-11-11 | Hoàn tất hiện thực FEAT-44 (TASK-467..451) + 100/100 test PASS |
+| 0.1 | 2026-11-02 | Khởi tạo + reservation TASK-467…451 |

@@ -279,6 +279,7 @@ services:
       - ./plugins/in-app-notification/migrations:/deploy/plugin-migrations/in-app-notification:ro
       - ./plugins/form/migrations:/deploy/plugin-migrations/form:ro
       - ./plugins/workflow/migrations:/deploy/plugin-migrations/workflow:ro
+      - ./plugins/attendance/migrations:/deploy/plugin-migrations/attendance:ro
       - plugin_certs:/deploy/certs:ro
       - backend_storage:/tmp/openerp-object-storage
     # The socket is root:root 0660 on Docker Desktop; grant the dev user the
