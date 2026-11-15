@@ -10,6 +10,7 @@
 - **Bảng dữ liệu đậm đặc (Dense Data Tables)**:
   - Chiều cao dòng chuẩn: `28px` đến `34px`.
   - Căn số sang phải, text sang trái, badge trạng thái nhỏ gọn.
+  - Cấu trúc cuộn tối ưu: **cố định Header (`thead`) và Footer (`tfoot` / thanh phân trang - tổng hợp)**, chỉ cuộn phần nội dung dữ liệu (`tbody`) bên trong khung bảng (chi tiết tại Mục 7).
 
 ## 2. Thiết Kế Vuông Vắn & Hiện Đại (Sharp / Squared Aesthetic)
 - **Góc cạnh sắc nét**:
@@ -73,3 +74,27 @@
 - **Kiosk / màn hình cảm ứng**:
   - Ưu tiên icon + `aria-label`, nhãn chữ ngắn; không hiển thị badge/notice kỹ thuật không cần thiết.
   - Tối ưu diện tích chạm, tránh card quá lớn hoặc khoảng trống dư thừa.
+
+## 7. Quy Chuẩn Màn Hình Dữ Liệu & Bảng ERP Toàn Diện (Data View & Table Invariant)
+
+Mọi màn hình hiển thị danh sách/dữ liệu nghiệp vụ và component bảng dùng chung (`@shared/*`) **bắt buộc** đáp ứng đồng bộ 2 nhóm tiêu chuẩn sau (tuyệt đối không cài thư viện table bên thứ 3):
+
+### 7.1. Màn hình hiển thị dữ liệu (Configurable Data Views)
+- **Lọc & Sắp xếp tùy biến (Filter & Sort)**:
+  - Mọi màn hình dữ liệu đều phải có thanh/bộ lọc nhiều tiêu chí (tìm kiếm nhanh, lọc theo trạng thái/khoảng thời gian/loại...) và cơ chế sắp xếp (`ASC`/`DESC`) theo cột.
+  - Mọi trạng thái lọc, sắp xếp, trang và kích thước trang **bắt buộc đồng bộ hai chiều lên URL** qua Angular Router (theo Mục 3 — Route-Driven State).
+- **Tùy chỉnh hiển thị cột & số lượng hàng**:
+  - Hỗ trợ người dùng **bật/tắt ẩn-hiện các cột** (kiểm soát số lượng cột hiển thị).
+  - Hỗ trợ người dùng **thay đổi thứ tự các cột** hiển thị (kéo thả trực tiếp trên header cột hoặc sắp xếp lại thứ tự trong bảng cấu hình cột + nút **Khôi phục mặc định**).
+  - Hỗ trợ chọn **số lượng hàng hiển thị mỗi trang** (ví dụ `20 / 50 / 100` dòng/trang) phù hợp mật độ màn hình.
+  - Lưu bền vững cấu hình cột/mật độ theo màn hình/người dùng (`localStorage` hoặc user preference) để giữ nguyên thiết lập khi quay lại.
+
+### 7.2. Thành phần Table (`@shared/*` Data Table Architecture)
+- **Cố định Header & Footer — Chỉ Scroll Content bên trong**:
+  - Khung bảng phải thiết kế `flex-col` / vùng cuộn độc lập sao cho **Header cột (`thead`) luôn cố định phía trên (`sticky top-0 z-10`)** và **Footer (`tfoot` tổng hợp / thanh phân trang - đếm bản ghi) luôn cố định phía dưới**.
+  - **Chỉ vùng nội dung các dòng dữ liệu (`tbody` / container nội bộ)** được phép cuộn dọc (và cuộn ngang có kiểm soát khi vượt bề rộng), tuyệt đối không để cuộn cả trang làm trôi mất Header hoặc thanh phân trang.
+- **Đổi thứ tự cột, Lọc & Sắp xếp trực tiếp trên Table**:
+  - Cho phép click header cột để chuyển trạng thái sắp xếp (`NONE` → `ASC` → `DESC`), mở bộ lọc cột hoặc đồng bộ thanh filter, và đổi thứ tự cột trực tiếp.
+- **Context Menu Bắt Buộc (Right-Click Row / Cell / Header Menu)**:
+  - Mọi bảng dữ liệu nghiệp vụ bắt buộc hỗ trợ **Context Menu (`contextmenu`)** cung cấp đầy đủ các chức năng thao tác khả dụng (theo quyền của người dùng), bao gồm tối thiểu: Xem chi tiết / Mở Drawer, Sửa, Sao chép giá trị/mã, Thao tác nghiệp vụ (Duyệt/Từ chối/Khóa/Mở khóa...), Xóa/Lưu trữ, Lọc nhanh theo giá trị ô đang chọn, Sắp xếp, Cấu hình cột.
+  - Context Menu phải tuân thủ **Zero-Emoji**, icon SVG độc lập, **100% i18n**, đóng bằng `Esc` hoặc click ra ngoài, tự định vị không tràn mép viewport; trên Mobile (`390x844px`) phải có nút hành động/menu chạm tối thiểu `>= 40px` thay thế thao tác chuột phải mà vẫn không tràn ngang (`overflow = 0`).

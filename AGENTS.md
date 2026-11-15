@@ -1,166 +1,85 @@
 # Project Guidelines & Agent Instructions
 
-Dự án này áp dụng quy trình phát triển phần mềm chuẩn mực 9 bước với mô hình **Multi-Agent hướng tài liệu (Docs-driven SDLC)**.
-
-Tất cả các Agent khi tham gia vào dự án này bắt buộc phải tuân thủ nghiêm ngặt các quy tắc trong:
-- Quy tắc cốt lõi & Master Index: [.agents/rules/sdlc_process.md](.agents/rules/sdlc_process.md)
-- Bộ quy tắc chuyên biệt theo vai trò & lĩnh vực:
-  - Quy trình Agile & DoD Gate: [.agents/rules/core_sdlc.md](.agents/rules/core_sdlc.md)
-  - Phối hợp agent, quyền ghi & bàn giao: [.agents/rules/agent_collaboration.md](.agents/rules/agent_collaboration.md)
-  - Đánh số, phiên bản & cách viết tài liệu: [.agents/rules/documentation_standards.md](.agents/rules/documentation_standards.md)
-  - BA Agent: [.agents/rules/agent_ba.md](.agents/rules/agent_ba.md)
-  - Solution Architect: [.agents/rules/agent_architect.md](.agents/rules/agent_architect.md)
-  - Developer Agent: [.agents/rules/agent_developer.md](.agents/rules/agent_developer.md)
-  - QA/QC Agent: [.agents/rules/agent_qa.md](.agents/rules/agent_qa.md)
-  - PM Agent: [.agents/rules/agent_pm.md](.agents/rules/agent_pm.md)
-  - Quy chuẩn UI/UX ERP: [.agents/rules/ui_ux_standards.md](.agents/rules/ui_ux_standards.md)
-  - Quy chuẩn API & i18n: [.agents/rules/api_standards.md](.agents/rules/api_standards.md)
-- Playbook kỹ năng: [.agents/skills/sdlc-workflow/SKILL.md](.agents/skills/sdlc-workflow/SKILL.md)
-- Cấu trúc tài liệu dự án: [docs/README.md](docs/README.md)
+Dự án áp dụng mô hình **Multi-Agent hướng tài liệu (Docs-driven SDLC 9 bước)**. Mọi Agent bắt buộc tuân thủ:
+- Master Index: [.agents/rules/sdlc_process.md](.agents/rules/sdlc_process.md) | Tài liệu dự án: [docs/README.md](docs/README.md) | Skill: [.agents/skills/sdlc-workflow/SKILL.md](.agents/skills/sdlc-workflow/SKILL.md)
+- Bộ quy tắc chuyên biệt: [core_sdlc](.agents/rules/core_sdlc.md) · [agent_collaboration](.agents/rules/agent_collaboration.md) · [documentation_standards](.agents/rules/documentation_standards.md) · [agent_ba](.agents/rules/agent_ba.md) · [agent_architect](.agents/rules/agent_architect.md) · [agent_developer](.agents/rules/agent_developer.md) · [agent_qa](.agents/rules/agent_qa.md) · [agent_pm](.agents/rules/agent_pm.md) · [ui_ux_standards](.agents/rules/ui_ux_standards.md) · [api_standards](.agents/rules/api_standards.md)
 
 ## Điều Phối & Tài Liệu Cho Người Đọc
-- Agent điều phối cấp ID và cập nhật index; mỗi file chỉ có một writer tại một thời điểm. Phân công có input/version, owner, write scope, dependency, output và cách kiểm chứng.
-- Mỗi item quản lý độc lập có file; FEAT dẫn link task con. Task inline lịch sử không tự được tính là file item Done.
-- Thứ tự đọc, ID và phiên bản riêng biệt. Tài liệu sprint mới dùng `<NN>_<TYPE>-S<XX>-<NNN>_<slug>.md`; item giữ mã toàn dự án `FEAT/TASK/BUG/REFACTOR-<n>`. Giữ tên/ID lịch sử, dùng alias có sprint trong reading guide.
-- Review/chỉnh docs theo yêu cầu làm ngay; không tạo approval sản phẩm. Fix scope đã duyệt dùng gate hiện có; đổi scope/AC phải xác nhận phần thay đổi.
-- Resolved hoặc build PASS không thay QA Done. Template mặc định Draft/Pending/Not Run; gate có nguồn/baseline/người quyết định.
-- Developer mới bắt đầu tại [Developer Reading Guide](docs/08_developer_guides/00_READING_GUIDE.md), rồi đọc sprint mục tiêu theo index của sprint.
+- Điều phối viên cấp ID & cập nhật index; mỗi file chỉ 1 writer tại một thời điểm; giao việc ghi rõ input/version, owner, write scope, dependency, output, kiểm chứng.
+- Mỗi item có file riêng trong `07_items/` (`FEAT/TASK/BUG/REFACTOR-<n>`); `FEAT` dẫn link task con; task inline lịch sử không tự tính là Done.
+- Tách thứ tự đọc, ID và version: tài liệu sprint mới dùng `<NN>_<TYPE>-S<XX>-<NNN>_<slug>.md`; giữ tên/ID lịch sử và dùng alias tại reading guide.
+- Chỉnh docs theo yêu cầu làm ngay, không tự tạo approval sản phẩm; sửa scope đã duyệt dùng gate cũ, đổi scope/AC phải xác nhận phần đổi. Resolved/build PASS không thay QA Done; gate phải ghi nguồn/baseline/người quyết định.
+- Dev mới bắt đầu từ [Developer Reading Guide](docs/08_developer_guides/00_READING_GUIDE.md) rồi đọc index sprint mục tiêu.
 
-## Tóm Tắt Quy Trình Bắt Buộc & Cấu Trúc Tài Liệu Sprint-Pack:
-Mỗi Sprint được đóng gói trọn gói trong `docs/sprints/sprint_XX_<tên_sprint>/` với thứ tự đọc tuần tự từ 00 đến 09:
-- **00. Bản đồ đọc & Xác nhận** (`00_READING_GUIDE.md`) - Cổng giao tiếp bắt đầu duy nhất cho Khách hàng & Reviewer
-- **01. Nhận yêu cầu truyền miệng** (`01_raw_notes/`) - Phụ trách: BA Agent
-- **02. Phân tích yêu cầu** (`02_analysis/`) - Phụ trách: BA Agent
-- **03. Tham khảo phần mềm tương tự** (`03_benchmarks/`) - Phụ trách: BA Agent
-- **04. Xác nhận với khách hàng** (`04_confirmation/`) - Phụ trách: BA Agent & Khách hàng ký duyệt (Confirmation Gate)
-- **05. Nghiên cứu giải pháp** (`05_solutions/`) - Phụ trách: Solution Architect
-- **06. Thiết kế giải pháp chi tiết** (`06_designs/`) - Phụ trách: Solution Architect (DB, API, UI)
-- **07. Phân rã nhiệm vụ & Lập trình** (`07_items/` & `src/`) - Phụ trách: Developer Agent
-- **08. Kiểm thử** (`08_testing/`) - Phụ trách: QA/QC Agent
-- **09. Nghiệm thu & Đóng Sprint** (`09_review/`) - Phụ trách: PM Agent
+## Quy Trình 9 Bước & Sprint-Pack (`docs/sprints/sprint_XX_<tên>/`)
+Toàn bộ bước 00–09 đóng gói trong thư mục Sprint (cấm xé lẻ ra ngoài), bắt buộc có `00_READING_GUIDE.md` và bảng Confirmation Checklist:
+`00_READING_GUIDE.md` → `01_raw_notes/` (BA) → `02_analysis/` (BA) → `03_benchmarks/` (BA) → `04_confirmation/` (BA & Khách hàng Gate) → `05_solutions/` (Architect) → `06_designs/` (Architect: DB/API/UI) → `07_items/` & `src/` (Developer) → `08_testing/` (QA/QC) → `09_review/` (PM DoD Gate).
+- **File-based Tracking**: Mọi task, bug, feature, refactor phải tách file riêng trong `07_items/`.
+- **Sprint DoD Gate**: Chỉ đóng Sprint khi **0 item** có mức độ `Critical` hoặc `High` còn tồn đọng.
 
-## Ràng Buộc Agile & Quản Lý Sprint (Agile Sprint Guardrails):
-- **Mô Hình Sprint-Pack Tuần Tự (Sprint-Pack Sequential Documentation)**: Toàn bộ tài liệu từ bước 1 đến bước 9 của một Sprint được đóng gói trọn gói trong thư mục `docs/sprints/sprint_XX_<tên_sprint>/`. Tuyệt đối không xé lẻ tài liệu Sprint ra các thư mục toàn cục. Mỗi Sprint bắt buộc có file `00_READING_GUIDE.md` dẫn dắt thứ tự đọc và chứa bảng xác nhận (Confirmation Checklist).
-- **Phân kỳ theo Sprint**: Dự án được bóc tách và triển khai theo từng Sprint nhỏ với mục tiêu và phạm vi rõ ràng.
-- **Quản lý Item dưới dạng file (File-based Tracking)**: Trong suốt quá trình phát triển, các agent luôn phải chủ động phát hiện và bổ sung các `task`, `bug`, `feature`, `refactor`... Mọi yêu cầu hay lỗi đều **phải được tạo thành file riêng trong `07_items/`** có trạng thái quản lý để tránh bỏ sót.
-- **Điều kiện đóng Sprint (Sprint DoD Gate)**: **1 Sprint CHỈ CÓ THỂ ĐÓNG khi KHÔNG CÒN các task, bug, issue ở mức độ nghiêm trọng LỚN HƠN MEDIUM** (nghĩa là 100% item mức `Critical` và `High` phải được xử lý xong).
-
-## Ràng Buộc Kiến Trúc Nền Tảng (Architectural Guardrails):
-- **Định Danh Hệ Thống & Domain Chuẩn**:
-  - Tên Package Backend chuẩn mực: `com.vn9melody.openerp`.
-  - Tên miền chính thức của hệ thống: `openerp.9ms.io.vn`.
-- **Nền tảng Microservices & Multi-tenant (SaaS)**: Phục vụ nhiều khách thuê (tenants), bắt buộc phân lập dữ liệu triệt để (Tenant Data Isolation), không được phép rò rỉ dữ liệu chéo.
-  - Phạm vi `tenant_id` là dữ liệu thuộc tenant: truy vấn, mutation, cache và message phải lấy tenant context đã xác thực, không tin tenant ID do client tự gửi. Auth/onboarding trước khi chọn workspace và quản trị platform toàn cục có scope riêng theo thiết kế; phải kiểm tra danh tính/quyền platform, không dùng scope toàn cục để bỏ lọc dữ liệu tenant. Truy cập tenant qua platform phải có phân quyền và audit rõ ràng.
-- **Tech Stack Chuẩn Mực**:
-  - **Backend**: **Quarkus** (ngôn ngữ chuẩn: **Java**, cloud-native microservices, package chuẩn `com.vn9melody.openerp`).
-  - **Frontend Web/Desktop**: **Angular >= 22** + **Tailwind CSS v4**.
-  - **Mobile App**: **Ionic 8 + Angular** (tối giản chức năng so với bản Web).
-  - **Cơ sở dữ liệu & Quy mô**:
-    - **PostgreSQL**: CSDL chính, quan hệ, hỗ trợ linh hoạt Shared DB (RLS) hoặc **Database-per-Tenant**, cơ chế **Master - Slave / Read-Replicas** tách luồng đọc/ghi để tối ưu hiệu năng.
-    - **MongoDB**: Hỗ trợ cơ chế **Replica-Set** (High Availability), lưu trữ phi cấu trúc/audit logs khi cần.
-  - **Bộ nhớ đệm (Cache)**: **Redis** (cache phân tán, session, lock).
-  - **Message Broker**: **Apache Kafka** (truyền thông bất đồng bộ giữa các microservices/plugins).
-- **Thư Viện Giao Diện Dùng Chung Độc Lập Cho Cả Web & Mobile**:
-  - Thư mục shared UI components, shared enums và models phải được đặt tại thư mục dùng chung `src/frontend/shared/` độc lập với Web và Mobile.
-  - Cấu hình TypeScript path mapping (`@shared/*`) để cả Angular Web (`src/frontend/web`) và Ionic Mobile (`src/frontend/mobile`) đều dùng chung 1 nguồn component duy nhất.
-  - **Bắt buộc**: Nếu cần component mới, phải thêm vào thư viện dùng chung trước, sau đó Web và Mobile mới sử dụng từ thư viện.
-  - **Hạn chế tối đa thư viện bên thứ 3**, ưu tiên tự xây dựng component trên nền Angular + Tailwind 4.
-- **Phân Định Nền Tảng (Desktop vs. Mobile)**: Mọi Plugin phải khai báo minh bạch danh sách chức năng nào dùng được trên Desktop và chức năng nào dùng được trên Mobile.
-- **Cơ Chế Entity Registry**: Mọi entity CSDL của module/plugin bắt buộc phải đăng ký vào Entity Registry chung để các plugin khác có thể tham chiếu an toàn.
-- **Ranh giới Core vs. Plugins**:
-  - **Hệ thống Core (Tối giản)**: Chỉ bao gồm Đăng ký/Đăng nhập, Quản lý tài khoản, Phân quyền chức năng, Phân quyền dữ liệu, và Quản lý Plugin.
-  - **Plugin hóa toàn diện**: Mọi chức năng nghiệp vụ khác phải được đóng gói dạng Plugin độc lập. Khách hàng/Tenant có thể cài đặt hoặc gỡ bỏ tùy ý.
-- **Môi Trường Local Dev Tối Giản Tài Nguyên & Scripts Quản Lý Tập Trung**:
-  - Mặc định chỉ khởi chạy **dịch vụ tối thiểu** (Minimal Footprint): **PostgreSQL Primary** và **Redis** (~300MB RAM) thông qua `docker-compose.yml` (`npm run infra`).
-  - Toàn bộ các dịch vụ nặng (Kafka, MongoDB, Read-Replica, MinIO, Mailpit) phải cấu hình dưới dạng **Docker Compose Profiles** (`kafka`, `mongo`, `storage`, `mail`, `full`), chỉ bật on-demand khi thực sự cần.
-  - Đặt giới hạn bộ nhớ (`resources.limits.memory`) cho toàn bộ container local để tránh tràn RAM máy dev.
-  - Bộ scripts quản lý tập trung tại root `package.json` (Node runner `scripts/run.mjs`, chạy đa nền tảng Windows/macOS/Linux) và `Makefile` (`npm run infra`, `npm run backend`, `npm run web`, `npm run mobile`, `npm run dev`; tương đương `make ...` trên Unix).
-- **Chính Sách Kiểm Thử Thực Dụng & Cấm H2 (No H2 Policy)**:
-  - **Backend**: Bắt buộc viết Unit Test (JUnit 5 + RestAssured) cho các logic nghiệp vụ, tính toán dữ liệu, và phân quyền Tenant trong Quarkus Java.
-  - **CẤM SỬ DỤNG H2 / In-Memory Mock DB**: Môi trường dev local luôn có sẵn PostgreSQL và Redis qua `npm run infra`. Mọi Unit/Integration Test phải kết nối và thực thi trực tiếp trên PostgreSQL và Redis thật nhằm đảm bảo tính đồng nhất 100% với môi trường Staging/Production.
-  - **Kiểm Thử Bắt Buộc Trên CSDL Thật Với Dữ Liệu Thực Tế (Real DB Testing Invariant)**: Mọi bài kiểm thử Backend (Integration Test, RestAssured) và kịch bản QA Frontend tự động bắt buộc phải thực thi trực tiếp trên CSDL PostgreSQL và Redis thật có nạp dữ liệu nghiệp vụ thực tế (Seeded data / Database migrations). Nghiêm cấm việc chỉ viết Unit Test với dữ liệu giả lập (Mocked Repositories, In-memory Stubs, Dummy Objects) cho các luồng nghiệp vụ cốt lõi (tạo/sửa/xóa, tính toán công/lương, phê duyệt, phân quyền đa tenant). Test phải kiểm chứng trực tiếp sự thay đổi trạng thái và tính toàn vẹn dữ liệu trong CSDL thực tế.
-  - **Frontend**: **TUYỆT ĐỐI KHÔNG viết Unit Test / Component Test** cho Angular/Ionic (không viết file `.spec.ts`, tránh lãng phí tài nguyên và chi phí bảo trì vô ích khi phát triển cùng AI).
-  - **QA/QC Frontend Bắt Buộc Kiểm Thử Trình Duyệt Hai Chế Độ (Dual-Mode Browser Testing)**:
-    - **Bản Web**: Tự động manual test trực tiếp trên Web Browser ở độ phân giải Desktop (≥ 1280px), kiểm tra tính toàn vẹn bố cục, tương tác Drawer trượt xếp tầng, form mật độ cao và theme sáng/tối.
-    - **Bản Mobile Ionic**: Sử dụng Trình duyệt Web và **bắt buộc bật chế độ Mobile / Responsive Device Emulation** (viewport chuẩn điện thoại 390x844 px), kiểm tra tuyệt đối không tràn ngang (overflow = 0), touch target ≥ 40px, safe-area padding, menu di động và điều hướng.
-    - Cả hai nền tảng phải đảm bảo **0 lỗi Console (`console.error`)** và ghi lại ảnh chụp minh chứng cho tài liệu nghiệm thu.
-- **Quy Chuẩn UI/UX ERP Nhỏ Gọn, Vuông Vắn & Anti-Modal**:
-  - **Mật độ thông tin cao (High Density)**: Sử dụng font chữ nhỏ (`text-xs`: 12px, `text-sm`: 13px), khoảng cách đệm và lề tối thiểu (`p-1`, `p-2`, `gap-1`, `space-y-1.5`) nhằm hiển thị nhiều thông tin nhất trên một màn hình, giảm thao tác cuộn trang.
-  - **Thiết kế vuông vắn (Sharp/Square Aesthetic) — bắt buộc cho giao diện mặc định**: Đường viền sắc nét, góc vuông hoặc bo góc siêu nhỏ (`rounded-none` hoặc `rounded-sm`), viền mỏng tinh tế (`border-neutral-200 dark:border-neutral-800`), mang lại phong cách ERP công nghiệp hiện đại, tinh gọn. Khi hệ thống có nhiều theme (Sprint 04), **chỉ theme mặc định bắt buộc vuông vắn**; các theme thay thế được phép dùng hình dạng bo góc khác qua bộ token `ShapeVariant`, nhưng **mọi theme vẫn phải giữ mật độ thông tin cao** và không dùng bo tròn lớn kiểu consumer (`rounded-xl`, `rounded-full`).
-  - **Hạn chế tối đa Modal**: Nghiêm cấm lạm dụng Modal popup che khuất màn hình. Thay thế 100% bằng **Angular Router (Nested Routes)**, **Drawer (Side sheet trượt từ cạnh phải, hỗ trợ xếp chồng đa tầng - stacked drawers)** và **Split-Screen (chia màn hình thành nhiều phần/cột hiển thị đồng thời)** để giữ trọn vẹn ngữ cảnh làm việc.
-  - **Lưu Vết Thao Tác Triệt Để Bằng Angular Router (Route-Driven State & Deep Linking Invariant)**: Toàn bộ các thao tác điều hướng và tương tác chính của người dùng — bao gồm: chuyển tab, phân trang, bộ lọc/tìm kiếm, mở Drawer biểu mẫu/chi tiết (`?drawer=...` hoặc nested child route), chuyển bước Stepper, chọn bản ghi trong Master-Detail — **bắt buộc phải được phản ánh vào URL (qua Query Parameters hoặc Nested Child Routes)**. Đảm bảo tính năng Deep Linking (chia sẻ link trực tiếp đến đúng trạng thái làm việc), bookmark và hỗ trợ nút Back / Forward của trình duyệt mà không làm mất vết thao tác hoặc mất dữ liệu khi người dùng F5 reload trang. Cấm chỉ lưu trạng thái trong biến component nội bộ (`signal()` cục bộ) mà không cập nhật URL.
-  - **Tối Ưu Diện Tích Màn Hình, Cấm Subtitle Dài Dòng, Ưu Tiên Icon Ngữ Nghĩa & Tooltip (High-Density Tooltip Guidance)**: Tối ưu hóa tối đa diện tích hiển thị (Screen Real Estate), giảm thiểu khoảng trống và cuộn trang. Hạn chế tối đa việc sử dụng quá nhiều nhãn (label), đoạn mô tả (description), phụ đề (subtitle) hoặc card hướng dẫn dài dòng chiếm chỗ trên giao diện. Thay thế các đoạn văn bản giải thích bằng **Icon trực quan, chuẩn ngữ nghĩa** (ví dụ `info`, `help-circle`, `settings`, `filter`, `clock`, `calendar`, `shield`) kết hợp **Tooltip nổi khi hover chuột (`title` hoặc directive tooltip)** để hiển thị hướng dẫn và mô tả chi tiết khi người dùng cần.
-- **Quy Chuẩn Viết Component, Đa Ngôn Ngữ & Design Tokens Dùng Chung**:
-  - **Tách riêng template HTML**: 100% component Angular phải tách riêng file template `.html`. Tuyệt đối không viết inline template trong file `.ts`.
-  - **Quy Chuẩn Nhãn Thuần Khiết & Tách Biệt Biểu Tượng (Zero-Emoji & Pure Semantic Labels Invariant)**:
-    - Tuyệt đối nghiêm cấm chèn các ký tự đặc biệt, biểu tượng cảm xúc (emoji Unicode như `⚠️`, `✓`, `✕`, `🔒`, `📍`, `⏱️`, `➕`, `📌`, `💡`...) vào bên trong chuỗi nhãn (label), văn bản nút bấm (button text), tiêu đề (heading), badge trạng thái hoặc đứng cạnh thẻ i18n trong template.
-    - Nếu giao diện cần biểu tượng trực quan, bắt buộc phải sử dụng icon component hoặc SVG chuẩn mực độc lập với nhãn, có kích thước và màu sắc kiểm soát qua CSS tokens. Chuỗi nhãn văn bản luôn phải là văn bản thuần túy ngữ nghĩa (pure semantic text).
-  - **Bắt buộc 100% Đa Ngôn Ngữ & Zero-Raw Display Values (100% i18n Mọi Giá Trị Hiển Thị)**:
-    - 100% chuỗi văn bản và giá trị hiển thị mà người dùng nhìn thấy trên màn hình — bao gồm: toàn bộ nhãn trường, tiêu đề trang/bảng/nhóm, nút bấm, placeholder, thông báo thành công/lỗi, nhãn trợ năng (`aria-label`, `title`, tooltip), và **TOÀN BỘ các giá trị hiển thị (display values, enum trạng thái hiển thị, badge text, kết quả tính toán động nội suy kèm đơn vị tính)** — bắt buộc phải sử dụng mã dịch i18n từ file từ điển (`vi.json`, `en.json`, v.v.). Nghiêm cấm hardcode tiếng Việt hoặc tiếng Anh trực tiếp trong template hay component code.
-    - Mọi trường hợp hiển thị trạng thái (như `IN_OFFICE`, `OUTSIDE`, `LOCKED`, `ACTIVE`) phải được dịch theo key i18n chuẩn (ví dụ: `{{ ('attendance.status.' + log.status) | translate }}`).
-    - Mọi chuỗi động có chứa tham số phải sử dụng cơ chế nội suy i18n với `params` (ví dụ: `{{ 'attendance.gps.outside_with_distance' | translate: { meters: log.distance_meters } }}`), tuyệt đối không được tự ý nối chuỗi văn bản tĩnh trong template hoặc mã nguồn TypeScript.
-  - **Directive & Pipe i18n**: Hỗ trợ `TranslateDirective` (`[appTranslate]="'KEY'"`) và `TranslatePipe` (`{{ 'KEY' | translate }}`) để áp dụng đa ngôn ngữ thuận tiện trên template.
-  - **Bộ Design Token Enums Dùng Chung (Unified Design Tokens)**: Tuyệt đối không phân mảnh enum style cho từng component riêng biệt (cấm tạo `ButtonVariant`, `BadgeVariant` riêng gây trùng lặp). Chuẩn hóa thành bộ Design Token Enums chung trong `@shared/enums`: `ColorVariant`, `SizeVariant`, `ShapeVariant` để toàn bộ components (`SharpButton`, `Badge`, `SharpInput`, `Card`...) dùng chung một nguồn token nhất quán.
-  - **Đóng Gói Component Giao Diện Dùng Chung (Component Reusability Rule)**: Mọi cụm giao diện có tính tái sử dụng hoặc xuất hiện từ 2 nơi trở lên (bộ chuyển ngôn ngữ `LanguageSwitcher`, thanh điều hướng `TopBar`, menu `NavBar`, breadcrumbs...) bắt buộc phải đóng gói thành component độc lập trong `src/frontend/shared/components/` để chia sẻ giữa Web và Mobile.
-- **Cấm Hardcode URL & Cấu Hình Động Backend (Config-Driven URL Invariant)**:
-  - Tuyệt đối nghiêm cấm hardcode các chuỗi URL frontend (`http://localhost:4200`, `http://...`) trong mã nguồn Backend Java.
-  - Mọi liên kết URL gửi email (xác thực email, đặt lại mật khẩu, lời mời tenant...) phải được nạp động từ cấu hình Quarkus `@ConfigProperty(name = "openerp.frontend.url", defaultValue = "https://openerp.9ms.io.vn")`.
-- **Chuẩn Hóa Java Enums Backend Đồng Bộ Với Frontend (Type-Safe Domain Enums)**:
-  - Toàn bộ các giá trị phân loại (Roles, Tenant Types, Company Sizes, Account Statuses, Two-Factor Methods) trong DTO, Entity, Service của Backend Java bắt buộc phải khai báo dưới dạng Java `Enum`, đồng bộ 1-1 với TypeScript Enums của Frontend.
-- **Chuẩn Mực API Contract Đa Ngôn Ngữ & 4 Khuôn Mẫu Phản Hồi Bắt Buộc (Zero-Ad-Hoc Response Invariant)**:
-  - Mọi phản hồi API (thành công lẫn thất bại) **bắt buộc phải trả về thuộc tính `code` dạng hằng số `UPPER_SNAKE_CASE`** (ví dụ: `AUTH_REGISTER_SUCCESS`, `AUTH_EMAIL_ALREADY_EXISTS`, `AUTH_INVALID_CREDENTIALS`).
-  - **Bắt buộc 100% API tuân thủ đúng 4 Khuôn Mẫu Phản Hồi Chuẩn** trong [.agents/rules/api_standards.md](.agents/rules/api_standards.md):
-    1. *Single Resource*: `{ success: true, code, message, params, data: {...} }`
-    2. *Paginated List*: `data: { items: [...], page, size, total_items, total_pages }` (bắt buộc dùng đúng tên `items` và `total_items`, cấm tự ý đổi thành `content`, `records`, `total_elements`).
-    3. *Non-Paginated List*: `data: { items: [...] }` (luôn bọc trong object `items` để đồng bộ Frontend).
-    4. *Error Response*: `{ success: false, code, message, params, errors: [{ field, code, params }], timestamp }`.
-  - **Tuyệt đối không hardcode message văn bản địa phương/tiếng Việt trong API contract** làm nguồn hiển thị duy nhất cho người dùng; cấm nhét message tiếng Việt vào mảng `errors`.
-  - Frontend (Angular/Ionic) tự quản lý từ điển đa ngôn ngữ (`i18n/{lang}.json`) dựa trên `code` và `params` nhận từ API để hiển thị ngôn ngữ người dùng mà hoàn toàn không cần can thiệp backend.
-- **Chuẩn Hóa ResponseKey Enum (Zero-Hardcode Payload Keys)**:
-  - Mọi key trong `data` map của Backend hoặc DTO payload của Frontend bắt buộc phải dùng enum `ResponseKey` (ví dụ: `ResponseKey.TENANT_ID.getKey()`, `ResponseKey.USER_ID.getKey()`).
-  - Tuyệt đối nghiêm cấm gõ chuỗi tự do (string literal) cho các thuộc tính payload trả về.
-- **Dịch Vụ Backend Trả Về DTO Cố Định (Strict Response DTO Pattern)**:
-  - Toàn bộ các service backend phải trả về Response DTO có định kiểu mạnh (`PersonalRegisterResponse`, `AuthResponse`, `UserProfileResponse`...), tuyệt đối không trả về `Map<String, Object>` tự do cho dữ liệu nghiệp vụ.
-- **Quản Lý Phiên Bản & Bảo Vệ Mã Nguồn (.gitignore)**:
-  - Mọi thư mục dự án con (`src/backend`, `src/frontend/web`, `src/frontend/mobile`, root) bắt buộc phải có file `.gitignore` riêng biệt, loại trừ triệt để thư mục build (`target/`, `dist/`, `.angular/`), cache, node_modules, log và các file bí mật (`*.pem`, `.env`, keystore).
-- **Tiêu Chuẩn Triển Khai Staging & Production (Docker & Kubernetes)**:
-  - Tất cả service phải có Multi-stage Dockerfile tối ưu kích thước.
-  - Cấu hình Kubernetes theo chuẩn Base/Overlays cho Staging và Production trong thư mục `deployments/k8s/`.
-- **Bộ Ba Tài Liệu Bắt Buộc Trong Thư Mục `docs/`**:
-  - `docs/06_user_guides/`: Tài liệu hướng dẫn sử dụng phần mềm, **bắt buộc có hình ảnh trực quan (screenshots/flows)**.
-  - `docs/07_deployment_guides/`: Tài liệu hướng dẫn cài đặt và triển khai trên Local, Docker, K8s.
-  - `docs/08_developer_guides/`: Tài liệu hướng dẫn phát triển phần mềm, quy chuẩn code Quarkus Java/Angular/Ionic 8, tạo Plugin mới và mở rộng UI library.
+## Ràng Buộc Kiến Trúc & Kỹ Thuật Nền Tảng
+- **Định danh & Domain**: Package Backend `com.vn9melody.openerp`; Domain `openerp.9ms.io.vn`.
+- **Multi-tenant SaaS**: Cô lập dữ liệu `tenant_id` triệt để; mọi query, mutation, cache, message lấy tenant context đã xác thực (không tin tenant ID client gửi). Auth/onboarding và quản trị platform có scope/phân quyền/audit riêng, không bỏ lọc tenant.
+- **Tech Stack**:
+  - Backend: **Quarkus** (Java, `com.vn9melody.openerp`).
+  - Frontend Web: **Angular >= 22** + **Tailwind CSS v4**; Mobile: **Ionic 8 + Angular** (tối giản chức năng).
+  - CSDL & Infra: **PostgreSQL** (Shared DB RLS hoặc Database-per-Tenant, Master-Slave/Read-Replicas), **MongoDB** (Replica-Set), **Redis** (cache/session/lock), **Apache Kafka**.
+- **Shared UI (`src/frontend/shared/`, `@shared/*`)**: Shared components, enums, models dùng chung cho Web (`src/frontend/web`) & Mobile (`src/frontend/mobile`). Component mới thêm vào shared trước; hạn chế tối đa thư viện thứ 3.
+- **Ranh giới Core vs. Plugins**: Core chỉ giữ Auth, Tài khoản, Phân quyền chức năng/dữ liệu và Quản lý Plugin. Nghiệp vụ khác phải tách Plugin độc lập, khai báo rõ tính năng Desktop vs. Mobile và đăng ký mọi entity vào Entity Registry.
+- **Local Dev Tối Giản**: Mặc định chạy PostgreSQL Primary + Redis qua `docker-compose.yml` (`npm run infra`); dịch vụ nặng (`kafka`, `mongo`, `storage`, `mail`, `full`) bật qua Docker Compose Profiles và giới hạn RAM (`resources.limits.memory`). Scripts tập trung tại `package.json` (`scripts/run.mjs`) & `Makefile` (`infra`, `backend`, `web`, `mobile`, `dev`).
+- **Kiểm Thử Thực Dụng & Cấm H2**:
+  - Backend viết JUnit 5 + RestAssured chạy trực tiếp trên **PostgreSQL và Redis thật** với dữ liệu seeded/migrated (cấm H2/in-memory mock DB cho luồng chính).
+  - Frontend **TUYỆT ĐỐI KHÔNG viết `.spec.ts`**; QA thực hiện **Dual-Mode Browser Testing**: Web Desktop (`>= 1280px`) & Mobile Ionic Device Emulation (`390x844 px`, `overflow = 0`, touch target `>= 40px`, safe-area padding), **0 `console.error`**, lưu screenshot nghiệm thu.
+- **Quy Chuẩn UI/UX ERP**:
+  - **High Density & Sharp**: Font `text-xs` (12px) / `text-sm` (13px), spacing `p-1`, `p-2`, `gap-1`, `space-y-1.5`. Theme mặc định dùng `rounded-none`/`rounded-sm`, viền `border-neutral-200 dark:border-neutral-800`; theme khác dùng `ShapeVariant` nhưng cấm bo tròn lớn (`rounded-xl`, `rounded-full`).
+  - **Anti-Modal & Route-Driven State**: Cấm lạm dụng Modal; thay bằng Nested Routes, Drawer (hỗ trợ stacked drawers) và Split-Screen. Mọi tab, phân trang, filter/search, drawer (`?drawer=...`), stepper, master-detail phải đồng bộ 2 chiều lên URL (Query Params / Child Routes), cấm giữ thuần `signal()` cục bộ.
+  - **Màn Hình Dữ Liệu & Table Tối Ưu (`Data View & Sticky Scroll Table Invariant`)**: Mọi màn hình dữ liệu phải hỗ trợ **bộ lọc, sắp xếp, tùy chỉnh số lượng cột (ẩn/hiện), số lượng hàng/trang và thứ tự hiển thị cột** (đồng bộ filter/sort/page lên URL). Table dùng chung (`@shared/*`, không cài thư viện ngoài) bắt buộc **cố định Header & Footer, chỉ cuộn phần content dữ liệu bên trong**; hỗ trợ đổi thứ tự cột, lọc, sắp xếp và **bắt buộc tích hợp Context Menu chuột phải** đầy đủ chức năng (tuân thủ i18n 100%, Zero-Emoji, có fallback Mobile `>= 40px`).
+  - **Tối Ưu Diện Tích & Tooltip**: Cấm banner/subtitle mô tả dài dòng; dùng Icon ngữ nghĩa (`info`, `help-circle`, `settings`, `filter`...) kèm Tooltip (`title`/directive).
+- **Component, i18n & Tokens**:
+  - 100% component Angular tách file `.html` riêng (cấm inline template).
+  - **Zero-Emoji**: Cấm chèn emoji (`⚠️`, `✓`, `✕`, `🔒`, `📍`, `⏱️`, `➕`...) trong nhãn, nút, tiêu đề, badge; icon phải là SVG/icon component độc lập.
+  - **100% i18n**: Mọi nhãn, placeholder, tooltip, `aria-label`, trạng thái enum và chuỗi nội suy động (`params`) phải qua `TranslateDirective`/`TranslatePipe` từ `vi.json`/`en.json`.
+  - Dùng chung Design Token Enums `@shared/enums`: `ColorVariant`, `SizeVariant`, `ShapeVariant`. Cụm UI dùng >= 2 nơi (`LanguageSwitcher`, `TopBar`, `NavBar`...) đóng gói tại `src/frontend/shared/components/`.
+- **Backend & API Contract**:
+  - Config-driven URL qua `@ConfigProperty(name = "openerp.frontend.url", defaultValue = "https://openerp.9ms.io.vn")` (cấm hardcode URL frontend).
+  - Enum Java đồng bộ 1-1 Enum TypeScript. Dùng `ResponseKey` cho mọi key map (cấm string literal). Service trả về DTO `record`/class định kiểu mạnh (cấm `Map<String, Object>`).
+  - Mọi API trả `code` `UPPER_SNAKE_CASE` và đúng 4 khuôn mẫu tại [.agents/rules/api_standards.md](.agents/rules/api_standards.md): (1) Single `{ success: true, code, message, params, data }`; (2) Paginated `{ items, page, size, total_items, total_pages }`; (3) List `{ items }`; (4) Error `{ success: false, code, message, params, errors: [{ field, code, params }], timestamp }` (cấm hardcode tiếng Việt vào `errors`).
+- **Git, Deploy & Bộ Ba Tài Liệu**:
+  - Root, `src/backend`, `src/frontend/web`, `src/frontend/mobile` có `.gitignore` riêng (`target/`, `dist/`, `.angular/`, `node_modules/`, `.env`, `*.pem`).
+  - Multi-stage Dockerfile + Kubernetes Base/Overlays trong `deployments/k8s/`.
+  - Đủ 3 bộ docs: `docs/06_user_guides/` (kèm screenshots/flows), `docs/07_deployment_guides/`, `docs/08_developer_guides/`.
 
 > **NGHIÊM CẤM**:
-> 1. Nhảy cóc trực tiếp sang bước Lập trình khi chưa có xác nhận từ khách hàng và tài liệu thiết kế chi tiết trong thư mục `docs/`.
-> 2. Đóng Sprint hoặc bàn giao release khi vẫn còn tồn đọng task/bug ở mức `Critical` hoặc `High`.
-> 3. Đưa mã nguồn nghiệp vụ chuyên biệt vào tầng Core hoặc truy vấn dữ liệu thuộc Tenant thiếu ngữ cảnh `tenant_id` đã xác thực; luồng auth/platform toàn cục phải có scope và phân quyền đúng thiết kế.
-> 4. Cài đặt/Nâng cấp/Gỡ bỏ Plugin làm phá vỡ cấu trúc CSDL hoặc làm mất dữ liệu của Tenant mà không qua Migration/Backup an toàn.
-> 5. Viết UI component ad-hoc rải rác bên ngoài thư viện giao diện dùng chung hoặc tự ý cài đặt thư viện UI bên thứ 3.
-> 6. Khai báo Entity CSDL trong Plugin mà không đăng ký vào Entity Registry chung của hệ thống.
-> 7. Bàn giao tính năng hoặc đóng Sprint mà thiếu tài liệu hướng dẫn sử dụng (kèm hình ảnh minh họa) hoặc thiếu tài liệu triển khai liên quan.
-> 8. Tự ý khởi chạy toàn bộ các dịch vụ phụ trợ nặng (Kafka, MongoDB, Read-Replica, MinIO) làm cạn kiệt tài nguyên máy dev khi chỉ thực hiện các tác vụ phát triển cơ bản.
-> 9. Viết unit test cho Frontend (Angular/Ionic) làm lãng phí thời gian hoặc tự ý thêm thư viện kiểm thử frontend.
-> 10. Lạm dụng pop-up Modal để hiển thị chi tiết hoặc biểu mẫu nhập liệu khi có thể sử dụng Drawer trượt, chia màn hình (Split-View) hoặc Router con.
-> 11. Thiết kế hoặc trả về API response chứa message văn bản cứng đại diện cho kết quả nghiệp vụ mà không có mã định danh `code` chuẩn hóa cho Frontend đa ngôn ngữ.
-> 12. Lưu trữ tài liệu Sprint rải rác ngoài thư mục Sprint-Pack (`docs/sprints/sprint_XX/`) hoặc thiếu file điều hướng `00_READING_GUIDE.md` dẫn đến việc người đọc không biết thứ tự tuần tự và bỏ sót bước xác nhận của khách hàng.
-> 13. Sử dụng CSDL H2 hoặc các in-memory mock DB để kiểm thử backend thay vì kết nối trực tiếp PostgreSQL và Redis thật của môi trường dev.
-> 14. Viết inline template HTML trong file component `.ts` của Frontend hoặc hardcode văn bản tĩnh mà không qua hệ thống đa ngôn ngữ i18n.
-> 15. Sử dụng chuỗi tự do (string literal) cho các thuộc tính style, option, status, role thay vì khai báo và sử dụng Enum chuẩn hóa.
-> 16. Đặt mã nguồn UI component dùng chung vào bên trong riêng thư mục Web hoặc Mobile làm mất khả năng tái sử dụng giữa hai nền tảng.
-> 17. Hardcode URL frontend hoặc đường dẫn liên kết trong mã nguồn Backend thay vì nạp qua cấu hình Quarkus `@ConfigProperty`.
-> 18. Tạo enum style/variant riêng biệt phân mảnh cho từng component thay vì dùng chung bộ Design Token Enums (`ColorVariant`, `SizeVariant`).
-> 19. Viết trực tiếp mã markup lặp lại cho các thành phần giao diện dùng chung (như bộ chọn ngôn ngữ, topbar) thay vì đóng gói component dùng chung.
-> 20. Hardcode chuỗi string literals tự do cho các key trong response data payload thay vì sử dụng Java/TypeScript enum `ResponseKey`.
-> 21. Viết service backend trả về Map<String, Object> tự do cho dữ liệu nghiệp vụ thay vì định nghĩa class DTO cố định.
-> 22. Tự ý định nghĩa hoặc trả về API response có cấu trúc riêng (thiếu success, đổi tên items/page/size/total_items, hoặc nhét message tiếng Việt vào error) sai lệch với 4 khuôn mẫu chuẩn trong [.agents/rules/api_standards.md](.agents/rules/api_standards.md).
-> 23. Sử dụng hàm native `fetch()` trong mã nguồn Angular frontend thay vì `HttpClient` hoặc `ApiService` của `@shared`.
-> 24. Cho phép backend hoặc frontend của một Plugin gọi trực tiếp REST API của Plugin khác; giao tiếp liên plugin bắt buộc phải thực hiện ở tầng Backend qua gRPC (`PluginDataServiceGrpc`), Message Broker (Kafka) hoặc Core Internal Proxy.
-> 25. Cố định kích thước trang truy vấn (ví dụ gán cứng `size = 100` hoặc chỉ đọc trang 1) khi nạp danh mục, tùy chọn hoặc danh sách thực thể liên plugin gây mất hoặc thiếu dữ liệu của Tenant; bắt buộc phải duyệt toàn bộ qua cơ chế `pageThrough` hoặc phân trang đầy đủ.
-> 26. Khai báo thêm thuộc tính màu nền (`bg-surface`, `bg-*`) hoặc viền trên (`border-t`) bên trong thẻ chiếu `<div drawer-footer>` của Drawer, làm phát sinh lỗi giao diện 2 lớp nền lồng nhau quanh nút hành động.
-> 27. Tự ý thực thi lệnh `git commit` khi chưa có yêu cầu hoặc chỉ thị rõ ràng từ người dùng; mọi thay đổi mã nguồn phải được giữ lại ở working directory / staging để người dùng trực tiếp review trước khi đưa vào lịch sử commit.
-> 28. Chèn ký hiệu đặc biệt, biểu tượng cảm xúc (emoji Unicode như ⚠️, ✓, ✕, 🔒, 📍, ⏱️, ➕...) vào nhãn (label), nút bấm, tiêu đề hoặc inline template HTML thay vì sử dụng nhãn thuần túy ngữ nghĩa và icon component độc lập.
-> 29. Hardcode bất kỳ giá trị hiển thị nào trên giao diện (bao gồm text trạng thái enum, badge, tooltip, aria-label, hoặc chuỗi ghép nội suy tham số động) mà không thông qua hệ thống đa ngôn ngữ i18n.
-> 30. Hiển thị subtitle, banner mô tả dài, RACI matrix hoặc nhiều lớp label phụ chiếm diện tích màn hình; chi tiết/hướng dẫn phải chuyển vào tooltip (`title`/help icon), bảng cấu hình phải dùng cột dữ liệu và nhãn ngắn.
-> 31. Lưu trạng thái thao tác người dùng (tab, bộ lọc, phân trang, mở drawer, chọn bản ghi master-detail, stepper) thuần túy trong bộ nhớ component cục bộ mà không đồng bộ hai chiều lên URL qua Angular Router (Query Params / Nested Routes), khiến người dùng bị mất trạng thái khi F5 reload hoặc mất lịch sử điều hướng Back/Forward.
-> 32. Chỉ viết Unit Test với dữ liệu giả lập (mocked data, in-memory stubs) cho các luồng nghiệp vụ chính thay vì kiểm thử trực tiếp trên CSDL PostgreSQL và Redis thật với dữ liệu thực tế (seeded/migrated data).
+> 1. Nhảy cóc sang lập trình khi chưa có xác nhận `CONF` và thiết kế `DES` trong `docs/`.
+> 2. Đóng Sprint/release khi còn task/bug mức `Critical` hoặc `High`.
+> 3. Đưa nghiệp vụ chuyên biệt vào Core hoặc truy vấn dữ liệu Tenant thiếu `tenant_id` đã xác thực.
+> 4. Cài/nâng cấp/gỡ Plugin phá vỡ CSDL hoặc mất dữ liệu Tenant không qua Migration/Backup.
+> 5. Viết UI component ad-hoc ngoài `@shared/*` hoặc tự cài thư viện UI bên thứ 3.
+> 6. Khai báo Entity Plugin mà không đăng ký Entity Registry.
+> 7. Bàn giao/đóng Sprint thiếu User Guide (kèm ảnh) hoặc Deployment Guide.
+> 8. Tự bật toàn bộ dịch vụ nặng (Kafka, MongoDB, Read-Replica, MinIO) khi chỉ phát triển cơ bản.
+> 9. Viết unit test Frontend (`.spec.ts`) hoặc tự thêm thư viện test frontend.
+> 10. Lạm dụng Modal popup thay cho Drawer trượt, Split-View hoặc Nested Router.
+> 11. Trả API response thiếu `code` `UPPER_SNAKE_CASE` chuẩn hóa cho i18n Frontend.
+> 12. Lưu docs Sprint ngoài `docs/sprints/sprint_XX/` hoặc thiếu `00_READING_GUIDE.md`.
+> 13. Dùng H2 / in-memory mock DB thay vì PostgreSQL & Redis thật khi test backend.
+> 14. Viết inline HTML trong `.ts` hoặc hardcode text tĩnh không qua i18n.
+> 15. Dùng chuỗi tự do thay vì Enum chuẩn cho style, option, status, role.
+> 16. Đặt UI dùng chung vào riêng thư mục Web hoặc Mobile.
+> 17. Hardcode URL frontend trong Backend thay vì `@ConfigProperty`.
+> 18. Tạo enum variant phân mảnh cho từng component thay vì `ColorVariant`/`SizeVariant`/`ShapeVariant`.
+> 19. Copy-paste markup lặp lại (`TopBar`, `LanguageSwitcher`...) thay vì đóng gói component dùng chung.
+> 20. Hardcode string literals cho key payload thay vì `ResponseKey`.
+> 21. Service backend trả `Map<String, Object>` tự do thay vì Response DTO định kiểu mạnh.
+> 22. Trả API sai 4 khuôn mẫu chuẩn trong [.agents/rules/api_standards.md](.agents/rules/api_standards.md) (`content`/`total_elements` thay `items`/`total_items`, nhét tiếng Việt vào `errors`).
+> 23. Dùng native `fetch()` trong Angular thay `HttpClient`/`ApiService` của `@shared`.
+> 24. Frontend/Backend Plugin gọi thẳng REST API Plugin khác (phải qua `PluginDataServiceGrpc`, Kafka hoặc Core Internal Proxy).
+> 25. Fix cứng `size = 100` hoặc chỉ đọc trang 1 khi nạp dữ liệu liên plugin (phải dùng `pageThrough` duyệt hết).
+> 26. Gán `bg-surface`/`bg-*` hoặc `border-t` vào `<div drawer-footer>` gây 2 lớp nền/viền lồng nhau.
+> 27. Tự ý chạy `git commit` khi chưa có chỉ thị rõ ràng từ người dùng.
+> 28. Chèn emoji Unicode (`⚠️`, `✓`, `✕`, `🔒`, `📍`, `⏱️`, `➕`...) vào nhãn, nút, tiêu đề hoặc template.
+> 29. Hardcode giá trị hiển thị (enum status, badge, tooltip, aria-label, chuỗi nội suy động) không qua i18n.
+> 30. Đặt subtitle/banner mô tả dài, RACI matrix hoặc nhãn phụ chiếm màn hình thay vì Tooltip + cột dữ liệu ngắn.
+> 31. Lưu tab, filter, phân trang, drawer, stepper thuần trong state nội bộ khiến mất trạng thái khi F5 hoặc Back/Forward.
+> 32. Chỉ viết Unit Test với dữ liệu giả lập (mocked repos, in-memory stubs) thay vì test trên PostgreSQL và Redis thật có dữ liệu seeded/migrated.
+> 33. Xây dựng màn hình dữ liệu hoặc bảng (table) thiếu bộ lọc/sắp xếp, không cho người dùng tùy chỉnh số cột/số hàng/thứ tự cột, để table cuộn trôi mất Header/Footer thay vì chỉ scroll vùng nội dung bên trong, hoặc thiếu Context Menu chuột phải đầy đủ chức năng.
