@@ -6,7 +6,7 @@
 | Sprint | Sprint 13 (`sprint_13_plugin_inventory`) |
 | Tác giả | AI Business Analyst (BA) |
 | Trạng thái | Draft / Chờ khách hàng review nghiệp vụ |
-| Phiên bản | 0.3 |
+| Phiên bản | 0.5 |
 | Tài liệu liên quan | [00_READING_GUIDE.md](../00_READING_GUIDE.md) · [RAW-S13-001](../01_raw_notes/01_RAW-S13-001_inventory_requirements.md) · [BENCH-S13-001](../03_benchmarks/01_BENCH-S13-001_inventory_warehouse_benchmarks.md) · [CONF-S13-001](../04_confirmation/01_CONF-S13-001_sprint_13_scope_and_ac.md) |
 
 ---
@@ -258,9 +258,71 @@ Hỗ trợ cả **Kiểm kê Định kỳ toàn kho (Cuối tháng/năm)** lẫn
    - **Phiếu Chuyển kho Treo (`Stale In-Transit`)**: Phiếu `IN_TRANSIT` quá X ngày chưa được Kho đích xác nhận nhận.
    - **Hàng tồn lâu (`Slow-Moving / Aging`)**: Lô hàng nằm quá `30 / 60 / 90 / >180` ngày không có phát sinh xuất.
 
+### Luồng 8: Ma Trận Phê Duyệt Kho (`DOA / SoD`) & Kiến Trúc Lưu Vết Kiểm Toán 4 Tầng (`Immutable Audit Trail & Stock Lineage`)
+
+Mọi chứng từ điều chỉnh, xuất hủy, chênh lệch và thay đổi chính sách kho nhạy cảm trong `plugins/inventory` đều kiểm soát qua **Ma trận Phê duyệt (`plugins/workflow` — Sprint 08)** kết hợp nguyên tắc **Bất kiêm nhiệm (`Segregation of Duties — SoD`)** và lưu vết **4 tầng bất biến**:
+
+```mermaid
+flowchart LR
+    M["Thu kho hoac Ke toan Kho (Maker)"] --> SOD["Kiem tra Bat kiem nhiem (SoD Guard)"]
+    SOD -->|"Trung Maker = Approver"| DENY["Chan thao tac (403 SOD_VIOLATION)"]
+    SOD -->|"Hop le (Khac nguoi)"| WF["plugins/workflow (DOA Kho)"]
+    WF -->|"Approve / Reject / Delegate"| AUD["4-Layer Immutable Inventory Audit"]
+    M -->|"Sua chinh sach Kho hoac SKU"| BAF["Tang 2: Field Before/After Diff"]
+    WF --> LOG1["Tang 1: Approval History Log"]
+    WF --> LIN3["Tang 3: Reference & Ledger Lineage"]
+    WF --> LED4["Tang 4: Append-Only Stock Ledger & Period Lock"]
+    LOG1 --> AUD
+    BAF --> AUD
+    LIN3 --> AUD
+    LED4 --> AUD
+```
+
+1. **Ma Trận Phê Duyệt Kho (`DOA`) & Nguyên Tắc Bất Kiêm Nhiệm (`SoD`)**:
+
+| Nghiệp vụ / Thay đổi nhạy cảm | Luồng duyệt `DOA` (`plugins/workflow`) | Quy tắc Bất kiêm nhiệm (`SoD`) & Điều kiện bắt buộc |
+| :--- | :--- | :--- |
+| **Chính sách Kho & SKU Nhạy cảm** *(Bật cho phép Xuất âm `ALLOW_NEGATIVE`, Mở lại kỳ đã khóa `Period Unlock`, Đổi phương pháp giá vốn / `tracking_type`)* | **Maker -> Checker** (Quản lý Kho / Kế toán trưởng + Admin Tenant duyệt 2 mắt) | Cấm người cấu hình tự duyệt (`Maker != Checker`); bắt buộc ghi rõ `reason` trước khi áp dụng. |
+| **Nhập Đầu kỳ (`OPENING_BALANCE`) & Nhập/Xuất Khác (`OTHER_IN / OTHER_OUT`)** | Quản lý Kho -> Kế toán Kho | `Approver != Creator`; bắt buộc nhập mã lý do chuẩn hóa từ `catalog`. |
+| **Xuất Hủy Hàng hỏng / Hết hạn (`DISPOSAL_OUT`)** | Trưởng Kho -> Kế toán trưởng / Hội đồng Thanh lý | `Disposal Approver != Creator`; bắt buộc đính kèm biên bản/ảnh hiện trường và chọn đúng Lô hết hạn/hỏng. |
+| **Chênh lệch Chuyển kho 2 bước (`TRANSFER_DISCREPANCY`) & Xuất Nội bộ vượt ngưỡng** | Quản lý Chi nhánh / Quản lý Kho | Thủ kho xuất kho nguồn không tự chốt miễn trừ chênh lệch thiếu tại Kho đích; `Approver != Requester`. |
+| **Cân bằng Kiểm kê (`STOCKTAKE_GAIN / STOCKTAKE_LOSS`) vượt ngưỡng lệch** | Quản lý Kho -> Kế toán trưởng / Giám đốc | Người trực tiếp đếm thực tế (`Counter`) không tự duyệt chốt bút toán bù trừ chênh lệch lớn. |
+| **Đảo chứng từ đã ghi sổ (`POSTED Reversal`)** | Kế toán Kho / Quản lý Kho | `Reversal Approver != Original Poster`; chặn cứng nếu chứng từ thuộc kỳ đã `Period Lock`. |
+
+2. **Kiến Trúc 4 Tầng Lưu Vết Kiểm Toán Bất Biến (`4-Layer Immutable Audit Trail`)**:
+   - **Tầng 1 — Nhật ký Phê duyệt (`Approval History Log`)**: Ghi nhận mọi bước `SUBMIT / APPROVE / REJECT / DELEGATE / ESCALATE` đồng bộ từ `plugins/workflow` (`actor_id`, `role`, `step_no`, `decision`, `comment`, `timestamp`).
+   - **Tầng 2 — Lưu vết Cấp trường Trước/Sau (`Field-Level Before/After Diff`)**: Ghi nhận JSON snapshot Trước/Sau khi thay đổi chính sách Kho (`allow_negative_stock`, `require_qc`, `bin_mode`), định mức SKU (`min_qty`, `max_qty`, `safety_stock`, `tracking_type`), khóa/mở khóa Lô (`QC Hold` / `Expiry Override`) hoặc trạng thái khóa `Bin`.
+   - **Tầng 3 — Đồ thị Truy vết Chuỗi Kho (`Inventory Lineage Graph`)**: Liên kết bất biến hai chiều giữa Chứng từ nguồn đa hình (`reference_type / reference_id` từ `purchasing`, `crm`, nội bộ) -> `StockReservation` -> Phiếu Nhập/Xuất/Chuyển 2 bước/Kiểm kê -> từng dòng `Stock Ledger Entry` -> `Reversal Ledger`.
+   - **Tầng 4 — Sổ cái Tồn kho Bất biến & Khóa Kỳ (`Append-Only Ledger`)**: `Stock Ledger Entry` chỉ `INSERT` (cấm `UPDATE/DELETE`); mọi sai sót phải lập chứng từ đảo trái dấu trong kỳ đang mở.
+
+### Luồng 9: Tùy Biến Biểu Mẫu Kho Động (`Dynamic Form Builder` qua `plugins/form`) Theo Tenant, Chi Nhánh & Kho
+
+Để các Tenant (Dược phẩm, Thực phẩm, Điện tử, Vật tư kỹ thuật, Bán lẻ) và từng Chi nhánh / Kho (`branch_id` từ `plugins/organization` hoặc `warehouse_id`) thu thập đúng thông số đặc thù khi nhập/xuất/kiểm kê mà không cần sửa code, toàn bộ biểu mẫu Kho sử dụng **`plugins/form` (Sprint 08 — 32 loại trường qua 6 nhóm, `GRID` Excel công thức RPN, `IMAGE_UPLOAD`, `SIGNATURE`, `Skip Logic`)**:
+
+```mermaid
+flowchart LR
+    CTX["Mo Form Kho (tenant_id, branch_id, warehouse_id, entity)"] --> RES["Phan giai Da tang (plugins/form)"]
+    RES -->|"Uu tien 1"| BR["Bieu mau Rieng Chi nhanh hoac Kho (Override)"]
+    RES -->|"Uu tien 2 (Fallback)"| TN["Bieu mau Chung Tenant (Tenant Override)"]
+    RES -->|"Uu tien 3 (Mac dinh)"| SY["System Seeded Template"]
+    BR & TN & SY --> HYB["Hybrid Schema Renderer (@shared sharp UI)"]
+    HYB --> CORE["System Locked Core Fields (sku_id, qty, uom, bin, lot/serial)"]
+    HYB --> DYN["Custom Fields + GRID + Image/Signature -> JSONB + form_version"]
+    DYN --> WF["Dung lam bien re nhanh tren plugins/workflow"]
+    DYN --> TBL["Hien thi / Loc cot dong tren @shared Sticky Table"]
+    DYN --> AUD["Ghi Before/After Diff vao Audit Log Tang 2"]
+```
+
+| Nhóm Form Kho (`Entity Registry`) | Trường Lõi Hệ thống (`system_locked = true`) | Ví dụ Tùy biến Động theo Ngành / Chi nhánh / Kho (`plugins/form`) |
+| :--- | :--- | :--- |
+| **`Warehouse / Bin & SKU Master`** | `warehouse_code`, `branch_id`, `sku_code`, `base_uom_id`, `tracking_mode`, `min_qty` | Nhiệt độ/Độ ẩm kho lạnh (`NUMBER`), Nhóm nguy hiểm hóa chất (`DROPDOWN`), Tài liệu MSDS (`FILE_UPLOAD`). |
+| **`Phiếu Nhập Kho & Biên bản QC`** | `warehouse_id`, `movement_type`, `sku_id`, `qty`, `uom_id`, `lot_no/expiry/serial`, `qc_status` | Biển số xe / Tên tài xế / Số container, Checklist kiểm định ngoại quan (`GRID`), Ảnh hàng vỡ/niêm phong (`IMAGE_UPLOAD`), Chữ ký QC (`SIGNATURE`). |
+| **`Giữ hàng / Xuất Kho / Xuất Hủy`** | `warehouse_id`, `reference_type`, `sku_id`, `qty`, `lot/serial_id`, `bin_id` | Mã công trình / Ca sản xuất nhận vật tư, Biên bản tiêu hủy hội đồng ký (`FILE_UPLOAD` + `SIGNATURE`). |
+| **`Chuyển Kho 2 Bước & Kiểm Kê`** | `from_warehouse_id`, `to_warehouse_id`, `sku_id`, `counted_qty`, `variance_qty` | Lý do hao hụt vận chuyển chi tiết (`Skip Logic`), Ảnh hiện trạng kiện hàng tại Kho đích (`IMAGE_UPLOAD`). |
+
 ---
 
-## 3. Bộ Quy Tắc Nghiệp Vụ (`BR-W01` – `BR-W14`)
+## 3. Bộ Quy Tắc Nghiệp Vụ (`BR-W01` – `BR-W18`)
 
 | Mã BR | Quy tắc bắt buộc |
 | :--- | :--- |
@@ -278,6 +340,10 @@ Hỗ trợ cả **Kiểm kê Định kỳ toàn kho (Cuối tháng/năm)** lẫn
 | `BR-W12` | **Phân quyền Phạm vi Kho & Ẩn Giá vốn**: Người dùng chỉ thao tác được với danh sách `warehouse_ids` thuộc quyền được gán; chỉ vai trò có quyền `INVENTORY_VIEW_COST` mới nhận được dữ liệu `unit_cost / stock_value` từ API. |
 | `BR-W13` | **Bảo toàn Tham chiếu Nguồn Đa Hình**: Mọi lệnh giữ hàng/phiếu xuất có `reference_type / reference_id` phải giữ tham chiếu 2 chiều; khi hủy chứng từ nguồn hoặc quá hạn `hold_expires_at` mà hàng chưa xuất -> bắt buộc tự động nhả `Reserved Qty`; nếu đã xuất -> hướng dẫn thực hiện quy trình `RETURN_IN`. |
 | `BR-W14` | **Tách biệt Độc lập & Liên thông Chuẩn**: `plugins/inventory` hoàn toàn độc lập, không phụ thuộc ngược vào các phân hệ nghiệp vụ bên ngoài. Mọi tham chiếu sang `organization`, `catalog`, `employee`, `workflow` thực hiện qua `PluginDataServiceGrpc` hoặc Kafka Event (không gọi REST chéo trực tiếp hay fix cứng `size = 100`). |
+| `BR-W15` | **Bất Kiêm Nhiệm Phê Duyệt Kho (`Segregation of Duties — SoD`)**: Engine phê duyệt qua `plugins/workflow` kiểm tra `actor_id`: *(a)* người tạo không tự duyệt `OPENING_BALANCE`, `DISPOSAL_OUT`, `OTHER_IN/OUT`, `Reversal` hoặc `INTERNAL_ISSUE` vượt ngưỡng; *(b)* người đếm kiểm kê không tự duyệt cân bằng chênh lệch lớn; *(c)* bật xuất âm kho (`ALLOW_NEGATIVE`), mở lại kỳ đã khóa (`Period Unlock`) và xóa/sửa cấu hình nhạy cảm bắt buộc `Maker-Checker` 2 mắt. |
+| `BR-W16` | **Lưu Vết Kiểm Toán 4 Tầng Bất Biến**: Mọi thay đổi cấu hình Kho/SKU (`allow_negative_stock`, `min/max`, `tracking_type`, `qc_hold`), mọi quyết định `workflow` và mọi giao dịch đảo sổ phải sinh bản ghi bất biến (`actor_id`, `timestamp`, `before/after snapshot`, `reason`), nối chuỗi `Lineage` và hiển thị trong Drawer `Audit & Lineage` (cấm `UPDATE/DELETE` bảng log & `Stock Ledger`). |
+| `BR-W17` | **Bảo Vệ Trường Lõi Kho & Đa Phiên Bản Form Builder (`Hybrid Form Schema`)**: Biểu mẫu `Warehouse/SKU`, Phiếu Nhập/QC/Xuất/Chuyển/Kiểm kê kết xuất qua `plugins/form`; các trường lõi sổ cái (`sku_id`, `warehouse_id`, `bin_id`, `qty`, `uom_id`, `lot/serial`) khóa `system_locked = true`; dữ liệu mở rộng lưu `custom_fields_data` (`JSONB`) gắn `(form_id, form_version)`. |
+| `BR-W18` | **Kế Thừa Form 3 Tầng (`System -> Tenant -> Branch/Warehouse`) & Liên Thông Workflow/Table**: Phân giải form theo `(branch_id / warehouse_id)` -> `tenant_id` -> `System Default`; trường động dùng được trong điều kiện rẽ nhánh `plugins/workflow`, bật cột lọc trên `@shared/*` Sticky Table và ghi Before/After Diff vào Audit Log. |
 
 ---
 
@@ -332,7 +398,9 @@ Hỗ trợ cả **Kiểm kê Định kỳ toàn kho (Cuối tháng/năm)** lẫn
 - **`US-S13-21`** (*Tất cả người dùng Web Desktop*): Tùy chỉnh linh hoạt mọi bảng dữ liệu Kho/Phiếu/Thẻ kho: lọc sâu, sắp xếp đa cột, ẩn/hiện cột, kéo/đổi thứ tự cột, chọn số hàng/trang và giữ nguyên trạng thái khi F5 hoặc share link (`Route-Driven URL`).
 - **`US-S13-22`** (*Tất cả người dùng Web Desktop*): Thao tác nhanh ngay trên dòng dữ liệu qua **Context Menu chuột phải** (Xem Thẻ kho, Tạo phiếu xuất/chuyển nhanh, Khóa lô, Phê duyệt, Đảo phiếu...) mà không cần mở sang trang khác.
 - **`US-S13-23`** (*Thủ kho Mobile Ionic*): Sử dụng màn hình Mobile tối giản (`>= 40px` nút bấm) để quét mã vạch Kiểm đếm Nhập kho, Soạn hàng Xuất kho, Xác nhận Nhận chuyển kho và Đếm kiểm kê ngoài hiện trường.
-- **`US-S13-24`** (*Quản trị Tenant*): Cấu hình chính sách Kho cấp Tenant (Phương pháp giá vốn, Chặn âm kho, Bắt buộc QC, Chuẩn mã chứng từ tự tăng `PN/PX/PC/KK`, Luồng duyệt Workflow).
+- **`US-S13-24`** (*Quản trị Tenant*): Cấu hình chính sách Kho cấp Tenant (Phương pháp giá vốn, Chặn âm kho, Bắt buộc QC, Chuẩn mã chứng từ tự tăng `PN/PX/PC/KK`, Luồng duyệt Workflow & Ma trận `DOA/SoD`).
+- **`US-S13-25`** (*Kiểm toán / Kế toán Kho / Quản lý Kho*): Mở Stacked Drawer **Lịch sử Duyệt & Lưu vết Kho (`Audit & Lineage`)** trên bất kỳ Kho/SKU hoặc Phiếu kho nào để xem Timeline phê duyệt (`Workflow`), Diff Trước/Sau khi sửa cấu hình nhạy cảm (như bật Xuất âm kho, sửa Min/Max, khóa/mở Lô QC) và Chuỗi truy vết `Source Ref -> Reservation -> Transfer 2-Step -> Stock Ledger -> Reversal`.
+- **`US-S13-26`** (*Quản trị Tenant / Quản lý Chi nhánh / Quản lý Kho*): Dùng Form Studio của **`plugins/form` (Sprint 08)** để tùy biến trường/section, bảng tính `GRID`, ảnh kiểm định `IMAGE_UPLOAD`, chữ ký `SIGNATURE` trên `SKU`, `Phiếu Nhập/QC`, `Xuất kho`, `Chuyển kho`, `Kiểm kê` theo từng Tenant, Chi nhánh (`branch_id`) hoặc từng Kho.
 
 ---
 
@@ -345,11 +413,11 @@ Mọi màn hình hiển thị dữ liệu của `plugins/inventory` gồm **(1) 
 3. **Bộ lọc & Sắp xếp Đồng bộ URL (Route-Driven State)**: Lọc theo Kho, Chi nhánh, Nhóm hàng, Trạng thái tồn (`Dưới Min`, `Sắp hết hạn FEFO`, `Hết hàng`), Khoảng ngày ghi sổ, Sắp xếp đa cột — toàn bộ đồng bộ 2 chiều lên URL Query Params (`?warehouseId=...&sort=availableQty,asc&page=1&size=50&tab=by-lot`).
 4. **Context Menu Chuột Phải Đầy Đủ Chức Năng**: Click chuột phải lên bất kỳ dòng nào trên bảng mở Context Menu (hỗ trợ định vị thông minh không tràn viewport, có shortcut rõ ràng, **100% i18n, Zero-Emoji**):
    - *Trên Bảng Tồn kho*: Xem Thẻ kho, Tạo nhanh Phiếu Nhập, Tạo nhanh Phiếu Xuất, Tạo Phiếu Chuyển kho từ dòng này, Khóa/Mở khóa Lô (QC Hold), Xem chi tiết Giữ hàng đang hoạt động.
-   - *Trên Bảng Chứng từ*: Xem chi tiết (mở Drawer), Chỉnh sửa (khi `DRAFT`), Gửi duyệt / Phê duyệt, Ghi sổ / Xác nhận nhận hàng, In phiếu, Đảo chứng từ (`POSTED`).
+   - *Trên Bảng Chứng từ*: Xem chi tiết (mở Drawer), Chỉnh sửa (khi `DRAFT`), Gửi duyệt / Phê duyệt, Ghi sổ / Xác nhận nhận hàng, In phiếu, Đảo chứng từ (`POSTED`), Xem Lịch sử Duyệt & Audit Log (`?drawer=audit`).
 5. **Fallback Mobile (`>= 40px`)**: Trên Mobile Ionic (`390x844 px`), cung cấp nút menu `...` (vùng chạm `>= 40x40 px`) hoặc thao tác nhấn giữ kích hoạt Bottom Sheet Action thay thế cho chuột phải Desktop.
 
 ### 6.2. Anti-Modal, Stacked Drawer & Zero-Emoji
-- **Anti-Modal**: Cấm dùng popup Modal để tạo Phiếu Nhập/Xuất/Chuyển/Kiểm kê hay xem Thẻ kho. Sử dụng **Split-View / Nested Route** (màn hình lập phiếu nhiều dòng hoặc chia đôi Danh sách chứng từ bên trái — Chi tiết & Quét mã bên phải) kết hợp **Stacked Drawer** (`?drawer=stock-card&skuId=...`).
+- **Anti-Modal**: Cấm dùng popup Modal để tạo Phiếu Nhập/Xuất/Chuyển/Kiểm kê hay xem Thẻ kho. Sử dụng **Split-View / Nested Route** (màn hình lập phiếu nhiều dòng hoặc chia đôi Danh sách chứng từ bên trái — Chi tiết & Quét mã bên phải) kết hợp **Stacked Drawer** (`?drawer=stock-card&skuId=...`). Toàn bộ form nhập liệu kết xuất từ `plugins/form` bằng component chuẩn `@shared/*` (`app-sharp-input`, `app-sharp-select`, `app-sharp-textarea`, `app-sharp-toggle`, cấm HTML input thô) và cho phép bật/lọc cột `custom_fields_data` trên Sticky Table. Riêng Stacked Drawer **`Audit & Lineage`** (`?drawer=audit&auditTab=approval|diff|lineage`) hiển thị đầy đủ Timeline duyệt `Workflow & SoD`, Diff Trước/Sau cấp trường và Chuỗi liên kết Chứng từ nguồn -> `Stock Ledger Entry`.
 - **High Density & Zero-Emoji**: Giao diện sắc nét (`text-xs` / `text-sm`, `rounded-none` / `rounded-sm`), không có banner mô tả dài dòng (dùng icon `info`/`help-circle` + Tooltip), không chèn bất kỳ emoji Unicode nào vào tên nút, badge trạng thái hay menu chuột phải.
 
 ### 6.3. Phân Tách Phạm Vi Desktop Web vs. Mobile Ionic (Bàn Giao Gọn Cho Thủ Kho Hiện Trường)
@@ -363,3 +431,5 @@ Mọi màn hình hiển thị dữ liệu của `plugins/inventory` gồm **(1) 
 | Điều chuyển kho (1 bước & 2 bước `In-Transit`) | Đầy đủ | Xác nhận xuất chuyển & Quét nhận hàng Kho đích |
 | Kiểm kê kho (`Cycle Count` & `Blind Count`) | Lập đợt, Phân công, Review chênh lệch & Duyệt cân bằng | Quét mã vạch đếm trực tiếp tại kệ (hỗ trợ `Blind Count`) |
 | Khóa kỳ, Đảo chứng từ, Thẻ kho, Báo cáo XNT & Export Excel | Đầy đủ | Tối giản (chỉ xem lịch sử giao dịch gần nhất của SKU) |
+| Phê duyệt (`DOA/SoD`) & Drawer `Audit & Lineage` | Đầy đủ (Timeline + Diff Trước/Sau + Chuỗi Lineage + Export Log) | Thực hiện Duyệt/Từ chối phiếu trên `Workflow` & Xem lịch sử duyệt gần nhất |
+| Tùy biến Biểu mẫu Kho Động (`plugins/form` theo Tenant/Chi nhánh/Kho) | Thiết kế & Publish Form Studio (`System -> Tenant -> Branch/Warehouse`) + Nhập liệu | Chỉ điền các trường Form động đã Publish khi Nhập/QC/Xuất/Kiểm kê (`>= 40px`) |

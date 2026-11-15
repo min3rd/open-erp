@@ -4,8 +4,8 @@
 | :--- | :--- |
 | ID | READ-S13-001 |
 | Sprint | Sprint 13 — `sprint_13_plugin_inventory` |
-| Trạng thái | Draft / Discovery (Chờ Khách hàng review luồng nghiệp vụ & chốt `CONF-S13-001` `Q1`–`Q10`) |
-| Phiên bản | 0.3 |
+| Trạng thái | Draft / Discovery (Chờ Khách hàng review luồng nghiệp vụ & chốt `CONF-S13-001` `Q1`–`Q12`) |
+| Phiên bản | 0.5 |
 | Điều phối / Cập nhật | AI BA & Coordinator Agent |
 | Tài liệu nền tảng | [AGENTS.md](../../../AGENTS.md) · [core_sdlc.md](../../../.agents/rules/core_sdlc.md) · [ui_ux_standards.md](../../../.agents/rules/ui_ux_standards.md) · [api_standards.md](../../../.agents/rules/api_standards.md) |
 
@@ -26,11 +26,11 @@ Xây dựng **Plugin Quản Lý Kho Hàng (`plugins/inventory`)** hoàn toàn đ
 
 | Bước | Mã tài liệu | Tệp | Nội dung chính | Phiên bản | Trạng thái |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `00` | `READ-S13-001` | [00_READING_GUIDE.md](./00_READING_GUIDE.md) | Định hướng đọc, danh mục tệp, cổng xác nhận Sprint 13 | `0.3` | Active |
-| `01` | `RAW-S13-001` | [01_RAW-S13-001_inventory_requirements.md](./01_raw_notes/01_RAW-S13-001_inventory_requirements.md) | Ghi chú yêu cầu gốc thuần Plugin Kho (`plugins/inventory`), phân vai & phụ thuộc liên plugin | `0.3` | ⏳ Pending Review |
+| `00` | `READ-S13-001` | [00_READING_GUIDE.md](./00_READING_GUIDE.md) | Định hướng đọc, danh mục tệp, cổng xác nhận Sprint 13 | `0.5` | Active |
+| `01` | `RAW-S13-001` | [01_RAW-S13-001_inventory_requirements.md](./01_raw_notes/01_RAW-S13-001_inventory_requirements.md) | Ghi chú yêu cầu gốc thuần Plugin Kho (`plugins/inventory`), phân vai, `DOA/SoD`, Lưu vết & Form Builder (`plugins/form`) | `0.5` | ⏳ Pending Review |
 | `03` | `BENCH-S13-001` | [01_BENCH-S13-001_inventory_warehouse_benchmarks.md](./03_benchmarks/01_BENCH-S13-001_inventory_warehouse_benchmarks.md) | Đối sánh 10 hệ thống Quản lý Kho/ERP Quốc tế & Việt Nam (Odoo, ERPNext, SAP/NetSuite, Zoho, InvenTree, MISA, KiotViet, Sapo, 1Office, Haravan) + 12 bài học kiến trúc | `0.3` | ⏳ Pending Review |
-| `02` | `ANL-S13-001` | [01_ANL-S13-001_inventory_workflows.md](./02_analysis/01_ANL-S13-001_inventory_workflows.md) | Đặc tả chi tiết 7 luồng nghiệp vụ thuần Kho, State Machine, `Stock Ledger` 5 chỉ số, `24 User Stories`, `BR-W01..W14`, 10 Edge Cases & chuẩn UI Data View / Sticky Table | `0.3` | ⏳ Pending Review |
-| `04` | `CONF-S13-001` | [01_CONF-S13-001_sprint_13_scope_and_ac.md](./04_confirmation/01_CONF-S13-001_sprint_13_scope_and_ac.md) | Bộ 10 câu hỏi chốt nghiệp vụ Kho (`Q1`–`Q10`) & 20 Acceptance Criteria (`AC-01`..`AC-20`) chờ Khách hàng xác nhận | `0.3` | ⏳ Pending Client Sign-off |
+| `02` | `ANL-S13-001` | [01_ANL-S13-001_inventory_workflows.md](./02_analysis/01_ANL-S13-001_inventory_workflows.md) | Đặc tả chi tiết 9 luồng nghiệp vụ thuần Kho (`DOA/SoD`, Lưu vết 4 tầng & Form Builder `plugins/form`), State Machine, `Stock Ledger` 5 chỉ số, `26 User Stories`, `BR-W01..W18`, 10 Edge Cases & chuẩn UI Data View / Sticky Table | `0.5` | ⏳ Pending Review |
+| `04` | `CONF-S13-001` | [01_CONF-S13-001_sprint_13_scope_and_ac.md](./04_confirmation/01_CONF-S13-001_sprint_13_scope_and_ac.md) | Bộ 12 câu hỏi chốt nghiệp vụ Kho (`Q1`–`Q12`) & 22 Acceptance Criteria (`AC-01`..`AC-22`) chờ Khách hàng xác nhận | `0.5` | ⏳ Pending Client Sign-off |
 | `05` | `SOL-S13-*` | `05_solutions/` *(Chưa tạo)* | Chỉ khởi tạo sau khi Khách hàng phê duyệt `CONF-S13-001` | — | Locked (Pending `CONF`) |
 | `06` | `DES-S13-*` | `06_designs/` *(Chưa tạo)* | Chỉ khởi tạo sau `SOL-S13-*` | — | Locked (Pending `SOL`) |
 | `07` | `FEAT/TASK-*` | `07_items/` *(Chưa tạo)* | Chỉ tách item lập trình sau `DES-S13-*` | — | Locked (Pending `DES`) |
@@ -47,6 +47,7 @@ Xây dựng **Plugin Quản Lý Kho Hàng (`plugins/inventory`)** hoàn toàn đ
 | **Plugin `organization`** | Cây Chi nhánh / Phòng ban (`branch_id`, `department_id`) | Kho trực thuộc Chi nhánh; hỗ trợ chuyển kho liên chi nhánh |
 | **Plugin `catalog`** | Master Data dùng chung (Nhóm hàng, Đơn vị tính `UoM`, Lý do xuất/nhập) | Liên kết liên plugin qua `PluginDataServiceGrpc` hoặc sự kiện Kafka (cấm gọi REST trực tiếp từ plugin khác) |
 | **Plugin `employee`** | Nhân sự Thủ kho, Người đề nghị xuất nội bộ, Thành viên Hội đồng kiểm kê | Mapping `employee_id` chuẩn hóa thay cho text tự do |
+| **Plugin `form` (Sprint 08)** | Tùy biến biểu mẫu Kho (`Warehouse/Bin`, `SKU`, `Phiếu Nhập/QC`, `Xuất/Giữ hàng`, `Chuyển kho`, `Kiểm kê`) theo Tenant, Chi nhánh (`branch_id`) & Kho qua 32 loại trường + `GRID` công thức + `SIGNATURE` | Bảo vệ `System Locked Core Fields`; lưu `custom_fields_data` (`JSONB`) kèm `form_version` qua Entity Registry |
 | **Plugin `workflow` (Sprint 08)** | Phê duyệt nhiều cấp cho Phiếu đề nghị nhập/xuất/chuyển/kiểm kê vượt ngưỡng | Tái sử dụng Workflow Engine thay vì tự viết luồng duyệt riêng |
 | **Plugin `in-app-notification`** | Cảnh báo tồn kho dưới `Min`, hàng cận hạn `FEFO`, phiếu chờ xác nhận nhận hàng | Gửi notification bất đồng bộ qua Event Hub / Outbox |
 | **Các Plugin Nghiệp vụ Tương lai** *(Mua hàng, Bán hàng, Nội bộ...)* | Tách biệt hoàn toàn khỏi Sprint 13; khi triển khai sẽ gọi vào `inventory` qua gRPC/Kafka thông qua tham chiếu tổng quát (`reference_type`, `reference_id`) | `plugins/inventory` đứng độc lập hoàn toàn |
@@ -60,7 +61,7 @@ Xây dựng **Plugin Quản Lý Kho Hàng (`plugins/inventory`)** hoàn toàn đ
 
 | Hạng mục | Mô tả kiểm tra | Trạng thái | Ghi chú |
 | :--- | :--- | :--- | :--- |
-| `RAW-S13-001` | Yêu cầu gốc chuẩn hóa thuần Plugin Quản lý Kho (`plugins/inventory`) | ⏳ Pending Review | Đã hoàn thiện `v0.3` |
+| `RAW-S13-001` | Yêu cầu gốc thuần Plugin Kho (`plugins/inventory`) + `DOA/SoD`, Lưu vết 4 tầng & Form Builder | ⏳ Pending Review | Đã bổ sung `v0.5` |
 | `BENCH-S13-001` | Phân tích 10 đối thủ WMS/IMS Quốc tế & VN + 12 bài học kiến trúc | ⏳ Pending Review | Đã hoàn thiện `v0.3` |
-| `ANL-S13-001` | Hoàn thiện 7 luồng nghiệp vụ thuần Kho, State Machine, Ledger & Business Rules | ⏳ Pending Review | Đã hoàn thiện `v0.3` |
-| `CONF-S13-001` | Khách hàng review và chốt `Q1`–`Q10` & ký duyệt `AC-01`..`AC-20` | ⏳ Pending | Chặn Bước 05 (`SOL`) & Bước 06 (`DES`) |
+| `ANL-S13-001` | Hoàn thiện 9 luồng nghiệp vụ thuần Kho (`DOA/SoD`, Lưu vết 4 tầng & Form Builder `plugins/form`), State Machine, Ledger & `BR-W01..W18` | ⏳ Pending Review | Đã bổ sung `v0.5` |
+| `CONF-S13-001` | Khách hàng review và chốt `Q1`–`Q12` & ký duyệt `AC-01`..`AC-22` | ⏳ Pending | Chặn Bước 05 (`SOL`) & Bước 06 (`DES`) |

@@ -6,7 +6,7 @@
 | Sprint | Sprint 13 (`sprint_13_plugin_inventory`) |
 | Tác giả | AI Business Analyst (BA) |
 | Trạng thái | Draft / Chờ review |
-| Phiên bản | 0.3 |
+| Phiên bản | 0.5 |
 | Ngày cập nhật | 2026-11-15 |
 
 ---
@@ -60,6 +60,11 @@ Khởi tạo **Plugin Quản Lý Kho Hàng (`plugins/inventory`)** hoàn toàn �
 - Tra cứu **Thẻ kho chi tiết (`Stock Card`)**, **Báo cáo Xuất - Nhập - Tồn (`XNT`)** theo kỳ (`Đầu kỳ + Nhập - Xuất = Cuối kỳ`), **Báo cáo Tuổi tồn kho (`Inventory Aging`)** và xuất Excel/CSV theo bộ lọc.
 - Cảnh báo tự động qua `in-app-notification`: Tồn dưới `Min`, Lô cận hạn `FEFO`, Phiếu chuyển `In-Transit` quá hạn nhận.
 
+### 2.9. Phê Duyệt Đa Cấp (`DOA / SoD`), Lưu Vết 4 Tầng & Tùy Biến Biểu Mẫu Nhập Liệu (`plugins/form`) Theo Tenant / Chi Nhánh / Kho
+- Áp dụng **Ma trận Phê duyệt (`plugins/workflow`)** kết hợp **Bất kiêm nhiệm (`SoD`)** cho `OPENING_BALANCE`, `DISPOSAL_OUT`, `OTHER_IN/OUT`, `TRANSFER_DISCREPANCY`, Kiểm kê lệch vượt ngưỡng, Đảo chứng từ `POSTED`, và `Maker-Checker` 2 mắt khi bật `ALLOW_NEGATIVE` hoặc Mở khóa kỳ (`Period Unlock`).
+- Lưu vết **4 tầng bất biến**: *(1) `Approval History Log`*, *(2) `Before/After Diff` chính sách Kho/SKU/Lô QC*, *(3) `Inventory Lineage Graph`* và *(4) `Append-only Stock Ledger`* kèm Drawer `Audit & Lineage`.
+- Toàn bộ biểu mẫu Kho (`Kho/Bin`, `SKU Master`, `Phiếu Nhập/QC`, `Phiếu Giữ/Xuất/Xuất hủy`, `Phiếu Chuyển kho`, `Phiếu Kiểm kê`) sử dụng **`plugins/form` (Sprint 08 — 32 loại trường, `GRID` Excel công thức RPN, `IMAGE_UPLOAD`, `SIGNATURE`)** cho phép từng **Tenant / Chi nhánh (`branch_id`) / Kho** tùy biến trường mở rộng trong `custom_fields_data` (`JSONB`) + `form_version`, giữ nguyên `System Locked Core Fields`.
+
 ---
 
 ## 3. Phân Vai Người Dùng & Ranh Giới Tích Hợp Liên Plugin
@@ -81,7 +86,8 @@ Khởi tạo **Plugin Quản Lý Kho Hàng (`plugins/inventory`)** hoàn toàn �
 | **`organization`** | Chi nhánh (`branch_id`), Phòng ban (`department_id`). | `PluginDataServiceGrpc` / Sync Cache |
 | **`catalog`** | Nhóm hàng hóa, Đơn vị tính (`UoM`), Lý do xuất/nhập kho. | `PluginDataServiceGrpc` |
 | **`employee`** | Nhân sự Thủ kho, Người nhận xuất cấp phát nội bộ, Hội đồng kiểm kê. | `PluginDataServiceGrpc` |
-| **`workflow` (Sprint 08)** | Phê duyệt nhiều cấp cho Phiếu Xuất hủy, Kiểm kê vượt ngưỡng, Đề nghị xuất/chuyển. | Workflow Event / Callback |
+| **`form` (Sprint 08)** | Tùy biến biểu mẫu Kho (`Warehouse/SKU/Phiếu Nhập/QC/Xuất/Chuyển/Kiểm kê`) theo Tenant, Chi nhánh (`branch_id`) và Kho với 32 loại trường, `GRID`, `SIGNATURE`. | Schema Lai (`System Locked` + `JSONB` `form_version`) qua Entity Registry |
+| **`workflow` (Sprint 08)** | Phê duyệt nhiều cấp (`DOA/SoD`) cho Phiếu Xuất hủy, Kiểm kê vượt ngưỡng, Đề nghị xuất/chuyển, Đảo sổ & Mở khóa kỳ. | Workflow Event / Callback |
 | **`in-app-notification`** | Cảnh báo dưới `Min`, lô cận hạn `FEFO`, phiếu `In-Transit` treo quá hạn. | Kafka / Outbox Event |
 
 ---

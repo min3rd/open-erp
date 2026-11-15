@@ -6,7 +6,7 @@
 | Sprint | Sprint 14 (`sprint_14_plugin_crm`) |
 | Tác giả | AI Business Analyst (BA) |
 | Trạng thái | Draft / Chờ khách hàng review nghiệp vụ |
-| Phiên bản | 0.1 |
+| Phiên bản | 0.3 |
 | Tài liệu liên quan | [00_READING_GUIDE.md](../00_READING_GUIDE.md) · [RAW-S14-001](../01_raw_notes/01_RAW-S14-001_crm_customer_requirements.md) · [BENCH-S14-001](../03_benchmarks/01_BENCH-S14-001_crm_customer_benchmarks.md) · [CONF-S14-001](../04_confirmation/01_CONF-S14-001_sprint_14_scope_and_ac.md) |
 
 ---
@@ -205,9 +205,72 @@ stateDiagram-v2
    - **Cơ chế Tạm dừng đồng hồ SLA (`SLA Pause`)**: Khi chuyển trạng thái sang **`WAITING_CUSTOMER`** (chờ khách gửi thêm thông tin/hình ảnh), đồng hồ SLA tạm dừng và tự chạy tiếp khi khách phản hồi hoặc nhân viên mở lại trạng thái `IN_PROGRESS`.
    - Cảnh báo qua `in-app-notification` khi SLA đạt `75%` (Sắp vi phạm) và `100%` (Vi phạm SLA — leo thang lên Trưởng bộ phận CSKH); cho phép ghi nhận đánh giá hài lòng `CSAT` sau khi đóng Ticket.
 
+### Luồng 8: Ma Trận Phê Duyệt CRM (`DOA / SoD`) & Kiến Trúc Lưu Vết Kiểm Toán 4 Tầng (`Immutable Audit Trail & CRM Lineage`)
+
+Mọi thao tác nhạy cảm về giá bán, chiết khấu, hạn mức tín dụng, hợp đồng, đổi trả `RMA`, gộp khách hàng và chuyển quyền sở hữu (`Reassign`) trong `plugins/crm` đều đi qua **Ma trận Phê duyệt (`plugins/workflow` — Sprint 08)** kết hợp kiểm soát **Bất kiêm nhiệm (`Segregation of Duties — SoD`)** và lưu vết **4 tầng bất biến**:
+
+```mermaid
+flowchart LR
+    S["Sales Rep hoac CSKH (Maker)"] --> SOD["Kiem tra Bat kiem nhiem (SoD Guard)"]
+    SOD -->|"Trung Maker = Approver"| STOP["Chan thao tac (403 SOD_VIOLATION)"]
+    SOD -->|"Hop le (Khac nguoi)"| WF["plugins/workflow (DOA CRM)"]
+    WF -->|"Approve / Reject / Delegate"| AUD["4-Layer Immutable CRM Audit"]
+    S -->|"Sua Credit Limit / Owner / Merge"| BAF["Tang 2: Field Before/After Diff"]
+    WF --> LOG1["Tang 1: Approval History Log"]
+    WF --> LIN3["Tang 3: Lead-to-Order-to-RMA Lineage"]
+    WF --> LED4["Tang 4: Append-Only AR Ledger"]
+    LOG1 --> AUD
+    BAF --> AUD
+    LIN3 --> AUD
+    LED4 --> AUD
+```
+
+1. **Ma Trận Phê Duyệt CRM (`DOA`) & Nguyên Tắc Bất Kiêm Nhiệm (`SoD`)**:
+
+| Đối tượng / Thao tác nhạy cảm | Luồng duyệt `DOA` (`plugins/workflow`) | Quy tắc Bất kiêm nhiệm (`SoD`) & Điều kiện bắt buộc |
+| :--- | :--- | :--- |
+| **Gộp trùng Khách hàng (`Customer Merge`) & Chuyển Quyền sở hữu (`Lead/Account Reassign` hàng loạt)** | Trưởng nhóm Kinh doanh / Quản lý Chi nhánh duyệt | `Sales Rep` không tự ý cướp/chuyển Khách hàng của đồng nghiệp hoặc tự gộp Account có phát sinh công nợ. |
+| **Sửa Dữ liệu Tài chính Khách hàng Nhạy cảm** *(Hạn mức `Credit Limit`, MST, Điều khoản TT, Mở `Blacklist`, Chính sách giá riêng)* | **Maker -> Checker** (Kế toán Công nợ / CFO duyệt 2 mắt) | Cấm `Sales Owner` tự nâng `Credit Limit` hoặc nới điều khoản nợ cho khách mình phụ trách (`Maker != Checker`). |
+| **Báo giá / Đơn hàng Chiết khấu vượt khung (`Discount Override`)** | Duyệt theo bậc % chiết khấu (`TP Kinh doanh -> Giám đốc KD / CFO`) | `Discount Approver != Sales Owner` tạo Báo giá/Đơn hàng. |
+| **Vượt Hạn mức Công nợ (`Credit Override`) & Hủy Đơn đã Giữ hàng** | Kế toán Công nợ -> CFO (nếu vượt trần `> %` quy định) | `Credit Approver != Sales Rep` lập Đơn hàng; bắt buộc ghi rõ lý do ngoại lệ & cam kết hạn thanh toán. |
+| **Duyệt Hợp đồng, Đổi/Trả hàng (`RMA`), Hoàn tiền & Giảm trừ Công nợ** | TP Kinh doanh -> Kế toán trưởng / Trưởng CSKH | Người đề xuất `RMA` / `Sales Rep` hưởng hoa hồng không tự duyệt giảm trừ công nợ hay hoàn tiền. |
+| **Đảo / Điều chỉnh Phiếu Thu (`Payment Receipt Reversal`)** | Kế toán trưởng duyệt | Cấm sửa/xóa Phiếu Thu đã ghi sổ; `Reversal Approver != Receipt Maker`. |
+
+2. **Kiến Trúc 4 Tầng Lưu Vết Kiểm Toán Bất Biến (`4-Layer Immutable Audit Trail`)**:
+   - **Tầng 1 — Nhật ký Phê duyệt (`Approval History Log`)**: Ghi nhận trọn vẹn mọi quyết định `SUBMIT / APPROVE / REJECT / REQUEST_CHANGES / DELEGATE / ESCALATE` từ `plugins/workflow` (`actor_id`, `role`, `step_no`, `decision`, `comment`, `timestamp`).
+   - **Tầng 2 — Lưu vết Cấp trường Trước/Sau (`Field-Level Before/After Diff`)**: Lưu JSON snapshot Trước/Sau (`entity_type`, `entity_id`, `field_name`, `old_value`, `new_value`, `changed_by`, `changed_at`, `reason`) khi sửa `owner_id`, `credit_limit`, `payment_term`, `tax_code`, `discount_pct`, chuyển `Pipeline Stage + Lost Reason`, lịch sử **Customer Merge**, và các lần Tạm dừng/Tiếp tục đồng hồ `Ticket SLA`.
+   - **Tầng 3 — Đồ thị Truy vết Chuỗi Khách hàng (`CRM Lineage Graph`)**: Kết nối bất biến chuỗi `Lead -> Customer Account -> Opportunity -> Quotation v1..vN -> Sales Order -> StockReservation / Delivery (plugins/inventory) -> Payment Receipt / AR Ledger -> RMA / Support Ticket`.
+   - **Tầng 4 — Sổ Công nợ Phải thu Bất biến (`Append-Only AR Ledger`)**: `Customer Receivable Ledger` cấm `UPDATE/DELETE`; mọi sai sót bắt buộc ghi bút toán đảo hoặc điều chỉnh tham chiếu chứng từ gốc.
+
+### Luồng 9: Tùy Biến Biểu Mẫu CRM Động (`Dynamic Form Builder` qua `plugins/form`) Theo Tenant & Chi Nhánh (`branch_id`)
+
+Mỗi Tenant (B2B Dự án, Bán buôn, Dịch vụ, Bán lẻ) và từng Chi nhánh kinh doanh (`branch_id` thuộc `plugins/organization`) có nhu cầu thu thập dữ liệu khách hàng, cơ hội và hậu mãi khác nhau. Toàn bộ form nhập liệu CRM kết xuất động qua **`plugins/form` (Sprint 08 — 32 loại trường qua 6 nhóm, `GRID` công thức RPN, `IMAGE_UPLOAD`, `SIGNATURE`, `Skip Logic`)**:
+
+```mermaid
+flowchart LR
+    CTX["Mo Form CRM (tenant_id, branch_id, entity_type)"] --> RES["Phan giai 3 tang (plugins/form)"]
+    RES -->|"Uu tien 1"| BR["Bieu mau Rieng Chi nhanh (Branch Override)"]
+    RES -->|"Uu tien 2 (Fallback)"| TN["Bieu mau Chung Tenant (Tenant Override)"]
+    RES -->|"Uu tien 3 (Mac dinh)"| SY["System Seeded Template"]
+    BR & TN & SY --> HYB["Hybrid Schema Renderer (@shared sharp UI)"]
+    HYB --> CORE["System Locked Core Fields (phone, email, mst, credit_limit, total)"]
+    HYB --> DYN["Custom Fields + GRID + Signature -> JSONB + form_version"]
+    DYN --> WF["Dung lam bien re nhanh tren plugins/workflow"]
+    DYN --> TBL["Hien thi / Loc cot dong tren @shared Sticky Table"]
+    DYN --> AUD["Ghi Before/After Diff vao Audit Log Tang 2"]
+```
+
+| Nhóm Form CRM (`Entity Registry`) | Trường Lõi Hệ thống (`system_locked = true`) | Ví dụ Tùy biến Động theo Ngành / Chi nhánh (`plugins/form`) |
+| :--- | :--- | :--- |
+| **`Lead Capture & Tiêu chí BANT`** | `lead_source`, `phone`, `email`, `tax_code`, `owner_id`, `branch_id` | Nhóm sản phẩm quan tâm (`MULTI_SELECT`), Ngân sách dự kiến (`CURRENCY`), Form khảo sát nhu cầu theo chiến dịch (`Skip Logic`). |
+| **`Customer Account B2B/B2C & Contact`** | `customer_type`, `tax_code`, `credit_limit`, `payment_term_id`, `tier` | Hồ sơ ĐKKD (`FILE_UPLOAD`), Quy mô nhân sự/Dây chuyền (`DROPDOWN`), Thông số kỹ thuật đặc thù khách hàng (`GRID`). |
+| **`Opportunity Stage Checklist`** | `pipeline_id`, `stage_id`, `expected_amount`, `probability`, `lost_reason` | Bảng chấm điểm cơ hội / Đối thủ cạnh tranh (`DROPDOWN`), Tài liệu khảo sát hiện trường (`IMAGE_UPLOAD`) bắt buộc trước khi qua bước Thương lượng. |
+| **`Quotation, Sales Order & Contract`** | `customer_id`, `sku_id`, `qty`, `unit_price`, `discount`, `tax_rate`, `grand_total` | Bảng kê chi tiết hạng mục thi công/dịch vụ kèm theo (`GRID` RPN), Điều khoản bảo lãnh thực hiện (`FILE_UPLOAD`), Chữ ký xác nhận (`SIGNATURE`). |
+| **`Sales Return (RMA) & Ticket SLA / CSAT`** | `order_id`, `serial_no`, `rma_reason`, `priority`, `sla_policy_id` | Ảnh/Video lỗi sản phẩm (`IMAGE_UPLOAD`), Phiếu khảo sát hài lòng `CSAT` công khai hoặc nội bộ qua `plugins/form` sau khi đóng Ticket. |
+
 ---
 
-## 3. Bộ Quy Tắc Nghiệp Vụ (`BR-C01` – `BR-C14`)
+## 3. Bộ Quy Tắc Nghiệp Vụ (`BR-C01` – `BR-C18`)
 
 | Mã BR | Quy tắc bắt buộc |
 | :--- | :--- |
@@ -225,6 +288,10 @@ stateDiagram-v2
 | `BR-C12` | **Tính Toán SLA Chính Xác Theo Giờ Làm Việc & Trạng thái Chờ Khách**: Bộ đếm SLA Ticket tự động tạm dừng khi trạng thái là `WAITING_CUSTOMER` và chỉ cảnh báo/leo thang theo khung giờ làm việc cấu hình của Tenant (VD: T2–T6 08:00–17:30 hoặc 24/7). |
 | `BR-C13` | **Kiểm soát Chiết khấu & Duyệt Ngoại lệ Qua `plugins/workflow`**: Cấm viết cây phê duyệt ad-hoc; mọi luồng duyệt chiết khấu vượt khung, duyệt vượt hạn mức công nợ (`Credit Override`) và duyệt `RMA` đều gọi thống nhất qua `plugins/workflow`. |
 | `BR-C14` | **Liên thông Liên Plugin Chuẩn Hợp Đồng**: Mọi giao tiếp giữa `crm` và `inventory`, `organization`, `catalog`, `employee`, `workflow`, `in-app-notification` dùng `PluginDataServiceGrpc` hoặc Kafka (cấm gọi REST chéo, cấm `size = 100` fix cứng). |
+| `BR-C15` | **Bất Kiêm Nhiệm Phê Duyệt CRM (`Segregation of Duties — SoD`)**: Engine phê duyệt bắt buộc đối chiếu `actor_id`: *(a)* `Sales Rep` không tự duyệt `Discount Override`, `Credit Override`, `Customer Merge` hay tự `Reassign` khách hàng của người khác; *(b)* thay đổi `Credit Limit`, `Payment Term`, mở `Blacklist` và Đảo Phiếu Thu phải qua duyệt 2 mắt (`Maker-Checker` Kế toán/CFO); *(c)* Sales hưởng hoa hồng không tự duyệt giảm trừ công nợ `RMA`. |
+| `BR-C16` | **Lưu Vết Kiểm Toán 4 Tầng Bất Biến (`Immutable Audit & Lineage`)**: Mọi thay đổi trường nhạy cảm (`owner_id`, `credit_limit`, `discount_pct`, `pipeline_stage`, `sla_pause`, `customer_merge`), mọi quyết định `workflow` và chuỗi liên kết `Lead -> Quote v1..vN -> SO -> StockReservation -> AR -> RMA` đều ghi bất biến và mở được trong Drawer `Audit & Lineage` (cấm `UPDATE/DELETE` bảng log & `AR Ledger`). |
+| `BR-C17` | **Bảo Vệ Trường Lõi CRM & Đa Phiên Bản Form Builder (`Hybrid Form Schema`)**: Biểu mẫu `Lead/Customer/Opportunity/Quotation/Order/Contract/RMA/Ticket` kết xuất qua `plugins/form`; các trường lõi (`tax_code`, `credit_limit`, `sku_id`, `qty`, `unit_price`, `discount`, `grand_total`) khóa `system_locked = true`; dữ liệu mở rộng lưu `custom_fields_data` (`JSONB`) gắn `(form_id, form_version)`. |
+| `BR-C18` | **Kế Thừa Form 3 Tầng (`System -> Tenant -> Branch`) & Liên Thông Workflow/Table**: Phân giải form theo `branch_id` -> `tenant_id` -> `System Default`; trường động dùng được làm biến điều kiện rẽ nhánh trên `plugins/workflow` (VD: điều kiện duyệt theo ngành/dự án đặc biệt), bật cột lọc trên `@shared/*` Sticky Table và ghi Before/After Diff vào Audit Log. |
 
 ---
 
@@ -279,7 +346,9 @@ stateDiagram-v2
 - **`US-S14-21`** (*Tất cả người dùng Web Desktop*): Tùy chỉnh toàn diện mọi bảng dữ liệu (`Lead`, `Customer`, `Opportunity`, `Quotation`, `Sales Order`, `Contract`, `AR Ledger`, `Ticket`): lọc đa điều kiện, sắp xếp đa cột, ẩn/hiện cột, kéo/đổi thứ tự cột, chọn số hàng/trang đồng bộ URL Query Params.
 - **`US-S14-22`** (*Tất cả người dùng Web Desktop*): Thao tác nhanh qua **Context Menu chuột phải** trên từng dòng bảng (Mở Customer 360, Ghi chú/Cuộc gọi, Chuyển đổi Lead, Tạo Báo giá, Tạo Đơn hàng, Ghi nhận Thu tiền, Chuyển người phụ trách `Reassign`).
 - **`US-S14-23`** (*Sales / CSKH Mobile Ionic*): Tra cứu nhanh Customer 360, Check-in gặp khách, Xem tồn kho/Tạo Báo giá nháp, Xem tiến độ Đơn hàng & Cập nhật Ticket ngay trên Mobile (`>= 40px` touch target).
-- **`US-S14-24`** (*Quản trị Tenant*): Cấu hình linh hoạt bộ thông số CRM (Bật/tắt tầng Lead, Chính sách Duplicate Warning/Block, Ngưỡng chiết khấu cần duyệt, Chính sách vượt Hạn mức công nợ, SLA Ticket).
+- **`US-S14-24`** (*Quản trị Tenant*): Cấu hình linh hoạt bộ thông số CRM (Bật/tắt tầng Lead, Chính sách Duplicate Warning/Block, Ngưỡng chiết khấu cần duyệt, Chính sách vượt Hạn mức công nợ, SLA Ticket, Ma trận `DOA/SoD`).
+- **`US-S14-25`** (*Kiểm toán / Kế toán Công nợ / Quản lý Kinh doanh*): Mở Stacked Drawer **Lịch sử Duyệt & Lưu vết (`Audit & Lineage`)** trên Customer 360, Báo giá, Đơn hàng hoặc Hợp đồng để xem Timeline phê duyệt (`Workflow`), Diff Trước/Sau khi đổi `Credit Limit`, `Sales Owner`, chiết khấu hoặc gộp khách hàng và Đồ thị Chuỗi `Lead -> Quote v1..vN -> SO -> StockReservation -> AR -> RMA`.
+- **`US-S14-26`** (*Quản trị Tenant / Quản lý Chi nhánh*): Dùng Form Studio của **`plugins/form` (Sprint 08)** để tùy biến trường/section, `Skip Logic`, bảng tính `GRID`, chữ ký `SIGNATURE` trên `Lead`, `Customer`, `Opportunity`, `Quotation`, `Sales Order`, `Contract`, `RMA/Ticket` theo từng Tenant hoặc từng Chi nhánh (`branch_id`).
 
 ---
 
@@ -294,10 +363,11 @@ Tất cả các màn hình danh sách của `plugins/crm` (**`Leads`, `Customers
    - *Trên `Leads`*: Gọi/Ghi chú nhanh, Chuyển đổi Lead, Gán/Chuyển người phụ trách (`Reassign`), Đánh dấu Không đạt (`Disqualify`).
    - *Trên `Customers`*: Mở Customer 360, Tạo Cơ hội mới, Tạo Báo giá nhanh, Tạo Đơn hàng, Ghi nhận Phiếu Thu, Mở Ticket mới.
    - *Trên `Quotations / Sales Orders`*: Xem chi tiết (Drawer/Split-View), Tạo Revision mới, Xác nhận Đơn / Kiểm tra giữ hàng Kho, Tạo Đổi trả RMA, Ghi nhận Thanh toán.
+   - *Trên mọi bảng Khách hàng, Cơ hội, Báo giá, Đơn hàng, Hợp đồng*: Mở nhanh Stacked Drawer **`Lịch sử Duyệt & Audit Log`** (`?drawer=audit&entity=...&id=...`).
 5. **Fallback Mobile (`>= 40px`)**: Trên Mobile Ionic (`390x844 px`), cung cấp nút hành động `...` hoặc bấm thẻ mở Action Sheet chuẩn chạm `>= 40px`.
 
 ### 6.2. Anti-Modal, Customer 360 Nested Route & Zero-Emoji
-- **Anti-Modal**: Thay toàn bộ modal tạo/sửa bằng **Nested Routes** (VD: `/crm/customers/:id/overview|deals|orders|debt|tickets`), **Split-Screen** (Danh sách bên trái + Chi tiết tương tác bên phải), và **Stacked Drawers** (`?drawer=quotation&id=...&subDrawer=credit-check`).
+- **Anti-Modal**: Thay toàn bộ modal tạo/sửa bằng **Nested Routes** (VD: `/crm/customers/:id/overview|deals|orders|debt|tickets`), **Split-Screen** (Danh sách bên trái + Chi tiết tương tác bên phải), và **Stacked Drawers** (`?drawer=quotation&id=...&subDrawer=credit-check`). Toàn bộ form động kết xuất qua `plugins/form` bằng component chuẩn `@shared/*` (`app-sharp-input`, `app-sharp-select`, `app-sharp-textarea`, `app-sharp-toggle`, cấm HTML input thô) và cho phép bật/lọc cột `custom_fields_data` trên Sticky Table. Riêng Stacked Drawer **`Audit & Lineage`** (`?drawer=audit&auditTab=approval|diff|lineage`) hiển thị Timeline duyệt `Workflow & SoD`, Diff Trước/Sau (đặc biệt khi đổi `Credit Limit` / `Owner` / Gộp trùng) và Đồ thị Chuỗi từ `Lead` tới `AR/RMA`.
 - **High Density & Zero-Emoji**: Cấm emoji Unicode trên badge trạng thái, nhãn cột hay context menu; dùng SVG icon + i18n keys (`vi.json`/`en.json`) đầy đủ.
 
 ### 6.3. Ma Trận Phạm Vi Desktop Web vs. Mobile Ionic
@@ -311,3 +381,5 @@ Tất cả các màn hình danh sách của `plugins/crm` (**`Leads`, `Customers
 | Hợp đồng, Thanh toán & Tuổi nợ `AR Aging` | Đầy đủ (Milestones + Sổ nợ + Export) | Xem cảnh báo Công nợ tới hạn để Sales nhắc khách |
 | Đổi/Trả hàng (`RMA`) & Ticket `SLA` | Đầy đủ (Cấu hình SLA + Duyệt RMA) | Tạo/Cập nhật Ticket khi đi thị trường, đính kèm ảnh |
 | Cấu hình Pipeline, Bảng giá, Hạn mức & Báo cáo | Đầy đủ | Không hỗ trợ cấu hình hệ thống (chỉ KPI cá nhân) |
+| Phê duyệt (`DOA/SoD`) & Drawer `Audit & Lineage` | Đầy đủ (Timeline + Diff Trước/Sau + Cây Lineage + Export Log) | Thực hiện Duyệt/Từ chối trên `Workflow` & Xem lịch sử duyệt gần nhất |
+| Tùy biến Biểu mẫu CRM Động (`plugins/form` Tenant/Chi nhánh) | Thiết kế & Publish Form Studio (`System -> Tenant -> Branch`) + Nhập liệu | Điền Form động đã Publish khi nhập `Lead` / Check-in / `Ticket` (`>= 40px`) |

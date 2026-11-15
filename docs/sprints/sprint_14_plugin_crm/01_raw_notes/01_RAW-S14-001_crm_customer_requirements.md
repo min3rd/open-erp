@@ -6,7 +6,7 @@
 | Sprint | Sprint 14 (`sprint_14_plugin_crm`) |
 | Tác giả | AI Business Analyst (BA) |
 | Trạng thái | Draft / Chờ review |
-| Phiên bản | 0.1 |
+| Phiên bản | 0.3 |
 | Ngày tạo | 2026-11-15 |
 
 ---
@@ -63,6 +63,11 @@ Khởi tạo **Plugin Quản Lý Khách Hàng & Các Nghiệp Vụ Với Khách 
 - Ghi nhận lịch sử Cuộc gọi, Lịch hẹn, Email, Ghi chú, Nhiệm vụ nhắc việc (`Follow-up Tasks`) liên kết với Lịch làm việc.
 - **Báo cáo & Phân tích**: Phễu chuyển đổi (`Lead -> Opp -> Won`), Tỷ lệ thắng/thua theo lý do, Doanh số theo Nhân viên/Nhóm/Chi nhánh, Công nợ phải thu theo tuổi nợ, Thời gian xử lý Ticket trung bình.
 
+### 2.9. Phê Duyệt Đa Cấp (`DOA / SoD`), Lưu Vết 4 Tầng & Tùy Biến Biểu Mẫu CRM (`plugins/form`) Theo Tenant / Chi Nhánh
+- Áp dụng **Ma trận Phê duyệt (`plugins/workflow`)** + **Bất kiêm nhiệm (`SoD`)** cho `Customer Merge`, `Reassign`, thay đổi `Credit Limit` / `Payment Term` (`Maker-Checker`), `Discount Override`, `Credit Override`, duyệt `Contract`, `RMA`/Hoàn tiền và Đảo Phiếu Thu.
+- Lưu vết **4 tầng bất biến**: *(1) `Approval History Log`*, *(2) `Before/After Diff` sửa `owner_id/credit_limit/discount/stage/SLA`*, *(3) `CRM Lineage Graph` (`Lead -> Account -> Opp -> Quote -> SO -> AR -> RMA`)* và *(4) `Append-only AR Ledger`* kèm Drawer `Audit & Lineage`.
+- Toàn bộ biểu mẫu CRM (`Lead Capture / BANT`, `Customer Account B2B/B2C & Contact`, `Opportunity Checklist`, `Quotation & Sales Order`, `Contract`, `RMA & Ticket Bảo hành / CSAT Survey`) dựng qua **`plugins/form` (Sprint 08 — 32 loại trường, `GRID` công thức RPN, `IMAGE_UPLOAD`, `SIGNATURE`)** cho phép từng **Tenant / Chi nhánh (`branch_id`)** tùy biến trường mở rộng trong `custom_fields_data` (`JSONB`) + `form_version`, giữ nguyên `System Locked Core Fields`.
+
 ---
 
 ## 3. Phân Vai Người Dùng & Liên Kết Hệ Sinh Thái
@@ -82,7 +87,8 @@ Khởi tạo **Plugin Quản Lý Khách Hàng & Các Nghiệp Vụ Với Khách 
 
 | Nhóm ràng buộc | Yêu cầu bắt buộc từ `AGENTS.md` | Ảnh hưởng tới tài liệu Sprint 14 |
 | :--- | :--- | :--- |
-| **Multi-Tenant & Ranh giới Plugin** | Cô lập `tenant_id` triệt để; mọi Entity đăng ký Entity Registry; liên kết `inventory`, `organization`, `catalog`, `employee`, `workflow`, `in-app-notification` 100% qua gRPC/Kafka (cấm gọi REST chéo trực tiếp hay fix `size=100`). | Tách rạch ròi dữ liệu Khách hàng/Đơn hàng (`crm`) khỏi dữ liệu Tồn kho/Phiếu kho (`inventory`). |
+| **Multi-Tenant & Ranh giới Plugin** | Cô lập `tenant_id` triệt để; mọi Entity đăng ký Entity Registry; liên kết `inventory`, `organization`, `catalog`, `employee`, `form`, `workflow`, `in-app-notification` 100% qua gRPC/Kafka (cấm gọi REST chéo trực tiếp hay fix `size=100`). | Tách rạch ròi dữ liệu Khách hàng/Đơn hàng (`crm`) khỏi dữ liệu Tồn kho/Phiếu kho (`inventory`). |
+| **Dynamic Form Builder (`plugins/form` — Sprint 08)** | Toàn bộ form nhập liệu CRM (`Lead`, `Account/Contact`, `Opportunity`, `Quotation`, `Sales Order`, `Contract`, `RMA/Ticket`) kết xuất qua `plugins/form` (`32` loại trường, `GRID`, `SIGNATURE`) theo kế thừa 3 tầng (`System -> Tenant -> Branch`) + `System Locked Core Fields` + `JSONB` kèm `form_version`. | Từng Tenant/Chi nhánh tùy biến trường bán hàng/chăm sóc khách mà không sửa code; hỗ trợ điều kiện rẽ nhánh `workflow` & cột lọc Sticky Table. |
 | **Data View & Sticky Scroll Table + Context Menu (`#33`)** | Mọi danh sách (Lead, Customer, Contact, Opportunity List, Quotation, Sales Order, Contract, Receivable Debt, Ticket) dùng Table `@shared/*` cố định Header/Footer, chỉ cuộn Content, ẩn/hiện & đổi thứ tự cột, số hàng/trang, đồng bộ URL & **Context Menu chuột phải** đầy đủ tác vụ nghiệp vụ (cùng fallback `>= 40px` trên Mobile). | Mô tả chi tiết trong `ANL-S14-001` & tiêu chí `AC-18` trong `CONF-S14-001`. |
 | **Anti-Modal & Route-Driven State** | Tuyệt đối không mở modal popup tạo Lead/Báo giá/Đơn hàng/Ticket; dùng **Split-View**, **Kanban Board đồng bộ URL**, **Nested Route** cho Customer 360 và **Stacked Drawers** (`?drawer=...`). | Bảo toàn trạng thái khi F5 hoặc chia sẻ link cho đồng nghiệp/sếp duyệt. |
 | **Dual-Mode Desktop & Mobile Ionic** | Desktop (`>= 1280px`) tối ưu mật độ dữ liệu (`High Density & Sharp`); Mobile Ionic (`390x844 px`) tối ưu cho Sales đi thị trường (Tra cứu Khách 360, Check-in ghi chú gặp khách, Xem tồn kho/Tạo Báo giá nhanh, Theo dõi Đơn & Nhắc việc, nút chạm `>= 40px`). | Ma trận rõ ràng từng màn hình Desktop vs. Mobile. |

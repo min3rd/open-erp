@@ -5,16 +5,16 @@
 | ID | CONF-S13-001 |
 | Sprint | Sprint 13 (`sprint_13_plugin_inventory`) |
 | Tác giả | AI Business Analyst (BA) |
-| Trạng thái | ⏳ PENDING — Chờ Khách hàng review luồng nghiệp vụ & chốt `Q1`–`Q10` + `AC-01`..`AC-20` |
-| Phiên bản | 0.3 |
+| Trạng thái | ⏳ PENDING — Chờ Khách hàng review luồng nghiệp vụ & chốt `Q1`–`Q12` + `AC-01`..`AC-22` |
+| Phiên bản | 0.5 |
 | Tài liệu đầu vào | [00_READING_GUIDE.md](../00_READING_GUIDE.md) · [RAW-S13-001](../01_raw_notes/01_RAW-S13-001_inventory_requirements.md) · [BENCH-S13-001](../03_benchmarks/01_BENCH-S13-001_inventory_warehouse_benchmarks.md) · [ANL-S13-001](../02_analysis/01_ANL-S13-001_inventory_workflows.md) |
 
 > [!IMPORTANT]
-> Đây là cổng **Confirmation Gate (Bước 04)**. Bước 05 (`SOL-S13-*`), Bước 06 (`DES-S13-*`) và việc lập trình **chỉ được phép khởi động** sau khi Khách hàng phản hồi xác nhận 10 quyết định nghiệp vụ Kho (`Q1`–`Q10`) và chốt bộ tiêu chí `AC-01`–`AC-20`.
+> Đây là cổng **Confirmation Gate (Bước 04)**. Bước 05 (`SOL-S13-*`), Bước 06 (`DES-S13-*`) và việc lập trình **chỉ được phép khởi động** sau khi Khách hàng phản hồi xác nhận 12 quyết định nghiệp vụ Kho (`Q1`–`Q12`) và chốt bộ tiêu chí `AC-01`–`AC-22`.
 
 ---
 
-## 1. Bảng Câu Hỏi Chốt Quyết Định Nghiệp Vụ Kho (`Q1`–`Q10`)
+## 1. Bảng Câu Hỏi Chốt Quyết Định Nghiệp Vụ Kho (`Q1`–`Q12`)
 
 | Mã | Chủ đề cần quyết định | Các phương án lựa chọn | Đề xuất của BA | Phản hồi Khách hàng |
 | :--- | :--- | :--- | :--- | :--- |
@@ -28,6 +28,8 @@
 | **`Q8`** | **Kiểm kê Mù (`Blind Count`) & Workflow Duyệt** | Hỗ trợ tùy chọn ẩn số tồn hệ thống khi kiểm kê ngoài hiện trường và dùng `plugins/workflow` (Sprint 08) để duyệt các phiếu nhạy cảm (Xuất hủy, Kiểm kê vượt ngưỡng, Đề nghị xuất nội bộ)? | **Có**, tích hợp trực tiếp `plugins/workflow` và `plugins/in-app-notification`. | ⏳ Chờ chốt |
 | **`Q9`** | **Phân quyền Xem Giá vốn & Khóa Kỳ Kho** | Ẩn cột Giá vốn/Thành tiền với vai trò Thủ kho chỉ xem số lượng (`INVENTORY_VIEW_COST`), đồng thời có tính năng Khóa kỳ theo tháng (`Period Closing`)? | **Có**, tuân thủ phân tách vai trò Kế toán kho vs Thủ kho (`L02`, `L08`). | ⏳ Chờ chốt |
 | **`Q10`** | **Phạm vi Mobile Ionic Thủ Kho Thực Địa** | Mobile tập trung tối giản vào 4 thao tác ngoài kho: Tra cứu tồn bằng quét mã, Kiểm đếm Nhập, Soạn hàng Xuất & Xác nhận Nhận chuyển kho, Đếm Kiểm kê (hỗ trợ Camera + Máy quét Bluetooth HID)? | **Có**, giữ Mobile gọn nhẹ, nút bấm `>= 40px` đúng chuẩn Ionic 8. | ⏳ Chờ chốt |
+| **`Q11`** | **Ma Trận Phê Duyệt Kho (`DOA / SoD`) & Lưu Vết 4 Tầng Bất Biến** | Áp dụng bắt buộc cơ chế **Bất kiêm nhiệm (`SoD`)** qua `plugins/workflow` (chặn tự duyệt `OPENING_BALANCE`, `DISPOSAL_OUT`, chênh lệch Kiểm kê vượt ngưỡng, Đảo chứng từ `POSTED`; `Maker-Checker` 2 mắt khi bật `ALLOW_NEGATIVE` hoặc Mở khóa kỳ) kết hợp Lưu vết 4 tầng (`Approval History`, `Field Before/After Diff`, `Ledger Lineage`, `Immutable Stock Ledger`) + Drawer `Audit & Lineage`? | **Có**, bắt buộc để chống thất thoát/chỉnh tồn kho trái phép và đáp ứng kiểm toán tài sản. | ⏳ Chờ chốt |
+| **`Q12`** | **Tùy Biến Biểu Mẫu Kho Qua `plugins/form` Theo Tenant, Chi Nhánh & Kho** | Toàn bộ form nhập liệu Kho (`Warehouse/Bin`, `SKU`, `Phiếu Nhập & QC`, `Xuất/Giữ hàng`, `Chuyển kho`, `Kiểm kê`) dựng qua **`plugins/form` (Sprint 08 — 32 loại trường, `GRID` Excel công thức RPN, `IMAGE_UPLOAD`, `SIGNATURE`)** theo kế thừa đa tầng (`System -> Tenant -> Branch/Warehouse`), giữ `System Locked Core Fields` và lưu `custom_fields_data` (`JSONB`) + `form_version`? | **Có**, đáp ứng đa dạng ngành nghề (Lạnh/Dược/Bán lẻ/Sản xuất) theo từng chi nhánh/kho mà không làm sai lệch `Stock Ledger`. | ⏳ Chờ chốt |
 
 ---
 
@@ -52,6 +54,11 @@
    - **Thẻ kho (`Stock Card`)**, Báo cáo **Xuất - Nhập - Tồn (`XNT`)**, Báo cáo **Tuổi tồn kho (`Aging`)**, xuất Excel/CSV theo bộ lọc hiện hành.
    - Cảnh báo chủ động qua `in-app-notification` (Tồn dưới `Min`, Lô cận hạn `FEFO`, Phiếu chuyển `In-Transit` quá hạn).
    - Toàn bộ bảng dữ liệu dùng `@shared/*` Data Table đạt chuẩn **Cố định Header & Footer, chỉ cuộn Content**, tùy biến ẩn/hiện/đổi thứ tự cột, số hàng/trang, đồng bộ URL Query Params và **Context Menu chuột phải đầy đủ thao tác** (cùng nút `>= 40px` trên Mobile Ionic).
+5. **Kiểm Soát Phê Duyệt (`DOA / SoD`) & Lưu Vết Kiểm Toán 4 Tầng**:
+   - Kiểm soát `SoD` trên `plugins/workflow` (chặn tự duyệt xuất hủy/điều chỉnh/kiểm kê vượt ngưỡng, `Maker-Checker` khi bật xuất âm kho hoặc mở khóa kỳ).
+   - Lưu vết 4 tầng bất biến (`Approval History`, `Before/After Diff` chính sách Kho/SKU/Lô QC, `Inventory Lineage`, `Append-only Stock Ledger`) và hiển thị trực quan qua Stacked Drawer `Audit & Lineage` (`?drawer=audit`).
+6. **Tùy Biến Biểu Mẫu Kho Động Theo Tenant, Chi Nhánh & Kho (`plugins/form` — Sprint 08)**:
+   - Kết xuất biểu mẫu `Warehouse/SKU`, `Phiếu Nhập/QC`, `Xuất/Giữ hàng`, `Chuyển kho`, `Kiểm kê` qua `plugins/form` (`32` loại trường, `GRID`, `IMAGE_UPLOAD`, `SIGNATURE`), kế thừa 3 tầng (`System -> Tenant -> Branch/Warehouse`), khóa `System Locked Core Fields`, lưu `custom_fields_data` (`JSONB`) + `form_version`, dùng làm biến điều kiện `workflow` & cột lọc Sticky Table.
 
 ### 2.2. Ngoài Phạm Vi Sprint 13 (Out-of-Scope — Tách sang Plugin / Sprint khác)
 - Phân hệ **Mua hàng (`Purchasing`)** & **Bán hàng / Chăm sóc khách hàng** hoàn chỉnh (Lead, Cơ hội, Đơn bán, Công nợ NCC/Khách hàng, Bảng giá chiết khấu).
@@ -61,7 +68,7 @@
 
 ---
 
-## 3. Bộ 20 Tiêu Chí Nghiệm Thu (`AC-01` – `AC-20`)
+## 3. Bộ 22 Tiêu Chí Nghiệm Thu (`AC-01` – `AC-22`)
 
 | Mã AC | Nhóm | Mô tả tiêu chí nghiệm thu cụ thể & đo lường được |
 | :--- | :--- | :--- |
@@ -85,6 +92,8 @@
 | **`AC-18`** | Data View, Sticky Table & Context Menu | Tất cả màn hình dữ liệu Kho sử dụng Table `@shared/*` cố định Header & Footer (chỉ cuộn nội dung), hỗ trợ lọc, sắp xếp, ẩn/hiện cột, đổi thứ tự cột, đổi số hàng/trang, đồng bộ URL Query Params và **Context Menu chuột phải** đầy đủ thao tác (có nút fallback `>= 40px` trên Mobile). |
 | **`AC-19`** | Anti-Modal, Route-State, i18n & Zero-Emoji | Không lạm dụng Modal popup; toàn bộ phiếu/chi tiết/Thẻ kho dùng Nested Routes hoặc Stacked Drawers (`?drawer=...`), 100% nhãn/tooltip/context-menu qua i18n `vi.json`/`en.json`, **0 emoji Unicode**, **0 file `.spec.ts`**. |
 | **`AC-20`** | Kiểm thử Thực dụng & Dual-Mode QA | Backend vượt qua toàn bộ Integration Test JUnit 5 + RestAssured trên **PostgreSQL & Redis thật** (bao gồm test concurrency); QA chạy Dual-Mode Browser Testing (Desktop `>= 1280px` & Mobile Ionic `390x844 px`, `overflow = 0`, `touch >= 40px`, **0 `console.error`**) kèm ảnh chụp nghiệm thu. |
+| **`AC-21`** | Phê duyệt `SoD` & Lưu vết Kho 4 Tầng | Hệ thống chặn thao tác tự duyệt `DISPOSAL_OUT` / `OPENING_BALANCE` / Kiểm kê lệch lớn và bật `ALLOW_NEGATIVE` / Mở khóa kỳ một mắt với `403 SOD_VIOLATION`; mọi thay đổi chính sách Kho/SKU, Timeline `Workflow` và `Lineage` bất biến dưới DB và hiển thị trong Drawer `Audit & Lineage`. |
+| **`AC-22`** | Tích hợp Dynamic Form Builder (`plugins/form`) | Phân giải biểu mẫu đa tầng (`Branch/Warehouse Override -> Tenant Override -> System Default`) hoạt động đúng trên các form Kho; `System Locked Core Fields` (`sku_id`, `qty`, `uom_id`...) bị khóa xóa/đổi kiểu; chứng từ cũ mở đúng `form_version` từ `JSONB`; trường động kết nối điều kiện `workflow` và cột lọc Sticky Table. |
 
 ---
 
@@ -99,3 +108,5 @@
 | Chuyển Kho (1 Bước & 2 Bước `In-Transit`) | Đầy đủ | Xác nhận xuất chuyển & Quét nhận hàng đến | `?direction=incoming&status=IN_TRANSIT` |
 | Kiểm Kê (`Cycle Count` / `Blind Count`) | Lập đợt, Phân công, Duyệt cân bằng | Quét Barcode đếm mù & Chốt số thực tế | `?stocktakeId=...&blind=true` |
 | Thẻ Kho, Báo Cáo `XNT`, Khóa Kỳ | Đầy đủ + Export | Lịch sử giao dịch gần nhất của SKU | `?from=...&to=...&warehouseId=...&skuId=...` |
+| Phê duyệt (`DOA/SoD`) & Drawer `Audit & Lineage` | Đầy đủ (Timeline + Diff Trước/Sau + Lineage) | Duyệt qua `Workflow` & Xem lịch sử duyệt gần nhất | `?drawer=audit&auditTab=approval|diff|lineage` |
+| Tùy biến Biểu mẫu Kho (`plugins/form` Tenant/Chi nhánh/Kho) | Thiết kế & Publish Form Studio + Render Form động | Điền Form động đã Publish khi Nhập/QC/Xuất/Kiểm kê (`>= 40px`) | `?entity=...&branchId=...&warehouseId=...&formVersion=...` |
