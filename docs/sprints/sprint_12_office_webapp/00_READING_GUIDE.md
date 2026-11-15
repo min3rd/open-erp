@@ -2,8 +2,8 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / phiên bản / cập nhật | READ-S12-001 / 0.4 / 2026-11-15 |
-| Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — **Design APPROVED 1.0** (`SOL`, `ADR`, `DES`); mở Bước 07 (`FEAT`/`TASK`) |
+| ID / phiên bản / cập nhật | READ-S12-001 / 0.5 / 2026-11-15 |
+| Trạng thái tài liệu / sprint | 📋 **ĐÃ PHÂN RÃ BƯỚC 07** — **Design APPROVED 1.0**; đã cấp `FEAT-48`..`FEAT-51` & `TASK-471`..`TASK-478` (`Open`), chờ review để chuyển lập trình |
 | Owner / reviewer | BA Agent / Chưa review (chờ Chủ dự án) |
 | Đầu vào / đọc trước | Yêu cầu trực tiếp chủ dự án 2026-11-15 ([RAW-S12-001](01_raw_notes/01_RAW-S12-001_office_webapp_requirements.md)) / [Developer Reading Guide](../../08_developer_guides/00_READING_GUIDE.md), [Sprint 06 — Plugin Dev Platform](../sprint_06_plugin_dev_platform/00_READING_GUIDE.md) |
 | Đọc tiếp | [RAW-S12-001](01_raw_notes/01_RAW-S12-001_office_webapp_requirements.md) → [ANL-S12-001](02_analysis/01_ANL-S12-001_office_webapp_plugin.md) → [BENCH-S12-001](03_benchmarks/01_BENCH-S12-001_office_webapp_benchmarks.md) → [CONF-S12-001](04_confirmation/01_CONF-S12-001_sprint_12_scope_and_ac.md) |
@@ -39,7 +39,10 @@ Khách hàng / Reviewer đọc tuần tự **01 → 04** để nắm yêu cầu 
 | 06.02 | DES-DB-S12-001 | [Thiết kế DB & IndexedDB](06_designs/db/01_DES-DB-S12-001_office_storage_schema.md) | Schema `tenant_<id8>_office` (`plg_office_documents`, `versions`) + IndexedDB nháp | Architect |
 | 06.03 | DES-API-S12-001 | [Thiết kế API Contract](06_designs/api/01_DES-API-S12-001_office_storage_api.md) | API lưu/tải ERP Cloud Storage theo 4 khuôn mẫu chuẩn, Enums & i18n codes | Architect |
 | 06.04 | DES-UI-S12-001 | [Thiết kế UI/UX Web & Mobile](06_designs/ui/01_DES-UI-S12-001_office_webapp_ui.md) | Office Shell, Single/Classic Ribbon, Compact File Dropdown, 4 engines & Mobile Viewer | Architect |
-| 07.01+ | FEAT/TASK | Chưa cấp | Chờ Design ready để phân rã item & triển khai | Developer |
+| 07.01 | `FEAT-48` | [Nền tảng Plugin Office WebApp — Backend Lưu trữ ERP & Lõi Nhị phân Thuần TS](./07_items/FEAT-48_office_storage_and_pure_ts_binary_core.md) | 📋 `Open` (`TASK-471`, `TASK-472`) | Developer |
+| 07.02 | `FEAT-49` | [Khung Giao diện Office Shell, Ribbon Cấu hình Động, File Dropdown, Storage Bridge & i18n](./07_items/FEAT-49_office_shell_file_storage_drafts_i18n.md) | 📋 `Open` (`TASK-473`) | Developer |
+| 07.03 | `FEAT-50` | [Bộ Soạn thảo & Trình chiếu Word, Excel, PowerPoint Thuần TS + Hybrid Canvas/DOM/SVG](./07_items/FEAT-50_word_excel_powerpoint_editors.md) | 📋 `Open` (`TASK-474`..`TASK-476`) | Developer |
+| 07.04 | `FEAT-51` | [Trình xem PDF Thuần TS, Mobile Ionic Read-Only, Kiểm thử Hai Chế độ & Tài liệu](./07_items/FEAT-51_pdf_viewer_mobile_ionic_viewer_e2e_docs.md) | 📋 `Open` (`TASK-477`, `TASK-478`) | Developer / QA |
 | 08.01+ | TP/TR-S12-001 | Chưa tạo | Test plan / Test report Dual-Mode Browser | QA |
 | 09.01 | REV-S12-001 | Chưa tạo | Đánh giá DoD & đóng Sprint | PM |
 
@@ -51,6 +54,7 @@ Khách hàng / Reviewer đọc tuần tự **01 → 04** để nắm yêu cầu 
 | :--- | :--- | :--- | :--- |
 | Scope approval (`CONF-S12-001`) | ✅ **APPROVED 1.0** | Chủ dự án | CONF-S12-001 1.0, 2026-11-15 |
 | Design ready (`SOL/ADR/DES`) | ✅ **APPROVED 1.0** | Chủ dự án | SOL/ADR/DES 1.0, 2026-11-15 |
+| Implementation (`FEAT-48`..`FEAT-51`) | ⏳ Pending (awaiting item review / `opencode`) | Developer | Phân rã Bước 07 (`FEAT-48`..`FEAT-51`, `TASK-471`..`TASK-478`) từ Design 1.0 |
 | QA sign-off | ⏳ Pending | QA | Chưa có |
 | PM đánh giá DoD | ⏳ Pending | PM | Chưa có |
 | Customer acceptance | ⏳ Pending | Khách hàng | Chưa có |
@@ -60,7 +64,7 @@ Khách hàng / Reviewer đọc tuần tự **01 → 04** để nắm yêu cầu 
 
 | TYPE/ID | File hoặc reservation | Owner | Tình trạng cấp số |
 | :--- | :--- | :--- | :--- |
-| READ-S12-001 | [00_READING_GUIDE.md](00_READING_GUIDE.md) | BA / Architect | Used — 0.4 |
+| READ-S12-001 | [00_READING_GUIDE.md](00_READING_GUIDE.md) | BA / Architect | Used — 0.5 |
 | RAW-S12-001 | [01_RAW-S12-001_office_webapp_requirements.md](01_raw_notes/01_RAW-S12-001_office_webapp_requirements.md) | BA | Used — Draft 0.2 |
 | ANL-S12-001 | [01_ANL-S12-001_office_webapp_plugin.md](02_analysis/01_ANL-S12-001_office_webapp_plugin.md) | BA | Used — Draft 0.2 |
 | BENCH-S12-001 | [01_BENCH-S12-001_office_webapp_benchmarks.md](03_benchmarks/01_BENCH-S12-001_office_webapp_benchmarks.md) | BA | Used — Draft 0.4 |
@@ -72,7 +76,9 @@ Khách hàng / Reviewer đọc tuần tự **01 → 04** để nắm yêu cầu 
 | DES-DB-S12-001 | [01_DES-DB-S12-001_office_storage_schema.md](06_designs/db/01_DES-DB-S12-001_office_storage_schema.md) | Architect | Used — **APPROVED 1.0** |
 | DES-API-S12-001 | [01_DES-API-S12-001_office_storage_api.md](06_designs/api/01_DES-API-S12-001_office_storage_api.md) | Architect | Used — **APPROVED 1.0** |
 | DES-UI-S12-001 | [01_DES-UI-S12-001_office_webapp_ui.md](06_designs/ui/01_DES-UI-S12-001_office_webapp_ui.md) | Architect | Used — **APPROVED 1.0** |
-| FEAT/TASK/BUG | *(chưa cấp)* | Developer / QA | Đã mở bước 07 sau Design ready |
+| Feature | `FEAT-48`..`FEAT-51` | Developer | 4 Feature thuộc Sprint 12 ([`07_items/`](./07_items/FEAT-48_office_storage_and_pure_ts_binary_core.md)) |
+| Task | `TASK-471`..`TASK-478` | Developer / QA | 8 Task phân rã chi tiết trong `07_items/` (`Open`, chờ review) |
+| Bug / Refactor | *(chưa phát sinh)* | Developer / QA | Cấp tiếp theo phát hiện thực tế trong Bước 07–08 |
 
 ## 5. Lịch sử
 
@@ -82,3 +88,4 @@ Khách hàng / Reviewer đọc tuần tự **01 → 04** để nắm yêu cầu 
 | 0.2 | 2026-11-15 | **Scope & AC APPROVED 1.0** — cập nhật kết quả reverse-engineering Microsoft 365 Web, chốt nguyên tắc tự xây dựng từ đầu (Zero-Third-Party), ghi nhận 9/9 câu trả lời `Q1`–`Q9` và phê duyệt của chủ dự án; mở bước 05–06 cho Architect | BA Agent; hội thoại trực tiếp chủ dự án 2026-11-15 |
 | 0.3 | 2026-11-15 | Hoàn thành bước 05–06 (`SOL-S12-001`, `ADR-S12-001`, `ADR-S12-002`, `DES-ARCH-S12-001`, `DES-DB-S12-001`, `DES-API-S12-001`, `DES-UI-S12-001`), Self-reviewed — chờ Design review trước khi phân rã `FEAT/TASK` | Solution Architect |
 | 0.4 | 2026-11-15 | **Design APPROVED 1.0** — chủ dự án duyệt thiết kế (`SOL/ADR/DES`), mở bước 07 (`FEAT/TASK`) cho Developer | Architect/PM; hội thoại trực tiếp chủ dự án 2026-11-15 |
+| 0.5 | 2026-11-15 | Mở Bước 07: cấp `FEAT-48`..`FEAT-51` và `TASK-471`..`TASK-478` trong `07_items/` ở trạng thái `Open` chờ chủ dự án review trước khi `opencode` lập trình | Developer |
