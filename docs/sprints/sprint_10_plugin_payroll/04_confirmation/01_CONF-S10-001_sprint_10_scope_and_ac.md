@@ -84,7 +84,7 @@ Ma trận: **D** = Desktop (web ≥ 1280px), **M** = Mobile Ionic (390×844). Tr
 | AC-S01 | SalaryComponent CRUD 3 loại + công thức thuần + điều kiện; validate tham chiếu + chặn circular; sandbox kiểm tra công thức trước lưu | D | — |
 | AC-S02 | SalaryStructure lắp components; gán nhân viên effective-dated; cấu trúc đã có payslip → sửa tạo version mới, payslip pin version | D | — |
 | AC-S03 | PayBand theo chức danh/grade (min/mid/max); cấu trúc lương ngoài band cảnh báo hiển thị | D | — |
-| AC-S04 | SalaryDecision: số QĐ, loại (tăng lương/thưởng/điều chỉnh), ngày hiệu lực, duyệt qua workflow engine; áp effective-dated; PDF có khung chữ ký giữ chỗ | D | — |
+| AC-S04 | SalaryDecision: số QĐ, loại (tăng lương/thưởng/điều chỉnh), ngày hiệu lực, duyệt qua workflow engine; áp effective-dated; kết xuất PDF/DOCX có khung chữ ký giữ chỗ & `QR Verify` qua **`plugins/document-template` (Sprint 16)** | D | — |
 | AC-T01 | TaxConfig theo năm hiệu lực (slabs, giảm trừ bản thân/phụ thuộc); seed 2026; tenant chỉnh; job chọn bộ hiệu lực theo ngày | D | — |
 | AC-T02 | InsuranceConfig (loại, tỷ lệ NLĐ/NSDLAO, trần, mức tối thiểu vùng); seed 2026; tính cả 2 phía trong bảng lương | D | — |
 | AC-T03 | Tax engine thuần: test từng bậc lũy tiến khớp công cụ gross-net chuẩn VN (đối chiếu số liệu mẫu) | — | — |
@@ -96,13 +96,13 @@ Ma trận: **D** = Desktop (web ≥ 1280px), **M** = Mobile Ionic (390×844). Tr
 | AC-R05 | Duyệt qua workflow engine (seed 1 cấp HR→Admin, tenant cấu hình thêm cấp); khóa kỳ sau duyệt; chỉ Admin mở khóa có audit | D | M |
 | AC-R06 | Chạy lại khi cấu hình đổi: recompute + payslip cũ hủy (kèm phiên bản) + payslip mới | D | — |
 | AC-R07 | Quy tắc thưởng tự động (tháng 13, hiệu suất): cấu hình công thức + điều kiện + kỳ áp dụng | D | — |
-| AC-P01 | Payslip per employee/kỳ: breakdown component (thu nhập/khấu trừ/đóng DN), PDF tải, notification | D | M |
+| AC-P01 | Payslip per employee/kỳ: breakdown component (thu nhập/khấu trừ/đóng DN), kết xuất PDF & gửi Email hàng loạt (`Batch Mail-Merge`) qua **`plugins/document-template` (Sprint 16)**, notification | D | M |
 | AC-P02 | Nhân viên xác nhận/từ chối kèm ghi chú; trạng thái quay về bảng; HR khóa khi quá hạn (đánh dấu chưa xác nhận) | D | M |
 | AC-A01 | Dashboard chi phí lương: theo thời gian, đơn vị, loại component; filter kỳ | D | — |
 | AC-A02 | Pay band view: trung vị/min–max theo chức danh; vị trí từng người so với band | D | — |
 | AC-A03 | Báo cáo team cho manager theo data scope | D | — |
 | AC-A04 | Xuất Excel dữ liệu phân tích | D | — |
-| AC-I01 | Xuất Excel payroll-ready: bộ cột chuẩn (gross, BH, thuế, net, chi phí DN…) + template cấu hình tenant | D | — |
+| AC-I01 | Xuất Excel payroll-ready: bộ cột chuẩn (gross, BH, thuế, net, chi phí DN…) + template cấu hình tenant qua **`plugins/document-template` (Sprint 16)** | D | — |
 | AC-I02 | Phụ cấp seed bộ mở rộng 10+ với điều kiện tính (đi làm, số ngày công); tenant thêm loại qua component | D | — |
 | AC-I03 | OT lương = ot_minutes attendance đã duyệt × hệ số theo loại ngày (150/200/300 + làm đêm, cấu hình); trước S09 release → đầu vào tay | — | — |
 | AC-I04 | Tạm ứng: đăng ký → duyệt → theo dõi dư nợ → tự trừ kỳ sau với giới hạn cấu hình (≤ % net kỳ trước) | D | M |
@@ -137,3 +137,4 @@ M\* — không áp dụng. Backend test: JUnit 5 + RestAssured trên PostgreSQL/
 | 0.1 | 2026-11-02 | Bản nháp đầu tiên: mục tiêu đề xuất + 16 câu hỏi 4 nhóm + 4 rủi ro; chờ trả lời tương tác |
 | 0.2 | 2026-11-02 | Ghi nhận 16/16 câu trả lời; soạn scope §2, luồng §3, AC §4 (27 AC), rủi ro §5; chờ duyệt |
 | 1.0 | 2026-11-02 | **APPROVED** — chủ dự án duyệt toàn bộ scope (16/16 câu + 27 AC) qua hội thoại tương tác |
+| 1.1 | 2026-11-15 | Giữ nguyên Scope APPROVED 1.0; cập nhật triển khai kỹ thuật `AC-S04`, `AC-P01`, `AC-I01` ủy quyền kết xuất PDF/DOCX/XLSX & gửi Email hàng loạt sang **`plugins/document-template` (Sprint 16 — ưu tiên trước)** theo chỉ đạo chủ dự án |

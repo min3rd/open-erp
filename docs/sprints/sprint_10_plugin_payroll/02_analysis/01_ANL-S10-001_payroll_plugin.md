@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | ANL-S10-001 / Phân tích / Sprint 10 |
-| Trạng thái / phiên bản / cập nhật | Draft / 0.1 / 2026-11-02 |
+| Trạng thái / phiên bản / cập nhật | Draft / 0.2 / 2026-11-15 |
 | Owner / reviewer | BA Agent / Chưa review |
 | Đầu vào | [RAW-S10-001](../01_raw_notes/01_RAW-S10-001_payroll_plugin_requirements.md) 0.1, [BENCH-S10-001](../03_benchmarks/01_BENCH-S10-001_payroll_benchmarks.md) 0.1 |
 | Đọc trước / đọc tiếp | [RAW-S10-001](../01_raw_notes/01_RAW-S10-001_payroll_plugin_requirements.md), [BENCH-S10-001](../03_benchmarks/01_BENCH-S10-001_payroll_benchmarks.md) / [CONF-S10-001](../04_confirmation/01_CONF-S10-001_sprint_10_scope_and_ac.md) |
@@ -78,7 +78,8 @@ Phân vai: **HR/C&B** (quản trị cấu trúc, chạy kỳ lương), **Tenant 
 - **Cấu trúc lương**: SalaryComponent (earning/deduction/employer) với công thức + điều kiện thuần; SalaryStructure gán nhân viên effective-dated; quyết định lương (tăng lương/thưởng) đơn giản có số + ngày hiệu lực.
 - **Quy tắc VN versioned**: biểu thuế slabs + giảm trừ theo năm hiệu lực; loại bảo hiểm (tỷ lệ NLĐ/NSDLAO, trần, mức tối thiểu vùng) cấu hình.
 - **Chạy lương**: PayrollRun theo kỳ + phạm vi; nhận công từ attendance đã chốt qua Event Hub; đầu vào thủ công (thưởng/tạm ứng/khấu trừ); chạy gross→net; sửa dòng có audit; duyệt 1 cấp + khóa; chạy lại.
-- **Payslip**: breakdown component, PDF, gửi notification, xác nhận nhân viên (quá hạn vẫn khóa).
+- **Payslip**: breakdown component, kết xuất PDF qua **`plugins/document-template` (Sprint 16 — không viết PDF/mail engine riêng)**, gửi notification + **gửi Email hàng loạt (`Batch Mail-Merge`)** đính kèm phiếu lương khi khóa kỳ, xác nhận nhân viên (quá hạn vẫn khóa).
+- **Quyết định lương (`SalaryDecision`) & Bảng lương Xuất kế toán**: Kết xuất `.docx/.pdf` (khung chữ ký & `QR Verify`, `Watermark` khi chưa duyệt) và xuất `Excel payroll-ready` theo template tùy biến Tenant/Chi nhánh thông qua **`plugins/document-template` (Sprint 16)**.
 - **Phụ cấp seed**: 6 loại (ăn trưa, xăng xe, điện thoại, chuyên cần, trách nhiệm, nhà ở) với điều kiện đi làm.
 - **OT/thưởng**: OT tự nhận từ attendance (tỷ 150/200/300 + làm đêm cấu hình); thưởng nhập tay qua đầu vào.
 - **Phân tích**: dashboard chi phí (thời gian/đơn vị/component) + pay band theo chức danh; xuất Excel.
@@ -105,6 +106,7 @@ Phân vai: **HR/C&B** (quản trị cấu trúc, chạy kỳ lương), **Tenant 
 | BR-P10 | Multi-tenant: mọi bảng/job mang tenant_id đã xác thực; isolation là hạng mục nghiệm thu | Guardrail |
 | BR-P11 | Sự kiện nghiệp vụ phát qua outbox (`payroll.run.locked`, `payroll.payslip.published`) cho plugin khác | Sprint 06/08/09 pattern |
 | BR-P12 | Tạm ứng là PayrollInput loại trừ, có duyệt; dư nợ tạm ứng theo dõi từng nhân viên | Odoo inputs |
+| BR-P13 | **Ủy quyền Kết xuất Payslip, Quyết định lương & Gửi Email sang `plugins/document-template` (Sprint 16)**: Toàn bộ kết xuất `Payslip PDF`, `SalaryDecision (.docx/.pdf)` (khung chữ ký giữ chỗ, `QR Verify`, `Watermark`), `Excel payroll-ready` theo template Tenant và gửi Email Phiếu lương hàng loạt (`Batch Mail-Merge`) gọi qua `PluginDataServiceGrpc` / Drawer `?drawer=doc-output` của `plugins/document-template` (cấm tự xây dựng PDF/mail engine trong `payroll`). | Sprint 16 Dependency |
 
 ## 5. Edge cases cần thiết kế (bước 05–06)
 
@@ -135,3 +137,4 @@ Rủi ro kiến trúc cần chủ dự án lưu ý:
 | Phiên bản | Ngày | Thay đổi |
 | :--- | :--- | :--- |
 | 0.1 | 2026-11-02 | Bản nháp đầu tiên: 21 US, scope đề xuất, 12 BR, 10 edge case, ánh xạ 16 câu hỏi CONF |
+| 0.2 | 2026-11-15 | Bổ sung `BR-P13` & cập nhật Mục 3.1 tái sử dụng `plugins/document-template` (Sprint 16) cho `Payslip PDF/Batch Mail-Merge`, `SalaryDecision` & xuất Excel/PDF |

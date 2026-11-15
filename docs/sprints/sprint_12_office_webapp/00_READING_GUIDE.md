@@ -2,7 +2,7 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / phiên bản / cập nhật | READ-S12-001 / 0.5 / 2026-11-15 |
+| ID / phiên bản / cập nhật | READ-S12-001 / 0.6 / 2026-11-15 |
 | Trạng thái tài liệu / sprint | 📋 **ĐÃ PHÂN RÃ BƯỚC 07** — **Design APPROVED 1.0**; đã cấp `FEAT-48`..`FEAT-51` & `TASK-471`..`TASK-478` (`Open`), chờ review để chuyển lập trình |
 | Owner / reviewer | BA Agent / Chưa review (chờ Chủ dự án) |
 | Đầu vào / đọc trước | Yêu cầu trực tiếp chủ dự án 2026-11-15 ([RAW-S12-001](01_raw_notes/01_RAW-S12-001_office_webapp_requirements.md)) / [Developer Reading Guide](../../08_developer_guides/00_READING_GUIDE.md), [Sprint 06 — Plugin Dev Platform](../sprint_06_plugin_dev_platform/00_READING_GUIDE.md) |
@@ -21,6 +21,7 @@ Sprint 12 xây dựng **plugin `office-webapp`** (tên đề xuất) cho phép n
 | Plugin Platform & UI Extension | [Sprint 06](../sprint_06_plugin_dev_platform/00_READING_GUIDE.md) | Cơ chế đóng gói plugin Web Component / Module Federation, slot mở rộng và tích hợp menu |
 | UI/UX ERP & Shared Library | [Sprint 04](../sprint_04_ui_ux_experience/00_READING_GUIDE.md), [UI/UX Standards](../../../.agents/rules/ui_ux_standards.md) | Chuẩn mật độ cao, vuông vắn, anti-modal, route-driven state, i18n 100% |
 | Tài liệu hướng dẫn Dev | [Developer Reading Guide](../../08_developer_guides/00_READING_GUIDE.md) | Quy trình tạo plugin mới, Angular >= 22 + Tailwind 4 + Ionic 8 |
+| Hạ tầng Kết xuất Tài liệu (S16) | [Sprint 16 — Document Template](../sprint_16_plugin_document_template/00_READING_GUIDE.md) | `office-webapp` cung cấp Trình soạn thảo `.docx/.xlsx` & PDF Viewer nhúng (kèm Extension Slot chèn `{{merge_tag}}`) để `Template Studio` của Sprint 16 chỉnh sửa mẫu in trực tiếp trên trình duyệt |
 
 ## 2. Lộ trình đọc
 
@@ -64,7 +65,7 @@ Khách hàng / Reviewer đọc tuần tự **01 → 04** để nắm yêu cầu 
 
 | TYPE/ID | File hoặc reservation | Owner | Tình trạng cấp số |
 | :--- | :--- | :--- | :--- |
-| READ-S12-001 | [00_READING_GUIDE.md](00_READING_GUIDE.md) | BA / Architect | Used — 0.5 |
+| READ-S12-001 | [00_READING_GUIDE.md](00_READING_GUIDE.md) | BA / Architect | Used — 0.6 |
 | RAW-S12-001 | [01_RAW-S12-001_office_webapp_requirements.md](01_raw_notes/01_RAW-S12-001_office_webapp_requirements.md) | BA | Used — Draft 0.2 |
 | ANL-S12-001 | [01_ANL-S12-001_office_webapp_plugin.md](02_analysis/01_ANL-S12-001_office_webapp_plugin.md) | BA | Used — Draft 0.2 |
 | BENCH-S12-001 | [01_BENCH-S12-001_office_webapp_benchmarks.md](03_benchmarks/01_BENCH-S12-001_office_webapp_benchmarks.md) | BA | Used — Draft 0.4 |
@@ -89,3 +90,4 @@ Khách hàng / Reviewer đọc tuần tự **01 → 04** để nắm yêu cầu 
 | 0.3 | 2026-11-15 | Hoàn thành bước 05–06 (`SOL-S12-001`, `ADR-S12-001`, `ADR-S12-002`, `DES-ARCH-S12-001`, `DES-DB-S12-001`, `DES-API-S12-001`, `DES-UI-S12-001`), Self-reviewed — chờ Design review trước khi phân rã `FEAT/TASK` | Solution Architect |
 | 0.4 | 2026-11-15 | **Design APPROVED 1.0** — chủ dự án duyệt thiết kế (`SOL/ADR/DES`), mở bước 07 (`FEAT/TASK`) cho Developer | Architect/PM; hội thoại trực tiếp chủ dự án 2026-11-15 |
 | 0.5 | 2026-11-15 | Mở Bước 07: cấp `FEAT-48`..`FEAT-51` và `TASK-471`..`TASK-478` trong `07_items/` ở trạng thái `Open` chờ chủ dự án review trước khi `opencode` lập trình | Developer |
+| 0.6 | 2026-11-15 | Ghi nhận cầu nối tích hợp với **Sprint 16 (`plugins/document-template` — ưu tiên triển khai trước)**: `office-webapp` đóng vai trò trình soạn thảo `.docx/.xlsx` & PDF Previewer nhúng (Extension Slot chèn `{{merge_tag}}`) phục vụ `Template Studio` | BA Agent; cập nhật theo Sprint 16 |

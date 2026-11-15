@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | ANL-S12-001 / Phân tích / Sprint 12 |
-| Trạng thái / phiên bản / cập nhật | Draft / 0.2 / 2026-11-15 |
+| Trạng thái / phiên bản / cập nhật | Draft / 0.3 / 2026-11-15 |
 | Owner / reviewer | BA Agent / Chưa review |
 | Đầu vào | [RAW-S12-001](../01_raw_notes/01_RAW-S12-001_office_webapp_requirements.md) 0.1, [BENCH-S12-001](../03_benchmarks/01_BENCH-S12-001_office_webapp_benchmarks.md) 0.1 |
 | Đọc trước / đọc tiếp | [RAW-S12-001](../01_raw_notes/01_RAW-S12-001_office_webapp_requirements.md), [BENCH-S12-001](../03_benchmarks/01_BENCH-S12-001_office_webapp_benchmarks.md) / [CONF-S12-001](../04_confirmation/01_CONF-S12-001_sprint_12_scope_and_ac.md) |
@@ -16,7 +16,7 @@ Mục tiêu của plugin `office-webapp` là mang lại không gian làm việc 
 
 ### Vai trò người dùng
 - **End User (Nhân viên / Quản lý / Người dùng ERP)**: Mở file từ máy tính (hoặc từ ERP), xem nội dung chuẩn xác, chỉnh sửa, lưu lại file về máy (hoặc xuất PDF/tải xuống).
-- **Plugin Consumer (Các plugin khác trong ERP)**: Gọi mở preview/edit một file Office (Blob/URL) thông qua route hoặc slot của plugin `office-webapp` (tùy chọn).
+- **Plugin Consumer (Các plugin khác trong ERP — đặc biệt `plugins/document-template` Sprint 16)**: Gọi mở preview/edit một file Office (Blob/URL) thông qua route hoặc slot nhúng của plugin `office-webapp`, kèm Extension Hook cho phép chèn biến trộn (`{{merge_tag}}`) trực tiếp khi thiết kế file mẫu `.docx`/`.xlsx`.
 
 ## 2. User Stories
 
@@ -86,6 +86,7 @@ Mục tiêu của plugin `office-webapp` là mang lại không gian làm việc 
 | **BR-O07** | **100% i18n & Zero-Emoji**: Toàn bộ nhãn Ribbon, thông báo lỗi, tooltip, trạng thái lưu đều dùng key i18n (`vi.json`, `en.json`...). | Guardrails |
 | **BR-O08** | **Route-Driven Workspace**: Trạng thái tab loại app / chế độ xem (`?app=word|excel|ppt`, `?mode=view|edit`) được phản ánh trên URL theo quy chuẩn Angular Router. | Guardrails |
 | **BR-O09** | **Zero-Third-Party Office Engine**: Toàn bộ bộ giải mã/mã hóa OOXML (ZIP + XML), công cụ render (Page Canvas/DOM, Tiled Grid Canvas, Slide Stage + SVG Selection) và Formula Engine phải **tự xây dựng từ đầu (in-house)** bằng TypeScript + Web APIs chuẩn, **không cài đặt thư viện Office/Editor bên thứ 3**. | R6 |
+| **BR-O10** | **Extension Bridge Cho `plugins/document-template` (Sprint 16)**: Giao diện trình soạn thảo `.docx/.xlsx` & PDF Viewer của `office-webapp` mở sẵn **Extension Slot / Bridge (`insertTextAtCursor` / `exportUpdatedBlob`)** để `Template Studio` của Sprint 16 gắn thanh *Merge Tag Picker* chèn cú pháp `{{tag}}` / bảng lặp `{{#GRID}}` trực tiếp vào mẫu mà không phá cấu trúc OOXML. | Sprint 16 Integration |
 
 ## 5. Edge Cases & Xử lý lỗi cần thiết kế
 

@@ -88,11 +88,11 @@ Ma trận: **D** = Desktop (web ≥ 1280px), **M** = Mobile Ionic (390×844). Tr
 | AC-SC02 | Định tính chấm qua **form builder Sprint 08** (bộ câu hỏi gắn chu kỳ/nhóm chức danh); kết quả rating quy về thang tổng | D | M |
 | AC-SC03 | Weighted engine thuần: Σ(achievement × weight) × thang; **cap cấu hình (mặc định 120%)**; hỗ trợ "càng thấp càng tốt" (achievement = target/actual); test từng case | — | — |
 | AC-SC04 | Xếp loại theo ngưỡng cấu hình (VD ≥90 A, ≥75 B…); grade hiển thị trên kết quả | D | M |
-| AC-SC05 | Duyệt kết quả cuối kỳ qua workflow engine; **khóa kỳ bất biến**; mở khóa chỉ HR/Admin có audit | D | M |
+| AC-SC05 | Duyệt kết quả cuối kỳ qua workflow engine; **khóa kỳ bất biến**; mở khóa chỉ HR/Admin có audit; hỗ trợ kết xuất/in **Phiếu Đánh giá KPI (.pdf/.docx)** trình ký & `QR Verify` qua **`plugins/document-template` (Sprint 16)** | D | M |
 | AC-SC06 | **Publish `kpi.result.published`** qua outbox sau khóa (employee, chu kỳ, điểm, grade); payroll tiêu thụ khi cài — kênh CONF-S10-001 AC-K01 | — | — |
 | AC-M01 | Dashboard self: tiến độ từng KPI (actual vs target), điểm dự kiến, trạng thái kỳ | D | M |
 | AC-M02 | Dashboard manager: **heatmap tiến độ team + top/bottom ranking**; drill-down từng nhân viên | D | — |
-| AC-M03 | Báo cáo HR tổng hợp theo đơn vị/chu kỳ (điểm trung bình, phân bố xếp loại) + xuất Excel | D | — |
+| AC-M03 | Báo cáo HR tổng hợp theo đơn vị/chu kỳ (điểm trung bình, phân bố xếp loại) + xuất Excel/PDF & gửi Email kèm phiếu qua **`plugins/document-template` (Sprint 16)** | D | — |
 | AC-M04 | Cảnh báo KPI chậm tiến độ + nhắc cập nhật actual định kỳ + nhắc chấm khi đến hạn qua notification plugin | D | M |
 | AC-I01 | Mobile full self-service: xem KPI, cập nhật actual, self-assessment/chấm, duyệt (manager/HR) | — | M |
 | AC-I02 | Visibility: self + manager theo data scope + HR; **công khai toàn công ty tắt mặc định** (tenant bật được); mọi chấm/duyệt/mở khóa có audit | — | — |
@@ -129,3 +129,4 @@ Backend test: JUnit 5 + RestAssured trên PostgreSQL/Redis thật (No H2); front
 | 0.1 | 2026-11-02 | Bản nháp đầu tiên: mục tiêu đề xuất + 16 câu hỏi 4 nhóm + 4 rủi ro; chờ trả lời tương tác |
 | 0.2 | 2026-11-02 | Ghi nhận 16/16 câu trả lời; soạn scope §2, luồng §3, AC §4 (26 AC), rủi ro §5; chờ duyệt |
 | 1.0 | 2026-11-02 | **APPROVED** — chủ dự án duyệt toàn bộ scope (16/16 câu + 26 AC) qua hội thoại tương tác |
+| 1.1 | 2026-11-15 | Giữ nguyên Scope APPROVED 1.0; cập nhật triển khai kỹ thuật `AC-SC05` & `AC-M03` sử dụng **`plugins/document-template` (Sprint 16 — ưu tiên trước)** cho kết xuất Phiếu Giao/Đánh giá KPI (`.pdf/.docx`) trình ký & xuất/gửi báo cáo |

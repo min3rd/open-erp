@@ -6,7 +6,7 @@
 | Sprint | Sprint 13 (`sprint_13_plugin_inventory`) |
 | Tác giả | AI Business Analyst (BA) |
 | Trạng thái | Draft / Chờ khách hàng review nghiệp vụ |
-| Phiên bản | 0.5 |
+| Phiên bản | 0.6 |
 | Tài liệu liên quan | [00_READING_GUIDE.md](../00_READING_GUIDE.md) · [RAW-S13-001](../01_raw_notes/01_RAW-S13-001_inventory_requirements.md) · [BENCH-S13-001](../03_benchmarks/01_BENCH-S13-001_inventory_warehouse_benchmarks.md) · [CONF-S13-001](../04_confirmation/01_CONF-S13-001_sprint_13_scope_and_ac.md) |
 
 ---
@@ -41,6 +41,7 @@ Kế thừa mô hình chuẩn ERP Quốc tế (`L01`, `L02`, `L08`), hệ thốn
 | **Plugin `employee`** | Hồ sơ Thủ kho, Người đề nghị xuất nội bộ, Thành viên Hội đồng kiểm kê. | `PluginDataServiceGrpc` |
 | **Plugin `workflow`** | Luồng phê duyệt nhiều cấp cho Đề nghị nhập/xuất/chuyển/kiểm kê vượt hạn mức. | Workflow Trigger & Callback Event |
 | **Plugin `in-app-notification`** | Gửi cảnh báo tồn kho dưới `Min`, hàng cận hạn `FEFO`, phiếu `In-Transit` quá hạn. | Kafka / Outbox Event |
+| **Plugin `document-template` (Sprint 16 — Ưu tiên trước Sprint 13)** | Thiết kế mẫu, kết xuất PDF/DOCX/XLSX (`PN/PX/PC/KK/QC/Thẻ kho`), in **Tem nhãn `Barcode/QR`** (`mm`), đóng `Watermark`, `QR Verify` & gửi Email trả NCC. | `PluginDataServiceGrpc` / Kafka + Drawer `?drawer=doc-output` |
 | **Plugin `inventory` (Sprint 13)** | Sở hữu độc lập toàn bộ Master Kho/Bin/SKU/Lot/Serial, Chứng từ Nhập/Xuất/Chuyển/Kiểm kê, Giữ hàng, Sổ cái & Báo cáo Kho. | Module độc lập; cung cấp gRPC/Kafka contract |
 | **Các Plugin Nghiệp vụ Ngoài** *(Tương lai: Mua hàng, Bán hàng...)* | Tách biệt khỏi Sprint 13; khi có nhu cầu giữ/trừ tồn sẽ gọi sang `inventory` thông qua tham chiếu đa hình (`reference_type`, `reference_code`, `reference_id`). | `PluginDataServiceGrpc` / Kafka |
 
@@ -320,9 +321,32 @@ flowchart LR
 | **`Giữ hàng / Xuất Kho / Xuất Hủy`** | `warehouse_id`, `reference_type`, `sku_id`, `qty`, `lot/serial_id`, `bin_id` | Mã công trình / Ca sản xuất nhận vật tư, Biên bản tiêu hủy hội đồng ký (`FILE_UPLOAD` + `SIGNATURE`). |
 | **`Chuyển Kho 2 Bước & Kiểm Kê`** | `from_warehouse_id`, `to_warehouse_id`, `sku_id`, `counted_qty`, `variance_qty` | Lý do hao hụt vận chuyển chi tiết (`Skip Logic`), Ảnh hiện trạng kiện hàng tại Kho đích (`IMAGE_UPLOAD`). |
 
+### Luồng 9.3: Kết Xuất Phiếu Kho, In Tem Nhãn `Barcode/QR`, In Trình Ký & Gửi Email Qua `plugins/document-template` (Sprint 16)
+
+Vì **Sprint 16 (`plugins/document-template`) được ưu tiên hoàn thiện trước Sprint 13**, `plugins/inventory` tái sử dụng toàn bộ năng lực thiết kế mẫu, kết xuất file, in tem mã vạch và gửi email qua `PluginDataServiceGrpc` / Kafka & Stacked Drawer `?drawer=doc-output`:
+
+```mermaid
+flowchart LR
+    ACT["Nguoi dung bam In / Tem nhan / Gui Email tren Phieu Kho"] --> DRW["Mo Drawer ?drawer=doc-output"]
+    DRW --> CTX["DocTemplate: Merge Core Fields + JSONB custom_fields_data + form_version"]
+    CTX -->|"Chua POSTED / Da DAO SO"| WMK["Watermark: BAN NHAP / DA DAO SO / BAN SAO"]
+    CTX -->|"Da POSTED"| QRV["Nhung QR Verify toan ven & Khung chu ky / SIGNATURE"]
+    CTX -->|"Chon kho Tem mm"| LBL["In Tem Barcode 1D / QR (Bin, SKU, Lot, HSD, Serial)"]
+    CTX -->|"Chon nhieu phieu"| BAT["Batch Print: Gop 1 PDF duy nhat / .zip"]
+    WMK & QRV --> OUT["Xuat PDF/DOCX/XLSX hoac Gui Email tra hang NCC (Kafka Audit Log)"]
+```
+
+| Nhóm Chứng từ / Nhãn Kho | Mẫu Kết xuất & Ký (`plugins/document-template`) | Quy tắc Nghiệp vụ & Dữ liệu trộn (`Merge Fields`) |
+| :--- | :--- | :--- |
+| **`Phiếu Nhập (PN) & Biên bản QC`** | Mẫu `A4/A5` kế thừa `System -> Tenant -> Branch/Warehouse`; khung chữ ký `Thủ kho — Người giao — QC — Kế toán`. | Tự động trộn `GRID` checklist QC & ảnh niêm phong (`IMAGE_UPLOAD`) từ `plugins/form`; phiếu `DRAFT` bắt buộc đóng dấu `Watermark`. |
+| **`Phiếu Xuất (PX) / Picking List & Chuyển kho (PC)`** | Xuất `Picking List` sắp xếp theo đường đi `Zone -> Rack -> Bin` + Lô `FEFO`; `Batch Print` gộp nhiều phiếu xuất trong ca. | Nhúng `QR Verify` trên bản in ký nhận giao/nhận hàng 2 bước (`In-Transit`), log số lần in lại (`Reprint Copy #N`). |
+| **`Tem Nhãn Mã Vạch (Barcode/QR Label)`** | Mẫu tem kích thước thực `mm` (`50x30mm`, `100x150mm`, tem cuộn nhiệt) cho Kệ `Bin`, Bao bì `SKU`, `Lot/HSD` & `Serial/IMEI`. | In 1 tem hoặc in hàng loạt N tem tương ứng số lượng kiện vừa nhập/đóng gói. |
+| **`Phiếu Kiểm kê (KK) & Báo cáo Thẻ kho / XNT`** | Biên bản Kiểm kê Hội đồng (tự ẩn cột tồn máy nếu đang `Blind Count`) & Thẻ kho / Báo cáo `XNT` (`.xlsx/.pdf`). | Khi còn `Blind Count`, payload `Merge Fields` sang `plugins/document-template` **không truyền `system_qty` và `variance`** (`BR-W09`). |
+| **`Phiếu Xuất Trả NCC (SUPPLIER_RETURN)`** | Xuất PDF Biên bản xuất trả hàng lỗi (kèm ảnh lỗi từ `plugins/form`) & Gửi Email trực tiếp cho NCC từ Drawer `?drawer=doc-output`. | Ghi nhận lịch sử gửi Email (người gửi, người nhận, thời gian, file `SHA-256`) vào Tầng Audit Log. |
+
 ---
 
-## 3. Bộ Quy Tắc Nghiệp Vụ (`BR-W01` – `BR-W18`)
+## 3. Bộ Quy Tắc Nghiệp Vụ (`BR-W01` – `BR-W19`)
 
 | Mã BR | Quy tắc bắt buộc |
 | :--- | :--- |
@@ -344,6 +368,7 @@ flowchart LR
 | `BR-W16` | **Lưu Vết Kiểm Toán 4 Tầng Bất Biến**: Mọi thay đổi cấu hình Kho/SKU (`allow_negative_stock`, `min/max`, `tracking_type`, `qc_hold`), mọi quyết định `workflow` và mọi giao dịch đảo sổ phải sinh bản ghi bất biến (`actor_id`, `timestamp`, `before/after snapshot`, `reason`), nối chuỗi `Lineage` và hiển thị trong Drawer `Audit & Lineage` (cấm `UPDATE/DELETE` bảng log & `Stock Ledger`). |
 | `BR-W17` | **Bảo Vệ Trường Lõi Kho & Đa Phiên Bản Form Builder (`Hybrid Form Schema`)**: Biểu mẫu `Warehouse/SKU`, Phiếu Nhập/QC/Xuất/Chuyển/Kiểm kê kết xuất qua `plugins/form`; các trường lõi sổ cái (`sku_id`, `warehouse_id`, `bin_id`, `qty`, `uom_id`, `lot/serial`) khóa `system_locked = true`; dữ liệu mở rộng lưu `custom_fields_data` (`JSONB`) gắn `(form_id, form_version)`. |
 | `BR-W18` | **Kế Thừa Form 3 Tầng (`System -> Tenant -> Branch/Warehouse`) & Liên Thông Workflow/Table**: Phân giải form theo `(branch_id / warehouse_id)` -> `tenant_id` -> `System Default`; trường động dùng được trong điều kiện rẽ nhánh `plugins/workflow`, bật cột lọc trên `@shared/*` Sticky Table và ghi Before/After Diff vào Audit Log. |
+| `BR-W19` | **Ủy Quyền Kết Xuất Tài Liệu, In Tem `Barcode/QR` & Gửi Mail Sang `plugins/document-template` (Sprint 16)**: Toàn bộ việc in Phiếu Nhập/Xuất/QC/Chuyển kho/Kiểm kê, in Tem nhãn `mm`, in gộp `Batch Print` và gửi Email trả hàng NCC bắt buộc gọi qua `PluginDataServiceGrpc` / Drawer `?drawer=doc-output` của `plugins/document-template` (cấm tự viết PDF/mail engine nội bộ). Phiếu chưa `POSTED` hoặc đã `REVERSED` luôn chèn `Watermark`; đợt `Blind Count` đang đếm cấm truyền `system_qty` vào dữ liệu trộn mẫu in. |
 
 ---
 
@@ -364,7 +389,7 @@ flowchart LR
 
 ---
 
-## 5. Danh Sách 24 User Stories (`US-S13-01` – `US-S13-24`)
+## 5. Danh Sách 27 User Stories (`US-S13-01` – `US-S13-27`)
 
 ### Nhóm A: Danh Mục Kho, Vị Trí & Hàng Hóa (Master Data)
 - **`US-S13-01`** (*Quản trị Kho*): Tạo và cấu hình Nhiều Kho theo Chi nhánh (`organization`), phân loại Kho Vật lý / Kho QC Cách ly, phân quyền Thủ kho phụ trách từng kho.
@@ -401,6 +426,7 @@ flowchart LR
 - **`US-S13-24`** (*Quản trị Tenant*): Cấu hình chính sách Kho cấp Tenant (Phương pháp giá vốn, Chặn âm kho, Bắt buộc QC, Chuẩn mã chứng từ tự tăng `PN/PX/PC/KK`, Luồng duyệt Workflow & Ma trận `DOA/SoD`).
 - **`US-S13-25`** (*Kiểm toán / Kế toán Kho / Quản lý Kho*): Mở Stacked Drawer **Lịch sử Duyệt & Lưu vết Kho (`Audit & Lineage`)** trên bất kỳ Kho/SKU hoặc Phiếu kho nào để xem Timeline phê duyệt (`Workflow`), Diff Trước/Sau khi sửa cấu hình nhạy cảm (như bật Xuất âm kho, sửa Min/Max, khóa/mở Lô QC) và Chuỗi truy vết `Source Ref -> Reservation -> Transfer 2-Step -> Stock Ledger -> Reversal`.
 - **`US-S13-26`** (*Quản trị Tenant / Quản lý Chi nhánh / Quản lý Kho*): Dùng Form Studio của **`plugins/form` (Sprint 08)** để tùy biến trường/section, bảng tính `GRID`, ảnh kiểm định `IMAGE_UPLOAD`, chữ ký `SIGNATURE` trên `SKU`, `Phiếu Nhập/QC`, `Xuất kho`, `Chuyển kho`, `Kiểm kê` theo từng Tenant, Chi nhánh (`branch_id`) hoặc từng Kho.
+- **`US-S13-27`** (*Thủ kho / Điều phối / Kế toán Kho*): Xem trước, kết xuất & in `Phiếu Nhập/Xuất/QC/Chuyển kho/Kiểm kê`, in gộp hàng loạt (`Batch Merged PDF`), in **Tem nhãn `Barcode/QR`** khổ `mm` (`Bin`, `SKU`, `Lot/HSD`, `Serial`) và gửi Email `Phiếu Xuất trả NCC` trực tiếp qua Stacked Drawer **`Print & Email`** (`?drawer=doc-output`) của **`plugins/document-template` (Sprint 16)**.
 
 ---
 
@@ -412,12 +438,12 @@ Mọi màn hình hiển thị dữ liệu của `plugins/inventory` gồm **(1) 
 2. **Tùy biến Cột & Số Hàng Toàn Diện**: Người dùng được quyền mở Panel/Drawer cấu hình cột để **bật/tắt từng cột** (VD: ẩn cột Giá vốn, hiện cột Lot/Expiry/Bin/Reserved), **thay đổi thứ tự hiển thị các cột** (kéo thả hoặc nút lên/xuống), và chọn **số hàng/trang** (`20`, `50`, `100`, `200`).
 3. **Bộ lọc & Sắp xếp Đồng bộ URL (Route-Driven State)**: Lọc theo Kho, Chi nhánh, Nhóm hàng, Trạng thái tồn (`Dưới Min`, `Sắp hết hạn FEFO`, `Hết hàng`), Khoảng ngày ghi sổ, Sắp xếp đa cột — toàn bộ đồng bộ 2 chiều lên URL Query Params (`?warehouseId=...&sort=availableQty,asc&page=1&size=50&tab=by-lot`).
 4. **Context Menu Chuột Phải Đầy Đủ Chức Năng**: Click chuột phải lên bất kỳ dòng nào trên bảng mở Context Menu (hỗ trợ định vị thông minh không tràn viewport, có shortcut rõ ràng, **100% i18n, Zero-Emoji**):
-   - *Trên Bảng Tồn kho*: Xem Thẻ kho, Tạo nhanh Phiếu Nhập, Tạo nhanh Phiếu Xuất, Tạo Phiếu Chuyển kho từ dòng này, Khóa/Mở khóa Lô (QC Hold), Xem chi tiết Giữ hàng đang hoạt động.
-   - *Trên Bảng Chứng từ*: Xem chi tiết (mở Drawer), Chỉnh sửa (khi `DRAFT`), Gửi duyệt / Phê duyệt, Ghi sổ / Xác nhận nhận hàng, In phiếu, Đảo chứng từ (`POSTED`), Xem Lịch sử Duyệt & Audit Log (`?drawer=audit`).
+   - *Trên Bảng Tồn kho*: Xem Thẻ kho, Tạo nhanh Phiếu Nhập, Tạo nhanh Phiếu Xuất, Tạo Phiếu Chuyển kho từ dòng này, Khóa/Mở khóa Lô (QC Hold), Xem chi tiết Giữ hàng đang hoạt động, **In Tem nhãn `Barcode/QR`** (`?drawer=doc-output`).
+   - *Trên Bảng Chứng từ*: Xem chi tiết (mở Drawer), Chỉnh sửa (khi `DRAFT`), Gửi duyệt / Phê duyệt, Ghi sổ / Xác nhận nhận hàng, **In phiếu / Batch Print / Gửi Email NCC** (`?drawer=doc-output` của `plugins/document-template`), Đảo chứng từ (`POSTED`), Xem Lịch sử Duyệt & Audit Log (`?drawer=audit`).
 5. **Fallback Mobile (`>= 40px`)**: Trên Mobile Ionic (`390x844 px`), cung cấp nút menu `...` (vùng chạm `>= 40x40 px`) hoặc thao tác nhấn giữ kích hoạt Bottom Sheet Action thay thế cho chuột phải Desktop.
 
 ### 6.2. Anti-Modal, Stacked Drawer & Zero-Emoji
-- **Anti-Modal**: Cấm dùng popup Modal để tạo Phiếu Nhập/Xuất/Chuyển/Kiểm kê hay xem Thẻ kho. Sử dụng **Split-View / Nested Route** (màn hình lập phiếu nhiều dòng hoặc chia đôi Danh sách chứng từ bên trái — Chi tiết & Quét mã bên phải) kết hợp **Stacked Drawer** (`?drawer=stock-card&skuId=...`). Toàn bộ form nhập liệu kết xuất từ `plugins/form` bằng component chuẩn `@shared/*` (`app-sharp-input`, `app-sharp-select`, `app-sharp-textarea`, `app-sharp-toggle`, cấm HTML input thô) và cho phép bật/lọc cột `custom_fields_data` trên Sticky Table. Riêng Stacked Drawer **`Audit & Lineage`** (`?drawer=audit&auditTab=approval|diff|lineage`) hiển thị đầy đủ Timeline duyệt `Workflow & SoD`, Diff Trước/Sau cấp trường và Chuỗi liên kết Chứng từ nguồn -> `Stock Ledger Entry`.
+- **Anti-Modal**: Cấm dùng popup Modal để tạo Phiếu Nhập/Xuất/Chuyển/Kiểm kê hay xem Thẻ kho. Sử dụng **Split-View / Nested Route** (màn hình lập phiếu nhiều dòng hoặc chia đôi Danh sách chứng từ bên trái — Chi tiết & Quét mã bên phải) kết hợp **Stacked Drawer** (`?drawer=stock-card&skuId=...`). Toàn bộ form nhập liệu kết xuất từ `plugins/form` bằng component chuẩn `@shared/*` (`app-sharp-input`, `app-sharp-select`, `app-sharp-textarea`, `app-sharp-toggle`, cấm HTML input thô) và cho phép bật/lọc cột `custom_fields_data` trên Sticky Table. Riêng Stacked Drawer **`Audit & Lineage`** (`?drawer=audit&auditTab=approval|diff|lineage`) hiển thị đầy đủ Timeline duyệt `Workflow & SoD`, Diff Trước/Sau cấp trường và Chuỗi liên kết Chứng từ nguồn -> `Stock Ledger Entry`, và Stacked Drawer **`Print & Email`** (`?drawer=doc-output`) tái sử dụng trực tiếp của **`plugins/document-template` (Sprint 16)** cho xem trước PDF, in tem nhãn `Barcode/QR`, in hàng loạt & gửi Email trả hàng NCC.
 - **High Density & Zero-Emoji**: Giao diện sắc nét (`text-xs` / `text-sm`, `rounded-none` / `rounded-sm`), không có banner mô tả dài dòng (dùng icon `info`/`help-circle` + Tooltip), không chèn bất kỳ emoji Unicode nào vào tên nút, badge trạng thái hay menu chuột phải.
 
 ### 6.3. Phân Tách Phạm Vi Desktop Web vs. Mobile Ionic (Bàn Giao Gọn Cho Thủ Kho Hiện Trường)
@@ -433,3 +459,4 @@ Mọi màn hình hiển thị dữ liệu của `plugins/inventory` gồm **(1) 
 | Khóa kỳ, Đảo chứng từ, Thẻ kho, Báo cáo XNT & Export Excel | Đầy đủ | Tối giản (chỉ xem lịch sử giao dịch gần nhất của SKU) |
 | Phê duyệt (`DOA/SoD`) & Drawer `Audit & Lineage` | Đầy đủ (Timeline + Diff Trước/Sau + Chuỗi Lineage + Export Log) | Thực hiện Duyệt/Từ chối phiếu trên `Workflow` & Xem lịch sử duyệt gần nhất |
 | Tùy biến Biểu mẫu Kho Động (`plugins/form` theo Tenant/Chi nhánh/Kho) | Thiết kế & Publish Form Studio (`System -> Tenant -> Branch/Warehouse`) + Nhập liệu | Chỉ điền các trường Form động đã Publish khi Nhập/QC/Xuất/Kiểm kê (`>= 40px`) |
+| Kết xuất Mẫu in, Tem nhãn `Barcode/QR`, Batch Print & Email (`plugins/document-template` S16) | Thiết kế mẫu (`.docx/.xlsx`/Label Studio) + Xem trước PDF + Batch Print + Gửi Email trả NCC | Xem/Tải PDF phiếu hoặc Gửi lệnh In Tem nhãn tại hiện trường (`>= 40px`) |

@@ -6,7 +6,7 @@
 | Sprint | Sprint 13 (`sprint_13_plugin_inventory`) |
 | Tác giả | AI Business Analyst (BA) |
 | Trạng thái | Draft / Chờ review |
-| Phiên bản | 0.5 |
+| Phiên bản | 0.6 |
 | Ngày cập nhật | 2026-11-15 |
 
 ---
@@ -65,6 +65,12 @@ Khởi tạo **Plugin Quản Lý Kho Hàng (`plugins/inventory`)** hoàn toàn �
 - Lưu vết **4 tầng bất biến**: *(1) `Approval History Log`*, *(2) `Before/After Diff` chính sách Kho/SKU/Lô QC*, *(3) `Inventory Lineage Graph`* và *(4) `Append-only Stock Ledger`* kèm Drawer `Audit & Lineage`.
 - Toàn bộ biểu mẫu Kho (`Kho/Bin`, `SKU Master`, `Phiếu Nhập/QC`, `Phiếu Giữ/Xuất/Xuất hủy`, `Phiếu Chuyển kho`, `Phiếu Kiểm kê`) sử dụng **`plugins/form` (Sprint 08 — 32 loại trường, `GRID` Excel công thức RPN, `IMAGE_UPLOAD`, `SIGNATURE`)** cho phép từng **Tenant / Chi nhánh (`branch_id`) / Kho** tùy biến trường mở rộng trong `custom_fields_data` (`JSONB`) + `form_version`, giữ nguyên `System Locked Core Fields`.
 
+### 2.10. Thiết Kế Mẫu In, Tem Nhãn Mã Vạch (`Barcode/QR`), In Ký & Gửi Email Chứng Từ Kho Qua `plugins/document-template` (Sprint 16)
+- Vì **`plugins/document-template` (Sprint 16)** được ưu tiên triển khai trước Sprint 13, `plugins/inventory` **không tự xây dựng công cụ dựng PDF hay gửi email nội bộ**, mà ủy quyền toàn bộ sang hạ tầng dùng chung của Sprint 16:
+  - Kết xuất & in chuẩn mực **Phiếu Nhập kho (`PN`)**, **Biên bản Kiểm định `QC`**, **Phiếu Xuất kho / Soạn hàng (`PX / Picking List`)**, **Phiếu Chuyển kho 2 bước (`PC`)**, **Biên bản Kiểm kê & Cân bằng (`KK`)**, **Thẻ kho / Báo cáo `XNT`** (`.pdf`, `.docx`, `.xlsx`) theo mẫu kế thừa 3 tầng (`System -> Tenant -> Branch`).
+  - Thiết kế & in **Tem nhãn `Barcode 1D / QR Code` kích thước chuẩn `mm`** (`50x30mm`, `100x150mm`, dán kệ `Bin`, dán kiện `SKU / Lô / HSD / Serial`), tự động ánh xạ đủ cả trường lõi Kho lẫn các trường động (`custom_fields_data` JSONB, bảng `GRID`, chữ ký `SIGNATURE` Thủ kho — Người giao/nhận — Kế toán) từ `plugins/form`.
+  - Hỗ trợ **Watermark tự động** cho phiếu chưa ghi sổ (`DRAFT` / `ĐÃ ĐẢO SỔ` / `BẢN SAO`), mã **`QR Verify`** xác thực bản giấy khi trình ký, **In hàng loạt (`Batch Print`)** gộp 1 PDF duy nhất cho nhiều phiếu xuất/chuyển cùng đợt, và gửi **Email kèm PDF** (`Phiếu Xuất trả NCC`, thông báo hàng về/kiểm định) qua Drawer `Print & Email` (`?drawer=doc-output`).
+
 ---
 
 ## 3. Phân Vai Người Dùng & Ranh Giới Tích Hợp Liên Plugin
@@ -87,8 +93,9 @@ Khởi tạo **Plugin Quản Lý Kho Hàng (`plugins/inventory`)** hoàn toàn �
 | **`catalog`** | Nhóm hàng hóa, Đơn vị tính (`UoM`), Lý do xuất/nhập kho. | `PluginDataServiceGrpc` |
 | **`employee`** | Nhân sự Thủ kho, Người nhận xuất cấp phát nội bộ, Hội đồng kiểm kê. | `PluginDataServiceGrpc` |
 | **`form` (Sprint 08)** | Tùy biến biểu mẫu Kho (`Warehouse/SKU/Phiếu Nhập/QC/Xuất/Chuyển/Kiểm kê`) theo Tenant, Chi nhánh (`branch_id`) và Kho với 32 loại trường, `GRID`, `SIGNATURE`. | Schema Lai (`System Locked` + `JSONB` `form_version`) qua Entity Registry |
-| **`workflow` (Sprint 08)** | Phê duyệt nhiều cấp (`DOA/SoD`) cho Phiếu Xuất hủy, Kiểm kê vượt ngưỡng, Đề nghị xuất/chuyển, Đảo sổ & Mở khóa kỳ. | Workflow Event / Callback |
+| **`workflow` (Sprint 08)** | Phê duyệt nhiều cấp (`DOA/SoD`) cho Phiếu Xuất hủy, Kiểm kê vượt ngưỡng, Đảo sổ & Mở khóa kỳ. | Workflow Event / Callback |
 | **`in-app-notification`** | Cảnh báo dưới `Min`, lô cận hạn `FEFO`, phiếu `In-Transit` treo quá hạn. | Kafka / Outbox Event |
+| **`document-template` (Sprint 16)** | Kết xuất mẫu in Kho (`PN/PX/PC/KK/QC/Thẻ kho`), Tem mã vạch `Barcode/QR` (`mm`), `Watermark`, `QR Verify` & Gửi Email trả NCC. | `PluginDataServiceGrpc` / Kafka + Drawer `?drawer=doc-output` |
 
 ---
 
@@ -101,3 +108,4 @@ Khởi tạo **Plugin Quản Lý Kho Hàng (`plugins/inventory`)** hoàn toàn �
 | **Anti-Modal, Route-Driven State & i18n** | Thay Modal bằng Nested Route / Stacked Drawer / Split-Screen; đồng bộ toàn bộ tab, filter, sort, pagination, drawer lên URL Query Params; 100% i18n (`vi.json`/`en.json`), **Zero-Emoji** trên giao diện sản phẩm. | Cấm thiết kế popup modal tạo/sửa phiếu nhập xuất; sử dụng Split-Screen hoặc Drawer nhiều tầng. |
 | **Dual-Mode & Mobile Ionic** | Giao diện Desktop ERP (`>= 1280px`) mật độ cao (`High Density & Sharp`); Mobile Ionic (`390x844 px`) tối giản cho Thủ kho quét mã vạch, kiểm đếm nhập/xuất/kiểm kê và xác nhận nhận hàng chuyển kho. | Phân tách rõ phạm vi tính năng Desktop vs. Mobile ngay trong `ANL-S13-001` & `CONF-S13-001`. |
 | **Kiểm thử Thực Dụng** | Backend test bằng JUnit 5 + RestAssured trên PostgreSQL & Redis thật (test đồng thời khóa bi quan/lạc quan khi giữ/xuất kho tránh âm kho); Frontend không viết `.spec.ts`, QA test Dual-Mode Browser. | Bổ sung yêu cầu kiểm thử concurrency (nhiều lệnh giữ/xuất cùng 1 mã hàng) trong `ANL-S13-001` & `CONF-S13-001`. |
+| **Tận dụng `document-template` (S16)** | Toàn bộ mẫu in Phiếu kho (`PN/PX/PC/KK/QC`), Tem nhãn `Barcode/QR` khổ `mm`, `Watermark`, `QR Verify`, `Batch Print` & gửi Email trả NCC phải gọi `plugins/document-template` thay vì tự viết engine PDF/mail nội bộ. | Đưa vào `ANL-S13-001` (`Luồng 9.3`, `BR-W19`, `US-S13-27`) & `CONF-S13-001` (`Q13`, `AC-23`). |

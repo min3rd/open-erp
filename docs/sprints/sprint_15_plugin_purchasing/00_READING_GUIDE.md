@@ -4,8 +4,8 @@
 | :--- | :--- |
 | ID | READ-S15-001 |
 | Sprint | Sprint 15 — `sprint_15_plugin_purchasing` |
-| Trạng thái | Draft / Discovery (Chờ Khách hàng review nghiệp vụ & chốt `CONF-S15-001` `Q1`–`Q12`) |
-| Phiên bản | 0.3 |
+| Trạng thái | Draft / Discovery (Chờ Khách hàng review nghiệp vụ & chốt `CONF-S15-001` `Q1`–`Q13`) |
+| Phiên bản | 0.4 |
 | Điều phối / Cập nhật | AI BA & Coordinator Agent |
 | Tài liệu nền tảng | [AGENTS.md](../../../AGENTS.md) · [core_sdlc.md](../../../.agents/rules/core_sdlc.md) · [ui_ux_standards.md](../../../.agents/rules/ui_ux_standards.md) · [api_standards.md](../../../.agents/rules/api_standards.md) |
 
@@ -18,7 +18,7 @@ Xây dựng **Plugin Quản Lý Mua Hàng & Cung Ứng (`plugins/purchasing`)** 
 2. **Doanh nghiệp Thương mại & Phân phối (`Trading & Distribution`)**: Tự động bổ sung tồn kho dưới mức `Min`, mua gom/mua thẳng theo Đơn bán (`Back-to-Back`), Bảng giá bậc số lượng (`Tiered Pricing`), chiết khấu thương mại/thưởng doanh số (`Rebate`), Trả lại hàng mua (`Purchase Return`).
 3. **Doanh nghiệp Dịch vụ & Mua sắm Nội bộ (`Services & Indirect Spend`)**: Mua dịch vụ/thuê ngoài/văn phòng phẩm không qua kho vật lý, nghiệm thu bằng **Biên bản Nghiệm thu Dịch vụ (`Service Entry Sheet — SES`)** và kiểm soát **Ngân sách phòng ban/dự án (`Budget Check`)**.
 
-Plugin `purchasing` giữ ranh giới sạch với **`plugins/inventory` (Sprint 13)** và **`plugins/crm` (Sprint 14)** qua `PluginDataServiceGrpc` & Kafka, tuân thủ cô lập đa tenant (`tenant_id`), đăng ký Entity Registry, chuẩn UI `@shared/*` (**Data View & Sticky Scroll Table + Context Menu**, **Anti-Modal**, **Route-Driven State**, **Zero-Emoji**, **100% i18n**) và kiểm thử trên **PostgreSQL + Redis thật**.
+Plugin `purchasing` giữ ranh giới sạch với **`plugins/inventory` (Sprint 13)** và **`plugins/crm` (Sprint 14)** qua `PluginDataServiceGrpc` & Kafka, tận dụng trực tiếp **`plugins/document-template` (Sprint 16 — Ưu tiên trước Sprint 15)** để kết xuất, in trình ký (`QR Verify`, `Watermark`) & gửi Email hàng loạt cho Nhà cung cấp (`PR`, `RFQ` mời thầu đa NCC, `PO / Blanket / Change Order`, `SES`, `Debit Note`), đồng thời tuân thủ cô lập đa tenant (`tenant_id`), đăng ký Entity Registry, chuẩn UI `@shared/*` (**Data View & Sticky Scroll Table + Context Menu**, **Anti-Modal**, **Route-Driven State**, **Zero-Emoji**, **100% i18n**) và kiểm thử trên **PostgreSQL + Redis thật**.
 
 ---
 
@@ -26,11 +26,11 @@ Plugin `purchasing` giữ ranh giới sạch với **`plugins/inventory` (Sprint
 
 | Bước | Mã tài liệu | Tệp | Nội dung chính | Phiên bản | Trạng thái |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `00` | `READ-S15-001` | [00_READING_GUIDE.md](./00_READING_GUIDE.md) | Định hướng đọc, danh mục tệp, cổng xác nhận Sprint 15 | `0.3` | Active |
-| `01` | `RAW-S15-001` | [01_RAW-S15-001_purchasing_supply_requirements.md](./01_raw_notes/01_RAW-S15-001_purchasing_supply_requirements.md) | Yêu cầu gốc, phân tích đặc thù **Sản xuất vs Thương mại vs Dịch vụ**, `DOA/SoD`, Lưu vết 4 tầng & Dynamic Form Builder | `0.3` | ⏳ Pending Review |
+| `00` | `READ-S15-001` | [00_READING_GUIDE.md](./00_READING_GUIDE.md) | Định hướng đọc, danh mục tệp, cổng xác nhận Sprint 15 | `0.4` | Active |
+| `01` | `RAW-S15-001` | [01_RAW-S15-001_purchasing_supply_requirements.md](./01_raw_notes/01_RAW-S15-001_purchasing_supply_requirements.md) | Yêu cầu gốc, phân tích đặc thù **Sản xuất vs Thương mại vs Dịch vụ**, `DOA/SoD`, Lưu vết 4 tầng, Form Builder & Kết xuất tài liệu (`document-template`) | `0.4` | ⏳ Pending Review |
 | `03` | `BENCH-S15-001` | [01_BENCH-S15-001_purchasing_supply_benchmarks.md](./03_benchmarks/01_BENCH-S15-001_purchasing_supply_benchmarks.md) | Đối sánh 10 hệ thống Mua hàng/SCM/ERP (SAP MM/Ariba, Coupa, Odoo, ERPNext, NetSuite, MISA, 1Office, Fast, Bravo, KiotViet/Sapo) + 12 bài học | `0.1` | ⏳ Pending Review |
-| `02` | `ANL-S15-001` | [01_ANL-S15-001_purchasing_supply_workflows.md](./02_analysis/01_ANL-S15-001_purchasing_supply_workflows.md) | Đặc tả Supplier 360, `3-Way Matching`, Sổ `AP Ledger`, 9 luồng nghiệp vụ (`DOA/SoD`, Lưu vết 4 tầng & Form Builder `plugins/form`), `BR-P01..P18`, 10 Edge Cases & `26 User Stories` | `0.3` | ⏳ Pending Review |
-| `04` | `CONF-S15-001` | [01_CONF-S15-001_sprint_15_scope_and_ac.md](./04_confirmation/01_CONF-S15-001_sprint_15_scope_and_ac.md) | 12 câu hỏi chốt nghiệp vụ (`Q1`–`Q12`), Scope In/Out & 22 Acceptance Criteria (`AC-01`..`AC-22`) | `0.3` | ⏳ Pending Client Sign-off |
+| `02` | `ANL-S15-001` | [01_ANL-S15-001_purchasing_supply_workflows.md](./02_analysis/01_ANL-S15-001_purchasing_supply_workflows.md) | Đặc tả Supplier 360, `3-Way Matching`, Sổ `AP Ledger`, 9 luồng nghiệp vụ (`DOA/SoD`, Lưu vết 4 tầng, Form Builder & Kết xuất qua `document-template`), `BR-P01..P19`, `27 User Stories` | `0.4` | ⏳ Pending Review |
+| `04` | `CONF-S15-001` | [01_CONF-S15-001_sprint_15_scope_and_ac.md](./04_confirmation/01_CONF-S15-001_sprint_15_scope_and_ac.md) | 13 câu hỏi chốt nghiệp vụ (`Q1`–`Q13`), Scope In/Out & 23 Acceptance Criteria (`AC-01`..`AC-23`) | `0.4` | ⏳ Pending Client Sign-off |
 | `05` | `SOL-S15-*` | `05_solutions/` *(Chưa tạo)* | Chỉ khởi tạo sau khi Khách hàng phê duyệt `CONF-S15-001` | — | Locked (Pending `CONF`) |
 | `06` | `DES-S15-*` | `06_designs/` *(Chưa tạo)* | Chỉ khởi tạo sau `SOL-S15-*` | — | Locked (Pending `SOL`) |
 | `07` | `FEAT/TASK-*` | `07_items/` *(Chưa tạo)* | Chỉ tách item lập trình sau `DES-S15-*` | — | Locked (Pending `DES`) |
@@ -63,7 +63,7 @@ Plugin `purchasing` giữ ranh giới sạch với **`plugins/inventory` (Sprint
 
 | Hạng mục | Mô tả kiểm tra | Trạng thái | Ghi chú |
 | :--- | :--- | :--- | :--- |
-| `RAW-S15-001` | Yêu cầu gốc chuẩn hóa cho 3 mô hình Sản xuất / Thương mại / Dịch vụ + Phê duyệt, Lưu vết & Form Builder | ⏳ Pending Review | Đã bổ sung `v0.3` |
+| `RAW-S15-001` | Yêu cầu gốc chuẩn hóa cho 3 mô hình Sản xuất / Thương mại / Dịch vụ + Phê duyệt, Lưu vết, Form Builder & Document Template (S16) | ⏳ Pending Review | Đã nâng cấp `v0.4` |
 | `BENCH-S15-001` | Phân tích 10 đối thủ P2P/SCM Quốc tế & VN + 12 bài học kiến trúc | ⏳ Pending Review | Mới khởi tạo `v0.1` |
-| `ANL-S15-001` | Hoàn thiện 9 luồng nghiệp vụ Mua hàng, 3-Way Match, `DOA/SoD`, Lưu vết 4 tầng, Dynamic Form Builder (`plugins/form`) & `BR-P01..P18` | ⏳ Pending Review | Đã bổ sung `v0.3` |
-| `CONF-S15-001` | Khách hàng review & chốt `Q1`–`Q12` và ký duyệt `AC-01`..`AC-22` | ⏳ Pending | Chặn Bước 05 (`SOL`) & Bước 06 (`DES`) |
+| `ANL-S15-001` | Hoàn thiện 9 luồng nghiệp vụ Mua hàng, 3-Way Match, `DOA/SoD`, Lưu vết 4 tầng, Form Builder & In/Email NCC qua `document-template` & `BR-P01..P19` | ⏳ Pending Review | Đã nâng cấp `v0.4` |
+| `CONF-S15-001` | Khách hàng review & chốt `Q1`–`Q13` và ký duyệt `AC-01`..`AC-23` | ⏳ Pending | Chặn Bước 05 (`SOL`) & Bước 06 (`DES`) |

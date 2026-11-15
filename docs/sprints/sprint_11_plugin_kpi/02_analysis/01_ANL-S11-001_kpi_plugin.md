@@ -3,7 +3,7 @@
 | Trường | Giá trị |
 | :--- | :--- |
 | ID / loại / sprint | ANL-S11-001 / Phân tích / Sprint 11 |
-| Trạng thái / phiên bản / cập nhật | Draft / 0.1 / 2026-11-02 |
+| Trạng thái / phiên bản / cập nhật | Draft / 0.2 / 2026-11-15 |
 | Owner / reviewer | BA Agent / Chưa review |
 | Đầu vào | [RAW-S11-001](../01_raw_notes/01_RAW-S11-001_kpi_plugin_requirements.md) 0.1, [BENCH-S11-001](../03_benchmarks/01_BENCH-S11-001_kpi_okr_benchmarks.md) 0.1 |
 | Đọc trước / đọc tiếp | [RAW-S11-001](../01_raw_notes/01_RAW-S11-001_kpi_plugin_requirements.md), [BENCH-S11-001](../03_benchmarks/01_BENCH-S11-001_kpi_okr_benchmarks.md) / [CONF-S11-001](../04_confirmation/01_CONF-S11-001_sprint_11_scope_and_ac.md) |
@@ -63,7 +63,7 @@ Phân vai: **HR** (thư viện, chu kỳ, cấu hình), **Manager** (duyệt/ch�
 - Gán KPI cá nhân/phòng ban theo chu kỳ, trọng số Σ=100%; chu kỳ tự do tự kích hoạt (job multi-tenant idempotent); nhiều chu kỳ song song.
 - Vòng đời: tạo/duyệt đầu kỳ → cập nhật actual (self/manager nhập hộ/minh chứng) → chấm (self + manager, tỷ trọng cấu hình) → duyệt kết quả → khóa → publish event `kpi.result.published` (payroll tiêu thụ — kênh KPI Sprint 10 AC-K01).
 - Weighted score engine thuần: achievement × weight, cap cấu hình, hướng thấp-tốt; xếp loại theo ngưỡng cấu hình.
-- Dashboard self/manager/HR + xuất Excel; cảnh báo chậm/nhắc chấm.
+- Dashboard self/manager/HR + xuất Excel/PDF; kết xuất & in **Phiếu Giao KPI đầu kỳ / Biên bản Đánh giá KPI cuối kỳ (`.pdf/.docx`)** có khung chữ ký & `QR Verify` và gửi Email thông báo kết quả kèm phiếu qua **`plugins/document-template` (Sprint 16 — không viết engine PDF/mail riêng)**; cảnh báo chậm/nhắc chấm.
 - Mobile: xem KPI + cập nhật actual + chấm + duyệt.
 
 ### 3.2. Out-of-Scope đề xuất (backlog)
@@ -86,6 +86,7 @@ Phân vai: **HR** (thư viện, chu kỳ, cấu hình), **Manager** (duyệt/ch�
 | BR-K10 | Multi-tenant: mọi bảng/job mang tenant_id đã xác thực; quyền xem theo cấu hình visibility (self/manager/HR) | L11 |
 | BR-K11 | Chu kỳ tự kích hoạt: job tạo kỳ mới theo lịch (lặp tháng/quý/năm) từ template chu kỳ; idempotent theo (tenant, chu kỳ, kỳ hiệu lực) | L05 |
 | BR-K12 | Thông báo qua notification plugin: mở kỳ, nhắc cập nhật, nhắc chấm, kết quả đã duyệt | Q13 |
+| BR-K13 | **Tận dụng `plugins/document-template` (Sprint 16) cho In Phiếu KPI, Báo cáo & Gửi Email**: Kết xuất Phiếu Giao chỉ tiêu đầu kỳ, Biên bản Đánh giá & Xếp loại KPI cuối kỳ (`.pdf/.docx` kèm khung chữ ký, câu hỏi định tính từ `plugins/form`, `QR Verify`, `Watermark`), Báo cáo tổng hợp (`.xlsx/.pdf`) và gửi Email kết quả qua `PluginDataServiceGrpc` / Drawer `?drawer=doc-output` của `plugins/document-template`. | Sprint 16 Dependency |
 
 ## 5. Edge cases cần thiết kế (bước 05–06)
 
@@ -116,3 +117,4 @@ Rủi ro kiến trúc cần chủ dự án lưu ý:
 | Phiên bản | Ngày | Thay đổi |
 | :--- | :--- | :--- |
 | 0.1 | 2026-11-02 | Bản nháp đầu tiên: 18 US, scope đề xuất, 12 BR, 10 edge case, ánh xạ 16 câu hỏi CONF |
+| 0.2 | 2026-11-15 | Bổ sung `BR-K13` & cập nhật Mục 3.1 tái sử dụng `plugins/document-template` (Sprint 16) cho In ký Phiếu Giao/Đánh giá KPI, xuất báo cáo & gửi Email kết quả |

@@ -5,16 +5,16 @@
 | ID | CONF-S15-001 |
 | Sprint | Sprint 15 (`sprint_15_plugin_purchasing`) |
 | Tác giả | AI Business Analyst (BA) |
-| Trạng thái | ⏳ PENDING — Chờ Khách hàng review luồng nghiệp vụ & chốt `Q1`–`Q12` + `AC-01`..`AC-22` |
-| Phiên bản | 0.3 |
+| Trạng thái | ⏳ PENDING — Chờ Khách hàng review luồng nghiệp vụ & chốt `Q1`–`Q13` + `AC-01`..`AC-23` |
+| Phiên bản | 0.4 |
 | Tài liệu đầu vào | [00_READING_GUIDE.md](../00_READING_GUIDE.md) · [RAW-S15-001](../01_raw_notes/01_RAW-S15-001_purchasing_supply_requirements.md) · [BENCH-S15-001](../03_benchmarks/01_BENCH-S15-001_purchasing_supply_benchmarks.md) · [ANL-S15-001](../02_analysis/01_ANL-S15-001_purchasing_supply_workflows.md) |
 
 > [!IMPORTANT]
-> Đây là cổng **Confirmation Gate (Bước 04)**. Bước 05 (`SOL-S15-*`), Bước 06 (`DES-S15-*`) và việc lập trình **chỉ được phép khởi động** sau khi Khách hàng phản hồi xác nhận 12 quyết định nghiệp vụ (`Q1`–`Q12`) và chốt bộ tiêu chí `AC-01`–`AC-22`.
+> Đây là cổng **Confirmation Gate (Bước 04)**. Bước 05 (`SOL-S15-*`), Bước 06 (`DES-S15-*`) và việc lập trình **chỉ được phép khởi động** sau khi Khách hàng phản hồi xác nhận 13 quyết định nghiệp vụ (`Q1`–`Q13`) và chốt bộ tiêu chí `AC-01`–`AC-23`.
 
 ---
 
-## 1. Bảng Câu Hỏi Chốt Quyết Định Nghiệp Vụ Mua Hàng & Cung Ứng (`Q1`–`Q12`)
+## 1. Bảng Câu Hỏi Chốt Quyết Định Nghiệp Vụ Mua Hàng & Cung Ứng (`Q1`–`Q13`)
 
 | Mã | Chủ đề cần quyết định | Các phương án lựa chọn | Đề xuất của BA | Phản hồi Khách hàng |
 | :--- | :--- | :--- | :--- | :--- |
@@ -30,6 +30,7 @@
 | **`Q10`** | **Phạm vi Mobile Ionic Cho Sprint 15** | Mobile Ionic tập trung tối giản vào 3 tác vụ hiện trường/quản lý: Tạo nhanh `PR`, Duyệt `PR/PO` (hiển thị ngân sách còn lại & lý do chọn thầu), và Nghiệm thu Dịch vụ `SES` kèm chụp ảnh (`>= 40px`)? | **Có**, các tác vụ nặng như Ma trận so sánh nhiều NCC và 3-Way Match dùng Web Desktop. | ⏳ Chờ chốt |
 | **`Q11`** | **Ma Trận Phê Duyệt (`DOA / SoD`) & Lưu Vết 4 Tầng Bất Biến** | Áp dụng bắt buộc cơ chế **Bất kiêm nhiệm (`SoD`)** qua `plugins/workflow` (chặn tự duyệt `PR/PO`, `Buyer != Người nghiệm thu SES`, `Maker-Checker` 2 mắt khi đổi STK ngân hàng NCC/mở `Blacklist`/duyệt `Variance Override`) kết hợp lưu vết 4 tầng (`Approval Timeline`, `Field Before/After Diff`, `Document Lineage`, `Append-only Ledger`) + Drawer `Audit & Lineage`? | **Có**, bắt buộc để chống gian lận nội bộ, đổi STK trước chuyển tiền và đáp ứng kiểm toán tài chính. | ⏳ Chờ chốt |
 | **`Q12`** | **Tùy Biến Biểu Mẫu Nhập Liệu Qua `plugins/form` Theo Tenant & Chi Nhánh** | Toàn bộ form nhập liệu Mua hàng (`Supplier KYC`, `PR`, `RFQ`, `PO/Blanket`, `SES`, `Vendor Bill`, `Return`) dựng qua **`plugins/form` (Sprint 08 — 32 loại trường, `GRID` công thức RPN, `SIGNATURE`)** với cơ chế kế thừa 3 tầng (`System Default -> Tenant -> Branch`), khóa `System Locked Core Fields` và lưu `custom_fields_data` (`JSONB`) + `form_version`? | **Có**, tái sử dụng trọn vẹn plugin `form` mặc định luôn bật, đảm bảo tùy biến theo ngành/chi nhánh mà không phá vỡ sổ cái và `3-Way Match`. | ⏳ Chờ chốt |
+| **`Q13`** | **Tận Dụng `plugins/document-template` (Sprint 16 — Ưu Tiên Trước) Cho In Ký & Gửi Email NCC** | Ủy quyền toàn bộ việc thiết kế & kết xuất `PR`, **`RFQ` Bulk Mail-Merge mời thầu nhiều NCC**, `PO / Release PO / Change Order`, `Blanket Order (.docx/.pdf)`, **Biên bản Nghiệm thu `SES`** (kèm `GRID`, ảnh, chữ ký `SIGNATURE`), `Debit Note`, `Watermark` và `QR Verify` sang **`plugins/document-template` (Sprint 16)**? | **Có**, không tự viết PDF/mail engine riêng; tận dụng trực tiếp hạ tầng Sprint 16 được làm trước. | ⏳ Chờ chốt |
 
 ---
 
@@ -56,6 +57,8 @@
    - Lưu vết 4 tầng bất biến (`Approval History`, `Before/After Field Diff`, `Document Lineage Graph`, `Append-only Ledger`) và hiển thị trực quan qua Stacked Drawer `Audit & Lineage` (`?drawer=audit`).
 6. **Tùy Biến Biểu Mẫu Nhập Liệu Động Theo Tenant & Chi Nhánh (`plugins/form` — Sprint 08)**:
    - Kết xuất toàn bộ form hồ sơ/chứng từ Mua hàng qua `plugins/form` (`32` loại trường, `GRID` công thức RPN, `SIGNATURE`, `Skip Logic`), cơ chế kế thừa 3 tầng (`System -> Tenant -> Branch`), bảo vệ `System Locked Core Fields`, lưu `custom_fields_data` (`JSONB`) + `form_version`, đồng bộ làm biến rẽ nhánh `workflow` & cột lọc Sticky Table.
+7. **Kết Xuất Chứng Từ Mua Hàng, In Ký & Gửi Email Hàng Loạt Cho NCC (`plugins/document-template` — Sprint 16)**:
+   - Tích hợp `PluginDataServiceGrpc` / Kafka & Stacked Drawer `?drawer=doc-output` của `plugins/document-template` (Sprint 16) cho `PR`, **`RFQ` Bulk Mail-Merge mời thầu đa NCC**, `PO / Blanket / Change Order` (`.docx/.pdf`), **Biên bản Nghiệm thu `SES`** (kèm `GRID`, ảnh & chữ ký `SIGNATURE`), `Debit Note`, đóng `Watermark`, `QR Verify` và lưu log SHA-256.
 
 ### 2.2. Ngoài Phạm Vi Sprint 15 (Out-of-Scope — Dời sang Sprint / Plugin khác)
 - **Kế hoạch Hoạch định Nguyên vật liệu sản xuất chuyên sâu (`MRP / BOM Explosion / Lệnh sản xuất`)** — Thuộc phân hệ Sản xuất (`manufacturing`); Sprint 15 tiếp nhận `PR` NVL được tạo ra hoặc nhập tay từ bộ phận sản xuất.
@@ -64,7 +67,7 @@
 
 ---
 
-## 3. Bộ 22 Tiêu Chí Nghiệm Thu (`AC-01` – `AC-22`)
+## 3. Bộ 23 Tiêu Chí Nghiệm Thu (`AC-01` – `AC-23`)
 
 | Mã AC | Nhóm | Mô tả tiêu chí nghiệm thu cụ thể & đo lường được |
 | :--- | :--- | :--- |
@@ -90,6 +93,7 @@
 | **`AC-20`** | Kiểm thử Thực dụng & Dual-Mode QA | Backend vượt qua JUnit 5 + RestAssured trên **PostgreSQL & Redis thật** (gồm concurrency Budget/Blanket Order & sync gRPC/Kafka với `inventory`); QA chạy Dual-Mode Browser Testing (`>= 1280px` & Ionic `390x844 px`, `overflow = 0`, `touch >= 40px`, **0 `console.error`**) kèm screenshot nghiệm thu. |
 | **`AC-21`** | Phê duyệt `SoD` & Lưu vết 4 Tầng | Hệ thống chặn thao tác tự duyệt hoặc kiêm nhiệm (`Buyer` tự nghiệm thu `SES`, tự duyệt `Maker-Checker` đổi STK ngân hàng NCC) với `403 SOD_VIOLATION`; mọi bản ghi `Approval History`, `Field Before/After Diff`, `Document Lineage` bất biến dưới DB (cấm `UPDATE/DELETE`) và xem được trong Drawer `Audit & Lineage`. |
 | **`AC-22`** | Tích hợp Dynamic Form Builder (`plugins/form`) | Phân giải biểu mẫu 3 tầng (`Branch Override -> Tenant Override -> System Default`) hoạt động đúng trên các form `Supplier/PR/RFQ/PO/SES/Bill`; `System Locked Core Fields` không thể bị xóa/đổi kiểu; chứng từ cũ mở đúng `form_version` đã lưu trong `JSONB`; trường động chạy được trong điều kiện rẽ nhánh `plugins/workflow` và cột lọc Sticky Table. |
+| **`AC-23`** | Kết xuất Chứng từ Mua hàng, `RFQ` Bulk Mail & `SES` (`plugins/document-template`) | Toàn bộ `PR`, `RFQ`, `PO / Blanket / Change Order`, **Biên bản Nghiệm thu `SES`** (kèm `GRID`, ảnh `IMAGE_UPLOAD`, chữ ký `SIGNATURE` từ `plugins/form`) và `Debit Note` kết xuất thống nhất qua `plugins/document-template` (Sprint 16); `Bulk Mail-Merge` `RFQ` gửi tách biệt từng NCC không lộ danh sách đối thủ; chứng từ chưa duyệt `DOA` gắn `Watermark`; bản in chính thức có `QR Verify`. |
 
 ---
 
@@ -105,3 +109,4 @@
 | `Vendor Bill`, `3-Way Match`, `AP` & Trả NCC | Đầy đủ (3-Column Split-View + Export) | Không thao tác kế toán 3-Way Match trên Mobile | `?matchStatus=BLOCKED_MISMATCH&aging=...` |
 | Phê duyệt (`DOA/SoD`) & Drawer `Audit & Lineage` | Đầy đủ (Timeline + Diff + Cây Lineage) | Duyệt qua `Workflow` & Xem Timeline duyệt gần nhất | `?drawer=audit&auditTab=approval|diff|lineage` |
 | Tùy biến Biểu mẫu Động (`plugins/form` Tenant/Chi nhánh) | Thiết kế & Publish Form Studio + Render Form động | Điền Form động đã Publish khi tạo `PR` / `SES` (`>= 40px`) | `?entity=...&branchId=...&formVersion=...` |
+| Mẫu in `PR/PO/Blanket`, `RFQ` Bulk Mail & `SES` (`plugins/document-template` S16) | Template Studio + Preview PDF/DOCX + Bulk Mail `RFQ` + Email `PO/Debit Note` | Xem/Tải PDF `PO` hoặc Biên bản `SES` & Chia sẻ nhanh (`>= 40px`) | `?drawer=doc-output&templateId=...&format=...` |

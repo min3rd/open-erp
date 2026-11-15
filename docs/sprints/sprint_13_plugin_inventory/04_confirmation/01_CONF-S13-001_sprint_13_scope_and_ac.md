@@ -5,16 +5,16 @@
 | ID | CONF-S13-001 |
 | Sprint | Sprint 13 (`sprint_13_plugin_inventory`) |
 | Tác giả | AI Business Analyst (BA) |
-| Trạng thái | ⏳ PENDING — Chờ Khách hàng review luồng nghiệp vụ & chốt `Q1`–`Q12` + `AC-01`..`AC-22` |
-| Phiên bản | 0.5 |
+| Trạng thái | ⏳ PENDING — Chờ Khách hàng review luồng nghiệp vụ & chốt `Q1`–`Q13` + `AC-01`..`AC-23` |
+| Phiên bản | 0.6 |
 | Tài liệu đầu vào | [00_READING_GUIDE.md](../00_READING_GUIDE.md) · [RAW-S13-001](../01_raw_notes/01_RAW-S13-001_inventory_requirements.md) · [BENCH-S13-001](../03_benchmarks/01_BENCH-S13-001_inventory_warehouse_benchmarks.md) · [ANL-S13-001](../02_analysis/01_ANL-S13-001_inventory_workflows.md) |
 
 > [!IMPORTANT]
-> Đây là cổng **Confirmation Gate (Bước 04)**. Bước 05 (`SOL-S13-*`), Bước 06 (`DES-S13-*`) và việc lập trình **chỉ được phép khởi động** sau khi Khách hàng phản hồi xác nhận 12 quyết định nghiệp vụ Kho (`Q1`–`Q12`) và chốt bộ tiêu chí `AC-01`–`AC-22`.
+> Đây là cổng **Confirmation Gate (Bước 04)**. Bước 05 (`SOL-S13-*`), Bước 06 (`DES-S13-*`) và việc lập trình **chỉ được phép khởi động** sau khi Khách hàng phản hồi xác nhận 13 quyết định nghiệp vụ Kho (`Q1`–`Q13`) và chốt bộ tiêu chí `AC-01`–`AC-23`.
 
 ---
 
-## 1. Bảng Câu Hỏi Chốt Quyết Định Nghiệp Vụ Kho (`Q1`–`Q12`)
+## 1. Bảng Câu Hỏi Chốt Quyết Định Nghiệp Vụ Kho (`Q1`–`Q13`)
 
 | Mã | Chủ đề cần quyết định | Các phương án lựa chọn | Đề xuất của BA | Phản hồi Khách hàng |
 | :--- | :--- | :--- | :--- | :--- |
@@ -30,6 +30,7 @@
 | **`Q10`** | **Phạm vi Mobile Ionic Thủ Kho Thực Địa** | Mobile tập trung tối giản vào 4 thao tác ngoài kho: Tra cứu tồn bằng quét mã, Kiểm đếm Nhập, Soạn hàng Xuất & Xác nhận Nhận chuyển kho, Đếm Kiểm kê (hỗ trợ Camera + Máy quét Bluetooth HID)? | **Có**, giữ Mobile gọn nhẹ, nút bấm `>= 40px` đúng chuẩn Ionic 8. | ⏳ Chờ chốt |
 | **`Q11`** | **Ma Trận Phê Duyệt Kho (`DOA / SoD`) & Lưu Vết 4 Tầng Bất Biến** | Áp dụng bắt buộc cơ chế **Bất kiêm nhiệm (`SoD`)** qua `plugins/workflow` (chặn tự duyệt `OPENING_BALANCE`, `DISPOSAL_OUT`, chênh lệch Kiểm kê vượt ngưỡng, Đảo chứng từ `POSTED`; `Maker-Checker` 2 mắt khi bật `ALLOW_NEGATIVE` hoặc Mở khóa kỳ) kết hợp Lưu vết 4 tầng (`Approval History`, `Field Before/After Diff`, `Ledger Lineage`, `Immutable Stock Ledger`) + Drawer `Audit & Lineage`? | **Có**, bắt buộc để chống thất thoát/chỉnh tồn kho trái phép và đáp ứng kiểm toán tài sản. | ⏳ Chờ chốt |
 | **`Q12`** | **Tùy Biến Biểu Mẫu Kho Qua `plugins/form` Theo Tenant, Chi Nhánh & Kho** | Toàn bộ form nhập liệu Kho (`Warehouse/Bin`, `SKU`, `Phiếu Nhập & QC`, `Xuất/Giữ hàng`, `Chuyển kho`, `Kiểm kê`) dựng qua **`plugins/form` (Sprint 08 — 32 loại trường, `GRID` Excel công thức RPN, `IMAGE_UPLOAD`, `SIGNATURE`)** theo kế thừa đa tầng (`System -> Tenant -> Branch/Warehouse`), giữ `System Locked Core Fields` và lưu `custom_fields_data` (`JSONB`) + `form_version`? | **Có**, đáp ứng đa dạng ngành nghề (Lạnh/Dược/Bán lẻ/Sản xuất) theo từng chi nhánh/kho mà không làm sai lệch `Stock Ledger`. | ⏳ Chờ chốt |
+| **`Q13`** | **Tận Dụng `plugins/document-template` (Sprint 16 — Ưu Tiên Trước) Cho In Phiếu Kho, Tem `Barcode/QR` & Email** | Ủy quyền toàn bộ việc thiết kế & kết xuất `Phiếu Nhập/Xuất/QC/Chuyển kho/Kiểm kê`, `Thẻ kho/XNT`, in **Tem nhãn `Barcode/QR`** khổ `mm`, `Watermark`, `QR Verify`, `Batch Print` và gửi Email trả NCC sang **`plugins/document-template` (Sprint 16)** (cấm tự viết engine in/PDF nội bộ)? | **Có**, tận dụng triệt để Sprint 16 làm trước để đồng bộ biểu mẫu in ấn chuẩn ERP trên toàn hệ thống. | ⏳ Chờ chốt |
 
 ---
 
@@ -59,6 +60,8 @@
    - Lưu vết 4 tầng bất biến (`Approval History`, `Before/After Diff` chính sách Kho/SKU/Lô QC, `Inventory Lineage`, `Append-only Stock Ledger`) và hiển thị trực quan qua Stacked Drawer `Audit & Lineage` (`?drawer=audit`).
 6. **Tùy Biến Biểu Mẫu Kho Động Theo Tenant, Chi Nhánh & Kho (`plugins/form` — Sprint 08)**:
    - Kết xuất biểu mẫu `Warehouse/SKU`, `Phiếu Nhập/QC`, `Xuất/Giữ hàng`, `Chuyển kho`, `Kiểm kê` qua `plugins/form` (`32` loại trường, `GRID`, `IMAGE_UPLOAD`, `SIGNATURE`), kế thừa 3 tầng (`System -> Tenant -> Branch/Warehouse`), khóa `System Locked Core Fields`, lưu `custom_fields_data` (`JSONB`) + `form_version`, dùng làm biến điều kiện `workflow` & cột lọc Sticky Table.
+7. **Kết Xuất Phiếu Kho, In Tem Nhãn `Barcode/QR`, In Ký & Gửi Email (`plugins/document-template` — Sprint 16)**:
+   - Tích hợp `PluginDataServiceGrpc` / Kafka & Stacked Drawer `?drawer=doc-output` của `plugins/document-template` (Sprint 16) để kết xuất `PN/PX/PC/KK/QC/Thẻ kho` (`.pdf/.docx/.xlsx`), in **Tem nhãn `Barcode/QR`** khổ `mm`, đóng dấu `Watermark`, mã `QR Verify` trên bản in ký, `Batch Print` gộp PDF và gửi Email `Phiếu Xuất trả NCC`.
 
 ### 2.2. Ngoài Phạm Vi Sprint 13 (Out-of-Scope — Tách sang Plugin / Sprint khác)
 - Phân hệ **Mua hàng (`Purchasing`)** & **Bán hàng / Chăm sóc khách hàng** hoàn chỉnh (Lead, Cơ hội, Đơn bán, Công nợ NCC/Khách hàng, Bảng giá chiết khấu).
@@ -68,7 +71,7 @@
 
 ---
 
-## 3. Bộ 22 Tiêu Chí Nghiệm Thu (`AC-01` – `AC-22`)
+## 3. Bộ 23 Tiêu Chí Nghiệm Thu (`AC-01` – `AC-23`)
 
 | Mã AC | Nhóm | Mô tả tiêu chí nghiệm thu cụ thể & đo lường được |
 | :--- | :--- | :--- |
@@ -94,6 +97,7 @@
 | **`AC-20`** | Kiểm thử Thực dụng & Dual-Mode QA | Backend vượt qua toàn bộ Integration Test JUnit 5 + RestAssured trên **PostgreSQL & Redis thật** (bao gồm test concurrency); QA chạy Dual-Mode Browser Testing (Desktop `>= 1280px` & Mobile Ionic `390x844 px`, `overflow = 0`, `touch >= 40px`, **0 `console.error`**) kèm ảnh chụp nghiệm thu. |
 | **`AC-21`** | Phê duyệt `SoD` & Lưu vết Kho 4 Tầng | Hệ thống chặn thao tác tự duyệt `DISPOSAL_OUT` / `OPENING_BALANCE` / Kiểm kê lệch lớn và bật `ALLOW_NEGATIVE` / Mở khóa kỳ một mắt với `403 SOD_VIOLATION`; mọi thay đổi chính sách Kho/SKU, Timeline `Workflow` và `Lineage` bất biến dưới DB và hiển thị trong Drawer `Audit & Lineage`. |
 | **`AC-22`** | Tích hợp Dynamic Form Builder (`plugins/form`) | Phân giải biểu mẫu đa tầng (`Branch/Warehouse Override -> Tenant Override -> System Default`) hoạt động đúng trên các form Kho; `System Locked Core Fields` (`sku_id`, `qty`, `uom_id`...) bị khóa xóa/đổi kiểu; chứng từ cũ mở đúng `form_version` từ `JSONB`; trường động kết nối điều kiện `workflow` và cột lọc Sticky Table. |
+| **`AC-23`** | Kết xuất In Phiếu Kho, Tem `Barcode/QR` & Email (`plugins/document-template`) | Mọi phiếu Kho (`PN/PX/PC/KK/QC`), `Thẻ kho/XNT` & Tem nhãn `Barcode/QR` khổ `mm` kết xuất thống nhất qua `plugins/document-template` (Sprint 16 — không viết PDF/mail engine nội bộ), trộn đúng cả trường lõi lẫn `custom_fields_data` (`GRID`, `SIGNATURE`), chèn `Watermark` khi `DRAFT/REVERSED`, ẩn `system_qty` khi `Blind Count`, hỗ trợ `Batch Print` và gửi Email `Phiếu Xuất trả NCC` qua `?drawer=doc-output`. |
 
 ---
 
@@ -110,3 +114,4 @@
 | Thẻ Kho, Báo Cáo `XNT`, Khóa Kỳ | Đầy đủ + Export | Lịch sử giao dịch gần nhất của SKU | `?from=...&to=...&warehouseId=...&skuId=...` |
 | Phê duyệt (`DOA/SoD`) & Drawer `Audit & Lineage` | Đầy đủ (Timeline + Diff Trước/Sau + Lineage) | Duyệt qua `Workflow` & Xem lịch sử duyệt gần nhất | `?drawer=audit&auditTab=approval|diff|lineage` |
 | Tùy biến Biểu mẫu Kho (`plugins/form` Tenant/Chi nhánh/Kho) | Thiết kế & Publish Form Studio + Render Form động | Điền Form động đã Publish khi Nhập/QC/Xuất/Kiểm kê (`>= 40px`) | `?entity=...&branchId=...&warehouseId=...&formVersion=...` |
+| Mẫu in Kho, Tem `Barcode/QR` & Email (`plugins/document-template` S16) | Template Studio + Preview PDF + Batch Print + Email trả NCC | Xem/Tải PDF phiếu hoặc In Tem nhãn tại kho (`>= 40px`) | `?drawer=doc-output&templateId=...&format=...` |

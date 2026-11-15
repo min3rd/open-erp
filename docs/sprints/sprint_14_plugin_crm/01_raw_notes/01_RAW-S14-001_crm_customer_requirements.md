@@ -6,7 +6,7 @@
 | Sprint | Sprint 14 (`sprint_14_plugin_crm`) |
 | Tác giả | AI Business Analyst (BA) |
 | Trạng thái | Draft / Chờ review |
-| Phiên bản | 0.3 |
+| Phiên bản | 0.4 |
 | Ngày tạo | 2026-11-15 |
 
 ---
@@ -68,6 +68,13 @@ Khởi tạo **Plugin Quản Lý Khách Hàng & Các Nghiệp Vụ Với Khách 
 - Lưu vết **4 tầng bất biến**: *(1) `Approval History Log`*, *(2) `Before/After Diff` sửa `owner_id/credit_limit/discount/stage/SLA`*, *(3) `CRM Lineage Graph` (`Lead -> Account -> Opp -> Quote -> SO -> AR -> RMA`)* và *(4) `Append-only AR Ledger`* kèm Drawer `Audit & Lineage`.
 - Toàn bộ biểu mẫu CRM (`Lead Capture / BANT`, `Customer Account B2B/B2C & Contact`, `Opportunity Checklist`, `Quotation & Sales Order`, `Contract`, `RMA & Ticket Bảo hành / CSAT Survey`) dựng qua **`plugins/form` (Sprint 08 — 32 loại trường, `GRID` công thức RPN, `IMAGE_UPLOAD`, `SIGNATURE`)** cho phép từng **Tenant / Chi nhánh (`branch_id`)** tùy biến trường mở rộng trong `custom_fields_data` (`JSONB`) + `form_version`, giữ nguyên `System Locked Core Fields`.
 
+### 2.10. Thiết Kế Mẫu, Kết Xuất Báo Giá / Đơn Hàng / Hợp Đồng B2B / Công Nợ VietQR & Gửi Email Qua `plugins/document-template` (Sprint 16)
+- Tận dụng **`plugins/document-template` (Sprint 16 — triển khai trước Sprint 14)** làm hạ tầng duy nhất cho toàn bộ nhu cầu xuất bản in ấn & gửi khách hàng của `plugins/crm` (không tự viết engine PDF/DOCX/mail riêng):
+  - **Báo giá (`Quotation`) & Đơn đặt hàng (`Sales Order`)**: Render `.pdf/.docx/.xlsx` theo mẫu riêng Tenant / Chi nhánh, hợp nhất cả `System Core Fields` lẫn bảng cấu thành dự toán `GRID` & trường động từ `plugins/form`; bản chưa duyệt chiết khấu/hạn mức tự động chèn **`Watermark = BẢN NHÁP / CHỜ DUYỆT`**.
+  - **Hợp đồng Kinh tế B2B (`.docx / .pdf`)**: Kết xuất Hợp đồng hoàn chỉnh kèm Phụ lục, điều khoản đặc thù, khung chữ ký & mã **`QR Verify`** kiểm tra tính xác thực khi hai bên in ra ký tươi.
+  - **Thông báo Đề nghị Thanh toán & Biên bản Đối chiếu Công nợ (`AR Aging`)**: Tự động nhúng mã **`VietQR` động** đúng số tiền còn nợ / đợt `Milestone` và nội dung chuyển khoản định danh.
+  - **Biên bản Đổi / Trả hàng (`RMA`) & Gửi Email Trực tiếp (`Mail-Merge`)**: Cho phép gửi Email đính kèm PDF/DOCX trực tiếp từ Drawer `?drawer=doc-output`, hỗ trợ `Batch Print` và ghi nhận tự động vào **`Customer 360 Activity Timeline`** kèm mã băm `SHA-256` kiểm toán.
+
 ---
 
 ## 3. Phân Vai Người Dùng & Liên Kết Hệ Sinh Thái
@@ -93,3 +100,4 @@ Khởi tạo **Plugin Quản Lý Khách Hàng & Các Nghiệp Vụ Với Khách 
 | **Anti-Modal & Route-Driven State** | Tuyệt đối không mở modal popup tạo Lead/Báo giá/Đơn hàng/Ticket; dùng **Split-View**, **Kanban Board đồng bộ URL**, **Nested Route** cho Customer 360 và **Stacked Drawers** (`?drawer=...`). | Bảo toàn trạng thái khi F5 hoặc chia sẻ link cho đồng nghiệp/sếp duyệt. |
 | **Dual-Mode Desktop & Mobile Ionic** | Desktop (`>= 1280px`) tối ưu mật độ dữ liệu (`High Density & Sharp`); Mobile Ionic (`390x844 px`) tối ưu cho Sales đi thị trường (Tra cứu Khách 360, Check-in ghi chú gặp khách, Xem tồn kho/Tạo Báo giá nhanh, Theo dõi Đơn & Nhắc việc, nút chạm `>= 40px`). | Ma trận rõ ràng từng màn hình Desktop vs. Mobile. |
 | **Zero-Emoji, 100% i18n & Test Thực Dụng** | Cấm emoji trên nhãn/badge/menu; 100% `vi.json`/`en.json`; Backend test JUnit 5 + RestAssured trên **PostgreSQL & Redis thật**; Frontend **0 file `.spec.ts`**, QA Dual-Mode Browser Testing. | Kiểm thử cả kịch bản Credit Limit concurrency & gRPC/Kafka sync với `inventory`. |
+| **Tận dụng `document-template` (S16)** | Toàn bộ xuất PDF/DOCX/XLSX, in trình ký (`QR Verify`, `Watermark`), nhúng `VietQR` công nợ & gửi Email (`Quotation`, `SO`, `Hợp đồng B2B`, `AR Statement`, `RMA`) gọi qua `plugins/document-template` thay vì viết engine riêng. | Đưa vào `ANL-S14-001` (`Luồng 9.3`, `BR-C19`, `US-S14-27`) & `CONF-S14-001` (`Q13`, `AC-23`). |

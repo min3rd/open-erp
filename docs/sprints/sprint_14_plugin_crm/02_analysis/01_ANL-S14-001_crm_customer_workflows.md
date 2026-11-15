@@ -6,7 +6,7 @@
 | Sprint | Sprint 14 (`sprint_14_plugin_crm`) |
 | Tác giả | AI Business Analyst (BA) |
 | Trạng thái | Draft / Chờ khách hàng review nghiệp vụ |
-| Phiên bản | 0.3 |
+| Phiên bản | 0.4 |
 | Tài liệu liên quan | [00_READING_GUIDE.md](../00_READING_GUIDE.md) · [RAW-S14-001](../01_raw_notes/01_RAW-S14-001_crm_customer_requirements.md) · [BENCH-S14-001](../03_benchmarks/01_BENCH-S14-001_crm_customer_benchmarks.md) · [CONF-S14-001](../04_confirmation/01_CONF-S14-001_sprint_14_scope_and_ac.md) |
 
 ---
@@ -42,6 +42,7 @@ Kế thừa chuẩn mực `Salesforce + HubSpot + MISA AMIS` (`L01`, `L02`, `L11
 | **Plugin `employee`** | Nhân viên Kinh doanh (`Owner`), CSKH, Quản lý nhóm. | `PluginDataServiceGrpc` |
 | **Plugin `workflow` (Sprint 08)** | Phê duyệt Báo giá vượt khung chiết khấu, Duyệt Đơn vượt Hạn mức công nợ (`Credit Override`), Duyệt Đổi/Trả hàng `RMA`. | Workflow Trigger & Callback Event |
 | **Plugin `in-app-notification`** | Cảnh báo Lead mới / sắp quá hạn thu hồi, Hợp đồng sắp hết hạn, Công nợ quá hạn, Ticket sắp vi phạm `SLA`. | Kafka / Outbox Event |
+| **Plugin `document-template` (Sprint 16 — Ưu tiên trước Sprint 14)** | Thiết kế mẫu, kết xuất PDF/DOCX/XLSX (`Báo giá`, `Sales Order`, `Hợp đồng B2B`, `Công nợ VietQR`, `RMA`), đóng `Watermark`, `QR Verify` & gửi Email Khách hàng. | `PluginDataServiceGrpc` / Kafka + Drawer `?drawer=doc-output` |
 
 ---
 
@@ -268,9 +269,30 @@ flowchart LR
 | **`Quotation, Sales Order & Contract`** | `customer_id`, `sku_id`, `qty`, `unit_price`, `discount`, `tax_rate`, `grand_total` | Bảng kê chi tiết hạng mục thi công/dịch vụ kèm theo (`GRID` RPN), Điều khoản bảo lãnh thực hiện (`FILE_UPLOAD`), Chữ ký xác nhận (`SIGNATURE`). |
 | **`Sales Return (RMA) & Ticket SLA / CSAT`** | `order_id`, `serial_no`, `rma_reason`, `priority`, `sla_policy_id` | Ảnh/Video lỗi sản phẩm (`IMAGE_UPLOAD`), Phiếu khảo sát hài lòng `CSAT` công khai hoặc nội bộ qua `plugins/form` sau khi đóng Ticket. |
 
+### Luồng 9.3: Kết Xuất Báo Giá, Hợp Đồng B2B, Thông Báo Nợ `VietQR`, In Ký & Gửi Email Qua `plugins/document-template` (Sprint 16)
+
+Vì **Sprint 16 (`plugins/document-template`) được ưu tiên làm trước Sprint 14**, toàn bộ chứng từ giao dịch với Khách hàng trên `plugins/crm` kết xuất thống nhất qua `PluginDataServiceGrpc` / Kafka & Drawer `?drawer=doc-output` (không xây PDF/DOCX/mail engine riêng trong `crm`):
+
+```mermaid
+flowchart LR
+    ACT["Sales / Ke toan bam In / Xuat File / Gui Email tren CRM"] --> DRW["Mo Drawer ?drawer=doc-output"]
+    DRW --> CTX["DocTemplate: Merge Core Fields + JSONB custom_fields_data + Milestone"]
+    CTX -->|"Chua duyet Chiet khau / Credit"| WMK["Watermark: BAN NHAP / CHO DUYET (Cam xuat ban chinh thuc)"]
+    CTX -->|"Da APPROVED"| QRV["Nhung QR Verify, Khung chu ky / SIGNATURE & Ma VietQR Cong no"]
+    WMK & QRV --> EXP["Xuat PDF/DOCX/XLSX hoac Batch Print (Hop dong/Cong no)"]
+    EXP --> MAIL["Gui Email Khách hàng + Log SHA-256 vao Customer 360 Timeline"]
+```
+
+| Chứng từ CRM | Định dạng & Năng lực `plugins/document-template` | Ràng buộc Nghiệp vụ & Dữ liệu trộn (`Merge Fields`) |
+| :--- | :--- | :--- |
+| **`Báo giá (Quotation v1..vN)` & `Sales Order`** | Mẫu `A4` kế thừa 3 tầng theo Chi nhánh; xuất PDF/DOCX có bảng sản phẩm & `GRID` dự toán từ `plugins/form`. | Báo giá/Đơn hàng đang chờ duyệt chiết khấu hoặc `Credit Override` bắt buộc đóng `Watermark = DRAFT / CHỜ DUYỆT`. |
+| **`Hợp đồng Kinh tế B2B`** | Chỉnh sửa/xuất `.docx` hoặc PDF trình ký; hỗ trợ chèn ảnh chữ ký `SIGNATURE` & mã `QR Verify` đối chiếu bản gốc. | Khi in ra ký tươi, bất kỳ ai quét `QR Verify` đều xác thực được đúng số Hợp đồng, ngày hiệu lực, giá trị và hash `SHA-256`. |
+| **`Đề nghị Thanh toán & Đối chiếu Công nợ (AR)`** | Tự động nhúng mã **`VietQR` động** đúng số tiền cần thu/đợt `Milestone` + nội dung chuyển khoản định danh; hỗ trợ `Batch Mail-Merge` nhắc nợ đầu tháng. | Lấy số dư thực tế từ `Customer Receivable Ledger` tránh phát thông báo nợ sai số liệu. |
+| **`Biên bản Đổi / Trả hàng (RMA)`** | Kết xuất Biên bản thu hồi/bảo hành kèm ảnh lỗi `IMAGE_UPLOAD` từ `plugins/form` & gửi Email xác nhận cho Khách hàng. | Mọi Email gửi từ `?drawer=doc-output` được `crm` lắng nghe Kafka event `doc.email.sent` để tự động ghi vào `Customer 360 Activity Timeline`. |
+
 ---
 
-## 3. Bộ Quy Tắc Nghiệp Vụ (`BR-C01` – `BR-C18`)
+## 3. Bộ Quy Tắc Nghiệp Vụ (`BR-C01` – `BR-C19`)
 
 | Mã BR | Quy tắc bắt buộc |
 | :--- | :--- |
@@ -292,6 +314,7 @@ flowchart LR
 | `BR-C16` | **Lưu Vết Kiểm Toán 4 Tầng Bất Biến (`Immutable Audit & Lineage`)**: Mọi thay đổi trường nhạy cảm (`owner_id`, `credit_limit`, `discount_pct`, `pipeline_stage`, `sla_pause`, `customer_merge`), mọi quyết định `workflow` và chuỗi liên kết `Lead -> Quote v1..vN -> SO -> StockReservation -> AR -> RMA` đều ghi bất biến và mở được trong Drawer `Audit & Lineage` (cấm `UPDATE/DELETE` bảng log & `AR Ledger`). |
 | `BR-C17` | **Bảo Vệ Trường Lõi CRM & Đa Phiên Bản Form Builder (`Hybrid Form Schema`)**: Biểu mẫu `Lead/Customer/Opportunity/Quotation/Order/Contract/RMA/Ticket` kết xuất qua `plugins/form`; các trường lõi (`tax_code`, `credit_limit`, `sku_id`, `qty`, `unit_price`, `discount`, `grand_total`) khóa `system_locked = true`; dữ liệu mở rộng lưu `custom_fields_data` (`JSONB`) gắn `(form_id, form_version)`. |
 | `BR-C18` | **Kế Thừa Form 3 Tầng (`System -> Tenant -> Branch`) & Liên Thông Workflow/Table**: Phân giải form theo `branch_id` -> `tenant_id` -> `System Default`; trường động dùng được làm biến điều kiện rẽ nhánh trên `plugins/workflow` (VD: điều kiện duyệt theo ngành/dự án đặc biệt), bật cột lọc trên `@shared/*` Sticky Table và ghi Before/After Diff vào Audit Log. |
+| `BR-C19` | **Ủy Quyền Kết Xuất Báo Giá, Hợp Đồng, Công Nợ `VietQR` & Gửi Email Sang `plugins/document-template` (Sprint 16)**: Toàn bộ in/xuất `PDF/DOCX/XLSX` (`Quotation`, `Sales Order`, `Contract`, `AR Statement + VietQR`, `RMA`) và gửi Email Khách hàng bắt buộc thực hiện qua `PluginDataServiceGrpc` / Drawer `?drawer=doc-output` của `plugins/document-template`. Chứng từ chưa duyệt chiết khấu/`Credit Override` chỉ cho phép xuất kèm `Watermark`; mọi lượt gửi Email thành công tự động lưu vào `Customer 360 Activity Timeline`. |
 
 ---
 
@@ -312,7 +335,7 @@ flowchart LR
 
 ---
 
-## 5. Danh Sách 24 User Stories (`US-S14-01` – `US-S14-24`)
+## 5. Danh Sách 27 User Stories (`US-S14-01` – `US-S14-27`)
 
 ### Nhóm A: Lead, Khách Hàng 360 & Tương Tác (`Customer Management`)
 - **`US-S14-01`** (*Telesales / Sales*): Tạo mới/Import `Lead`, nhận cảnh báo trùng lặp tức thì theo `MST / SĐT / Email` trước khi lưu trùng.
@@ -349,6 +372,7 @@ flowchart LR
 - **`US-S14-24`** (*Quản trị Tenant*): Cấu hình linh hoạt bộ thông số CRM (Bật/tắt tầng Lead, Chính sách Duplicate Warning/Block, Ngưỡng chiết khấu cần duyệt, Chính sách vượt Hạn mức công nợ, SLA Ticket, Ma trận `DOA/SoD`).
 - **`US-S14-25`** (*Kiểm toán / Kế toán Công nợ / Quản lý Kinh doanh*): Mở Stacked Drawer **Lịch sử Duyệt & Lưu vết (`Audit & Lineage`)** trên Customer 360, Báo giá, Đơn hàng hoặc Hợp đồng để xem Timeline phê duyệt (`Workflow`), Diff Trước/Sau khi đổi `Credit Limit`, `Sales Owner`, chiết khấu hoặc gộp khách hàng và Đồ thị Chuỗi `Lead -> Quote v1..vN -> SO -> StockReservation -> AR -> RMA`.
 - **`US-S14-26`** (*Quản trị Tenant / Quản lý Chi nhánh*): Dùng Form Studio của **`plugins/form` (Sprint 08)** để tùy biến trường/section, `Skip Logic`, bảng tính `GRID`, chữ ký `SIGNATURE` trên `Lead`, `Customer`, `Opportunity`, `Quotation`, `Sales Order`, `Contract`, `RMA/Ticket` theo từng Tenant hoặc từng Chi nhánh (`branch_id`).
+- **`US-S14-27`** (*Sales Rep / Kế toán Công nợ / CSKH*): Kết xuất PDF/DOCX, đóng dấu bản nháp hoặc mã `QR Verify` in trình ký, và gửi Email trực tiếp (kèm mã **`VietQR` công nợ** hoặc file Báo giá/Hợp đồng B2B/Biên bản RMA) cho Khách hàng từ Stacked Drawer `?drawer=doc-output` của **`plugins/document-template` (Sprint 16)** với nhật ký gửi tự động lưu vào `Customer 360`.
 
 ---
 
@@ -362,12 +386,12 @@ Tất cả các màn hình danh sách của `plugins/crm` (**`Leads`, `Customers
 4. **Context Menu Chuột Phải Đầy Đủ Nghiệp Vụ (100% i18n, Zero-Emoji)**:
    - *Trên `Leads`*: Gọi/Ghi chú nhanh, Chuyển đổi Lead, Gán/Chuyển người phụ trách (`Reassign`), Đánh dấu Không đạt (`Disqualify`).
    - *Trên `Customers`*: Mở Customer 360, Tạo Cơ hội mới, Tạo Báo giá nhanh, Tạo Đơn hàng, Ghi nhận Phiếu Thu, Mở Ticket mới.
-   - *Trên `Quotations / Sales Orders`*: Xem chi tiết (Drawer/Split-View), Tạo Revision mới, Xác nhận Đơn / Kiểm tra giữ hàng Kho, Tạo Đổi trả RMA, Ghi nhận Thanh toán.
+   - *Trên `Quotations / Sales Orders`*: Xem chi tiết (Drawer/Split-View), Tạo Revision mới, Xác nhận Đơn / Kiểm tra giữ hàng Kho, **In PDF / Xuất DOCX / Gửi Email Khách hàng** (`?drawer=doc-output`), Tạo Đổi trả RMA, Ghi nhận Thanh toán.
    - *Trên mọi bảng Khách hàng, Cơ hội, Báo giá, Đơn hàng, Hợp đồng*: Mở nhanh Stacked Drawer **`Lịch sử Duyệt & Audit Log`** (`?drawer=audit&entity=...&id=...`).
 5. **Fallback Mobile (`>= 40px`)**: Trên Mobile Ionic (`390x844 px`), cung cấp nút hành động `...` hoặc bấm thẻ mở Action Sheet chuẩn chạm `>= 40px`.
 
 ### 6.2. Anti-Modal, Customer 360 Nested Route & Zero-Emoji
-- **Anti-Modal**: Thay toàn bộ modal tạo/sửa bằng **Nested Routes** (VD: `/crm/customers/:id/overview|deals|orders|debt|tickets`), **Split-Screen** (Danh sách bên trái + Chi tiết tương tác bên phải), và **Stacked Drawers** (`?drawer=quotation&id=...&subDrawer=credit-check`). Toàn bộ form động kết xuất qua `plugins/form` bằng component chuẩn `@shared/*` (`app-sharp-input`, `app-sharp-select`, `app-sharp-textarea`, `app-sharp-toggle`, cấm HTML input thô) và cho phép bật/lọc cột `custom_fields_data` trên Sticky Table. Riêng Stacked Drawer **`Audit & Lineage`** (`?drawer=audit&auditTab=approval|diff|lineage`) hiển thị Timeline duyệt `Workflow & SoD`, Diff Trước/Sau (đặc biệt khi đổi `Credit Limit` / `Owner` / Gộp trùng) và Đồ thị Chuỗi từ `Lead` tới `AR/RMA`.
+- **Anti-Modal**: Thay toàn bộ modal tạo/sửa bằng **Nested Routes** (VD: `/crm/customers/:id/overview|deals|orders|debt|tickets`), **Split-Screen** (Danh sách bên trái + Chi tiết tương tác bên phải), và **Stacked Drawers** (`?drawer=quotation&id=...&subDrawer=credit-check`). Toàn bộ form động kết xuất qua `plugins/form` bằng component chuẩn `@shared/*` (`app-sharp-input`, `app-sharp-select`, `app-sharp-textarea`, `app-sharp-toggle`, cấm HTML input thô) và cho phép bật/lọc cột `custom_fields_data` trên Sticky Table. Riêng Stacked Drawer **`Audit & Lineage`** (`?drawer=audit&auditTab=approval|diff|lineage`) hiển thị Timeline duyệt `Workflow & SoD`, Diff Trước/Sau (đặc biệt khi đổi `Credit Limit` / `Owner` / Gộp trùng) và Đồ thị Chuỗi từ `Lead` tới `AR/RMA`, kết hợp Stacked Drawer **`Print & Email`** (`?drawer=doc-output`) của **`plugins/document-template` (Sprint 16)** để xem trước/xuất Báo giá, Hợp đồng B2B, Thông báo nợ `VietQR` và gửi Email khách hàng.
 - **High Density & Zero-Emoji**: Cấm emoji Unicode trên badge trạng thái, nhãn cột hay context menu; dùng SVG icon + i18n keys (`vi.json`/`en.json`) đầy đủ.
 
 ### 6.3. Ma Trận Phạm Vi Desktop Web vs. Mobile Ionic
@@ -383,3 +407,4 @@ Tất cả các màn hình danh sách của `plugins/crm` (**`Leads`, `Customers
 | Cấu hình Pipeline, Bảng giá, Hạn mức & Báo cáo | Đầy đủ | Không hỗ trợ cấu hình hệ thống (chỉ KPI cá nhân) |
 | Phê duyệt (`DOA/SoD`) & Drawer `Audit & Lineage` | Đầy đủ (Timeline + Diff Trước/Sau + Cây Lineage + Export Log) | Thực hiện Duyệt/Từ chối trên `Workflow` & Xem lịch sử duyệt gần nhất |
 | Tùy biến Biểu mẫu CRM Động (`plugins/form` Tenant/Chi nhánh) | Thiết kế & Publish Form Studio (`System -> Tenant -> Branch`) + Nhập liệu | Điền Form động đã Publish khi nhập `Lead` / Check-in / `Ticket` (`>= 40px`) |
+| Kết xuất Mẫu in, Hợp đồng `.docx`, `VietQR` & Email (`plugins/document-template` S16) | Template Studio + Preview PDF/DOCX + Batch Đòi nợ + Email Timeline | Xem/Tải PDF Báo giá, Hợp đồng & Gửi nhanh qua Email/Chia sẻ (`>= 40px`) |

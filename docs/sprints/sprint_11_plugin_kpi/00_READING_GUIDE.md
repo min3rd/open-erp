@@ -2,7 +2,7 @@
 
 | Trường | Giá trị |
 | :--- | :--- |
-| ID / phiên bản / cập nhật | READ-S11-001 / 0.3 / 2026-11-02 |
+| ID / phiên bản / cập nhật | READ-S11-001 / 0.4 / 2026-11-15 |
 | Trạng thái tài liệu / sprint | 🚧 **ĐANG THỰC HIỆN** — **Scope APPROVED 1.0** (16/16 câu + 26 AC); bước 05 (SOL) mở cho Architect — BA phase hoàn tất |
 | Owner / reviewer | BA Agent / Chủ dự án (duyệt scope tại CONF) |
 | Đầu vào / đọc trước | [RAW-S11-001](01_raw_notes/01_RAW-S11-001_kpi_plugin_requirements.md) — yêu cầu trực tiếp chủ dự án 2026-11-02 / [Sprint 10](../sprint_10_plugin_payroll/00_READING_GUIDE.md) (Scope APPROVED, bước 05 mở), [Sprint 09](../sprint_09_plugin_attendance_timesheet/00_READING_GUIDE.md) (đang code bước 07) |
@@ -65,7 +65,7 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 
 | TYPE/ID | File hoặc reservation | Owner | Tình trạng cấp số |
 | :--- | :--- | :--- | :--- |
-| READ-S11-001 | [00_READING_GUIDE.md](00_READING_GUIDE.md) | BA | Used — 0.3 |
+| READ-S11-001 | [00_READING_GUIDE.md](00_READING_GUIDE.md) | BA | Used — 0.4 |
 | RAW-S11-001 | [01_raw_notes/](01_raw_notes/) | BA | Used — Draft 0.2 (16/16 câu đã trả lời) |
 | ANL-S11-001 | [02_analysis/](02_analysis/) | BA | Used — Draft 0.1 |
 | BENCH-S11-001 | [03_benchmarks/](03_benchmarks/) | BA | Used — Draft 0.1 |
@@ -84,6 +84,7 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | Sprint 08 | Workflow engine + form builder (In Review) | Q8 duyệt nhiều cấp; Q16 câu hỏi định tính |
 | Sprint 09 | Attendance (đang code) | Nguồn actual tự động khi release (BR-K08) |
 | Sprint 10 | Payroll kênh KPI AC-K01 (Scope APPROVED) | Tiêu thụ `kpi.result.published` — trọn chuỗi lương thưởng theo hiệu suất |
+| **Sprint 16 (Ưu tiên trước Sprint 11)** | `plugins/document-template` — [Reading Guide](../sprint_16_plugin_document_template/00_READING_GUIDE.md) | Kết xuất & in **Phiếu Giao chỉ tiêu KPI đầu kỳ & Biên bản Đánh giá KPI cuối kỳ (`.pdf/.docx`)** có khung chữ ký & `QR Verify`, gửi Email thông báo kết quả KPI kèm phiếu và xuất báo cáo `.xlsx/.pdf` |
 
 ## 6. Lịch sử
 
@@ -92,3 +93,4 @@ Khách hàng đọc **01 → 03** (hiểu yêu cầu + đối chuẩn) rồi tr�
 | 0.1 | 2026-11-02 | Khởi tạo Sprint-Pack 11: RAW-S11-001 (R1–R3 + 16 câu hỏi mở), ANL-S11-001 (18 US + 12 BR + edge case), BENCH-S11-001 (10 sản phẩm + 12 bài học), CONF Draft 0.1 — trình 16 câu hỏi tương tác cho chủ dự án | BA Agent; yêu cầu trực tiếp chủ dự án 2026-11-02 |
 | 0.2 | 2026-11-02 | Chủ dự án trả lời **16/16 câu** qua hội thoại tương tác (4 vòng); soạn CONF-S11-001 0.2 (In/Out scope + 4 luồng + 26 AC + ma trận D/M + 6 rủi ro); RAW nâng 0.2; gate vẫn Pending — chờ duyệt scope & AC | BA Agent; hội thoại tương tác chủ dự án |
 | 0.3 | 2026-11-02 | **Scope & AC APPROVED 1.0** — chủ dự án chọn "Duyệt toàn bộ scope" sau khi được nêu rủi ro Q8/Q16 (phụ thuộc kép Sprint 08), Q5 (chờ Sprint 09), Q3 (cascade); CONF nâng 1.0; bước 05 (SOL) mở cho Architect | BA Agent; hội thoại tương tác chủ dự án |
+| 0.4 | 2026-11-15 | Bổ sung liên kết tận dụng **Sprint 16 (`plugins/document-template` — ưu tiên làm trước)** cho in ký Phiếu Giao/Đánh giá KPI (`.pdf/.docx`), gửi Email kết quả KPI & xuất báo cáo Excel/PDF | BA Agent; chỉ đạo ưu tiên Sprint 16 của chủ dự án |

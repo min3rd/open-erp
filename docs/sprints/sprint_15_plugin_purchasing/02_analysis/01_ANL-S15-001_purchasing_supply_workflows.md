@@ -6,7 +6,7 @@
 | Sprint | Sprint 15 (`sprint_15_plugin_purchasing`) |
 | Tác giả | AI Business Analyst (BA) |
 | Trạng thái | Draft / Chờ khách hàng review nghiệp vụ |
-| Phiên bản | 0.3 |
+| Phiên bản | 0.4 |
 | Tài liệu liên quan | [00_READING_GUIDE.md](../00_READING_GUIDE.md) · [RAW-S15-001](../01_raw_notes/01_RAW-S15-001_purchasing_supply_requirements.md) · [BENCH-S15-001](../03_benchmarks/01_BENCH-S15-001_purchasing_supply_benchmarks.md) · [CONF-S15-001](../04_confirmation/01_CONF-S15-001_sprint_15_scope_and_ac.md) |
 
 ---
@@ -42,6 +42,7 @@
 | **Plugin `catalog`** | Nhóm NCC, Đơn vị tính (`UoM`), Tiền tệ, Thuế suất VAT, Điều khoản thanh toán, Loại chi phí. | `PluginDataServiceGrpc` |
 | **Plugin `employee` & `workflow`** | `Requester`, `Buyer`, Người nghiệm thu `SES`; Phê duyệt `PR`, Chọn thầu, `PO` theo hạn mức & Vượt ngân sách. | `PluginDataServiceGrpc` & Workflow Event |
 | **Plugin `in-app-notification`** | Cảnh báo `PR/PO` chờ duyệt, `PO` trễ giao (`Overdue`), `Blanket Order` sắp cạn trần/hết hạn, Nợ NCC sắp đến hạn chi. | Kafka / Outbox Event |
+| **Plugin `document-template` (Sprint 16 — Ưu tiên trước Sprint 15)** | Thiết kế mẫu, kết xuất PDF/DOCX/XLSX (`PR`, `RFQ`, `PO / Blanket / Change Order`, `SES`, `Debit Note`), đóng `Watermark`, `QR Verify` & `Bulk Mail-Merge` mời thầu/gửi PO cho NCC. | `PluginDataServiceGrpc` / Kafka + Drawer `?drawer=doc-output` |
 
 ---
 
@@ -261,9 +262,31 @@ flowchart LR
 | **`Nghiệm thu Dịch vụ (SES)`** | `po_id`, `service_line_id`, `accepted_qty`, `acceptance_date`, `acceptor_id` | Bảng kê khối lượng nghiệm thu theo hạng mục (`GRID` công thức `KL * ĐG`), Ảnh hiện trường trước/sau (`IMAGE_UPLOAD`), Chữ ký xác nhận 2 bên (`SIGNATURE`). |
 | **`Vendor Bill & Purchase Return`** | `bill_no`, `po_id`, `gr_or_ses_id`, `net_amount`, `vat_amount`, `return_reason` | Số tờ khai Hải quan / Chứng nhận xuất xứ `C/O - C/Q`, Biên bản kiểm tra lỗi trả hàng kèm ảnh (`IMAGE_UPLOAD`). |
 
+### Luồng 9.3: Kết Xuất `PR / RFQ / PO / Blanket / SES / Debit Note`, In Trình Ký & Gửi Email Hàng Loạt Cho NCC Qua `plugins/document-template` (Sprint 16)
+
+Vì **Sprint 16 (`plugins/document-template`) được ưu tiên thực hiện trước Sprint 15**, `plugins/purchasing` kết xuất và phát hành toàn bộ chứng từ Mua hàng sang Nhà cung cấp qua `PluginDataServiceGrpc` / Kafka & Stacked Drawer `?drawer=doc-output` (không xây engine PDF/DOCX/mail riêng):
+
+```mermaid
+flowchart LR
+    ACT["Buyer / Truong PB / Ke toan bam In hoac Gui NCC"] --> DRW["Mo Drawer ?drawer=doc-output"]
+    DRW --> CTX["DocTemplate: Merge Core Fields + JSONB custom_fields_data + GRID + SIGNATURE"]
+    CTX -->|"Chua duyet DOA"| WMK["Watermark: BAN NHAP / CHO DUYET (Cam gui PO chinh thuc)"]
+    CTX -->|"Da APPROVED"| QRV["Nhung QR Verify, Khung chu ky & Tieu chuan AVL/Bo sung"]
+    CTX -->|"RFQ nhieu NCC"| BULK["Bulk Mail-Merge: Gui N Email ca nhan hoa + PDF/XLSX cho N NCC"]
+    WMK & QRV --> OUT["Xuat PDF/DOCX/XLSX hoac Batch Print + Luu vet SHA-256 Email"]
+```
+
+| Chứng từ Mua hàng | Năng lực Kế thừa từ `plugins/document-template` (Sprint 16) | Ràng buộc Nghiệp vụ & Dữ liệu trộn (`Merge Fields`) |
+| :--- | :--- | :--- |
+| **`Đề nghị Mua (PR)`** | In phiếu đề nghị xét duyệt kèm Bảng so sánh ngân sách (`Remaining vs Committed`). | Bản chưa duyệt gắn `Watermark = CHO DUYET`; hiển thị đầy đủ ghi chú kỹ thuật từ `plugins/form`. |
+| **`Hỏi giá (RFQ) — Bulk Mail-Merge`** | Từ 1 `RFQ` gửi đồng thời thư mời chào giá cá nhân hóa kèm file `.pdf/.xlsx` bảng kê mời thầu cho `N` Nhà cung cấp trong `AVL`. | Tự động tách thông tin người nhận riêng từng NCC (NCC A không thấy danh sách NCC B/C); ghi nhận timestamp từng Email gửi. |
+| **`PO / Blanket Order / Change Order`** | Xuất Đơn đặt hàng (`PDF`), Hợp đồng nguyên tắc (`.docx/.pdf`) có `QR Verify`; `PO Change Order` làm nổi bật phần thay đổi giá/lượng. | Chặn phát hành bản chính thức không Watermark khi `PO` chưa hoàn tất quy trình `DOA`; tự động gửi Email PO kèm lịch giao hàng sau khi duyệt (nếu bật). |
+| **`Biên bản Nghiệm thu Dịch vụ (SES)`** | Trộn tự động bảng tính khối lượng `GRID`, ảnh hiện trường `IMAGE_UPLOAD` và 2 chữ ký `SIGNATURE` (`plugins/form`) vào mẫu Biên bản nghiệm thu chuẩn in trình ký. | Đảm bảo ảnh & chữ ký gắn đúng cặp `(form_id, form_version)` thời điểm nghiệm thu. |
+| **`Purchase Return & Debit Note`** | Kết xuất Biên bản trả hàng lỗi & Chứng từ cấn trừ nợ gửi Email trực tiếp cho NCC từ Drawer `?drawer=doc-output`. | Lưu hash `SHA-256` tài liệu đính kèm làm chứng cứ đối soát công nợ `AP Ledger`. |
+
 ---
 
-## 3. Bộ Quy Tắc Nghiệp Vụ (`BR-P01` – `BR-P18`)
+## 3. Bộ Quy Tắc Nghiệp Vụ (`BR-P01` – `BR-P19`)
 
 | Mã BR | Quy tắc bắt buộc |
 | :--- | :--- |
@@ -285,6 +308,7 @@ flowchart LR
 | `BR-P16` | **Lưu Vết Kiểm Toán 4 Tầng Bất Biến (`Immutable Audit & Lineage`)**: Mọi thao tác phê duyệt, chuyển trạng thái và thay đổi trường nhạy cảm (`bank_account`, `tax_code`, `avl_status`, `budget_limit`, `tolerance_pct`, `po_change_diff`) bắt buộc ghi log bất biến gồm `actor_id`, `timestamp`, `before/after snapshot`, `reason`, nối chuỗi `Document Lineage` và hiển thị trong Drawer `Audit & Lineage` (cấm `UPDATE/DELETE` bảng log). |
 | `BR-P17` | **Bảo Vệ Trường Lõi & Đa Phiên Bản Form Builder (`Hybrid Form Schema`)**: Mọi form nhập liệu Mua hàng dựng qua `plugins/form`; các trường lõi sổ cái/khóa ngoại (`system_locked = true`) cấm xóa hoặc đổi kiểu dữ liệu; trường mở rộng lưu `custom_fields_data` (`JSONB`) gắn chặt `(form_id, form_version)` để chứng từ lịch sử render chính xác. |
 | `BR-P18` | **Kế Thừa Form 3 Tầng (`System -> Tenant -> Branch`) & Liên Thông Workflow/Table**: Phân giải form theo thứ tự `branch_id` (`plugins/organization`) -> `tenant_id` -> `System Default`; trường động được phép gắn làm biến điều kiện rẽ nhánh trên `plugins/workflow`, bật cột hiển thị/lọc trên `@shared/*` Sticky Table và ghi Before/After Diff vào Audit Log. |
+| `BR-P19` | **Ủy Quyền Kết Xuất Chứng Từ Mua Hàng, In Ký & Gửi Email Hàng Loạt Sang `plugins/document-template` (Sprint 16)**: Toàn bộ in/xuất `PDF/DOCX/XLSX` (`PR`, `RFQ`, `PO / Blanket / Change Order`, `SES`, `Debit Note`) và gửi Email/Bulk Mail-Merge mời thầu NCC bắt buộc thực hiện qua `PluginDataServiceGrpc` / Drawer `?drawer=doc-output` của `plugins/document-template`. Chứng từ chưa duyệt `DOA` chỉ xuất bản nháp kèm `Watermark`; Email mời thầu `RFQ` gửi tách biệt từng NCC không lộ danh sách đối thủ. |
 
 ---
 
@@ -305,7 +329,7 @@ flowchart LR
 
 ---
 
-## 5. Danh Sách 24 User Stories (`US-S15-01` – `US-S15-24`)
+## 5. Danh Sách 27 User Stories (`US-S15-01` – `US-S15-27`)
 
 ### Nhóm A: Nhà Cung Cấp 360, `AVL` & Ngân Sách (`Supplier & Budget Governance`)
 - **`US-S15-01`** (*Buyer / Quản trị*): Quản lý Hồ sơ `Supplier 360` (chống trùng `MST`, đa tài khoản ngân hàng, liên hệ, trạng thái `ACTIVE / WATCH / BLACKLISTED`).
@@ -342,6 +366,7 @@ flowchart LR
 - **`US-S15-24`** (*Quản trị Tenant*): Cấu hình linh hoạt chính sách Mua hàng (Bắt buộc `AVL` cho SKU sản xuất, Ngưỡng phải hỏi >= 3 báo giá, Ngưỡng `Tolerance %` của 3-Way Match, Luồng duyệt `Workflow` & Ma trận `DOA/SoD`).
 - **`US-S15-25`** (*Kiểm toán Nội bộ / Kế toán trưởng / Quản lý*): Mở Stacked Drawer **Lịch sử Duyệt & Lưu vết (`Audit & Lineage`)** trên bất kỳ NCC hoặc chứng từ nào để xem Timeline phê duyệt (`Workflow`), Diff Trước/Sau khi sửa dữ liệu nhạy cảm (như đổi STK ngân hàng NCC) và Đồ thị Chuỗi chứng từ đầu-cuối (`PR -> RFQ -> PO -> GR/SES -> Bill -> Payment`).
 - **`US-S15-26`** (*Quản trị Tenant / Quản lý Chi nhánh*): Dùng Form Studio của **`plugins/form` (Sprint 08)** để tùy biến trường/section, `Skip Logic`, bảng tính `GRID`, chữ ký `SIGNATURE` trên các biểu mẫu `Supplier KYC`, `PR`, `RFQ`, `PO`, `SES`, `Vendor Bill` theo từng Tenant hoặc từng Chi nhánh (`branch_id`) mà không chạm tới các trường lõi đã khóa.
+- **`US-S15-27`** (*Buyer / Trưởng bộ phận / Kế toán AP*): Xem trước, kết xuất `.pdf/.docx/.xlsx` (có `QR Verify` hoặc `Watermark` bản nháp), **gửi `Bulk Mail-Merge` thư mời `RFQ` tới hàng loạt NCC**, xuất `PO / Blanket / Change Order`, in **Biên bản Nghiệm thu `SES`** (kèm `GRID`, ảnh, chữ ký) và gửi `Debit Note` cho NCC trực tiếp qua Drawer `?drawer=doc-output` của **`plugins/document-template` (Sprint 16)**.
 
 ---
 
@@ -354,14 +379,14 @@ Tất cả màn hình danh sách của `plugins/purchasing` (**`Suppliers`, `AVL
 3. **Bộ lọc & Sắp xếp Đồng bộ URL**: Lọc theo Trạng thái, Loại mua (`STOCKABLE` vs `SERVICE`), Phòng ban, NCC, Kho nhận, Trạng thái khớp 3 chiều (`MATCHED / BLOCKED_MISMATCH`), Khoảng ngày — toàn bộ đồng bộ 2 chiều lên URL Query Params (`?tab=po&itemType=SERVICE&matchStatus=BLOCKED&page=1&size=50`).
 4. **Context Menu Chuột Phải Đầy Đủ Nghiệp Vụ (100% i18n, Zero-Emoji)**:
    - *Trên `Purchase Requisitions`*: Gửi duyệt / Phê duyệt, Gộp các PR đã chọn vào `RFQ`, Chuyển thẳng thành `PO`, Từ chối / Hủy.
-   - *Trên `RFQs`*: Nhập báo giá NCC, Mở Ma trận So sánh Báo giá, Chốt NCC & Tạo `PO`.
-   - *Trên `Purchase Orders`*: Xem tiến độ Kho (`GR`) / Nghiệm thu (`SES`), Tạo `PO Change Order`, Lập `SES` (nếu là dịch vụ), Nhập `Vendor Bill`, Đóng phần dư (`Close Short`), Lập Trả hàng NCC.
+   - *Trên `RFQs`*: Nhập báo giá NCC, Mở Ma trận So sánh Báo giá, **Gửi Email mời thầu hàng loạt (`Bulk Mail-Merge` qua `?drawer=doc-output`)**, Chốt NCC & Tạo `PO`.
+   - *Trên `Purchase Orders`*: Xem tiến độ Kho (`GR`) / Nghiệm thu (`SES`), Tạo `PO Change Order`, Lập `SES` (nếu là dịch vụ), **In PO / Xuất DOCX Hợp đồng / Gửi Email NCC** (`?drawer=doc-output`), Nhập `Vendor Bill`, Đóng phần dư (`Close Short`), Lập Trả hàng NCC.
    - *Trên `Vendor Bills`*: Xem chi tiết Đối chiếu 3 chiều (`PO vs GR/SES vs Bill`), Duyệt ngoại lệ sai số, Ghi nhận Thanh toán.
    - *Trên mọi bảng NCC & Chứng từ*: Mở nhanh Stacked Drawer **`Lịch sử Duyệt & Audit Log`** (`?drawer=audit&entity=...&id=...`).
 5. **Fallback Mobile (`>= 40px`)**: Trên Mobile Ionic (`390x844 px`), cung cấp nút `...` (`>= 40x40 px`) kích hoạt Bottom Action Sheet thay thế chuột phải.
 
 ### 6.2. Anti-Modal, Split-View & Zero-Emoji
-- **Anti-Modal**: Cấm dùng popup modal tạo `PR/PO/Bill`. Dùng **Split-View** cho *Ma trận So sánh Báo giá (`Bid Comparison`)* và *Màn hình Đối chiếu 3 Chiều (`3-Way Match` đặt 3 cột PO - GR/SES - Bill song song để Kế toán nhìn ra chỗ lệch trong 3 giây)*, **Nested Routes** cho `Supplier 360`, và **Stacked Drawers** (`?drawer=...`). Toàn bộ form động kết xuất qua `plugins/form` sử dụng 100% component `@shared/*` (`app-sharp-input`, `app-sharp-select`, `app-sharp-textarea`, `app-sharp-toggle` — cấm HTML input thô) và cho phép bật/lọc cột `custom_fields_data` trên Sticky Table. Riêng Stacked Drawer **`Audit & Lineage`** đồng bộ tab qua URL (`?drawer=audit&auditTab=approval|diff|lineage`) hiển thị 3 góc nhìn: *Timeline duyệt & SoD*, *Diff Trước/Sau cấp trường*, và *Cây Chuỗi chứng từ liên thông*.
+- **Anti-Modal**: Cấm dùng popup modal tạo `PR/PO/Bill`. Dùng **Split-View** cho *Ma trận So sánh Báo giá (`Bid Comparison`)* và *Màn hình Đối chiếu 3 Chiều (`3-Way Match` đặt 3 cột PO - GR/SES - Bill song song để Kế toán nhìn ra chỗ lệch trong 3 giây)*, **Nested Routes** cho `Supplier 360`, và **Stacked Drawers** (`?drawer=...`). Toàn bộ form động kết xuất qua `plugins/form` sử dụng 100% component `@shared/*` (`app-sharp-input`, `app-sharp-select`, `app-sharp-textarea`, `app-sharp-toggle` — cấm HTML input thô) và cho phép bật/lọc cột `custom_fields_data` trên Sticky Table. Riêng Stacked Drawer **`Audit & Lineage`** đồng bộ tab qua URL (`?drawer=audit&auditTab=approval|diff|lineage`) hiển thị 3 góc nhìn: *Timeline duyệt & SoD*, *Diff Trước/Sau cấp trường*, và *Cây Chuỗi chứng từ liên thông*, kết hợp Stacked Drawer **`Print & Email`** (`?drawer=doc-output`) của **`plugins/document-template` (Sprint 16)** để xuất & gửi tài liệu NCC.
 - **High Density & Zero-Emoji**: Mật độ cao (`text-xs` / `text-sm`, `rounded-none` / `rounded-sm`), icon SVG + Tooltip ngữ nghĩa, **100% i18n (`vi.json`/`en.json`)**, **0 emoji Unicode**.
 
 ### 6.3. Ma Trận Phạm Vi Desktop Web vs. Mobile Ionic
@@ -376,3 +401,4 @@ Tất cả màn hình danh sách của `plugins/purchasing` (**`Suppliers`, `AVL
 | `Vendor Bill`, `3-Way Matching`, `AP` & Trả hàng NCC | Đầy đủ (3-Column Match Split-View + Export) | Không thao tác kế toán 3-Way Match trên Mobile (chỉ cảnh báo tới hạn) |
 | Phê duyệt Đa cấp (`DOA/SoD`) & Drawer `Audit & Lineage` | Đầy đủ (Timeline + Diff Trước/Sau + Cây Lineage + Export Log) | Thực hiện Duyệt/Từ chối (`Workflow`) & Xem Timeline duyệt gần nhất (`>= 40px`) |
 | Tùy biến Biểu mẫu Động (`plugins/form` theo Tenant/Chi nhánh) | Thiết kế & Publish Form Studio (`System -> Tenant -> Branch`) + Nhập liệu | Chỉ điền Form động đã Publish khi tạo `PR` / Nghiệm thu `SES` (`>= 40px`, cấm thiết kế form) |
+| Kết xuất Mẫu in, Hợp đồng `.docx`, `RFQ` Bulk Mail & `SES` (`plugins/document-template` S16) | Template Studio + Preview PDF/DOCX + Bulk Mail-Merge `RFQ` + Email `PO/Debit Note` | Xem/Tải PDF `PO` hoặc Biên bản `SES` & Chia sẻ nhanh (`>= 40px`) |

@@ -6,7 +6,7 @@
 | Sprint | Sprint 15 (`sprint_15_plugin_purchasing`) |
 | Tác giả | AI Business Analyst (BA) |
 | Trạng thái | Draft / Chờ review |
-| Phiên bản | 0.3 |
+| Phiên bản | 0.4 |
 | Ngày tạo | 2026-11-15 |
 
 ---
@@ -70,6 +70,9 @@ Một plugin mua hàng thực tế tại Việt Nam không thể chỉ làm mộ
 10. **Tùy Biến Biểu Mẫu Nhập Liệu Động Qua Form Builder (`plugins/form`) Theo Tenant & Chi Nhánh**:
    - Toàn bộ các màn hình nhập liệu hồ sơ & chứng từ (`Supplier Onboarding / KYC & AVL`, `PR`, `RFQ`, `PO / Blanket / Change Order`, `Nghiệm thu dịch vụ SES`, `Vendor Bill`, `Purchase Return`) phải dựng biểu mẫu thông qua **`plugins/form` (Sprint 08 — 32 loại trường, `GRID` bảng tính công thức RPN, `IMAGE_UPLOAD`, `SIGNATURE`)** để từng **Tenant** hoặc từng **Chi nhánh (`branch_id` thuộc `organization`)** tự tùy biến trường bổ sung, rule hiển thị (`Skip Logic`) và trường bắt buộc theo đặc thù ngành/chi nhánh mà không phải sửa mã nguồn.
    - Bảo vệ **Trường Lõi Hệ thống (`System Locked Core Fields`)** cho tính toán/sổ cái; dữ liệu mở rộng lưu vào `custom_fields_data` (`JSONB`) kèm **`form_version`** bất biến, liên thông làm biến điều kiện rẽ nhánh trên `plugins/workflow` và cột tùy chọn trên `@shared/*` Sticky Table.
+11. **Thiết Kế Mẫu, Kết Xuất Chứng Từ Mua Hàng, In Ký & Gửi Email Hàng Loạt Cho Nhà Cung Cấp Qua `plugins/document-template` (Sprint 16)**:
+   - Toàn bộ nhu cầu in ấn & gửi chứng từ cho đối tác (`PR`, **`RFQ` Bulk Mail-Merge mời thầu nhiều NCC cùng lúc** kèm file `.pdf/.xlsx`, **`PO / Release PO / PO Change Order`**, **`Blanket Order (.docx/.pdf)`**, **Biên bản Nghiệm thu Dịch vụ `SES`** kèm bảng khối lượng `GRID` + ảnh `IMAGE_UPLOAD` + chữ ký `SIGNATURE` từ `plugins/form`, `Purchase Return / Debit Note`) sử dụng trực tiếp **`plugins/document-template` (Sprint 16 — triển khai trước Sprint 15)** thay vì tự phát triển engine xuất PDF/DOCX/mail riêng.
+   - Hỗ trợ **`Watermark` trạng thái** (`NHÁP / CHỜ DUYỆT / ĐÃ HỦY`), mã **`QR Verify`** xác thực chứng từ bản cứng trình ký, `Batch Print` gộp PDF và lưu nhật ký gửi Email kèm hash `SHA-256`.
 
 ---
 
@@ -83,3 +86,4 @@ Một plugin mua hàng thực tế tại Việt Nam không thể chỉ làm mộ
 | **Dual-Mode Desktop & Mobile Ionic** | Desktop (`>= 1280px`) mật độ cao phục vụ Buyer/Kế toán so sánh báo giá & 3-Way Match; Mobile Ionic (`390x844 px`) tối giản cho Quản lý duyệt nhanh `PR/PO`, Nhân viên tạo `PR` nhanh hoặc xác nhận nghiệm thu `SES` tại công trường/văn phòng (`>= 40px`). | Bảng phân tách rõ Desktop vs. Mobile. |
 | **Zero-Emoji, 100% i18n & Test Thực Dụng** | Cấm emoji trên UI; 100% `vi.json`/`en.json`; Backend test JUnit 5 + RestAssured trên **PostgreSQL & Redis thật** (gồm concurrency check Ngân sách/Hạn mức Blanket Order & 3-Way Match); Frontend **0 file `.spec.ts`**. | Đưa vào `BR-P*` và `AC-20`. |
 | **Dynamic Form Builder (`plugins/form` — Sprint 08)** | Toàn bộ form nhập liệu (`Supplier/AVL`, `PR`, `RFQ`, `PO`, `SES`, `Vendor Bill`, `Return`) kết xuất qua `plugins/form` (`32` loại trường, `GRID` Excel công thức, `SIGNATURE`) hỗ trợ kế thừa 3 tầng (`System -> Tenant -> Branch`) + `System Locked Core Fields` + lưu `JSONB` kèm `form_version`. | Cho phép từng Tenant/Chi nhánh thêm trường/section đặc thù không cần sửa code, đồng bộ cột bảng & điều kiện rẽ nhánh `workflow`. |
+| **Tận dụng `document-template` (S16)** | Toàn bộ xuất PDF/DOCX/XLSX, in trình ký (`QR Verify`, `Watermark`), **Bulk Mail-Merge `RFQ` tới đa NCC**, xuất `PO / Blanket / SES (GRID + ảnh + chữ ký) / Debit Note` gọi qua `plugins/document-template` thay vì tự xây engine riêng. | Đưa vào `ANL-S15-001` (`Luồng 9.3`, `BR-P19`, `US-S15-27`) & `CONF-S15-001` (`Q13`, `AC-23`). |

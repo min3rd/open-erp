@@ -5,16 +5,16 @@
 | ID | CONF-S14-001 |
 | Sprint | Sprint 14 (`sprint_14_plugin_crm`) |
 | Tác giả | AI Business Analyst (BA) |
-| Trạng thái | ⏳ PENDING — Chờ Khách hàng review luồng nghiệp vụ & chốt `Q1`–`Q12` + `AC-01`..`AC-22` |
-| Phiên bản | 0.3 |
+| Trạng thái | ⏳ PENDING — Chờ Khách hàng review luồng nghiệp vụ & chốt `Q1`–`Q13` + `AC-01`..`AC-23` |
+| Phiên bản | 0.4 |
 | Tài liệu đầu vào | [00_READING_GUIDE.md](../00_READING_GUIDE.md) · [RAW-S14-001](../01_raw_notes/01_RAW-S14-001_crm_customer_requirements.md) · [BENCH-S14-001](../03_benchmarks/01_BENCH-S14-001_crm_customer_benchmarks.md) · [ANL-S14-001](../02_analysis/01_ANL-S14-001_crm_customer_workflows.md) |
 
 > [!IMPORTANT]
-> Đây là cổng **Confirmation Gate (Bước 04)**. Bước 05 (`SOL-S14-*`), Bước 06 (`DES-S14-*`) và việc lập trình **chỉ được phép khởi động** sau khi Khách hàng phản hồi xác nhận 12 quyết định nghiệp vụ (`Q1`–`Q12`) và chốt bộ tiêu chí `AC-01`–`AC-22`.
+> Đây là cổng **Confirmation Gate (Bước 04)**. Bước 05 (`SOL-S14-*`), Bước 06 (`DES-S14-*`) và việc lập trình **chỉ được phép khởi động** sau khi Khách hàng phản hồi xác nhận 13 quyết định nghiệp vụ (`Q1`–`Q13`) và chốt bộ tiêu chí `AC-01`–`AC-23`.
 
 ---
 
-## 1. Bảng Câu Hỏi Chốt Quyết Định Nghiệp Vụ CRM (`Q1`–`Q12`)
+## 1. Bảng Câu Hỏi Chốt Quyết Định Nghiệp Vụ CRM (`Q1`–`Q13`)
 
 | Mã | Chủ đề cần quyết định | Các phương án lựa chọn | Đề xuất của BA | Phản hồi Khách hàng |
 | :--- | :--- | :--- | :--- | :--- |
@@ -30,6 +30,7 @@
 | **`Q10`** | **Phạm vi Mobile Ionic Cho Nhân Viên Kinh Doanh Thực Địa** | Mobile tập trung tối giản vào: Tra cứu Customer 360 + Gọi nhanh, Check-in ghi chú gặp khách, Xem tồn kho/Tạo Báo giá nháp, Theo dõi tiến độ Đơn hàng/Công nợ sắp hạn & Cập nhật Ticket? | **Có**, giữ Mobile nhẹ, nút chạm `>= 40px` theo chuẩn Ionic 8. | ⏳ Chờ chốt |
 | **`Q11`** | **Ma Trận Phê Duyệt CRM (`DOA / SoD`) & Lưu Vết 4 Tầng Bất Biến** | Áp dụng bắt buộc cơ chế **Bất kiêm nhiệm (`SoD`)** qua `plugins/workflow` (chặn `Sales Rep` tự duyệt chiết khấu vượt khung/`Credit Override`/chuyển quyền `Reassign`/gộp trùng; `Maker-Checker` khi đổi `Credit Limit` hoặc mở `Blacklist`; tách người duyệt hoàn tiền/giảm trừ `RMA`) kết hợp Lưu vết 4 tầng (`Approval History`, `Field Before/After Diff`, `CRM Lineage`, `Append-only AR Ledger`) + Drawer `Audit & Lineage`? | **Có**, bắt buộc để chống thất thoát chiết khấu/nới công nợ khống và đảm bảo truy vết kiểm toán. | ⏳ Chờ chốt |
 | **`Q12`** | **Tùy Biến Biểu Mẫu CRM Qua `plugins/form` Theo Tenant & Chi Nhánh** | Toàn bộ form nhập liệu CRM (`Lead`, `Account/Contact`, `Opportunity Checklist`, `Quotation`, `Sales Order`, `Contract`, `RMA/Ticket/CSAT`) dựng qua **`plugins/form` (Sprint 08 — 32 loại trường, `GRID` công thức RPN, `IMAGE_UPLOAD`, `SIGNATURE`)** theo kế thừa 3 tầng (`System -> Tenant -> Branch`), giữ `System Locked Core Fields` và lưu `custom_fields_data` (`JSONB`) + `form_version`? | **Có**, tái sử dụng trọn vẹn `plugins/form` giúp từng ngành/chi nhánh tự tùy biến thông tin khách hàng/đơn hàng mà không sửa code. | ⏳ Chờ chốt |
+| **`Q13`** | **Tận Dụng `plugins/document-template` (Sprint 16 — Ưu Tiên Trước) Cho Báo Giá, Hợp Đồng, `VietQR` & Email** | Ủy quyền toàn bộ việc thiết kế & kết xuất `Báo giá`, `Sales Order`, `Hợp đồng B2B (.docx/.pdf)`, `Thông báo/Đối chiếu công nợ kèm VietQR`, `Biên bản RMA`, `Watermark`, `QR Verify` và gửi Email khách hàng tự lưu vào `Customer 360 Timeline` sang **`plugins/document-template` (Sprint 16)**? | **Có**, tránh trùng lặp code in ấn/gửi mail, tận dụng trọn vẹn Sprint 16 được làm trước. | ⏳ Chờ chốt |
 
 ---
 
@@ -55,6 +56,8 @@
    - Lưu vết 4 tầng bất biến (`Approval History`, `Before/After Diff` sửa hạn mức/owner/giá/SLA, `CRM Lineage`, `Append-only AR Ledger`) và hiển thị trực quan qua Stacked Drawer `Audit & Lineage` (`?drawer=audit`).
 6. **Tùy Biến Biểu Mẫu CRM Động Theo Tenant & Chi Nhánh (`plugins/form` — Sprint 08)**:
    - Kết xuất biểu mẫu `Lead`, `Customer Account`, `Opportunity`, `Quotation`, `Sales Order`, `Contract`, `RMA/Ticket/CSAT` qua `plugins/form` (`32` loại trường, `GRID`, `SIGNATURE`), kế thừa 3 tầng (`System -> Tenant -> Branch`), khóa `System Locked Core Fields`, lưu `custom_fields_data` (`JSONB`) + `form_version`, dùng làm biến điều kiện `workflow` & cột lọc Sticky Table.
+7. **Kết Xuất Báo Giá, Hợp Đồng B2B, Thông Báo Nợ `VietQR` & Gửi Email (`plugins/document-template` — Sprint 16)**:
+   - Tích hợp `PluginDataServiceGrpc` / Kafka & Stacked Drawer `?drawer=doc-output` của `plugins/document-template` (Sprint 16) cho xuất PDF/DOCX/XLSX `Quotation`, `SO`, `Hợp đồng B2B`, `Thông báo Công nợ kèm VietQR`, `RMA`, đóng `Watermark`, `QR Verify` và gửi Email lưu vết vào `Customer 360 Activity Timeline`.
 
 ### 2.2. Ngoài Phạm Vi Sprint 14 (Out-of-Scope — Dời sang Sprint / Plugin khác)
 - Toàn bộ nghiệp vụ **Kho hàng vật lý** (Quản lý Kho/Bin, Nhập/Xuất/Chuyển/Kiểm kê, Giá vốn `AVCO`, Sổ cái Tồn kho) — đã tách sạch sang **`plugins/inventory` (Sprint 13)**.
@@ -64,7 +67,7 @@
 
 ---
 
-## 3. Bộ 22 Tiêu Chí Nghiệm Thu (`AC-01` – `AC-22`)
+## 3. Bộ 23 Tiêu Chí Nghiệm Thu (`AC-01` – `AC-23`)
 
 | Mã AC | Nhóm | Mô tả tiêu chí nghiệm thu cụ thể & đo lường được |
 | :--- | :--- | :--- |
@@ -90,6 +93,7 @@
 | **`AC-20`** | Kiểm thử Thực dụng & Dual-Mode QA | Backend vượt qua JUnit 5 + RestAssured trên **PostgreSQL & Redis thật** (bao gồm concurrency test & gRPC/Kafka flow với Kho); QA thực hiện Dual-Mode Browser Testing (`>= 1280px` & Ionic `390x844 px`, `overflow = 0`, `touch >= 40px`, **0 `console.error`**) kèm screenshot nghiệm thu. |
 | **`AC-21`** | Phê duyệt `SoD` & Lưu vết CRM 4 Tầng | Hệ thống chặn `Sales Rep` tự duyệt chiết khấu vượt khung, `Credit Override`, `Customer Merge/Reassign` và thay đổi `Credit Limit` / Đảo Phiếu Thu một mắt với `403 SOD_VIOLATION`; mọi Timeline `Workflow`, Diff Trước/Sau và chuỗi `Lead -> Order -> AR -> RMA` bất biến dưới DB và hiển thị trong Drawer `Audit & Lineage`. |
 | **`AC-22`** | Tích hợp Dynamic Form Builder (`plugins/form`) | Phân giải biểu mẫu 3 tầng (`Branch Override -> Tenant Override -> System Default`) hoạt động đúng trên các form `Lead/Customer/Opportunity/Quotation/SO/Contract/RMA/Ticket`; `System Locked Core Fields` bị khóa xóa/đổi kiểu; dữ liệu cũ mở đúng `form_version` từ `JSONB`; trường động dùng được trong điều kiện `workflow` và cột lọc Sticky Table. |
+| **`AC-23`** | Kết xuất Báo giá, Hợp đồng, `VietQR` & Email (`plugins/document-template`) | Toàn bộ `Quotation`, `Sales Order`, `Hợp đồng B2B (.docx/.pdf)`, `Thông báo/Đối chiếu công nợ` (nhúng đúng **`VietQR` động**) và `RMA` kết xuất thống nhất qua `plugins/document-template` (Sprint 16); chứng từ chờ duyệt chiết khấu/`Credit Override` tự gắn `Watermark`; bản in chính thức có `QR Verify`; gửi Email qua `?drawer=doc-output` tự động ghi nhận vào `Customer 360 Activity Timeline`. |
 
 ---
 
@@ -105,3 +109,4 @@
 | Đổi/Trả hàng (`RMA`) & Ticket `SLA` | Đầy đủ (Cấu hình SLA + Duyệt RMA + Split-View) | Danh sách Ticket được giao + Phản hồi/Đính kèm ảnh | `?priority=...&slaStatus=...&drawer=ticket&id=...` |
 | Phê duyệt (`DOA/SoD`) & Drawer `Audit & Lineage` | Đầy đủ (Timeline + Diff Trước/Sau + Lineage) | Duyệt qua `Workflow` & Xem lịch sử duyệt gần nhất | `?drawer=audit&auditTab=approval|diff|lineage` |
 | Tùy biến Biểu mẫu CRM (`plugins/form` Tenant/Chi nhánh) | Thiết kế & Publish Form Studio + Render Form động | Điền Form động đã Publish khi nhập `Lead` / Check-in / `Ticket` (`>= 40px`) | `?entity=...&branchId=...&formVersion=...` |
+| Mẫu in Báo giá, Hợp đồng `.docx`, `VietQR` & Email (`plugins/document-template` S16) | Template Studio + Preview PDF/DOCX + Batch Công nợ + Email Timeline | Xem/Tải PDF Báo giá, Hợp đồng & Chia sẻ/Gửi Email nhanh (`>= 40px`) | `?drawer=doc-output&templateId=...&format=...` |
