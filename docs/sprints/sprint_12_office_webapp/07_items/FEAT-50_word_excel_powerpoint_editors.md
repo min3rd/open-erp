@@ -18,7 +18,7 @@
 Triển khai 3 module trình soạn thảo/trình chiếu cốt lõi trên trình duyệt, không sử dụng thư viện bên thứ 3:
 
 1. **Word Editor (`Q2`)**: Khung trang cố định `div.Page` (`816×1056px`, `contain: size layout`), soạn thảo đoạn văn (đậm/nghiêng/gạch chân/màu/cỡ chữ/căn lề), danh sách, bảng biểu, chèn ảnh, Find & Replace, Undo/Redo stack, xuất `.docx` chuẩn OOXML, `.md` và Print-to-PDF.
-2. **Excel Spreadsheet (`Q3`)**: Lưới `<canvas>` ảo hóa theo vùng nhìn (Tiled Virtual Grid) kết hợp `Web Worker` tính toán công thức (30–50 hàm phổ biến: `SUM`, `AVERAGE`, `MIN`, `MAX`, `COUNT`, `COUNTA`, `IF`, `AND`, `OR`, `VLOOKUP`, `INDEX`, `MATCH`, `ROUND`, `CONCAT`, `TODAY`, v.v.), Formula Bar, định dạng ô/viền/trộn ô (`Merge`), lọc/sắp xếp/cố định dòng cột (`Freeze Panes`), xuất `.xlsx`/`.csv`/Print-to-PDF.
+2. **Excel Spreadsheet (`Q3`)**: Lưới `<canvas>` ảo hóa theo vùng nhìn (Tiled Virtual Grid) kết hợp `Web Worker` tính toán công thức (**toàn bộ catalogue hàm Excel Web**, danh sách tại `TASK-475`), Formula Bar, định dạng ô/viền/trộn ô (`Merge`), **Conditional Formatting + Data Validation + Pivot/Table/Slicer đầy đủ**, lọc/sắp xếp/cố định dòng cột (`Freeze Panes`), xuất `.xlsx`/`.csv`/Print-to-PDF.
 3. **PowerPoint Presentation (`Q4`)**: Giao diện chia màn hình cột Thumbnail slide bên trái + Sân khấu 16:9 `<canvas>` + lớp `<svg>` vẽ khung chọn/thay đổi kích thước (`move/resize handles`), thêm/xóa/sắp xếp slide, sửa hộp văn bản & hình khối cơ bản, trình chiếu toàn màn hình (`Fullscreen Slideshow`), xuất `.pptx`/JPEG/Print-PDF.
 
 ---

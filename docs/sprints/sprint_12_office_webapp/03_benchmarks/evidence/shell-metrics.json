@@ -1,0 +1,65 @@
+{
+  "captured_at": "2026-11-15",
+  "captured_by": "browser session (in-app Chromium, signed-in Microsoft 365 tenant)",
+  "theme": "dark",
+  "locale": "en-US",
+  "method": "getBoundingClientRect()/id/className/role read inside the editor iframe",
+  "apps": {
+    "word": {
+      "editor_origin": "word-edit.officeapps.live.com",
+      "viewport": { "w": 1296, "h": 894 },
+      "title_bar": { "h": 48, "id": "DocumentTitle_container", "save_state": "button aria-label='Saved - Click the cloud icon to view file location'" },
+      "tab_strip": { "h": 31, "role": "tablist", "tabs": ["Home","Insert","Layout","References","Review","View","Help"] },
+      "ribbon": { "h": 76, "id": "RibbonContainer", "top": 48, "command_row_h": 45 },
+      "workspace": { "id": "WACViewPanel", "top": 124, "h": 745 },
+      "status_bar": { "id": "StatusBar", "h": 25, "top": 869 },
+      "page": { "element": "div.Page", "w": 818, "h": 1058, "content_box": "816x1056", "top": 140 },
+      "paragraph_canvas": { "class": "CanvasParagraph ignore-scroll-bounds-check", "w": 816, "h": 23, "count": 1 },
+      "contenteditable_count": 24
+    },
+    "excel": {
+      "editor_origin": "excel.officeapps.live.com",
+      "viewport": { "w": 1496, "h": 894 },
+      "title_bar": { "h": 48 },
+      "tab_strip": { "h": 36, "class": "ms-OverflowSet" },
+      "ribbon": { "h": 136, "id": "RibbonContainer", "top": 48, "tab_row_h": 36, "command_block_h": 92 },
+      "formula_bar": { "id": "m_excelWebRenderer_ewaCtl_m_formulaBar", "h": 32, "top": 184, "input_editor": "div#formulaBarTextDivId_textElement.ql-editor.ewa-rteTextElement", "input_h": 18 },
+      "grid_top": 216,
+      "sheet_tab_bar": { "h": 32, "top": 839 },
+      "status_bar": { "h": 23, "top": 871 },
+      "canvases": [
+        { "class": "ewr-sheettable", "w": 1920, "h": 30 },
+        { "class": "ewr-sheettable", "w": 43, "h": 560 },
+        { "class": "ewr-sheettable", "w": 43, "h": 560 },
+        { "class": "ewr-sheettable", "w": 1920, "h": 560 },
+        { "class": "ewr-sheettable", "w": 1920, "h": 560 },
+        { "id": "chmc", "w": 1, "h": 1 }
+      ]
+    },
+    "powerpoint": {
+      "editor_origin": "powerpoint.officeapps.live.com",
+      "viewport": { "w": 1496, "h": 894 },
+      "title_bar": { "h": 48 },
+      "tab_strip": { "h": 31, "tabs": ["Home","Insert","Draw","Design","Transitions","Animations","Slide Show","Review","View","Help"] },
+      "ribbon": { "h": 76, "id": "RibbonContainer", "top": 48 },
+      "thumbnail_pane": { "id": "pptonline-sorter-view-id", "w": 256, "h": 747, "top": 124, "resize_handle_w": 10 },
+      "stage": { "id": "WACViewPanel", "w": 1240, "h": 743, "x": 256, "y": 124 },
+      "webgl_canvas": { "id": "webgl-canvas", "w": 1920, "h": 1080, "x": 0, "y": 0 },
+      "status_bar": { "h": 23, "top": 871 },
+      "selection_overlay": {
+        "container": "div.ShapeSelectionOverlay",
+        "anchor": "div.ModernSelectionViewAnchor",
+        "svg_host": "svg.pointer-events-none",
+        "handles_per_shape": 8,
+        "handle_id_pattern": "selectionHandle-<shapeId>-0..7",
+        "handle_size_px": 10
+      }
+    }
+  },
+  "file_menu_word": {
+    "type": "compact dropdown (not full-screen backstage)",
+    "width_px_approx": 263,
+    "items": ["Autosaved online to Documents","New","Open","Share","Create a Copy","Export","Print","Add to favorites","Rename","Move File","Version History","Delete","Info"],
+    "export_submenu": ["Download as PDF", "Download as PDF with comments", "Download as ODT", "Download as Markdown"]
+  }
+}

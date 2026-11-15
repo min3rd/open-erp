@@ -1,0 +1,35 @@
+{
+  "generated_at": "2026-11-15",
+  "audit_id": "AUDIT-S12-001",
+  "scope_version": "CONF-S12-001 1.2",
+  "groups": {
+    "client": 78,
+    "service_excluded": 13,
+    "erp": 2,
+    "not_applicable": 2
+  },
+  "by_app_client": {
+    "word": 21,
+    "excel": 29,
+    "powerpoint": 19,
+    "pdf": 3,
+    "shell": 6
+  },
+  "tasks": {
+    "TASK-471": { "fr": 44, "ac": 15 },
+    "TASK-472": { "fr": 44, "ac": 16 },
+    "TASK-473": { "fr": 52, "ac": 16 },
+    "TASK-474": { "fr": 52, "ac": 25 },
+    "TASK-475": { "fr": 62, "ac": 25 },
+    "TASK-476": { "fr": 56, "ac": 26 },
+    "TASK-477": { "fr": 23, "ac": 13 },
+    "TASK-478": { "fr": 16, "ac": 12 }
+  },
+  "totals": { "fr": 349, "ac": 148 },
+  "excluded_service_examples": [
+    "Word: Dictate, Editor AI, Translate, Add-ins",
+    "Excel: Power Query/Get Data, Power BI, Stocks/Geography, Analyze Data, Data from Picture, Insert Python, Office Scripts, Add-ins, Show Changes",
+    "PowerPoint: Dictate/Designer/Add-ins, M365 Stock Images, Visualize/Design Suggestions, Teams/Subtitles/Rehearse, Show Changes",
+    "Shell: Catch up activity feed"
+  ]
+}

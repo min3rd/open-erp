@@ -62,16 +62,16 @@ Mục tiêu của plugin `office-webapp` là mang lại không gian làm việc 
 | US-U01 | As an **End User**, I want **giao diện Simplified Ribbon 1 dòng gọn gàng, mật độ cao, hỗ trợ Dark/Light theme và đa ngôn ngữ (i18n)** so that **trải nghiệm đồng bộ với Open-ERP và không chiếm mất vùng đọc tài liệu** | Tuân thủ UI/UX Standards |
 | US-U02 | As an **End User**, I want **khi mở trên Mobile (Ionic), giao diện tự chuyển sang chế độ đọc tối ưu (Viewer + Zoom + Download)** so that **tôi xem nhanh tài liệu mọi lúc mà không bị vỡ khung** | Dual-Mode Desktop/Mobile |
 
-## 3. Đề xuất ranh giới Scope (chờ chốt tại CONF-S12-001)
+## 3. Ranh giới Scope (đã chốt tại CONF-S12-001 1.2)
 
-| Hạng mục | Đề xuất In-Scope (v1) | Đề xuất Out-of-Scope (Backlog) |
+| Hạng mục | In-Scope (client đầy đủ) | Out-of-Scope (chỉ service/không khả thi client) |
 | :--- | :--- | :--- |
 | **Kiến trúc thực thi** | 100% Client-side parsing, rendering, editing và export (Zero-Backend conversion) | Server-side LibreOffice/Collabora conversion; WOPI server |
-| **Word (`.docx`)** | Xem phân trang trung thực + Sửa văn bản, định dạng cơ bản, bảng, Find/Replace, Undo/Redo + Xuất `.docx` / Print PDF | Track Changes phức tạp, Mail Merge, Macro/VBA |
-| **Excel (`.xlsx`, `.csv`)** | Xem & Sửa đa sheet, Formula Bar, hàm tính toán phổ biến, định dạng ô, thêm/xóa dòng/cột, sort/filter, freeze panes + Xuất `.xlsx`/`.csv` | Pivot Table tương tác phức tạp, Power Query, VBA Macros |
-| **PowerPoint (`.pptx`)** | Xem danh sách slide + Trình chiếu toàn màn hình (Slideshow) + Sửa text cơ bản / đổi thứ tự slide (tùy chọn engine) | Thiết kế animation phức tạp, SmartArt editor nâng cao, nhúng video editor |
-| **Lưu trữ** | Mở file local, lưu đè (File System Access API) hoặc tải xuống; lưu nháp khôi phục trên IndexedDB | Cộng tác đồng thời nhiều người (Real-time Co-authoring / CRDT), lịch sử phiên bản trên Cloud |
-| **Định dạng cũ** | Cảnh báo lịch sự nếu người dùng mở `.doc`/`.xls`/`.ppt` (binary cũ chưa hỗ trợ client-side) | Bộ giải mã binary Office 97-2003 |
+| **Word (`.docx`)** | Toàn bộ 20 nhóm client: định dạng, bảng/ảnh, comment, **Track Changes**, header/footer, footnote/endnote/citation, TOC/bookmark, columns/breaks, equation, symbol, ink, online video, accessibility, immersive | Dictate/Editor AI/Translate/Add-ins/Mail Merge/Macro |
+| **Excel (`.xlsx`, `.csv`)** | Toàn bộ 29 nhóm client: **toàn bộ catalogue hàm**, Pivot/Table/Slicer, full chart, CF/DV, protection, name manager, ink, sheet views | Power Query/Power BI/Stocks/Geography/Analyze Data/Python/Office Scripts/Add-ins |
+| **PowerPoint (`.pptx`)** | Toàn bộ 20 nhóm client: SmartArt/Icons/Chart/media/Cameo, theme/master, 6 transition + Morph, 4 animation, Presenter View, comments, ink | Designer/Visualize/Stock Images/Teams/Subtitles/Rehearse |
+| **Lưu trữ** | Mở file local, lưu đè (File System Access API) hoặc tải xuống; lưu nháp IndexedDB; **ERP Storage + version + share nội bộ** | Cộng tác đồng thời nhiều người (CRDT/SignalR), activity feed |
+| **Định dạng cũ** | Đọc `.doc`/`.xls`/`.ppt` read-only, chuyển sang OOXML khi lưu | Ghi ngược binary Office 97-2003 |
 
 ## 4. Quy tắc nghiệp vụ (Business Rules)
 
@@ -84,7 +84,7 @@ Mục tiêu của plugin `office-webapp` là mang lại không gian làm việc 
 | **BR-O05** | **Extension & MIME Verification**: Kiểm tra magic bytes (ZIP header `PK\x03\x04` của OOXML) bên cạnh phần mở rộng `.docx`/`.xlsx`/`.pptx` để báo lỗi đúng mã i18n khi file bị hỏng hoặc đổi đuôi giả. | Security/UX |
 | **BR-O06** | **Read-Only Fallback**: Nếu trình duyệt không hỗ trợ ghi đè hoặc file có thành phần nâng cao không thể sửa an toàn, hệ thống cho phép xem ở chế độ Read-Only và thông báo rõ lý do (không làm hỏng file gốc). | US-W03 |
 | **BR-O07** | **100% i18n & Zero-Emoji**: Toàn bộ nhãn Ribbon, thông báo lỗi, tooltip, trạng thái lưu đều dùng key i18n (`vi.json`, `en.json`...). | Guardrails |
-| **BR-O08** | **Route-Driven Workspace**: Trạng thái tab loại app / chế độ xem (`?app=word|excel|ppt`, `?mode=view|edit`) được phản ánh trên URL theo quy chuẩn Angular Router. | Guardrails |
+| **BR-O08** | **Route-Driven Workspace**: Trạng thái tab loại app / chế độ xem (`?app=word\|excel\|ppt`, `?mode=view\|edit`) được phản ánh trên URL theo quy chuẩn Angular Router. | Guardrails |
 | **BR-O09** | **Zero-Third-Party Office Engine**: Toàn bộ bộ giải mã/mã hóa OOXML (ZIP + XML), công cụ render (Page Canvas/DOM, Tiled Grid Canvas, Slide Stage + SVG Selection) và Formula Engine phải **tự xây dựng từ đầu (in-house)** bằng TypeScript + Web APIs chuẩn, **không cài đặt thư viện Office/Editor bên thứ 3**. | R6 |
 | **BR-O10** | **Extension Bridge Cho `plugins/document-template` (Sprint 16)**: Giao diện trình soạn thảo `.docx/.xlsx` & PDF Viewer của `office-webapp` mở sẵn **Extension Slot / Bridge (`insertTextAtCursor` / `exportUpdatedBlob`)** để `Template Studio` của Sprint 16 gắn thanh *Merge Tag Picker* chèn cú pháp `{{tag}}` / bảng lặp `{{#GRID}}` trực tiếp vào mẫu mà không phá cấu trúc OOXML. | Sprint 16 Integration |
 
