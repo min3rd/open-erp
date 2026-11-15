@@ -20,10 +20,21 @@
   - Sử dụng viền sắc nét: `border border-neutral-200 dark:border-neutral-800`.
   - Tương phản rõ ràng giữa nền và viền.
 
-## 3. Triết Lý Điều Hướng Không Dùng Modal (Anti-Modal Architecture)
+## 3. Triết Lý Điều Hướng Không Dùng Modal & Lưu Vết Thao Tác (Route-Driven State)
 - **Nghiêm cấm lạm dụng Modal popup che khuất màn hình**. Thay thế 100% bằng 3 giải pháp:
-  1. **Angular Router (Nested Routes / Child Outlets)**:
-     - URL biểu thị trạng thái (ví dụ: `/sales/orders/123/edit`). Hỗ trợ bookmark và chia sẻ link.
+  1. **Angular Router (Nested Routes / Child Outlets & Query Params)**:
+     - **Nguyên tắc lưu vết thao tác (Route-Driven State Invariant)**: Code Frontend bắt buộc phải sử dụng triệt để Angular Router để lưu vết mọi thao tác của người dùng.
+     - **Các trạng thái bắt buộc phản ánh lên URL**:
+       - Chọn Tab nghiệp vụ (ví dụ: `?tab=records`, `?tab=approvals`, `?tab=shifts`).
+       - Phân trang & kích thước trang (ví dụ: `?page=2&size=20`).
+       - Bộ lọc & tìm kiếm (ví dụ: `?type=LEAVE&status=PENDING&q=Nguyen`).
+       - Mở Drawer biểu mẫu/chi tiết (ví dụ: `?drawer=new-request` hoặc route con `/requests/new`).
+       - Bản ghi đang chọn trong Master-Detail / Split-view (ví dụ: `?selected_id=req-123` hoặc route con `/approvals/:id`).
+       - Bước trong quy trình đóng công / Stepper (ví dụ: `?step=3`).
+     - **Đồng bộ hai chiều (Bidirectional Sync)**:
+       - Khi người dùng click tab, đổi filter, mở drawer: cập nhật URL qua `router.navigate([], { queryParams: { ... }, queryParamsHandling: 'merge' })`.
+       - Khi người dùng F5 reload, dán deep-link hoặc bấm nút Back/Forward của trình duyệt: component đọc query params / route params từ `ActivatedRoute` để khôi phục chính xác 100% trạng thái giao diện.
+       - Cấm lưu trạng thái điều hướng thuần túy trong biến component nội bộ (`signal()` cục bộ) mà URL không đổi.
   2. **Drawer (Side Sheet / Slide-over trượt từ cạnh phải)**:
      - Dùng xem nhanh chi tiết hoặc nhập biểu mẫu mà vẫn giữ trọn vẹn ngữ cảnh bảng danh sách bên trái.
      - Hỗ trợ **xếp chồng đa tầng (Stacked Drawers)**.
@@ -45,3 +56,20 @@
   - **100% giá trị trạng thái enum hiển thị**: Tạo mapping từ điển cho từng trạng thái (`enum.order_status.pending`, `enum.timesheet_status.locked`, `attendance.status.in_office`). Tuyệt đối không để text tiếng Anh thô như `LOCKED`, `ACTIVE`.
   - **100% chuỗi nội suy tham số**: Đưa toàn bộ định dạng chuỗi vào từ điển kèm `{param}` (ví dụ: `attendance.gps.outside_with_distance`), không dùng phép cộng chuỗi hoặc ghép text cứng trong template HTML / component TypeScript.
   - **100% thuộc tính ngữ cảnh & trợ năng**: `aria-label`, `title`, tooltip, placeholder và thông báo xác nhận (confirm popup).
+
+## 6. Tối Giản Nhãn Mô Tả, Tối Ưu Diện Tích & Ưu Tiên Icon Kèm Tooltip (High-Density Tooltip Guidance)
+
+- **Tối ưu hóa tối đa diện tích màn hình hiển thị (Screen Real Estate)**:
+  - Giảm thiểu tối đa khoảng cách đệm và khoảng trắng không cần thiết, hiển thị nhiều dữ liệu nghiệp vụ nhất trên một khung nhìn mà không cần cuộn trang.
+- **Hạn chế nhãn phụ, cấm subtitle/description dài dòng mặc định**:
+  - Mỗi màn hình hoặc panel chỉ giữ **một tiêu đề ngắn gọn** và tối đa **một dòng mục đích** nếu thực sự cần.
+  - Nghiêm cấm đặt các khối card/banner mô tả chính sách dài, các đoạn giải thích quy trình hoặc nhiều lớp subtitle chiếm hàng chục pixel quý giá trên thanh header/toolbar.
+- **Chuyển toàn bộ mô tả chi tiết & hướng dẫn vào Tooltip khi hover chuột**:
+  - Sử dụng các **Icon trực quan, chuẩn ngữ nghĩa** (`info`, `help-circle`, `shield`, `clock`, `calendar`, `filter`, `settings`...) đặt cạnh tiêu đề hoặc trường dữ liệu.
+  - Khi người dùng hover chuột vào icon hoặc phần tử, hiển thị **Tooltip** (`title` hoặc tooltip component/directive) chứa đầy đủ nội dung giải thích, hướng dẫn, SLA hoặc điều kiện nghiệp vụ.
+  - Chuỗi văn bản trong tooltip phải được dịch 100% qua file từ điển i18n (`{{ 'KEY' | translate }}`).
+- **Bảng cấu hình phải dùng cột dữ liệu**:
+  - Loại đơn, các cấp duyệt, SLA, trạng thái, hành động — không dùng mô tả dài trong từng dòng.
+- **Kiosk / màn hình cảm ứng**:
+  - Ưu tiên icon + `aria-label`, nhãn chữ ngắn; không hiển thị badge/notice kỹ thuật không cần thiết.
+  - Tối ưu diện tích chạm, tránh card quá lớn hoặc khoảng trống dư thừa.

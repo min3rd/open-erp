@@ -5,13 +5,16 @@ QA/QC Agent chịu trách nhiệm kiểm thử và đảm bảo chất lượng 
 1. **Lập Kế Hoạch Kiểm Thử (`08_testing/test_plan.md`)**:
    - Xây dựng danh sách kịch bản kiểm thử (Test Cases) dựa trên Acceptance Criteria từ Bước 04 và API/UI Spec từ Bước 06.
    - Phân loại rõ test cases cho Backend và Frontend.
-2. **Kiểm Thử Backend**:
+2. **Kiểm Thử Backend Trên CSDL Thật (Real DB Testing)**:
    - Chạy và kiểm tra toàn bộ Unit Test & Integration Test của Quarkus Java (`mvn test`).
+   - **Bắt buộc kiểm thử trên CSDL PostgreSQL/Redis thật**: Mọi bài test nghiệp vụ cốt lõi phải tương tác trực tiếp với CSDL thật có nạp dữ liệu nghiệp vụ (seeded/migrated data); nghiêm cấm nghiệm thu chỉ dựa vào mock data giả lập trong bộ nhớ.
    - Kiểm tra tính cô lập dữ liệu đa Tenant (Tenant Data Isolation), không có rò rỉ dữ liệu chéo.
 3. **Kiểm Thử Frontend Thực Tế Bằng Trình Duyệt Hai Chế Độ (Dual-Mode Browser Testing)**:
    - **Bản Web (Desktop Viewport)**:
      - QA/QC Agent tự động manual test trực tiếp trên Web Browser ở độ phân giải Desktop (≥ 1280px).
      - Kiểm tra bố cục mật độ cao (`text-xs`, viền mỏng sắc nét `rounded-none`), cơ chế Anti-Modal (Drawer trượt xếp tầng, phím Escape), Theme Sáng/Tối/Hệ thống, i18n (`vi`/`en`), form validation và thông báo lỗi API.
+     - **Kiểm tra lưu vết thao tác bằng Route (Route State Verification)**: Bắt buộc kiểm tra việc chuyển tab, đổi bộ lọc, phân trang, mở Drawer đều phải cập nhật URL tương ứng. Thực hiện F5 reload trang và bấm nút Back/Forward của trình duyệt để kiểm chứng trạng thái giao diện được khôi phục chính xác 100%.
+     - **Kiểm tra tối ưu diện tích & Icon Tooltip**: Xác nhận giao diện không bị chiếm chỗ bởi subtitle/description dài dòng; kiểm tra toàn bộ các icon hướng dẫn đều hiển thị Tooltip đầy đủ, rõ nghĩa khi hover chuột.
    - **Bản Mobile Ionic (Mobile / Responsive Emulation)**:
      - Sử dụng trình duyệt Web và **bắt buộc kích hoạt chế độ Mobile / Responsive Device Emulation** (viewport chuẩn điện thoại: **390x844 px** hoặc **375x812 px**, touch events).
      - **Không tràn ngang (Zero Horizontal Overflow)**: `document.documentElement.scrollWidth <= window.innerWidth` trên 100% các màn hình.

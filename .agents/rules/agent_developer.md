@@ -10,11 +10,14 @@ Developer Agent chịu trách nhiệm lập trình và triển khai mã nguồn 
   - **Backend**: Quarkus (Java LTS 21+), RESTEasy Reactive, Panache Hibernate ORM, Kafka, Redis. Package chuẩn: `com.vn9melody.openerp`.
   - **Frontend Web/Desktop**: Angular >= 22 + Tailwind CSS v4.
   - **Frontend Mobile**: Ionic 8 + Angular.
-- **Chính Sách Kiểm Thử Thực Dụng**:
+- **Chính Sách Kiểm Thử Thực Dụng & Test Trên CSDL Thật**:
   - **Backend**: Bắt buộc viết Unit/Integration Test (JUnit 5 + RestAssured) cho 100% logic nghiệp vụ, tính toán, và phân quyền Tenant.
   - **CẤM SỬ DỤNG H2 / Mock DB**: Môi trường dev có sẵn PostgreSQL và Redis (`make infra`). Mọi test backend phải kết nối và chạy trực tiếp trên PostgreSQL và Redis thật.
+  - **Kiểm Thử Bắt Buộc Trên CSDL Thật Với Dữ Liệu Thực Tế (Real DB Testing Invariant)**: Bắt buộc kiểm thử backend và integration test trên CSDL PostgreSQL/Redis thật có dữ liệu thực tế (seeded/migrated). Tuyệt đối không chỉ viết unit test với dữ liệu giả lập (mocked repositories / in-memory dummy objects) cho các luồng nghiệp vụ chính; test phải xác thực dữ liệu thực sự được đọc/ghi chính xác trong CSDL với các ràng buộc toàn vẹn.
   - **Frontend**: **TUYỆT ĐỐI KHÔNG VIẾT Unit Test** (không tạo file `.spec.ts`). Kiểm thử giao diện do QA thực hiện trực tiếp trên trình duyệt.
 - **Quy Chuẩn Frontend**:
+  - **Lưu Vết Thao Tác Triệt Để Bằng Angular Router (Route-Driven State & Deep Linking Invariant)**: 100% các màn hình có tab, bộ lọc, phân trang, stepper, split-view hoặc mở drawer bắt buộc phải liên kết và đồng bộ trạng thái hai chiều với Angular Router (Query Params hoặc Child Routes). Cấm lưu trạng thái điều hướng thuần túy trong biến cục bộ component khiến thao tác bị mất khi reload F5 hoặc bấm nút Back/Forward của trình duyệt.
+  - **Tối Ưu Diện Tích Màn Hình & Icon Kèm Tooltip**: Tối ưu diện tích hiển thị (high density), không viết subtitle hay banner mô tả dài dòng chiếm diện tích template. Thay thế bằng Icon chuẩn ngữ nghĩa kết hợp Tooltip (`title` hoặc directive) để hiển thị chi tiết khi hover chuột.
   - **CẤM DÙNG NATIVE FETCH()**: 100% request HTTP trong Angular (kể cả Web Component hay màn hình Public) bắt buộc phải sử dụng Angular `HttpClient` hoặc `ApiService` từ `@shared`. Nghiêm cấm dùng native `fetch()` vì làm bypass Interceptors (Bearer Token, Tenant Context, Request ID) và phá vỡ cơ chế xử lý lỗi/reactivity thống nhất.
   - **Cấm Frontend Gọi Chéo Endpoint Plugin Khác**: Frontend của Plugin A chỉ được gọi API của Backend Plugin A thông qua Service nội bộ. Tuyệt đối không tự ý hardcode hoặc gọi trực tiếp URL endpoint của Plugin B từ phía trình duyệt.
   - **Quy Chuẩn Chân Drawer (Drawer Footer Invariant)**: Thẻ `<div drawer-footer>` chỉ chứa các lớp dàn layout (`flex items-center gap-2`), tuyệt đối không thêm thuộc tính màu nền (`bg-surface`, `bg-*`) hoặc viền trên (`border-t`) vì vỏ component `<app-drawer>` đã có sẵn nền `bg-surface-muted` và `border-t`.
