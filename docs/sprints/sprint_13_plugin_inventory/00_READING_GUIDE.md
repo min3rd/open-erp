@@ -4,8 +4,8 @@
 | :--- | :--- |
 | ID | READ-S13-001 |
 | Sprint | Sprint 13 — `sprint_13_plugin_inventory` |
-| Trạng thái | Draft / Discovery (Chờ Khách hàng review luồng nghiệp vụ & chốt `CONF-S13-001` `Q1`–`Q13`) |
-| Phiên bản | 0.6 |
+| Trạng thái | APPROVED 1.0 — Đã chốt Scope `Q1`–`Q13` & `23 AC` (Mở Bước 05 `SOL` cho Architect) |
+| Phiên bản | 1.0 |
 | Điều phối / Cập nhật | AI BA & Coordinator Agent |
 | Tài liệu nền tảng | [AGENTS.md](../../../AGENTS.md) · [core_sdlc.md](../../../.agents/rules/core_sdlc.md) · [ui_ux_standards.md](../../../.agents/rules/ui_ux_standards.md) · [api_standards.md](../../../.agents/rules/api_standards.md) |
 
@@ -27,12 +27,12 @@ Xây dựng **Plugin Quản Lý Kho Hàng (`plugins/inventory`)** hoàn toàn đ
 
 | Bước | Mã tài liệu | Tệp | Nội dung chính | Phiên bản | Trạng thái |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `00` | `READ-S13-001` | [00_READING_GUIDE.md](./00_READING_GUIDE.md) | Định hướng đọc, danh mục tệp, cổng xác nhận Sprint 13 | `0.6` | Active |
-| `01` | `RAW-S13-001` | [01_RAW-S13-001_inventory_requirements.md](./01_raw_notes/01_RAW-S13-001_inventory_requirements.md) | Ghi chú yêu cầu gốc thuần Plugin Kho (`plugins/inventory`), phân vai, `DOA/SoD`, Lưu vết, Form Builder (`plugins/form`) & Kết xuất biểu mẫu/Tem nhãn (`plugins/document-template`) | `0.6` | ⏳ Pending Review |
-| `03` | `BENCH-S13-001` | [01_BENCH-S13-001_inventory_warehouse_benchmarks.md](./03_benchmarks/01_BENCH-S13-001_inventory_warehouse_benchmarks.md) | Đối sánh 10 hệ thống Quản lý Kho/ERP Quốc tế & Việt Nam (Odoo, ERPNext, SAP/NetSuite, Zoho, InvenTree, MISA, KiotViet, Sapo, 1Office, Haravan) + 12 bài học kiến trúc | `0.3` | ⏳ Pending Review |
-| `02` | `ANL-S13-001` | [01_ANL-S13-001_inventory_workflows.md](./02_analysis/01_ANL-S13-001_inventory_workflows.md) | Đặc tả chi tiết 9 luồng nghiệp vụ thuần Kho (`DOA/SoD`, Lưu vết 4 tầng, Form Builder & Kết xuất qua `document-template`), State Machine, `Stock Ledger` 5 chỉ số, `27 User Stories`, `BR-W01..W19`, 10 Edge Cases & chuẩn UI | `0.6` | ⏳ Pending Review |
-| `04` | `CONF-S13-001` | [01_CONF-S13-001_sprint_13_scope_and_ac.md](./04_confirmation/01_CONF-S13-001_sprint_13_scope_and_ac.md) | Bộ 13 câu hỏi chốt nghiệp vụ Kho (`Q1`–`Q13`) & 23 Acceptance Criteria (`AC-01`..`AC-23`) chờ Khách hàng xác nhận | `0.6` | ⏳ Pending Client Sign-off |
-| `05` | `SOL-S13-*` | `05_solutions/` *(Chưa tạo)* | Chỉ khởi tạo sau khi Khách hàng phê duyệt `CONF-S13-001` | — | Locked (Pending `CONF`) |
+| `00` | `READ-S13-001` | [00_READING_GUIDE.md](./00_READING_GUIDE.md) | Định hướng đọc, danh mục tệp, cổng xác nhận Sprint 13 | `1.0` | Active |
+| `01` | `RAW-S13-001` | [01_RAW-S13-001_inventory_requirements.md](./01_raw_notes/01_RAW-S13-001_inventory_requirements.md) | Ghi chú yêu cầu gốc thuần Plugin Kho (`plugins/inventory`), phân vai, `DOA/SoD`, Lưu vết, Form Builder (`plugins/form`) & Kết xuất biểu mẫu/Tem nhãn (`plugins/document-template`) | `0.6` | Approved (Baseline) |
+| `03` | `BENCH-S13-001` | [01_BENCH-S13-001_inventory_warehouse_benchmarks.md](./03_benchmarks/01_BENCH-S13-001_inventory_warehouse_benchmarks.md) | Đối sánh 10 hệ thống Quản lý Kho/ERP Quốc tế & Việt Nam (Odoo, ERPNext, SAP/NetSuite, Zoho, InvenTree, MISA, KiotViet, Sapo, 1Office, Haravan) + 12 bài học kiến trúc | `0.3` | Approved (Baseline) |
+| `02` | `ANL-S13-001` | [01_ANL-S13-001_inventory_workflows.md](./02_analysis/01_ANL-S13-001_inventory_workflows.md) | Đặc tả chi tiết 9 luồng nghiệp vụ thuần Kho (`DOA/SoD`, Lưu vết 4 tầng, Form Builder & Kết xuất qua `document-template`), State Machine, `Stock Ledger` 5 chỉ số, `27 User Stories`, `BR-W01..W19`, 10 Edge Cases & chuẩn UI | `0.6` | Approved (Baseline) |
+| `04` | `CONF-S13-001` | [01_CONF-S13-001_sprint_13_scope_and_ac.md](./04_confirmation/01_CONF-S13-001_sprint_13_scope_and_ac.md) | Bộ 13 câu hỏi chốt nghiệp vụ Kho (`Q1`–`Q13`) & 23 Acceptance Criteria (`AC-01`..`AC-23`) | `1.0` | APPROVED 1.0 (2026-11-15) |
+| `05` | `SOL-S13-*` | `05_solutions/` *(Mở khóa — Ready for Architect)* | Kiến trúc giải pháp tổng thể sau khi `CONF-S13-001` đạt `APPROVED 1.0` | — | Open (Ready for `SOL`) |
 | `06` | `DES-S13-*` | `06_designs/` *(Chưa tạo)* | Chỉ khởi tạo sau `SOL-S13-*` | — | Locked (Pending `SOL`) |
 | `07` | `FEAT/TASK-*` | `07_items/` *(Chưa tạo)* | Chỉ tách item lập trình sau `DES-S13-*` | — | Locked (Pending `DES`) |
 | `08` | `QA-S13-*` | `08_testing/` *(Chưa tạo)* | Dual-Mode Browser Testing (Desktop & Mobile) + API Integration Test | — | Locked |
@@ -63,7 +63,7 @@ Xây dựng **Plugin Quản Lý Kho Hàng (`plugins/inventory`)** hoàn toàn đ
 
 | Hạng mục | Mô tả kiểm tra | Trạng thái | Ghi chú |
 | :--- | :--- | :--- | :--- |
-| `RAW-S13-001` | Yêu cầu gốc thuần Plugin Kho (`plugins/inventory`) + `DOA/SoD`, Lưu vết 4 tầng, Form Builder & Document Template (S16) | ⏳ Pending Review | Đã nâng cấp `v0.6` |
-| `BENCH-S13-001` | Phân tích 10 đối thủ WMS/IMS Quốc tế & VN + 12 bài học kiến trúc | ⏳ Pending Review | Đã hoàn thiện `v0.3` |
-| `ANL-S13-001` | Hoàn thiện 9 luồng nghiệp vụ thuần Kho (`DOA/SoD`, Lưu vết 4 tầng, Form Builder `plugins/form` & In/Email qua `plugins/document-template`) & `BR-W01..W19` | ⏳ Pending Review | Đã nâng cấp `v0.6` |
-| `CONF-S13-001` | Khách hàng review và chốt `Q1`–`Q13` & ký duyệt `AC-01`..`AC-23` | ⏳ Pending | Chặn Bước 05 (`SOL`) & Bước 06 (`DES`) |
+| `RAW-S13-001` | Yêu cầu gốc thuần Plugin Kho (`plugins/inventory`) + `DOA/SoD`, Lưu vết 4 tầng, Form Builder & Document Template (S16) | Approved (1.0) | Đã chốt ngày 2026-11-15 |
+| `BENCH-S13-001` | Phân tích 10 đối thủ WMS/IMS Quốc tế & VN + 12 bài học kiến trúc | Approved (1.0) | Đã chốt ngày 2026-11-15 |
+| `ANL-S13-001` | Hoàn thiện 9 luồng nghiệp vụ thuần Kho (`DOA/SoD`, Lưu vết 4 tầng, Form Builder `plugins/form` & In/Email qua `plugins/document-template`) & `BR-W01..W19` | Approved (1.0) | Đã chốt ngày 2026-11-15 |
+| `CONF-S13-001` | Khách hàng review và chốt `Q1`–`Q13` & ký duyệt `AC-01`..`AC-23` | APPROVED 1.0 | Đã ký chốt 13/13 câu hỏi bởi Chủ dự án (2026-11-15) — Mở Bước 05 (`SOL`) |

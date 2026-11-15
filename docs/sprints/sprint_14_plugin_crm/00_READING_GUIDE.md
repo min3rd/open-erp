@@ -4,8 +4,8 @@
 | :--- | :--- |
 | ID | READ-S14-001 |
 | Sprint | Sprint 14 — `sprint_14_plugin_crm` |
-| Trạng thái | Draft / Discovery (Chờ Khách hàng review nghiệp vụ & chốt `CONF-S14-001` `Q1`–`Q13`) |
-| Phiên bản | 0.4 |
+| Trạng thái | APPROVED 1.0 — Đã chốt Scope `Q1`–`Q13` & `23 AC` (Mở Bước 05 `SOL` cho Architect) |
+| Phiên bản | 1.0 |
 | Điều phối / Cập nhật | AI BA & Coordinator Agent |
 | Tài liệu nền tảng | [AGENTS.md](../../../AGENTS.md) · [core_sdlc.md](../../../.agents/rules/core_sdlc.md) · [ui_ux_standards.md](../../../.agents/rules/ui_ux_standards.md) · [api_standards.md](../../../.agents/rules/api_standards.md) |
 
@@ -26,12 +26,12 @@ Xây dựng **Plugin Quản Lý Khách Hàng & Nghiệp Vụ Với Khách Hàng 
 
 | Bước | Mã tài liệu | Tệp | Nội dung chính | Phiên bản | Trạng thái |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `00` | `READ-S14-001` | [00_READING_GUIDE.md](./00_READING_GUIDE.md) | Định hướng đọc, danh mục tệp, cổng xác nhận Sprint 14 | `0.4` | Active |
-| `01` | `RAW-S14-001` | [01_RAW-S14-001_crm_customer_requirements.md](./01_raw_notes/01_RAW-S14-001_crm_customer_requirements.md) | Ghi chú yêu cầu gốc, 8 trụ cột nghiệp vụ CRM, `DOA/SoD`, Lưu vết, Form Builder & Kết xuất tài liệu (`document-template`) | `0.4` | ⏳ Pending Review |
-| `03` | `BENCH-S14-001` | [01_BENCH-S14-001_crm_customer_benchmarks.md](./03_benchmarks/01_BENCH-S14-001_crm_customer_benchmarks.md) | Đối sánh 10 hệ thống CRM/ERP Quốc tế & Việt Nam (Salesforce, HubSpot, Odoo, Zoho CRM, ERPNext, MISA AMIS CRM, 1Office CRM, Getfly, SlimCRM, Haravan/KiotViet) + 12 bài học kiến trúc | `0.1` | ⏳ Pending Review |
-| `02` | `ANL-S14-001` | [01_ANL-S14-001_crm_customer_workflows.md](./02_analysis/01_ANL-S14-001_crm_customer_workflows.md) | Đặc tả Customer 360 + Sổ Công nợ phải thu, 9 luồng nghiệp vụ (`DOA/SoD`, Lưu vết 4 tầng, Form Builder & Kết xuất qua `document-template`), `BR-C01..C19`, `27 User Stories` & chuẩn UI Data View | `0.4` | ⏳ Pending Review |
-| `04` | `CONF-S14-001` | [01_CONF-S14-001_sprint_14_scope_and_ac.md](./04_confirmation/01_CONF-S14-001_sprint_14_scope_and_ac.md) | 13 câu hỏi chốt quyết định nghiệp vụ (`Q1`–`Q13`), Scope In/Out & 23 Acceptance Criteria (`AC-01`..`AC-23`) | `0.4` | ⏳ Pending Client Sign-off |
-| `05` | `SOL-S14-*` | `05_solutions/` *(Chưa tạo)* | Chỉ khởi tạo sau khi Khách hàng phê duyệt `CONF-S14-001` | — | Locked (Pending `CONF`) |
+| `00` | `READ-S14-001` | [00_READING_GUIDE.md](./00_READING_GUIDE.md) | Định hướng đọc, danh mục tệp, cổng xác nhận Sprint 14 | `1.0` | Active |
+| `01` | `RAW-S14-001` | [01_RAW-S14-001_crm_customer_requirements.md](./01_raw_notes/01_RAW-S14-001_crm_customer_requirements.md) | Ghi chú yêu cầu gốc, 8 trụ cột nghiệp vụ CRM, `DOA/SoD`, Lưu vết, Form Builder & Kết xuất tài liệu (`document-template`) | `0.4` | Approved (Baseline) |
+| `03` | `BENCH-S14-001` | [01_BENCH-S14-001_crm_customer_benchmarks.md](./03_benchmarks/01_BENCH-S14-001_crm_customer_benchmarks.md) | Đối sánh 10 hệ thống CRM/ERP Quốc tế & Việt Nam (Salesforce, HubSpot, Odoo, Zoho CRM, ERPNext, MISA AMIS CRM, 1Office CRM, Getfly, SlimCRM, Haravan/KiotViet) + 12 bài học kiến trúc | `0.1` | Approved (Baseline) |
+| `02` | `ANL-S14-001` | [01_ANL-S14-001_crm_customer_workflows.md](./02_analysis/01_ANL-S14-001_crm_customer_workflows.md) | Đặc tả Customer 360 + Sổ Công nợ phải thu, 9 luồng nghiệp vụ (`DOA/SoD`, Lưu vết 4 tầng, Form Builder & Kết xuất qua `document-template`), `BR-C01..C19`, `27 User Stories` & chuẩn UI Data View | `0.4` | Approved (Baseline) |
+| `04` | `CONF-S14-001` | [01_CONF-S14-001_sprint_14_scope_and_ac.md](./04_confirmation/01_CONF-S14-001_sprint_14_scope_and_ac.md) | 13 câu hỏi chốt quyết định nghiệp vụ (`Q1`–`Q13`), Scope In/Out & 23 Acceptance Criteria (`AC-01`..`AC-23`) | `1.0` | APPROVED 1.0 (2026-11-15) |
+| `05` | `SOL-S14-*` | `05_solutions/` *(Mở khóa — Ready for Architect)* | Kiến trúc giải pháp tổng thể sau khi `CONF-S14-001` đạt `APPROVED 1.0` | — | Open (Ready for `SOL`) |
 | `06` | `DES-S14-*` | `06_designs/` *(Chưa tạo)* | Chỉ khởi tạo sau `SOL-S14-*` | — | Locked (Pending `SOL`) |
 | `07` | `FEAT/TASK-*` | `07_items/` *(Chưa tạo)* | Chỉ tách item lập trình sau `DES-S14-*` | — | Locked (Pending `DES`) |
 | `08` | `QA-S14-*` | `08_testing/` *(Chưa tạo)* | Dual-Mode Browser Testing (Desktop & Mobile) + API Integration Test | — | Locked |
@@ -62,7 +62,7 @@ Xây dựng **Plugin Quản Lý Khách Hàng & Nghiệp Vụ Với Khách Hàng 
 
 | Hạng mục | Mô tả kiểm tra | Trạng thái | Ghi chú |
 | :--- | :--- | :--- | :--- |
-| `RAW-S14-001` | Tập hợp đầy đủ yêu cầu CRM (`plugins/crm`) + `DOA/SoD`, Lưu vết 4 tầng, Form Builder & Document Template (S16) | ⏳ Pending Review | Đã nâng cấp `v0.4` |
-| `BENCH-S14-001` | Phân tích 10 đối thủ CRM Quốc tế & VN + 12 bài học kiến trúc | ⏳ Pending Review | Mới khởi tạo `v0.1` |
-| `ANL-S14-001` | Hoàn thiện 9 luồng nghiệp vụ CRM, Customer 360, Công nợ, `DOA/SoD`, Lưu vết 4 tầng, Form Builder & In/Email qua `document-template` & `BR-C01..C19` | ⏳ Pending Review | Đã nâng cấp `v0.4` |
-| `CONF-S14-001` | Khách hàng trả lời `Q1`–`Q13` & ký duyệt `AC-01`..`AC-23` | ⏳ Pending | Chặn Bước 05 (`SOL`) & Bước 06 (`DES`) |
+| `RAW-S14-001` | Tập hợp đầy đủ yêu cầu CRM (`plugins/crm`) + `DOA/SoD`, Lưu vết 4 tầng, Form Builder & Document Template (S16) | Approved (1.0) | Đã chốt ngày 2026-11-15 |
+| `BENCH-S14-001` | Phân tích 10 đối thủ CRM Quốc tế & VN + 12 bài học kiến trúc | Approved (1.0) | Đã chốt ngày 2026-11-15 |
+| `ANL-S14-001` | Hoàn thiện 9 luồng nghiệp vụ CRM, Customer 360, Công nợ, `DOA/SoD`, Lưu vết 4 tầng, Form Builder & In/Email qua `document-template` & `BR-C01..C19` | Approved (1.0) | Đã chốt ngày 2026-11-15 |
+| `CONF-S14-001` | Khách hàng trả lời `Q1`–`Q13` & ký duyệt `AC-01`..`AC-23` | APPROVED 1.0 | Đã ký chốt 13/13 câu hỏi bởi Chủ dự án (2026-11-15) — Mở Bước 05 (`SOL`) |

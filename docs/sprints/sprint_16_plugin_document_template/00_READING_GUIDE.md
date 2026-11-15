@@ -4,8 +4,8 @@
 | :--- | :--- |
 | ID | READ-S16-001 |
 | Sprint | Sprint 16 — `sprint_16_plugin_document_template` (**Ưu tiên triển khai trước Sprint 13, 14, 15**) |
-| Trạng thái | Draft / Discovery (Chờ Khách hàng review & chốt `CONF-S16-001` `Q1`–`Q12`) |
-| Phiên bản | 0.1 |
+| Trạng thái | APPROVED 1.0 — Đã chốt Scope `Q1`–`Q12` & `22 AC` (Mở Bước 05 `SOL` cho Architect) |
+| Phiên bản | 1.0 |
 | Điều phối / Cập nhật | AI BA & Coordinator Agent |
 | Tài liệu nền tảng | [AGENTS.md](../../../AGENTS.md) · [core_sdlc.md](../../../.agents/rules/core_sdlc.md) · [ui_ux_standards.md](../../../.agents/rules/ui_ux_standards.md) · [api_standards.md](../../../.agents/rules/api_standards.md) |
 
@@ -32,12 +32,12 @@ Năng lực cốt lõi của `plugins/document-template`:
 
 | Bước | Mã tài liệu | Tệp | Nội dung chính | Phiên bản | Trạng thái |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `00` | `READ-S16-001` | [00_READING_GUIDE.md](./00_READING_GUIDE.md) | Định hướng đọc, mức ưu tiên trước S13–S15, phụ thuộc liên plugin, cổng gate | `0.1` | Active |
-| `01` | `RAW-S16-001` | [01_RAW-S16-001_document_template_requirements.md](./01_raw_notes/01_RAW-S16-001_document_template_requirements.md) | Yêu cầu gốc từ Khách hàng, 10 trụ cột thiết kế & kết xuất file, phân vai & ràng buộc | `0.1` | ⏳ Pending Review |
-| `03` | `BENCH-S16-001` | [01_BENCH-S16-001_document_template_benchmarks.md](./03_benchmarks/01_BENCH-S16-001_document_template_benchmarks.md) | Đối sánh 10 hệ thống thiết kế mẫu in/document generation (Odoo QWeb, ERPNext, Carbone/Docmosis, Conga/PandaDoc, Jasper/Stimulsoft, Bartender, Gotenberg, MISA, 1Office/Base, Fast/Bravo) + 12 bài học | `0.1` | ⏳ Pending Review |
-| `02` | `ANL-S16-001` | [01_ANL-S16-001_document_template_workflows.md](./02_analysis/01_ANL-S16-001_document_template_workflows.md) | Kiến trúc lõi, 9 luồng nghiệp vụ (`Merge Fields`, 3-Tier Override, `PDF/DOCX/XLSX`, In ra ký & QR, Email đối tác, Batch Print, `DOA/SoD` & Lưu vết 4 tầng), `BR-D01..D18`, `10 Edge Cases`, `26 User Stories` & chuẩn UI | `0.1` | ⏳ Pending Review |
-| `04` | `CONF-S16-001` | [01_CONF-S16-001_sprint_16_scope_and_ac.md](./04_confirmation/01_CONF-S16-001_sprint_16_scope_and_ac.md) | Bộ 12 câu hỏi chốt (`Q1`–`Q12`), Scope In/Out & 22 Acceptance Criteria (`AC-01`..`AC-22`) | `0.1` | ⏳ Pending Client Sign-off |
-| `05` | `SOL-S16-*` | `05_solutions/` *(Chưa tạo)* | Chỉ khởi tạo sau khi Khách hàng phê duyệt `CONF-S16-001` | — | Locked (Pending `CONF`) |
+| `00` | `READ-S16-001` | [00_READING_GUIDE.md](./00_READING_GUIDE.md) | Định hướng đọc, mức ưu tiên trước S13–S15, phụ thuộc liên plugin, cổng gate | `1.0` | Active |
+| `01` | `RAW-S16-001` | [01_RAW-S16-001_document_template_requirements.md](./01_raw_notes/01_RAW-S16-001_document_template_requirements.md) | Yêu cầu gốc từ Khách hàng, 10 trụ cột thiết kế & kết xuất file, phân vai & ràng buộc | `0.1` | Approved (Baseline) |
+| `03` | `BENCH-S16-001` | [01_BENCH-S16-001_document_template_benchmarks.md](./03_benchmarks/01_BENCH-S16-001_document_template_benchmarks.md) | Đối sánh 10 hệ thống thiết kế mẫu in/document generation (Odoo QWeb, ERPNext, Carbone/Docmosis, Conga/PandaDoc, Jasper/Stimulsoft, Bartender, Gotenberg, MISA, 1Office/Base, Fast/Bravo) + 12 bài học | `0.1` | Approved (Baseline) |
+| `02` | `ANL-S16-001` | [01_ANL-S16-001_document_template_workflows.md](./02_analysis/01_ANL-S16-001_document_template_workflows.md) | Kiến trúc lõi, 9 luồng nghiệp vụ (`Merge Fields`, 3-Tier Override, `PDF/DOCX/XLSX`, In ra ký & QR, Email đối tác, Batch Print, `DOA/SoD` & Lưu vết 4 tầng), `BR-D01..D18`, `10 Edge Cases`, `26 User Stories` & chuẩn UI | `0.1` | Approved (Baseline) |
+| `04` | `CONF-S16-001` | [01_CONF-S16-001_sprint_16_scope_and_ac.md](./04_confirmation/01_CONF-S16-001_sprint_16_scope_and_ac.md) | Bộ 12 câu hỏi chốt (`Q1`–`Q12`), Scope In/Out & 22 Acceptance Criteria (`AC-01`..`AC-22`) | `1.0` | APPROVED 1.0 (2026-11-15) |
+| `05` | `SOL-S16-*` | `05_solutions/` *(Mở khóa — Ready for Architect)* | Kiến trúc giải pháp tổng thể sau khi `CONF-S16-001` đạt `APPROVED 1.0` | — | Open (Ready for `SOL`) |
 | `06` | `DES-S16-*` | `06_designs/` *(Chưa tạo)* | Chỉ khởi tạo sau `SOL-S16-*` | — | Locked (Pending `SOL`) |
 | `07` | `FEAT/TASK-*` | `07_items/` *(Chưa tạo)* | Chỉ tách item lập trình sau `DES-S16-*` | — | Locked (Pending `DES`) |
 | `08` | `QA-S16-*` | `08_testing/` *(Chưa tạo)* | Dual-Mode Browser Testing (Desktop & Mobile) + Backend Integration Test | — | Locked |
@@ -68,7 +68,7 @@ Năng lực cốt lõi của `plugins/document-template`:
 
 | Hạng mục | Mô tả kiểm tra | Trạng thái | Ghi chú |
 | :--- | :--- | :--- | :--- |
-| `RAW-S16-001` | Yêu cầu gốc cho Plugin Thiết kế & Kết xuất Mẫu Tài liệu, In ấn & Gửi Email (`plugins/document-template`) | ⏳ Pending Review | Mới khởi tạo `v0.1` |
-| `BENCH-S16-001` | Phân tích 10 đối thủ/engine Quốc tế & VN + 12 bài học kiến trúc | ⏳ Pending Review | Mới khởi tạo `v0.1` |
-| `ANL-S16-001` | Hoàn thiện 9 luồng nghiệp vụ, `BR-D01..D18`, 10 Edge Cases, `26 User Stories` & UI Data View | ⏳ Pending Review | Chờ khách hàng review |
-| `CONF-S16-001` | Khách hàng review và chốt `Q1`–`Q12` & ký duyệt `AC-01`..`AC-22` | ⏳ Pending | Chặn Bước 05 (`SOL`) & Bước 06 (`DES`) |
+| `RAW-S16-001` | Yêu cầu gốc cho Plugin Thiết kế & Kết xuất Mẫu Tài liệu, In ấn & Gửi Email (`plugins/document-template`) | Approved (1.0) | Đã chốt ngày 2026-11-15 |
+| `BENCH-S16-001` | Phân tích 10 đối thủ/engine Quốc tế & VN + 12 bài học kiến trúc | Approved (1.0) | Đã chốt ngày 2026-11-15 |
+| `ANL-S16-001` | Hoàn thiện 9 luồng nghiệp vụ, `BR-D01..D18`, 10 Edge Cases, `26 User Stories` & UI Data View | Approved (1.0) | Đã chốt ngày 2026-11-15 |
+| `CONF-S16-001` | Khách hàng review và chốt `Q1`–`Q12` & ký duyệt `AC-01`..`AC-22` | APPROVED 1.0 | Đã ký chốt 12/12 câu hỏi bởi Chủ dự án (2026-11-15) — Mở Bước 05 (`SOL`) |

@@ -4,8 +4,8 @@
 | :--- | :--- |
 | ID | READ-S15-001 |
 | Sprint | Sprint 15 — `sprint_15_plugin_purchasing` |
-| Trạng thái | Draft / Discovery (Chờ Khách hàng review nghiệp vụ & chốt `CONF-S15-001` `Q1`–`Q13`) |
-| Phiên bản | 0.4 |
+| Trạng thái | APPROVED 1.0 — Đã chốt Scope `Q1`–`Q13` & `23 AC` (Mở Bước 05 `SOL` cho Architect) |
+| Phiên bản | 1.0 |
 | Điều phối / Cập nhật | AI BA & Coordinator Agent |
 | Tài liệu nền tảng | [AGENTS.md](../../../AGENTS.md) · [core_sdlc.md](../../../.agents/rules/core_sdlc.md) · [ui_ux_standards.md](../../../.agents/rules/ui_ux_standards.md) · [api_standards.md](../../../.agents/rules/api_standards.md) |
 
@@ -26,12 +26,12 @@ Plugin `purchasing` giữ ranh giới sạch với **`plugins/inventory` (Sprint
 
 | Bước | Mã tài liệu | Tệp | Nội dung chính | Phiên bản | Trạng thái |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `00` | `READ-S15-001` | [00_READING_GUIDE.md](./00_READING_GUIDE.md) | Định hướng đọc, danh mục tệp, cổng xác nhận Sprint 15 | `0.4` | Active |
-| `01` | `RAW-S15-001` | [01_RAW-S15-001_purchasing_supply_requirements.md](./01_raw_notes/01_RAW-S15-001_purchasing_supply_requirements.md) | Yêu cầu gốc, phân tích đặc thù **Sản xuất vs Thương mại vs Dịch vụ**, `DOA/SoD`, Lưu vết 4 tầng, Form Builder & Kết xuất tài liệu (`document-template`) | `0.4` | ⏳ Pending Review |
-| `03` | `BENCH-S15-001` | [01_BENCH-S15-001_purchasing_supply_benchmarks.md](./03_benchmarks/01_BENCH-S15-001_purchasing_supply_benchmarks.md) | Đối sánh 10 hệ thống Mua hàng/SCM/ERP (SAP MM/Ariba, Coupa, Odoo, ERPNext, NetSuite, MISA, 1Office, Fast, Bravo, KiotViet/Sapo) + 12 bài học | `0.1` | ⏳ Pending Review |
-| `02` | `ANL-S15-001` | [01_ANL-S15-001_purchasing_supply_workflows.md](./02_analysis/01_ANL-S15-001_purchasing_supply_workflows.md) | Đặc tả Supplier 360, `3-Way Matching`, Sổ `AP Ledger`, 9 luồng nghiệp vụ (`DOA/SoD`, Lưu vết 4 tầng, Form Builder & Kết xuất qua `document-template`), `BR-P01..P19`, `27 User Stories` | `0.4` | ⏳ Pending Review |
-| `04` | `CONF-S15-001` | [01_CONF-S15-001_sprint_15_scope_and_ac.md](./04_confirmation/01_CONF-S15-001_sprint_15_scope_and_ac.md) | 13 câu hỏi chốt nghiệp vụ (`Q1`–`Q13`), Scope In/Out & 23 Acceptance Criteria (`AC-01`..`AC-23`) | `0.4` | ⏳ Pending Client Sign-off |
-| `05` | `SOL-S15-*` | `05_solutions/` *(Chưa tạo)* | Chỉ khởi tạo sau khi Khách hàng phê duyệt `CONF-S15-001` | — | Locked (Pending `CONF`) |
+| `00` | `READ-S15-001` | [00_READING_GUIDE.md](./00_READING_GUIDE.md) | Định hướng đọc, danh mục tệp, cổng xác nhận Sprint 15 | `1.0` | Active |
+| `01` | `RAW-S15-001` | [01_RAW-S15-001_purchasing_supply_requirements.md](./01_raw_notes/01_RAW-S15-001_purchasing_supply_requirements.md) | Yêu cầu gốc, phân tích đặc thù **Sản xuất vs Thương mại vs Dịch vụ**, `DOA/SoD`, Lưu vết 4 tầng, Form Builder & Kết xuất tài liệu (`document-template`) | `0.4` | Approved (Baseline) |
+| `03` | `BENCH-S15-001` | [01_BENCH-S15-001_purchasing_supply_benchmarks.md](./03_benchmarks/01_BENCH-S15-001_purchasing_supply_benchmarks.md) | Đối sánh 10 hệ thống Mua hàng/SCM/ERP (SAP MM/Ariba, Coupa, Odoo, ERPNext, NetSuite, MISA, 1Office, Fast, Bravo, KiotViet/Sapo) + 12 bài học | `0.1` | Approved (Baseline) |
+| `02` | `ANL-S15-001` | [01_ANL-S15-001_purchasing_supply_workflows.md](./02_analysis/01_ANL-S15-001_purchasing_supply_workflows.md) | Đặc tả Supplier 360, `3-Way Matching`, Sổ `AP Ledger`, 9 luồng nghiệp vụ (`DOA/SoD`, Lưu vết 4 tầng, Form Builder & Kết xuất qua `document-template`), `BR-P01..P19`, `27 User Stories` | `0.4` | Approved (Baseline) |
+| `04` | `CONF-S15-001` | [01_CONF-S15-001_sprint_15_scope_and_ac.md](./04_confirmation/01_CONF-S15-001_sprint_15_scope_and_ac.md) | 13 câu hỏi chốt nghiệp vụ (`Q1`–`Q13`), Scope In/Out & 23 Acceptance Criteria (`AC-01`..`AC-23`) | `1.0` | APPROVED 1.0 (2026-11-15) |
+| `05` | `SOL-S15-*` | `05_solutions/` *(Mở khóa — Ready for Architect)* | Kiến trúc giải pháp tổng thể sau khi `CONF-S15-001` đạt `APPROVED 1.0` | — | Open (Ready for `SOL`) |
 | `06` | `DES-S15-*` | `06_designs/` *(Chưa tạo)* | Chỉ khởi tạo sau `SOL-S15-*` | — | Locked (Pending `SOL`) |
 | `07` | `FEAT/TASK-*` | `07_items/` *(Chưa tạo)* | Chỉ tách item lập trình sau `DES-S15-*` | — | Locked (Pending `DES`) |
 | `08` | `QA-S15-*` | `08_testing/` *(Chưa tạo)* | Dual-Mode Browser Testing (Desktop & Mobile) + API Integration Test | — | Locked |
@@ -63,7 +63,7 @@ Plugin `purchasing` giữ ranh giới sạch với **`plugins/inventory` (Sprint
 
 | Hạng mục | Mô tả kiểm tra | Trạng thái | Ghi chú |
 | :--- | :--- | :--- | :--- |
-| `RAW-S15-001` | Yêu cầu gốc chuẩn hóa cho 3 mô hình Sản xuất / Thương mại / Dịch vụ + Phê duyệt, Lưu vết, Form Builder & Document Template (S16) | ⏳ Pending Review | Đã nâng cấp `v0.4` |
-| `BENCH-S15-001` | Phân tích 10 đối thủ P2P/SCM Quốc tế & VN + 12 bài học kiến trúc | ⏳ Pending Review | Mới khởi tạo `v0.1` |
-| `ANL-S15-001` | Hoàn thiện 9 luồng nghiệp vụ Mua hàng, 3-Way Match, `DOA/SoD`, Lưu vết 4 tầng, Form Builder & In/Email NCC qua `document-template` & `BR-P01..P19` | ⏳ Pending Review | Đã nâng cấp `v0.4` |
-| `CONF-S15-001` | Khách hàng review & chốt `Q1`–`Q13` và ký duyệt `AC-01`..`AC-23` | ⏳ Pending | Chặn Bước 05 (`SOL`) & Bước 06 (`DES`) |
+| `RAW-S15-001` | Yêu cầu gốc chuẩn hóa cho 3 mô hình Sản xuất / Thương mại / Dịch vụ + Phê duyệt, Lưu vết, Form Builder & Document Template (S16) | Approved (1.0) | Đã chốt ngày 2026-11-15 |
+| `BENCH-S15-001` | Phân tích 10 đối thủ P2P/SCM Quốc tế & VN + 12 bài học kiến trúc | Approved (1.0) | Đã chốt ngày 2026-11-15 |
+| `ANL-S15-001` | Hoàn thiện 9 luồng nghiệp vụ Mua hàng, 3-Way Match, `DOA/SoD`, Lưu vết 4 tầng, Form Builder & In/Email NCC qua `document-template` & `BR-P01..P19` | Approved (1.0) | Đã chốt ngày 2026-11-15 |
+| `CONF-S15-001` | Khách hàng review & chốt `Q1`–`Q13` và ký duyệt `AC-01`..`AC-23` | APPROVED 1.0 | Đã ký chốt 13/13 câu hỏi bởi Chủ dự án (2026-11-15) — Mở Bước 05 (`SOL`) |

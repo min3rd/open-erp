@@ -4,8 +4,8 @@
 | :--- | :--- |
 | ID | READ-S18-001 |
 | Sprint | Sprint 18 — `sprint_18_plugin_project_task` |
-| Trạng thái | Draft / Discovery (Chờ Khách hàng review nghiệp vụ Dự án + Công việc Hàng ngày/Lặp lại & chốt `CONF-S18-001` `Q1`–`Q19`) |
-| Phiên bản | 0.2 |
+| Trạng thái | APPROVED 1.0 (`CONF-S18-001` đã chốt `Q1`–`Q19` — Ready for Step 05 `SOL`) |
+| Phiên bản | 1.0 |
 | Điều phối / Cập nhật | AI BA & Coordinator Agent (`@agent-pm`) |
 | Tài liệu nền tảng | [AGENTS.md](../../../AGENTS.md) · [core_sdlc.md](../../../.agents/rules/core_sdlc.md) · [ui_ux_standards.md](../../../.agents/rules/ui_ux_standards.md) · [api_standards.md](../../../.agents/rules/api_standards.md) |
 
@@ -30,12 +30,12 @@ Xây dựng **Plugin Quản Lý & Điều Hành Dự Án, Công Việc Hàng Ng�
 
 | Bước | Mã tài liệu | Tệp | Nội dung chính | Phiên bản | Trạng thái |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `00` | `READ-S18-001` | [00_READING_GUIDE.md](./00_READING_GUIDE.md) | Định hướng đọc, danh mục tệp, phụ thuộc 10 plugin, cổng xác nhận Sprint 18 | `0.2` | Active |
-| `01` | `RAW-S18-001` | [01_RAW-S18-001_project_task_management_requirements.md](./01_raw_notes/01_RAW-S18-001_project_task_management_requirements.md) | Phân tích 3 không gian việc, 4 mô hình vận hành (bổ sung chuyên sâu **Việc Hàng ngày, 4 mô hình Lặp lại, Daily Shift Runbook, Auto-Substitution**) & 13 trụ cột nghiệp vụ | `0.2` | Pending Review |
-| `03` | `BENCH-S18-001` | [01_BENCH-S18-001_project_task_jira_redmine_benchmarks.md](./03_benchmarks/01_BENCH-S18-001_project_task_jira_redmine_benchmarks.md) | Phân tích **Reverse-Engineering (`REA`) Jira & Redmine** (kể cả cách Jira/Redmine xử lý & điểm yếu với Việc lặp lại/Runbook ca) + Đối sánh 12 hệ thống (bổ sung `1C/Bitrix24`, `SafetyCulture / Process Street`) & 16 bài học | `0.2` | Pending Review |
-| `02` | `ANL-S18-001` | [01_ANL-S18-001_project_task_kpi_workflows.md](./02_analysis/01_ANL-S18-001_project_task_kpi_workflows.md) | Kiến trúc `3 Work Containers`, Động cơ 4 mô hình Lặp lại + Shift Handover + Auto-Substitution, **7 công thức Task-to-KPI (`KPI-WRK-01..07`)** + Tỷ trọng Hỗn hợp, **Chống gian lận 7 tầng & Nghiệm thu 3 cấp (Spot-Check)**, **12 luồng End-to-End**, `BR-W01..W28`, `15 Edge Cases`, `36 User Stories` | `0.2` | Pending Review |
-| `04` | `CONF-S18-001` | [01_CONF-S18-001_sprint_18_scope_and_ac.md](./04_confirmation/01_CONF-S18-001_sprint_18_scope_and_ac.md) | 19 câu hỏi chốt quyết định (`Q1`–`Q19`), Phạm vi In/Out-of-Scope & 32 Acceptance Criteria (`AC-01`..`AC-32`) | `0.2` | Pending Client Sign-off |
-| `05` | `SOL-S18-*` | `05_solutions/` *(Chưa tạo)* | Chỉ khởi tạo sau khi Khách hàng phê duyệt `CONF-S18-001` | — | Locked (Pending `CONF`) |
+| `00` | `READ-S18-001` | [00_READING_GUIDE.md](./00_READING_GUIDE.md) | Định hướng đọc, danh mục tệp, phụ thuộc 10 plugin, cổng xác nhận Sprint 18 | `1.0` | Active |
+| `01` | `RAW-S18-001` | [01_RAW-S18-001_project_task_management_requirements.md](./01_raw_notes/01_RAW-S18-001_project_task_management_requirements.md) | Phân tích 3 không gian việc, 4 mô hình vận hành (bổ sung chuyên sâu **Việc Hàng ngày, 4 mô hình Lặp lại, Daily Shift Runbook, Auto-Substitution**) & 13 trụ cột nghiệp vụ | `0.2` | Approved (via `CONF-S18-001`) |
+| `03` | `BENCH-S18-001` | [01_BENCH-S18-001_project_task_jira_redmine_benchmarks.md](./03_benchmarks/01_BENCH-S18-001_project_task_jira_redmine_benchmarks.md) | Phân tích **Reverse-Engineering (`REA`) Jira & Redmine** (kể cả cách Jira/Redmine xử lý & điểm yếu với Việc lặp lại/Runbook ca) + Đối sánh 12 hệ thống (bổ sung `1C/Bitrix24`, `SafetyCulture / Process Street`) & 16 bài học | `0.2` | Approved (via `CONF-S18-001`) |
+| `02` | `ANL-S18-001` | [01_ANL-S18-001_project_task_kpi_workflows.md](./02_analysis/01_ANL-S18-001_project_task_kpi_workflows.md) | Kiến trúc `3 Work Containers`, Động cơ 4 mô hình Lặp lại + Shift Handover + Auto-Substitution, **7 công thức Task-to-KPI (`KPI-WRK-01..07`)** + Tỷ trọng Hỗn hợp, **Chống gian lận 7 tầng & Nghiệm thu 3 cấp (Spot-Check)**, **12 luồng End-to-End**, `BR-W01..W28`, `15 Edge Cases`, `36 User Stories` | `0.2` | Approved (via `CONF-S18-001`) |
+| `04` | `CONF-S18-001` | [01_CONF-S18-001_sprint_18_scope_and_ac.md](./04_confirmation/01_CONF-S18-001_sprint_18_scope_and_ac.md) | 19 câu hỏi chốt quyết định (`Q1`–`Q19`), Phạm vi In/Out-of-Scope & 32 Acceptance Criteria (`AC-01`..`AC-32`) | `1.0` | APPROVED 1.0 (2026-11-15) |
+| `05` | `SOL-S18-*` | `05_solutions/` *(Chưa tạo)* | Giải pháp kiến trúc, Multi-tenant, Data Flow & Plugin Isolation (`SOL-S18-*`) | — | Open (Ready for SOL) |
 | `06` | `DES-S18-*` | `06_designs/` *(Chưa tạo)* | Chỉ khởi tạo sau `SOL-S18-*` | — | Locked (Pending `SOL`) |
 | `07` | `FEAT/TASK-*` | `07_items/` *(Chưa tạo)* | Chỉ tách item lập trình sau `DES-S18-*` | — | Locked (Pending `DES`) |
 | `08` | `QA-S18-*` | `08_testing/` *(Chưa tạo)* | Dual-Mode Browser Testing (Desktop `>= 1280px` & Mobile `390x844px`) + Backend Integration Test (PostgreSQL & Redis thật) | — | Locked |
@@ -69,7 +69,7 @@ Xây dựng **Plugin Quản Lý & Điều Hành Dự Án, Công Việc Hàng Ng�
 
 | Hạng mục | Mô tả kiểm tra | Trạng thái | Ghi chú |
 | :--- | :--- | :--- | :--- |
-| `RAW-S18-001` | Yêu cầu gốc chuẩn hóa cho **3 Không gian Công việc** (`Project`, `Department Routine Stream`, `Daily Direct & My Day`), **4 mô hình vận hành**, **4 mô hình công việc lặp lại (`Calendar/Shift`, `Rolling`, `Event SOP`, `Daily Shift Runbook`)**, và 13 trụ cột nghiệp vụ | Pending Review | Đã nâng cấp `v0.2` |
-| `BENCH-S18-001` | Phân tích Reverse-Engineering (`REA`) chuyên sâu **Jira & Redmine** (gồm khoảng trống với Việc hàng ngày/lặp lại) + Đối sánh 12 nền tảng + 16 bài học kiến trúc | Pending Review | Đã nâng cấp `v0.2` |
-| `ANL-S18-001` | Đặc tả Kiến trúc `3 Work Containers`, Động cơ Lặp lại + Auto-Substitution + Shift Handover, 5 chỉ số điều hành, **7 Công thức Tính KPI Nhân viên Tự động (`KPI-WRK-01..07`)** + Tỷ trọng Hỗn hợp, **Chống Gian lận 7 Tầng**, Nghiệm thu 3 cấp (`Weekly Batch & Spot-Check`), **12 luồng End-to-End**, `BR-W01..W28`, `15 Edge Cases`, `36 User Stories` | Pending Review | Đã nâng cấp `v0.2` |
-| `CONF-S18-001` | Khách hàng review & chốt 19 câu hỏi (`Q1`–`Q19`) và ký duyệt 32 Acceptance Criteria (`AC-01`..`AC-32`) | Pending | Chặn Bước 05 (`SOL`) & Bước 06 (`DES`) |
+| `RAW-S18-001` | Yêu cầu gốc chuẩn hóa cho **3 Không gian Công việc** (`Project`, `Department Routine Stream`, `Daily Direct & My Day`), **4 mô hình vận hành**, **4 mô hình công việc lặp lại (`Calendar/Shift`, `Rolling`, `Event SOP`, `Daily Shift Runbook`)**, và 13 trụ cột nghiệp vụ | Approved (1.0) | Đã nâng cấp `v0.2`, duyệt kèm `CONF-S18-001` (2026-11-15) |
+| `BENCH-S18-001` | Phân tích Reverse-Engineering (`REA`) chuyên sâu **Jira & Redmine** (gồm khoảng trống với Việc hàng ngày/lặp lại) + Đối sánh 12 nền tảng + 16 bài học kiến trúc | Approved (1.0) | Đã nâng cấp `v0.2`, duyệt kèm `CONF-S18-001` (2026-11-15) |
+| `ANL-S18-001` | Đặc tả Kiến trúc `3 Work Containers`, Động cơ Lặp lại + Auto-Substitution + Shift Handover, 5 chỉ số điều hành, **7 Công thức Tính KPI Nhân viên Tự động (`KPI-WRK-01..07`)** + Tỷ trọng Hỗn hợp, **Chống Gian lận 7 Tầng**, Nghiệm thu 3 cấp (`Weekly Batch & Spot-Check`), **12 luồng End-to-End**, `BR-W01..W28`, `15 Edge Cases`, `36 User Stories` | Approved (1.0) | Đã nâng cấp `v0.2`, duyệt kèm `CONF-S18-001` (2026-11-15) |
+| `CONF-S18-001` | Khách hàng review & chốt 19 câu hỏi (`Q1`–`Q19`) và ký duyệt 32 Acceptance Criteria (`AC-01`..`AC-32`) | APPROVED 1.0 | Đã chốt 19/19 theo Đề xuất BA (2026-11-15); Mở khóa Bước 05 (`SOL`) |

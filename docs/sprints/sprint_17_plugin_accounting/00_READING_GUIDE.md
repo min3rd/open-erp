@@ -4,8 +4,8 @@
 | :--- | :--- |
 | ID | READ-S17-001 |
 | Sprint | Sprint 17 — `sprint_17_plugin_accounting` |
-| Trạng thái | Draft / Discovery (Chờ Khách hàng review nghiệp vụ & chốt `CONF-S17-001` `Q1`–`Q16`) |
-| Phiên bản | 0.2 |
+| Trạng thái | APPROVED 1.0 (`CONF-S17-001` đã chốt `Q1`–`Q16` — Ready for Step 05 `SOL`) |
+| Phiên bản | 1.0 |
 | Điều phối / Cập nhật | AI BA & Coordinator Agent |
 | Tài liệu nền tảng | [AGENTS.md](../../../AGENTS.md) · [core_sdlc.md](../../../.agents/rules/core_sdlc.md) · [ui_ux_standards.md](../../../.agents/rules/ui_ux_standards.md) · [api_standards.md](../../../.agents/rules/api_standards.md) |
 
@@ -30,12 +30,12 @@ Plugin `accounting` tích hợp sạch qua `PluginDataServiceGrpc` & Kafka Outbo
 
 | Bước | Mã tài liệu | Tệp | Nội dung chính | Phiên bản | Trạng thái |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `00` | `READ-S17-001` | [00_READING_GUIDE.md](./00_READING_GUIDE.md) | Định hướng đọc, danh mục tệp, phụ thuộc liên plugin, cổng xác nhận Sprint 17 | `0.2` | Active |
-| `01` | `RAW-S17-001` | [01_RAW-S17-001_accounting_finance_requirements.md](./01_raw_notes/01_RAW-S17-001_accounting_finance_requirements.md) | Phân tích đặc thù **5 loại hình công ty** (bổ sung **DN Đã IPO/Niêm yết**), 13 trụ cột nghiệp vụ (`Treasury`, `GL TT200/133`, `Advance 141`, `Bank Recon`, `AR/AP`, `Auto-Posting`, `TSCĐ/242`, `VAT`, **Hồ sơ BCTC & Kiểm toán AJE**, **IPO/CBTT/Hợp nhất TT202/IFRS**, `DOA/SoD`, `Form & Doc Template`) | `0.2` | Pending Review |
-| `03` | `BENCH-S17-001` | [01_BENCH-S17-001_accounting_finance_benchmarks.md](./03_benchmarks/01_BENCH-S17-001_accounting_finance_benchmarks.md) | Đối sánh 12 hệ thống Tài chính/Kế toán/BCTC Hợp nhất & Disclosure Quốc tế & VN (bổ sung SAP Group Reporting, Workiva/Caseware) + 14 bài học | `0.2` | Pending Review |
-| `02` | `ANL-S17-001` | [01_ANL-S17-001_accounting_finance_workflows.md](./02_analysis/01_ANL-S17-001_accounting_finance_workflows.md) | Kiến trúc `Dual-Mode` + Engine Hồ sơ BCTC/IPO, 5 chỉ số thanh khoản, **10 luồng nghiệp vụ end-to-end**, `BR-A01..A24`, `14 Edge Cases`, `33 User Stories` & chuẩn UI | `0.2` | Pending Review |
-| `04` | `CONF-S17-001` | [01_CONF-S17-001_sprint_17_scope_and_ac.md](./04_confirmation/01_CONF-S17-001_sprint_17_scope_and_ac.md) | 16 câu hỏi chốt nghiệp vụ (`Q1`–`Q16`), Phạm vi In/Out-of-Scope & 27 Acceptance Criteria (`AC-01`..`AC-27`) | `0.2` | Pending Client Sign-off |
-| `05` | `SOL-S17-*` | `05_solutions/` *(Chưa tạo)* | Chỉ khởi tạo sau khi Khách hàng phê duyệt `CONF-S17-001` | — | Locked (Pending `CONF`) |
+| `00` | `READ-S17-001` | [00_READING_GUIDE.md](./00_READING_GUIDE.md) | Định hướng đọc, danh mục tệp, phụ thuộc liên plugin, cổng xác nhận Sprint 17 | `1.0` | Active |
+| `01` | `RAW-S17-001` | [01_RAW-S17-001_accounting_finance_requirements.md](./01_raw_notes/01_RAW-S17-001_accounting_finance_requirements.md) | Phân tích đặc thù **5 loại hình công ty** (bổ sung **DN Đã IPO/Niêm yết**), 13 trụ cột nghiệp vụ (`Treasury`, `GL TT200/133`, `Advance 141`, `Bank Recon`, `AR/AP`, `Auto-Posting`, `TSCĐ/242`, `VAT`, **Hồ sơ BCTC & Kiểm toán AJE**, **IPO/CBTT/Hợp nhất TT202/IFRS**, `DOA/SoD`, `Form & Doc Template`) | `0.2` | Approved (via `CONF-S17-001`) |
+| `03` | `BENCH-S17-001` | [01_BENCH-S17-001_accounting_finance_benchmarks.md](./03_benchmarks/01_BENCH-S17-001_accounting_finance_benchmarks.md) | Đối sánh 12 hệ thống Tài chính/Kế toán/BCTC Hợp nhất & Disclosure Quốc tế & VN (bổ sung SAP Group Reporting, Workiva/Caseware) + 14 bài học | `0.2` | Approved (via `CONF-S17-001`) |
+| `02` | `ANL-S17-001` | [01_ANL-S17-001_accounting_finance_workflows.md](./02_analysis/01_ANL-S17-001_accounting_finance_workflows.md) | Kiến trúc `Dual-Mode` + Engine Hồ sơ BCTC/IPO, 5 chỉ số thanh khoản, **10 luồng nghiệp vụ end-to-end**, `BR-A01..A24`, `14 Edge Cases`, `33 User Stories` & chuẩn UI | `0.2` | Approved (via `CONF-S17-001`) |
+| `04` | `CONF-S17-001` | [01_CONF-S17-001_sprint_17_scope_and_ac.md](./04_confirmation/01_CONF-S17-001_sprint_17_scope_and_ac.md) | 16 câu hỏi chốt nghiệp vụ (`Q1`–`Q16`), Phạm vi In/Out-of-Scope & 27 Acceptance Criteria (`AC-01`..`AC-27`) | `1.0` | APPROVED 1.0 (2026-11-15) |
+| `05` | `SOL-S17-*` | `05_solutions/` *(Chưa tạo)* | Giải pháp kiến trúc, Multi-tenant, Data Flow & Plugin Isolation (`SOL-S17-*`) | — | Open (Ready for SOL) |
 | `06` | `DES-S17-*` | `06_designs/` *(Chưa tạo)* | Chỉ khởi tạo sau `SOL-S17-*` | — | Locked (Pending `SOL`) |
 | `07` | `FEAT/TASK-*` | `07_items/` *(Chưa tạo)* | Chỉ tách item lập trình sau `DES-S17-*` | — | Locked (Pending `DES`) |
 | `08` | `QA-S17-*` | `08_testing/` *(Chưa tạo)* | Dual-Mode Browser Testing (Desktop & Mobile) + Backend Integration Test (PostgreSQL & Redis thật) | — | Locked |
@@ -69,7 +69,7 @@ Plugin `accounting` tích hợp sạch qua `PluginDataServiceGrpc` & Kafka Outbo
 
 | Hạng mục | Mô tả kiểm tra | Trạng thái | Ghi chú |
 | :--- | :--- | :--- | :--- |
-| `RAW-S17-001` | Yêu cầu gốc chuẩn hóa cho **5 loại hình doanh nghiệp** (gồm **DN Đã IPO / Niêm yết**), kiến trúc 2 chế độ, **Hồ sơ BCTC đầy đủ**, `DOA/SoD`, Lưu vết 4 tầng, `plugins/form` & `plugins/document-template` | Pending Review | Đã nâng cấp `v0.2` |
-| `BENCH-S17-001` | Đối sánh 12 hệ thống Tài chính/Kế toán, Hợp nhất & Disclosure IPO Quốc tế & Việt Nam + 14 bài học kiến trúc | Pending Review | Đã nâng cấp `v0.2` |
-| `ANL-S17-001` | Đặc tả Kiến trúc `Dual-Mode`, 5 chỉ số thanh khoản, 10 luồng nghiệp vụ (gồm Hồ sơ BCTC/Kiểm toán & DN Đã IPO), `BR-A01..A24`, `14 Edge Cases`, `33 User Stories` | Pending Review | Đã nâng cấp `v0.2` |
-| `CONF-S17-001` | Khách hàng review & chốt 16 câu hỏi (`Q1`–`Q16`) và ký duyệt 27 Acceptance Criteria (`AC-01`..`AC-27`) | Pending | Chặn Bước 05 (`SOL`) & Bước 06 (`DES`) |
+| `RAW-S17-001` | Yêu cầu gốc chuẩn hóa cho **5 loại hình doanh nghiệp** (gồm **DN Đã IPO / Niêm yết**), kiến trúc 2 chế độ, **Hồ sơ BCTC đầy đủ**, `DOA/SoD`, Lưu vết 4 tầng, `plugins/form` & `plugins/document-template` | Approved (1.0) | Đã nâng cấp `v0.2`, duyệt kèm `CONF-S17-001` (2026-11-15) |
+| `BENCH-S17-001` | Đối sánh 12 hệ thống Tài chính/Kế toán, Hợp nhất & Disclosure IPO Quốc tế & Việt Nam + 14 bài học kiến trúc | Approved (1.0) | Đã nâng cấp `v0.2`, duyệt kèm `CONF-S17-001` (2026-11-15) |
+| `ANL-S17-001` | Đặc tả Kiến trúc `Dual-Mode`, 5 chỉ số thanh khoản, 10 luồng nghiệp vụ (gồm Hồ sơ BCTC/Kiểm toán & DN Đã IPO), `BR-A01..A24`, `14 Edge Cases`, `33 User Stories` | Approved (1.0) | Đã nâng cấp `v0.2`, duyệt kèm `CONF-S17-001` (2026-11-15) |
+| `CONF-S17-001` | Khách hàng review & chốt 16 câu hỏi (`Q1`–`Q16`) và ký duyệt 27 Acceptance Criteria (`AC-01`..`AC-27`) | APPROVED 1.0 | Đã chốt 16/16 theo Đề xuất BA (2026-11-15); Mở khóa Bước 05 (`SOL`) |
