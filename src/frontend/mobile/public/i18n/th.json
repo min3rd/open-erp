@@ -1918,5 +1918,14 @@
   "attendance.kiosk.branch_hn": "สาขาฮานอย",
   "attendance.kiosk.branch_hcm": "สาขาโฮจิมินห์ซิตี้",
   "attendance.kiosk.branch_bd": "โรงงานผลิตบิ่ญเซือง",
-  "attendance.kiosk.branch_notice": "แสดงเฉพาะพนักงานของสาขานี้เพื่อความปลอดภัยของข้อมูลตัวตน"
+  "attendance.kiosk.branch_notice": "แสดงเฉพาะพนักงานของสาขานี้เพื่อความปลอดภัยของข้อมูลตัวตน",
+  "office.viewer.title": "Office document viewer",
+  "office.viewer.open": "Open file",
+  "office.viewer.download": "Download",
+  "office.viewer.hint": "Pick a .docx, .xlsx, .pptx or .pdf file to view on this device",
+  "office.viewer.openFailed": "Could not open the file",
+  "office.viewer.dismiss": "Dismiss",
+  "office.viewer.loading": "Loading document",
+  "office.viewer.loadingHint": "Fetching content from ERP…",
+  "office.viewer.erpSource": "ERP source"
 }

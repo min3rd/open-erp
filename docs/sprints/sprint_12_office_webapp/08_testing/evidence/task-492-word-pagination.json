@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-16",
+  "scope": "Word real pagination (W-A21) verified on the real 1.2MB proposal and synthetic split cases",
+  "algorithm": "web/src/app/core/office/word-paginate.ts: paginateBlocks() splits paragraphs and table rows by measured DOM height (2-pass), content height 864px = page 1056px minus 2x96px padding; explicit w:br type=page forces a new page",
+  "realDocument": {
+    "file": "sample-real-proposal.docx (not committed)",
+    "pages": 144,
+    "estimatedPagesBefore": 165,
+    "paragraphsMeasured": 528,
+    "tableRows": 998,
+    "logicalTables": 13,
+    "tableFragmentsRendered": 131,
+    "pageHeight": 1056,
+    "pageScrollHeight": 1054,
+    "explicitPageBreaks": 5,
+    "headerRepeatedPerPage": true,
+    "footerPageNumbers": ["1", "2", "3"],
+    "loadMs": 5159,
+    "exceptions": 0
+  },
+  "footerPageField": {
+    "before": "Footer used a complex PAGE field (fldChar begin/instrText PAGE/fldChar separate/result 20/end); parser only checked w:fldSimple and rendered the stale cached result '20' on every page",
+    "after": "collectFieldText() detects both w:fldSimple and complex PAGE fields, marks hasPageNumber, skips cached field results, and each page renders page.index + 1"
+  },
+  "smoke": {
+    "total": 323,
+    "failed": 0,
+    "new": [
+      "word complex PAGE field detected {hasPageNumber:true,text:''}",
+      "word paginate paragraphs [8,8,8,6]",
+      "word paginate table rows 12 pages covering 200 rows",
+      "word paginate explicit page break [1,1]"
+    ]
+  },
+  "roundTripAfterPagination": {
+    "savedBytes": 1158351,
+    "entries": 30,
+    "media": 5,
+    "xmlTables": 14,
+    "hyperlinks": 50,
+    "textPreserved": true,
+    "tables": 13,
+    "images": 4
+  },
+  "limitations": [
+    "Nested table is flattened inside its parent cell for display (XML preserved)",
+    "TOC page numbers remain cached text (no TOC page-number recompute engine)",
+    "Ink strokes store the page index at draw time; heavy edits that reflow pages can move them",
+    "Floating images/text boxes are not page-aware"
+  ]
+}

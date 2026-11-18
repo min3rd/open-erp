@@ -504,6 +504,63 @@
           "defaultConfiguration": "production"
         }
       }
+    },
+    "office-webapp-plugin": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "../../../plugins/office-webapp/web/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "../../../plugins/office-webapp/web/src/plugin-main.ts",
+            "index": {
+              "input": "../../../plugins/office-webapp/web/src/plugin-index.html",
+              "output": "index.html"
+            },
+            "tsConfig": "../../../plugins/office-webapp/web/tsconfig.json",
+            "assets": [
+              {
+                "glob": "**/*.json",
+                "input": "public/i18n",
+                "output": "i18n"
+              }
+            ],
+            "styles": [
+              "../../../plugins/office-webapp/web/src/styles.css"
+            ],
+            "outputPath": {
+              "base": "../../../plugins/office-webapp/src/main/resources/META-INF/resources",
+              "browser": ""
+            }
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "900kB",
+                  "maximumError": "1.5MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "none"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "outputHashing": "none"
+            }
+          },
+          "defaultConfiguration": "production"
+        }
+      }
     }
   }
 }

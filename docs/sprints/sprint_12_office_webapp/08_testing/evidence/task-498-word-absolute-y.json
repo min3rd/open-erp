@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-16",
+  "scope": "Float y positioning independent of anchor flow, including y above the anchor",
+  "implementation": {
+    "wrap": "square/tight/through floats are rendered at page content start with margin-top = y (clamped 0..864-height); text above and below wraps around them, independent of anchor flow",
+    "block": "topAndBottom remains an in-flow block before the anchor and accepts negative margin-top = y - measured flow, so y can be above the anchor",
+    "overlay": "behind/front remain absolute overlays at top = 96 + y, already independent of anchor"
+  },
+  "runtimeQA": {
+    "wrapAboveAnchor": {
+      "wrapTop": 147,
+      "wrapExpected": 146,
+      "longParagraphTop": 194,
+      "wrapAboveAnchor": true,
+      "wrappedLines": 7,
+      "float": "left"
+    },
+    "topAndBottomAboveAnchor": {
+      "blockTop": 127,
+      "blockExpected": 126,
+      "anchorParagraphTop": 275,
+      "blockAboveAnchor": true,
+      "blockBottom": 207,
+      "afterTop": 237,
+      "belowBlock": true
+    },
+    "stacking": {
+      "behindZ": "0",
+      "frontZ": "3",
+      "behindTop": 197,
+      "frontTop": 297
+    },
+    "exceptions": 0
+  },
+  "smoke": "343 passed, 0 failed",
+  "builds": {
+    "ui": "main.js 874.33 kB",
+    "mobile": "complete",
+    "i18n": "web 3259 keys; all locales 100%",
+    "checkDocs": "32 markdown files / 371 links / 0 errors"
+  },
+  "remaining": [
+    "A paragraph crossing a topAndBottom y is moved as a whole to the nearest block boundary; it is not split mid-paragraph",
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

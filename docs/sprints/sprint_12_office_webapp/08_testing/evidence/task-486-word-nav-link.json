@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-16",
+  "scope": "Word navigation pane, hyperlink insert/persist, symbol picker, online video insert, local spellcheck",
+  "smoke": { "passed": 289, "failed": 0 },
+  "browser": {
+    "navigationPane": {
+      "width": "280px",
+      "items": ["H1 Báo cáo Sprint 12"],
+      "jumpWorks": true
+    },
+    "hyperlink": {
+      "text": "OpenAI©",
+      "href": "https://openai.com",
+      "survivesSymbolInsert": true
+    },
+    "symbol": { "value": "©", "inserted": true },
+    "video": {
+      "url": "https://youtu.be/browser-demo",
+      "rendered": "Video trực tuyến"
+    },
+    "spellcheck": {
+      "before": ["the the → the", "recieve → receive", "adress → address"],
+      "afterFix": ["the the → the", "adress → address"],
+      "textAfterFix": "the the receive adress"
+    }
+  },
+  "savedFile": {
+    "path": "saved/sample-word-nav-link.docx",
+    "bytes": 1492,
+    "paragraphs": [
+      "Báo cáo Sprint 12",
+      "Office WebApp đọc trực tiếp .docx trên trình duyệt, không upload nội dung lên máy chủ.OpenAI©",
+      "the the receive adress",
+      "Kết luận: nền tảng OOXML thuần TypeScript đã chạy.",
+      ""
+    ],
+    "links": [{ "text": "OpenAI©", "link": "https://openai.com" }],
+    "videos": ["https://youtu.be/browser-demo"],
+    "xml": {
+      "hyperlinks": 1,
+      "webVideoPr": { "href": "https://youtu.be/browser-demo", "embeddedUrl": "https://youtu.be/browser-demo" },
+      "relsHasOpenAi": true
+    }
+  },
+  "screenshot": "unavailable — browser window not visible; DOM measurements and saved-file inspection used"
+}

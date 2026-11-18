@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-16",
+  "scope": "Word editing block: undo/redo, find/replace, insert table, insert image",
+  "smoke": { "passed": 219, "failed": 0 },
+  "undoRedo": {
+    "edited": "Báo cáo Sprint 12 (sửa)",
+    "undone": "Báo cáo Sprint 12",
+    "redone": "Báo cáo Sprint 12 (sửa)",
+    "buttons": ["Hoàn tác", "Làm lại"]
+  },
+  "findReplace": {
+    "query": "WebApp",
+    "matches": 1,
+    "highlightedParagraphs": 1,
+    "replacement": "Web App",
+    "replacedText": "Office Web App đọc trực tiếp .docx trên trình duyệt, không upload nội dung lên máy chủ.",
+    "undoRestored": "Office WebApp đọc trực tiếp .docx trên trình duyệt, không upload nội dung lên máy chủ."
+  },
+  "insertTable": {
+    "requestedRows": 2,
+    "requestedColumns": 3,
+    "domTablesAfter": 2
+  },
+  "insertImage": {
+    "fileName": "pixel.png",
+    "bytes": 183,
+    "natural": [64, 32],
+    "display": [64, 32]
+  },
+  "savedFile": {
+    "path": "saved/sample-word-edits.docx",
+    "bytes": 2029,
+    "tables": 2,
+    "lastTable": { "rows": 2, "cells": 3 },
+    "xmlTables": 2,
+    "gridColumns": 3,
+    "imageRun": {
+      "imagePath": "word/media/image1.png",
+      "imageWidth": 64,
+      "imageHeight": 32,
+      "alt": "pixel.png"
+    },
+    "media": [{ "name": "word/media/image1.png", "bytes": 183 }],
+    "relsImage": true,
+    "contentTypePng": true
+  },
+  "screenshot": "unavailable — browser window not visible; DOM measurements and saved-file inspection used"
+}

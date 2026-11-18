@@ -1918,5 +1918,14 @@
   "attendance.kiosk.branch_hn": "فرع هانوي",
   "attendance.kiosk.branch_hcm": "فرع مدينة هو تشي منه",
   "attendance.kiosk.branch_bd": "مصنع بينه دونغ",
-  "attendance.kiosk.branch_notice": "يتم عرض موظفي هذا الفرع فقط لضمان سرية الهوية بشكل كامل."
+  "attendance.kiosk.branch_notice": "يتم عرض موظفي هذا الفرع فقط لضمان سرية الهوية بشكل كامل.",
+  "office.viewer.title": "Office document viewer",
+  "office.viewer.open": "Open file",
+  "office.viewer.download": "Download",
+  "office.viewer.hint": "Pick a .docx, .xlsx, .pptx or .pdf file to view on this device",
+  "office.viewer.openFailed": "Could not open the file",
+  "office.viewer.dismiss": "Dismiss",
+  "office.viewer.loading": "Loading document",
+  "office.viewer.loadingHint": "Fetching content from ERP…",
+  "office.viewer.erpSource": "ERP source"
 }

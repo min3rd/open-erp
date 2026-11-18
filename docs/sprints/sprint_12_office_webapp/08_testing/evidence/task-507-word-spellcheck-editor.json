@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-16",
+  "scope": "Spellcheck/grammar expansion toward Microsoft Editor: larger dictionaries, Vietnamese typos, punctuation/grammar rules, alternative suggestions, real-doc QA",
+  "implementation": {
+    "dictionaryEnglish": "227 typo→correction entries (was ~150); removed the self-map coordinate→coordinate",
+    "dictionaryVietnamese": "27 explicit Vietnamese entries: malformed diacritics (khống, ngừoi, đựơc, thựât…) plus common no-diacritic words (khong, duoc, nguoi, viec, nghiep, cong)",
+    "alternatives": "SpellIssue.alternatives carries extra corrections (e.g. khong → không + khổng, adress → address/addresses/addressing); UI shows them as one-click buttons and applySpellSuggestion writes the chosen replacement",
+    "grammar": [
+      "repeated word (existing)",
+      "double spaces (existing)",
+      "space before punctuation (existing)",
+      "missing space between punctuation and capital word (existing)",
+      "repeated !/? and new repeated , ; :",
+      "space after opening bracket / before closing bracket",
+      "missing space after ; : and after , before a letter",
+      "sentence-start lowercase with abbreviation guard (v., TP., etc.)",
+      "dedupe by paragraph/kind/span"
+    ]
+  },
+  "runtimeQA": {
+    "sample": "spell-sample.docx: 'khong duoc viec  nay ,va recieve goverment'",
+    "issueCount": 9,
+    "firstIssue": "Chính tả: khong → không",
+    "alternativeCount": 1,
+    "firstAlternative": "khổng",
+    "fixClicked": true,
+    "before": "khong duoc viec nay ,va recieve goverment",
+    "after": "không duoc viec nay ,va recieve goverment",
+    "remainingIssues": 8,
+    "exceptions": 0
+  },
+  "realDocument": {
+    "file": "sample-real-proposal.docx",
+    "issues": 96,
+    "kinds": { "repeated": 93, "misspelled": 0, "grammar": 3 },
+    "elapsedMs": 40,
+    "falsePositiveCheck": "coordinate is no longer flagged",
+    "note": "No deliberate misspellings remain in the real proposal; the expanded dictionary adds no false positives"
+  },
+  "smoke": "358 passed, 0 failed",
+  "builds": {
+    "ui": "main.js 892.61 kB",
+    "mobile": "complete",
+    "i18n": "web 3262 keys; all locales 100% (missing=0, extra=0)",
+    "checkDocs": "32 markdown files / 386 links / 0 errors"
+  },
+  "remaining": [
+    "Rule/dictionary based checker, not a cloud language model like Microsoft Editor; no full Vietnamese lexicon",
+    "Real-doc grammar detection is conservative (3 grammar issues) to avoid false positives",
+    "Ink is rendered as an SVG overlay, not native ink",
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

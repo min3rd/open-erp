@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-16",
+  "scope": "Proper nested-table rendering and TOC hyperlink regression fix",
+  "model": {
+    "WordNestedTable": "row, cell, afterParagraph, rows, nested",
+    "parser": "parseTable keeps w:tbl as WordNestedTable inside the parent cell instead of flattening its paragraphs",
+    "consumers": [
+      "word count recurses nested rows",
+      "pagination row height adds nested table height",
+      "mail merge maps merge fields inside nested cells",
+      "renderer emits op-word-nested-table inside the cell"
+    ]
+  },
+  "tocFix": "Hyperlink runs inside a multi-paragraph TOC field were being buffered by the complex-field state machine and discarded; hyperlink runs are now parsed directly, restoring 'A Giới thiệu về nhà thầu\\t5'",
+  "realDocument": {
+    "file": "sample-real-proposal.docx (not committed)",
+    "domTables": 132,
+    "domRows": 999,
+    "pages": 145,
+    "firstTocEntry": "A Giới thiệu về nhà thầu\\t5",
+    "exceptions": 0,
+    "pageScrollHeight": 1054
+  },
+  "smoke": {
+    "total": 340,
+    "failed": 0,
+    "checks": [
+      "word sdt + anchor link + nested table {cellText:'Outer', nestedText:'Inner'}",
+      "word sdt round-trip preserves one nested table"
+    ]
+  },
+  "builds": {
+    "ui": "main.js 861.54 kB",
+    "mobile": "complete"
+  },
+  "remaining": [
+    "Text wrap is still overlay-only (body text does not reflow)",
+    "Grouping is still stored in customXml/arrange.xml rather than wpg:wgp"
+  ]
+}

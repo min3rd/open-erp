@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-18",
+  "scope": "Word table fidelity: rows whose cells hold several paragraphs are paginated by the row-flow kernel (Word splits such rows across pages), and the row scale is recalibrated so the bid document lands on Word's 546 pages without any page overflowing",
+  "reference": {
+    "sample": "plugins/office-webapp/web/samples/sample-real-proposal.docx (1.2MB bid document, 546 pages in Word)",
+    "wordPages": "web/.tmp/word-page-text.json — Word pages 531-533 carry the YCK_8 / YCK9 rows that continue over several pages",
+    "docxStructure": "word/document.xml: tables 6 and 7 (\"Số CTKT…\") hold 30 and 18 cells with up to 6 and 7 paragraphs per cell; tables 0, 8, 10 and 12 also have multi-paragraph cells",
+    "before": "web/.tmp/word-overflow.json — pages 529 (2523px), 530 (2362px), 531 (11766px) and 533 (6312px) each drew a table taller than the 1056px page, and page 535 held a single empty paragraph"
+  },
+  "cause": {
+    "measurement": "office-webapp.component.ts rejected every table whose cell had more than one <p> (usable = false), so no row-flow data was produced for those tables",
+    "pagination": "without row-flow the row-level splitter must place at least one whole row per page, so a row taller than the page was drawn in full and spilled far past the page bottom",
+    "effect": "one Word row that spans four pages was stacked on a single page, which both hid content and made the 546-page count accidentally match Word"
+  },
+  "changes": {
+    "measurement": "office-webapp.component.ts: every <p> in a cell contributes its rendered height; the line count is measured over the cell's joined text and paragraphStarts records where each paragraph begins",
+    "slicing": "word-paginate.ts: new sliceCellParagraphs() maps a line slice back onto the paragraphs it covers, keeping each paragraph's own formatting instead of always slicing the first one",
+    "calibration": "office-webapp.component.ts: rowFlowScale default 1.23 -> 1.162, the value that keeps Word's 546 pages once tall rows split instead of overflowing",
+    "regression": "scripts/smoke.mts: sliceCellParagraphs across three paragraphs (375 checks total)"
+  },
+  "probes": {
+    "pageOverflowBefore": "headless Edge CDP on the built plugin: article.scrollHeight 2627/2466/11870/6416 on pages 529/530/531/533 against a 1056px page",
+    "blankPageBefore": "page 535 held one empty paragraph because the paginator believed page 534 was full; Word page 535 starts the \"Kinh nghiệm phát triển\" chapter",
+    "afterSplit": "with the split fix at the old scale: 576 pages, 0 overflowing pages, largest table fragment 918px",
+    "scaleSweep": "same capture at rowFlowScale 1.20 -> 563 pages, 1.18 -> 555, 1.166 -> 550, 1.162 -> 546, 1.158 -> 543, 1.15 -> 541; every value 0 overflowing pages"
+  },
+  "verification": {
+    "pages": "546 with rowFlowScale 1.162 (matches Word)",
+    "overflow": "0 pages with content taller than the page box (was 4)",
+    "largestTable": "920px, inside the 894px content area of the 1056px page (was 11,766px)",
+    "blankPages": "none (was 1)",
+    "smoke": "375 passed, 0 failed (npm run office:test)",
+    "uiBuild": "npm run office:ui:build — main.js 966 kB, styles.css 146 kB"
+  },
+  "remaining": [
+    "Page-level row start still drifts from Word inside the long table: Word's line metrics and the 6px vs 7.2px default cell margin are not modelled, so most table pages stay below Dice 0.8 even though the total page count matches",
+    "Composite border styles (thinThickSmallGap, thickThinSmallGap, double) still render as one thin line and table-level w:jc/w:tblW alignment is not applied",
+    "Word's 108-twip (7.2px) default cell side margin is still drawn at 6px; applying 7.2px moves pagination away from 546 pages"
+  ]
+}

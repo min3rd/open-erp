@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-16",
+  "scope": "Mail-merge NEXT mid-record semantics",
+  "implementation": {
+    "pass": "finishMerge now walks template blocks per pass with a record pointer; a NEXT field advances the pointer for following blocks and records used in the pass",
+    "pageBreak": "one page break per template pass, not per record; multiple records can appear on one page when NEXT is used",
+    "nextStart": "the next pass starts after the last record used by the previous pass",
+    "cleanup": "NEXT gate removed from UI and checkMergeErrors"
+  },
+  "smoke": {
+    "check": "word mail merge NEXT mid-record",
+    "nextTexts": ["A An", "", "B Bình", "", "A Cường", "", "B "],
+    "nextPageBreaks": 1,
+    "total": "344 passed, 0 failed"
+  },
+  "builds": {
+    "ui": "main.js 881.45 kB",
+    "mobile": "complete",
+    "i18n": "web 3261 keys; all locales 100%",
+    "checkDocs": "32 markdown files / 377 links / 0 errors"
+  },
+  "remaining": [
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

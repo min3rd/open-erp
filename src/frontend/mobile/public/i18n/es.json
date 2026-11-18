@@ -1918,5 +1918,14 @@
   "attendance.kiosk.branch_hn": "Sucursal Hanói",
   "attendance.kiosk.branch_hcm": "Sucursal Ciudad Ho Chi Minh",
   "attendance.kiosk.branch_bd": "Planta de Producción Binh Duong",
-  "attendance.kiosk.branch_notice": "Solo se muestran empleados de esta sucursal para garantizar total privacidad."
+  "attendance.kiosk.branch_notice": "Solo se muestran empleados de esta sucursal para garantizar total privacidad.",
+  "office.viewer.title": "Office document viewer",
+  "office.viewer.open": "Open file",
+  "office.viewer.download": "Download",
+  "office.viewer.hint": "Pick a .docx, .xlsx, .pptx or .pdf file to view on this device",
+  "office.viewer.openFailed": "Could not open the file",
+  "office.viewer.dismiss": "Dismiss",
+  "office.viewer.loading": "Loading document",
+  "office.viewer.loadingHint": "Fetching content from ERP…",
+  "office.viewer.erpSource": "ERP source"
 }

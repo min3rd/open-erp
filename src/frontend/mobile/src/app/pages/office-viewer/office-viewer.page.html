@@ -1,0 +1,144 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="op-mv-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title class="op-mv-title">{{ doc()?.fileName ?? ('office.viewer.title' | translate) }}</ion-title>
+    <ion-buttons slot="end">
+      <button type="button" class="op-mv-icon" (click)="pickFile()" [title]="'office.viewer.open' | translate">+</button>
+      @if (doc()) {
+        <button type="button" class="op-mv-icon" (click)="download()" [title]="'office.viewer.download' | translate">↓</button>
+      }
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="op-mv-content">
+  <input #fileInput type="file" class="op-mv-hidden" accept=".docx,.xlsx,.csv,.pptx,.pdf" (change)="onFileInput($event)" />
+
+  @if (error()) {
+    <div class="op-mv-error" role="alert">
+      <span>{{ 'office.viewer.openFailed' | translate }}</span>
+      <code>{{ error() }}</code>
+      <button type="button" class="op-mv-btn" (click)="error.set(null)">{{ 'office.viewer.dismiss' | translate }}</button>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="op-mv-start">
+      <h1>{{ 'office.viewer.loading' | translate }}</h1>
+      <p>{{ 'office.viewer.loadingHint' | translate }}</p>
+    </div>
+  } @else if (!doc()) {
+    <section class="op-mv-start" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
+      <h1>{{ 'office.viewer.title' | translate }}</h1>
+      <p>{{ 'office.viewer.hint' | translate }}</p>
+      <button type="button" class="op-mv-primary" (click)="pickFile()">{{ 'office.viewer.open' | translate }}</button>
+    </section>
+  }
+
+  @if (doc(); as document) {
+    <div class="op-mv-toolbar2">
+      @if (erpDocId()) {
+        <span class="op-mv-erp">{{ 'office.viewer.erpSource' | translate }} · v{{ erpVersion() }}</span>
+      }
+      <button type="button" class="op-mv-btn" (click)="zoomBy(-10)">−</button>
+      <span>{{ zoom() }}%</span>
+      <button type="button" class="op-mv-btn" (click)="zoomBy(10)">+</button>
+      @if (document.app === 'excel') {
+        <button type="button" class="op-mv-btn" (click)="prevSheet()">‹</button>
+        <span>{{ sheetIndex() + 1 }} / {{ document.excel?.sheets?.length ?? 0 }}</span>
+        <button type="button" class="op-mv-btn" (click)="nextSheet()">›</button>
+      }
+      @if (document.app === 'ppt') {
+        <button type="button" class="op-mv-btn" (click)="prevSlide()">‹</button>
+        <span>{{ slideIndex() + 1 }} / {{ document.ppt?.slides?.length ?? 0 }}</span>
+        <button type="button" class="op-mv-btn" (click)="nextSlide()">›</button>
+      }
+      @if (document.app === 'pdf') {
+        <button type="button" class="op-mv-btn" (click)="prevPdfPage()">‹</button>
+        <span>{{ pdfPage() }} / {{ document.pdf?.pageCount ?? 1 }}</span>
+        <button type="button" class="op-mv-btn" (click)="nextPdfPage()">›</button>
+      }
+    </div>
+
+    @if (document.app === 'word') {
+      <article class="op-mv-word" [style.zoom]="zoom() / 100">
+        @for (block of document.word?.blocks ?? []; track $index) {
+          @if (block.kind === 'paragraph') {
+            <p [class]="blockClass(block)" [style.text-align]="block.paragraph.align">
+              @for (run of block.paragraph.runs; track $index) {
+                <span [style.font-weight]="run.bold ? '700' : '400'"
+                      [style.font-style]="run.italic ? 'italic' : 'normal'"
+                      [style.text-decoration]="run.underline ? 'underline' : 'none'"
+                      [style.color]="run.color ?? '#111827'"
+                      [style.font-size]="run.sizePt ? run.sizePt + 'pt' : null">{{ run.text }}</span>
+              }
+            </p>
+          } @else {
+            <table class="op-mv-table">
+              <tbody>
+                @for (row of block.rows; track $index) {
+                  <tr>
+                    @for (cell of row; track $index) {
+                      <td>
+                        @for (paragraph of cell; track $index) {
+                          <p>
+                            @for (run of paragraph.runs; track $index) {
+                              <span [style.font-weight]="run.bold ? '700' : '400'">{{ run.text }}</span>
+                            }
+                          </p>
+                        }
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        }
+      </article>
+    }
+
+    @if (document.app === 'excel') {
+      <div class="op-mv-grid-wrap">
+        <table class="op-mv-grid">
+          <thead>
+            <tr>
+              <th></th>
+              @for (col of columnCount(); track col) { <th>{{ col }}</th> }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rowCount(); track row) {
+              <tr>
+                <th>{{ row }}</th>
+                @for (col of columnCount(); track col) {
+                  <td [class.op-mv-num]="sheet()?.cells?.get(cellRef(row, col))?.type === 'number'">{{ cellValue(cellRef(row, col)) }}</td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (document.app === 'ppt') {
+      <div class="op-mv-ppt-stage">
+        <div class="op-mv-ppt-canvas">
+          @for (shape of slide()?.shapes ?? []; track shape.id) {
+            <div class="op-mv-shape" [style]="shapeStyle(shape)">{{ shape.text }}</div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (document.app === 'pdf') {
+      <div class="op-mv-pdf">
+        @if (pdfPageUrl()) {
+          <iframe class="op-mv-pdf-frame" [src]="pdfPageUrl()" [title]="document.fileName"></iframe>
+        }
+      </div>
+    }
+  }
+</ion-content>

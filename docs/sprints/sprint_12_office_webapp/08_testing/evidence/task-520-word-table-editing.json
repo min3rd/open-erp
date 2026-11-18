@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-18",
+  "scope": "Word table parity: cell text is part of the edit model, and Office 365's contextual Table tab edits rows, columns, header repeat, distribution, cell alignment and table alignment",
+  "reference": {
+    "word": "Office 365 Word table commands (Insert Above/Below, Insert Left/Right, Delete Row/Column/Table, Header Row, Distribute Columns, cell vertical alignment, table alignment)",
+    "gapBefore": "web/src/app/office-webapp.component.ts synced only .op-word-p[data-paragraph]; text typed inside a table cell was not written to WordParagraph or w:t, so leaving the page or saving dropped it. WORD_RIBBON had 10 tabs and no table commands.",
+    "sample": "plugins/office-webapp/web/samples/sample-real-proposal.docx (546 pages, 839-row bid table at block 396)"
+  },
+  "changes": {
+    "model": "core/office/word-tables.ts: insertTableRow, insertTableColumn, deleteTableRow, deleteTableColumn, deleteWordTable, setTableHeaderRow, distributeTableColumns, setRowVerticalAlign, setTableAlignment, readTableLayout",
+    "parse": "docx.ts reads w:tblW (pct/dxa) and w:jc into WordBlock.widthPct/align; word-insert.ts stores xmlNode + equal grid for a new table",
+    "rowMap": "word-paginate.ts: each flow fragment carries rowMap (repeated header rows + the block body row), fragment=true and splitRow only when the row really continues on the next page; the paginator merges fragments by fragment instead of splitRow",
+    "cellEditing": "office-webapp.component.ts/html: every cell paragraph in a whole row carries data-cell-block/row/col/p and a sourceIndex for sliced paragraphs; focusout writes the text back to the model and w:t; Enter splits a cell paragraph into a new w:p",
+    "ui": "word-ribbon.ts + word-ribbon.component: contextual 'table' tab with 3 groups/15 commands and Fluent icons (table-stack-*, table-delete-*, table-repeat, table-resize-column, textbox-align-*); table tab appears only while the caret is in a table",
+    "safety": "A row that is physically split across pages is read-only (contenteditable=false) because its visible text is a slice of a paragraph, not the whole paragraph",
+    "render": "table width from w:tblW and w:jc alignment (center/right use margin auto) also apply to documents that declare them"
+  },
+  "probes": {
+    "uiLoad": "headless Edge CDP: sample loaded to 546 pages, 839 distinct rows, 0 console errors",
+    "cellEdit": "cell 'Số CTKT' changed to 'KIEM TRA BANG'; after focusout and re-render the cell still shows 'KIEM TRA BANG' (before the fix the model kept the old text)",
+    "tableTab": "tabs after clicking a table cell: Trang chủ, Chèn, Bảng, Vẽ, … ; groups: Hàng & Cột / Bố cục / Căn chỉnh; 15 commands; single-row ribbon renders 15 20px Fluent icons",
+    "insertRow": "click 'Chèn hàng dưới' → 840 distinct rows in block 396",
+    "deepDelete": "on a page after 150, clicked a body cell (data-cell-row 235) and 'Xóa hàng' → 839 distinct rows, proving the row map addresses the block row and not a fragment-local row",
+    "pageCount": "546 after load and after the sizing pass"
+  },
+  "verification": {
+    "smoke": "385 passed, 0 failed (npm run office:test)",
+    "uiBuild": "npm run office:ui:build — main.js 978.98 kB, styles.css 146.25 kB",
+    "i18n": "web 3280 keys, all 13 locales 100% (strict parity), mobile 100%",
+    "screenshot": "docs/sprints/sprint_12_office_webapp/08_testing/evidence/word-table-tab.png (contextual Table tab over Word page 72)",
+    "console": "0 exceptions, 0 console errors during load, cell edit, insert row and delete row"
+  },
+  "remaining": [
+    "Cells of a row that is split across pages stay read-only: their rendered text is one slice, so writing it back needs a slice-to-paragraph-range map",
+    "Merge Cells, Split Cells, Split Table, cell margins and a full Table Properties dialog are not in the contextual tab yet",
+    "W-A21 page-level layout is unchanged: total pages match Word (546), per-row page starts still drift (task-514)"
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "harness": "plugins/office-webapp/web/qa/mobile-harness.html (iframe 390x844 / 844x390, same-origin)",
+  "date": "2026-11-16",
+  "portrait": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "word": {
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "overflowX": 0,
+      "smallTargets": []
+    },
+    "excel": {
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "overflowX": 0,
+      "smallTargets": []
+    },
+    "ppt": {
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "overflowX": 0,
+      "smallTargets": []
+    },
+    "pdf": {
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "overflowX": 0,
+      "smallTargets": []
+    }
+  },
+  "landscape": {
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "word": {
+      "scrollWidth": 829,
+      "innerWidth": 844,
+      "overflowX": -15,
+      "smallTargets": []
+    },
+    "excel": {
+      "scrollWidth": 829,
+      "innerWidth": 844,
+      "overflowX": -15,
+      "smallTargets": []
+    },
+    "ppt": {
+      "scrollWidth": 829,
+      "innerWidth": 844,
+      "overflowX": -15,
+      "smallTargets": []
+    },
+    "pdf": {
+      "scrollWidth": 829,
+      "innerWidth": 844,
+      "overflowX": -15,
+      "smallTargets": []
+    }
+  },
+  "touchTargetMinPx": 40,
+  "notes": "negative overflow = scrollbar width; all visible buttons >= 40x40 after mobile CSS"
+}

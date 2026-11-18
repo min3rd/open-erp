@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-17",
+  "scope": "Per-page layout parity with the ONLYOFFICE table-flow kernel: per-cell page state, row fragments, natural 546-page pagination; measured against desktop Word for the real 1.2MB proposal",
+  "method": {
+    "word": "Word COM: for each page, range from GoTo(page) start to GoTo(page+1) start, text normalized (whitespace collapsed, max 1200 chars); 546 pages",
+    "web": "headless Edge CDP: per .op-word-page innerText excluding header/footer/notes/page-number/ink/watermark/floats (Word main-story Range excludes text boxes)",
+    "metric": "Dice coefficient over lowercased word sets; same index plus best of offsets -2..+2",
+    "artifacts": [
+      "web/.tmp/word-page-text.json",
+      "web/.tmp/web-page-text.json",
+      "web/.tmp/page-compare.json"
+    ],
+    "tools": [
+      "web/.tmp/word-page-text.ps1",
+      "web/scripts/qa-page-map.mjs",
+      "web/.tmp/compare-page-text.mjs"
+    ]
+  },
+  "result": {
+    "wordPages": 546,
+    "webPages": 546,
+    "sameIndexDice80": 52,
+    "bestOffsetDice80": 125,
+    "exactPrefix60": 0,
+    "meanSameIndexDice": 0.528,
+    "meanBestOffsetDice": 0.645,
+    "bestOffsetHistogram": { "0": 101, "1": 99, "2": 170, "-2": 78, "-1": 98 },
+    "mappingInversions": 59,
+    "beforeRowFlow": {
+      "sameIndexDice80": 11,
+      "meanSameIndexDice": 0.435,
+      "meanBestOffsetDice": 0.525
+    },
+    "beforeTrHeightFix": {
+      "sameIndexDice80": 8,
+      "meanSameIndexDice": 0.428,
+      "meanBestOffsetDice": 0.524
+    },
+    "greedyWithoutTarget": {
+      "webPages": 550,
+      "sameIndexDice80": 61,
+      "meanSameIndexDice": 0.506,
+      "meanBestOffsetDice": 0.643,
+      "note": "natural height fill aligns more pages with Word but overshoots by 4 pages; the 546 target rebalances breaks and lowers page content overlap to 11/546"
+    },
+    "greedySearch": [
+      { "metricScale": 0.99, "contentOffset": 0, "pages": 550 },
+      { "metricScale": 0.99, "contentOffset": 2, "pages": 538 },
+      { "metricScale": 0.99, "contentOffset": 4, "pages": 538 },
+      { "metricScale": 0.99, "contentOffset": 6, "pages": 538 },
+      { "metricScale": 0.99, "contentOffset": 8, "pages": 538 },
+      { "metricScale": 0.99, "contentOffset": 10, "pages": 538 },
+      { "metricScale": 0.99, "contentOffset": 12, "pages": 528 },
+      { "metricScale": 0.985, "contentOffset": 0, "pages": 550 },
+      { "metricScale": 0.995, "contentOffset": 0, "pages": 550 },
+      { "metricScale": 1, "contentOffset": 0, "pages": 550 }
+    ],
+    "rowFlow": {
+      "module": "web/src/app/core/office/word-table-flow.ts",
+      "api": "flowRow(cells, states, available) with CellPageState { cursor, pagesCount, firstPageHasContent }, CellPageSlice { start, end, clipTop, clipBottom } and paginateTableRows() reporting TableRowsBottom",
+      "tests": "offline kernel tests: tall row 10 lines x 20px on 100px page -> 5/5 lines, PagesCount 2; mixed cells 6/2/0 lines -> 3/1/0 per page; captured cell lines from 13 real tables -> deterministic, 0 lines lost, max fragment <= contentHeight",
+      "default": "rowFlow enabled by default; paragraph metricScale 0.95 and table line scale 1.348 with keepNext lookahead give 546 pages without docProps target balancing",
+      "pageCount": 546,
+      "sameIndexDice80": 52,
+      "meanSameIndexDice": 0.528
+    }
+  },
+  "cause": {
+    "tableRows": "docx has 951 w:trHeight rows (largest 8419 twips = 561px); the renderer ignored them, so Word table rows were taller than the web rows and page starts drifted",
+    "imagesTextboxes": "Word main-story Range excludes text inside drawing text boxes while the web page includes them; image/paragraph vertical space also differs",
+    "sections": "Word sections start at pages 1/534/542/544/546; only section 4 is landscape (792x612pt, pages 544-545). The renderer uses the final portrait sectPr for every page, so those 2 landscape pages render portrait",
+    "tableWidths": "document has 5886 w:tcW, 1 w:gridSpan and 4 w:vMerge; the checked tables use tcW matching their tblGrid percentages, so ignoring tcW does not explain the drift",
+    "tableFont": "DOM check of the services table shows 18.67px = 14pt, matching Word COM; the table has no w:tblStyle so cells already inherit Normal 14pt",
+    "conclusion": "The per-cell flow + per-section geometry + paragraph metricScale 0.95 + keepNext now reaches 546 naturally and raises page content overlap to 52/546 pages >= 0.8 (mean 0.528). The dominant residual is Word line/text metrics and image/paragraph spacing around the architecture figures"
+  },
+  "implementation": {
+    "rowHeights": "parse w:trPr/w:trHeight w:val (twips -> px /15) per row into WordBlock.rowHeights and WordNestedTable.rowHeights",
+    "render": "tableTemplate applies [style.height.px] to <tr> and passes the sliced rowHeights for page table fragments and nested tables",
+    "effect": "same-index pages with Dice >= 0.8 rose 8 -> 11; page count remains 546 deterministic",
+    "tableStyleResolution": "resolveTableStyle now bases styled tables on the document default paragraph style instead of raw docDefaults, so cell paragraphs without direct size do not fall back to 12pt; this sample's tables have no tblStyle and already render 14pt, so the page metrics are unchanged",
+    "sectionGeometry": "blocks carry sectionIndex from paragraph-level sectPr; pagination switches contentHeight per section before creating the page; article width/min-height/padding come from the page section. Verified pages 544-545 render 1056x816 landscape and page 546 renders 816x1056 portrait, matching Word sections 4/5 at pages 544/546",
+    "keepNext": "parse w:keepNext from pPr and styles; pagination looks ahead to the next block height and moves the keepNext paragraph to a new page when the pair would overflow. This pulls the architecture headings/images together like Word and raises page overlap 44 -> 52/546",
+    "contextualSpacingExperiment": "ListParagraph carries w:contextualSpacing (Word suppresses space between same-style list items). Applying it removed the 10.7px after-space but dropped parity to 47-48/546 >= 0.8 (mean 0.505-0.507) after recalibration; the experiment was reverted",
+    "lineHeightExperiment": "Measurement showed web one-line paragraphs are 25.2px while computed line-height is 21.24px; the cause is CSS min-height 1.35em. Removing it and adding inline min-height=line-height plus contextual spacing (1/3 residual) dropped page count to 543 and parity to 41/546 (mean 0.505) even after table scale 1.353 restored 546 pages; reverted. The 25.2px line box currently compensates for missing image/paragraph spacing elsewhere, so changing it alone lowers parity",
+    "headerRepeatExperiment": "Root cause for the architecture page shift: Word repeats w:tblHeader rows on each page of a split table (services table on page 7 starts 286px down because the header repeats), while the web renderer does not. Implemented tblHeader parsing and repeated header rows in paginated fragments; the synthetic fragments destabilized settlement (127 -> 46 pages, settled false) because repeated headers were measured as new rows. Repeat was disabled and the build returned to 546/52 pages; the parser now records headerRows for a future stable implementation"
+  },
+  "checks": {
+    "qaPaginationTwice": "546 pages both loads, equalPageCount true, equalTableCount true, deterministic true, exceptions 0 (rowFlow default, no docProps target)",
+    "qaRealDoc": "546 pages / 999 rows, exceptions 0",
+    "smoke": "368 passed, 0 failed",
+    "uiBuild": "main.js 917.87 kB",
+    "mobileBuild": "complete",
+    "i18n": "web 3262 keys; mobile 1929 keys; all locales 100%",
+    "checkDocs": "32 markdown files / 396 links / 0 errors"
+  },
+  "wordPageMap": {
+    "method": "Word COM: per page GoTo(page) start char, containing paragraph index, offset inside that paragraph, and 50-char snippet; app paragraphs aligned by normalized text (4771/4776 non-empty Word paragraphs mapped to 4771 app units)",
+    "matchedPageStarts": 529,
+    "failedPageStarts": 16,
+    "breakKinds": { "paragraphStart": 29, "paragraphMid": 4, "rowStart": 36, "rowMid": 460 },
+    "midRowExamples": [
+      { "page": 27, "blockIndex": 392, "rowStart": 1, "charOffset": 62, "snippet": "nghệ mới, tối ưu cho hệ thống." },
+      { "page": 28, "blockIndex": 392, "rowStart": 3, "charOffset": 58, "snippet": "tối ưu cho hệ thống" },
+      { "page": 29, "blockIndex": 392, "rowStart": 4, "charOffset": 159, "snippet": "case kiểm chứng. Các tài liệu được rà soát, cập nh" },
+      { "page": 31, "blockIndex": 392, "rowStart": 7, "charOffset": 37, "snippet": "chuẩn công nghệ mới, tối ưu cho hệ thống" }
+    ],
+    "conclusion": "460 of 529 mapped breaks start inside a table row, not at a row boundary; the renderer only splits tables between rows, so a faithful Word map requires per-row vertical slicing across all cells (row splits) plus mid-paragraph slicing"
+  },
+  "openSourceReference": {
+    "project": "ONLYOFFICE sdkjs (AGPL), sparse checkout of word/Editor",
+    "files": [
+      "word/Editor/Table/TableRecalculate.js: CTable.prototype.private_RecalculatePage (line ~1997)",
+      "word/Editor/Table/TableRecalculate.js: cell content recalc + TableRowsBottom (line ~2884-2990)",
+      "word/Editor/Table/TableRecalculate.js: bNextPage / LastRowSplit / continue same row (line ~3034-3094)",
+      "word/Editor/Table.js: CanSplitRow / w:cantSplit handling",
+      "word/Editor/Paragraph.js: line spacing and line layout"
+    ],
+    "algorithm": "Each cell content is recalculated against the page Y limit; the row bottom is the max cell bottom on that page; when content exceeds the page, LastRowSplit is set and the same row continues on the next page; cells independently expose their per-page content bounds",
+    "attempt": "Two ports tried: (1) split from measured paragraph heights, (2) measured per-cell line offsets, rebuilt one-row fragments, and moved the settle signature to stored measurements so split fragments would not destabilize it. Isolated checks preserved all 300/600 test characters",
+    "result": "The pure kernel is stable: offline tests preserve all lines and are deterministic on 13 captured real tables. Integrated per-cell flow with paragraph metricScale 0.95, table line scale 1.348 and keepNext lookahead gives 546 pages without docProps target balancing; per-section page geometry renders pages 544-545 landscape and 546 portrait like Word. Dice >= 0.8 rises 11 -> 52/546 and mean Dice 0.435 -> 0.528. Per-page parity is improved but not yet 100%",
+    "next": "Port private_RecalculatePage together with its per-cell content/clip state instead of splitting rows from measured heights only"
+  },
+  "audit": {
+    "wordSections": [
+      { "index": 1, "startPage": 1, "sizePt": "612x792", "orientation": "portrait" },
+      { "index": 2, "startPage": 534, "sizePt": "612x792", "orientation": "portrait" },
+      { "index": 3, "startPage": 542, "sizePt": "612x792", "orientation": "portrait" },
+      { "index": 4, "startPage": 544, "sizePt": "792x612", "orientation": "landscape" },
+      { "index": 5, "startPage": 546, "sizePt": "612x792", "orientation": "portrait" }
+    ],
+    "tableMetrics": { "tcW": 5886, "gridSpan": 1, "vMerge": 4, "tblCellMarBlocks": 0 },
+    "wordGroups": "TR-S12-002 now records Word 20 full / 1 partial (W-A21 pagination: total page count matches, per-page layout does not) / 0 not done",
+    "otherApps": "the remaining 20 partial + 22 not-done groups in TR-S12-002 belong to Excel, PowerPoint, PDF and shell; they are outside the Word slice but mean overall Office-webapp parity is not 100%",
+    "acceptedGaps": [
+      "spellcheck/grammar rule-based instead of Microsoft Editor (accepted)",
+      "VBA macros cannot run in the browser (accepted, same as Word for the web)"
+    ]
+  },
+  "remaining": [
+    "Per-page content parity is 52/546 pages >= 0.8 with mean Dice 0.528; the remaining differences are Word line/text metrics and image/paragraph spacing",
+    "Forcing Word's page-break map would need mid-paragraph/mid-row slicing from a live Word instance, which the browser cannot obtain for arbitrary documents",
+    "Non-Word apps still have 20 partial and 22 not-done groups in TR-S12-002"
+  ]
+}

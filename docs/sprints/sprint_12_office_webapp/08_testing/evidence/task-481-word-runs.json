@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-16",
+  "scope": "Word font/run formatting, No Spacing, style preview, format painter",
+  "smoke": { "passed": 236, "failed": 0 },
+  "browser": {
+    "selectedText": "WebApp",
+    "partialRun": {
+      "office": { "weight": "400" },
+      "webApp": { "weight": "700", "size": "21px", "color": "rgb(255, 0, 0)", "background": "rgb(254, 240, 138)" }
+    },
+    "fontArialUnderline": { "family": "Arial, sans-serif", "textDecoration": "underline" },
+    "style": { "paragraph0": "NoSpacing", "preview": "NoSpacing" },
+    "formatPainter": {
+      "source": "WebApp run (bold/16pt/red/yellow)",
+      "target": "Kết luận paragraph",
+      "applied": { "weight": "700", "size": "21px", "color": "rgb(255, 0, 0)", "background": "rgb(254, 240, 138)" }
+    },
+    "clipboard": "permission blocked in automation; Ctrl+C/Ctrl+V fallback documented"
+  },
+  "savedFile": {
+    "path": "saved/sample-word-runs.docx",
+    "bytes": 1073,
+    "paragraph0": { "style": "NoSpacing" },
+    "paragraph1": {
+      "runs": [
+        { "text": "Office ", "bold": false },
+        { "text": "WebApp", "bold": true, "sizePt": 16, "color": "#FF0000", "highlight": "yellow" },
+        { "text": " đọc trực tiếp .docx trên trình duyệt, không upload nội dung lên máy chủ.", "bold": false }
+      ]
+    },
+    "paragraph2": { "text": "Tiếng Việt: ă â ê ô ơ ư đ — 0123456789", "font": "Arial", "italic": true, "underline": true },
+    "paragraph4": { "bold": true, "sizePt": 16, "color": "#FF0000", "highlight": "yellow" },
+    "rPrCount": 6,
+    "rFonts": ["Arial"],
+    "sizes": ["36", "32", "32"],
+    "colors": ["1F4E79", "FF0000", "FF0000"],
+    "highlights": ["yellow", "yellow"],
+    "noSpacingCount": 1
+  },
+  "screenshot": "unavailable — browser window not visible; DOM measurements and saved-file inspection used"
+}

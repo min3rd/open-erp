@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-16",
+  "scope": "Excel cell format, sort/find/filter, freeze panes",
+  "smoke": { "passed": 248, "failed": 0 },
+  "browser": {
+    "selectedCell": "B2",
+    "selectedValue": "120000000",
+    "format": { "bold": true, "fontColor": "#ff0000", "fill": "#ffff00", "align": "center", "border": true, "numberFormat": "#,##0" },
+    "freeze": { "topLeftCell": "B2", "row": 1, "col": 1 },
+    "sort": { "direction": "descending", "rows": [["Tổng", "270000000"], ["02/2026", "150000000"], ["01/2026", "120000000"]] },
+    "find": { "query": "Doanh thu", "matches": 1, "selected": "B1" },
+    "filter": { "column": "A", "value": "01/2026", "active": true }
+  },
+  "savedFile": {
+    "path": "saved/sample-excel-format.xlsx",
+    "bytes": 2217,
+    "freeze": { "row": 1, "col": 1 },
+    "pane": { "xSplit": "1", "ySplit": "1", "topLeftCell": "B2", "state": "frozen" },
+    "styledCells": [{
+      "ref": "B4",
+      "value": "120000000",
+      "styleIndex": 5,
+      "display": "120,000,000",
+      "style": {
+        "bold": true,
+        "color": "#FF0000",
+        "font": "Calibri",
+        "fill": "#FFFF00",
+        "border": true,
+        "numberFormat": "#,##0",
+        "align": "center"
+      }
+    }],
+    "rows": [["Tổng", "270000000"], ["02/2026", "150000000"], ["01/2026", "120,000,000"]],
+    "styles": { "fonts": 7, "fills": 6, "borders": 2, "xfs": 6 }
+  },
+  "screenshot": "unavailable — browser window not visible; DOM measurements and saved-file inspection used"
+}

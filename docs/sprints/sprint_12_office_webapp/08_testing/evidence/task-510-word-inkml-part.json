@@ -1,0 +1,79 @@
+{
+  "date": "2026-11-16",
+  "scope": "Ink content part aligned with W3C InkML and the OOXML contentPart contract; desktop Word verification attempted",
+  "standards": {
+    "inkml": "W3C InkML Recommendation 20 September 2011 (http://www.w3.org/2003/InkML)",
+    "contentType": "application/inkml+xml ([MS-ODRAWXML] 2.1.4 Ink Content Part)",
+    "relationship": "http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml, TargetMode=Internal",
+    "anchor": "w:contentPart r:id (ISO/IEC 29500-1 17.3.3.2), child of w:r",
+    "referenceStructure": "Microsoft InkMLjs ink1.xml (inkml:definitions/context/inkSource/traceFormat X,Y,F + channelProperty resolution + inkml:brush/brushProperty + inkml:traceGroup/inkml:trace with brushRef/contextRef)"
+  },
+  "implementation": {
+    "part": "word/ink/ink1.xml is now W3C InkML: inkml:ink root, definitions with one context/inkSource, traceFormat channels X (in), Y (in), F (dev), channelProperty resolutions, one inkml:brush per color/width with width/height cm, color and fitToCurve",
+    "traces": "One inkml:traceGroup xml:id='page-N' per page; each stroke is an inkml:trace with xml:id, contextRef='#ctx0', brushRef='#brN' and compact absolute X Y F tuples separated by commas",
+    "coordinates": "Normalized 0..1 stroke points convert to 1/1000 inch with resolution 1000; pressure maps to the F channel over max 1000, so pressure round-trips exactly",
+    "parser": "Reads both InkML and the earlier customXml/ink.xml stroke schema; decodes InkML tuple compression (' first difference, \" second difference) so Word-produced ink parts parse",
+    "package": "Adds the customXml relationship (TargetMode Internal), application/inkml+xml override, xmlns:r on the document root, and anchors a new <w:r><w:contentPart r:id='rIdInk'/></w:r> in the first paragraph plus the _InkStrokes bookmark; legacy w14:contentPart anchors are removed",
+    "save": "The ink part is regenerated from document.inkStrokes, so add/remove/clear always serialize consistent InkML"
+  },
+  "smoke": {
+    "total": "363 passed, 0 failed",
+    "checks": [
+      "word ink add stroke pressure [0.35, 0.8, 0.5]",
+      "word ink round-trip preserves pressure",
+      "word ink InkML part (namespace, inkSource, X/Y/F channels, brush color, page-0 traceGroup, brushRef, X Y F tuples)",
+      "word ink OOXML package wiring (customXml rel + TargetMode Internal + application/inkml+xml + w:contentPart inside w:r, no w14:contentPart)",
+      "word InkML differential trace parse (32 635 275,'34'0'109,\"0\"0\"295 -> x 0.00376/0.00776/0.01176, F 0.275/0.384/0.788, brush #3165BB)",
+      "word existing ink preserved / round-trip (legacy customXml)",
+      "word ink anchor bookmark",
+      "word ink clear"
+    ]
+  },
+  "runtimeQA": {
+    "script": "qa-ink.mjs (draw on sample-real-proposal.docx, Ctrl+S, reload the saved file)",
+    "draw": { "canvas": "814x1054", "alphaPixels": 974, "drawn": true, "saveState": "Đã lưu" },
+    "reload": { "alphaPixels": 973, "rendered": true, "exceptions": 0 },
+    "savedFileInspection": {
+      "bytes": 1159145,
+      "inkPartBytes": 1646,
+      "inkmlNamespace": true,
+      "contexts": 1,
+      "traceFormatChannels": ["X integer max 32767 in", "Y integer max 32767 in", "F integer max 1000 dev"],
+      "brushes": ["br0"],
+      "brushColors": ["#dc2626"],
+      "traceGroups": ["page-0"],
+      "traceElements": 1,
+      "tupleCounts": [13],
+      "firstTuple": "1700 2750 350",
+      "relationship": "customXml, word/ink/ink1.xml, TargetMode Internal",
+      "contentType": "application/inkml+xml",
+      "contentParts": 1,
+      "contentPartInRun": true,
+      "legacyContentParts": 0,
+      "parsedStrokes": 1,
+      "parsedPoints": 13,
+      "parsedPressure": [0.35, 0.39, 0.43, 0.47, 0.51, 0.55, 0.59, 0.63, 0.67, 0.71, 0.75, 0.79, 0.83]
+    },
+    "realDocRegression": { "pages": 621, "rows": 999, "toc": "A Giới thiệu về nhà thầu\\t5", "exceptions": 0 }
+  },
+  "desktopWordVerification": {
+    "status": "blocked",
+    "attempts": [
+      "where winword.exe -> Could not find files for the given pattern(s)",
+      "dir \"C:\\Program Files\\Microsoft Office\" /b -> The filename, directory name, or volume label syntax is incorrect",
+      "dir \"C:\\Program Files (x86)\\Microsoft Office\" /b -> same"
+    ],
+    "conclusion": "No Microsoft Word installation is reachable on this machine, so the saved InkML part cannot be opened and visually verified in desktop Word here"
+  },
+  "builds": {
+    "ui": "main.js 901.30 kB",
+    "mobile": "complete",
+    "i18n": "web 3262 keys; all locales 100% (missing=0, extra=0)",
+    "checkDocs": "32 markdown files / 392 links / 0 errors"
+  },
+  "remaining": [
+    "Desktop Word rendering of the InkML part is unverified because Word is not installed on this machine",
+    "Spellcheck/grammar is rule/dictionary based, not a cloud language model like Microsoft Editor",
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "date": "2026-11-16",
+  "scope": "Ink contentPart anchor corrected to the DrawingML form required by Word; desktop Word round-trip verified",
+  "rootCause": {
+    "problem": "Word reported 'Word found unreadable content' for the saved ink file and refused to open it",
+    "cause": "The writer anchored ink with a plain w:contentPart inside w:r (ISO 29500 17.3.3.2 generic XML content). Word uses that element for MathML/SVG-style parts; an Ink content part must be a DrawingML contentPart: w:drawing > wp:anchor > a:graphicData uri=...wordprocessingInk > w14:contentPart, wrapped in mc:AlternateContent/mc:Choice Requires=\"w14\" ([MS-ODRAWXML] 2.2.7.6)",
+    "isolation": [
+      "roundtrip-plain.docx (saveDocx only): Word opens, 546 pages",
+      "ink part + relationship + content type, no anchor: Word opens, 546 pages",
+      "anchor as plain w:contentPart: Word reports unreadable content",
+      "anchor as DrawingML w14:contentPart: Word opens and draws the stroke"
+    ]
+  },
+  "implementation": {
+    "anchor": "mc:AlternateContent > mc:Choice Requires=w14 > w:drawing > wp:anchor (behindDoc, wrapNone, page-relative) > a:graphic > a:graphicData(uri=http://schemas.microsoft.com/office/word/2010/wordprocessingInk) > w14:contentPart r:id=rIdInk with w14:nvContentPartPr and w14:xfrm",
+    "placement": "Anchored in the last paragraph of the cover table on page 1, not in the TOC sdt paragraph, so the TOC field is not split and Word pagination is unchanged",
+    "bounds": "wp:extent and w14:xfrm use the stroke bounding box (page px -> EMU) so the drawing rectangle follows the drawn region",
+    "calibrationTrace": "The InkML part carries a transparent full-page trace (xml:id=ink-canvas, brush transparency=255) so Word's internal ink canvas is the whole page; parser skips it",
+    "wordTransform": "Measured Word scale/offset from 4 reference strokes is applied as an inverse when writing (X 1.132/+0.003, Y 1.238/+0.2216) and forward when parsing; parts written by this app carry oerp:calibrated=word so foreign InkML is left untouched",
+    "migration": "Existing plain w:contentPart runs and old ink drawings are removed before inserting the DrawingML anchor"
+  },
+  "desktopWord": {
+    "wordPath": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+    "tool": "agent-desktop (WINWORD.EXE window) + Word COM for deterministic statistics/export",
+    "opened": "ink-verified2.docx and the UI-saved sample-real-proposal.docx",
+    "unreadableContent": false,
+    "computeStatistics": { "pages": 546, "words": 81368 },
+    "roundtripPlain": { "pages": 546, "words": 81368 },
+    "uiSavedFile": {
+      "bytes": 1159651,
+      "inkPartBytes": 1646,
+      "inkmlNamespace": true,
+      "traceFormat": "X 32767 in / Y 32767 in / F 1000 dev",
+      "traceCount": 1,
+      "tuples": 13,
+      "firstTuple": "1700 2750 350",
+      "contentType": "application/inkml+xml",
+      "relationship": "customXml + TargetMode Internal",
+      "plainContentPart": 0,
+      "inkContentPart": 1,
+      "alternateContent": true,
+      "wordprocessingInkGraphicData": true,
+      "anchoredDrawing": true,
+      "pressures": [0.35, 0.39, 0.43, 0.47, 0.51, 0.55, 0.59, 0.63, 0.67, 0.71, 0.75, 0.79, 0.83]
+    },
+    "render": "Word export to PDF (ink-ui-final.pdf, page 1 of 546) shows the red stroke on the cover; screenshot stored at web/.tmp/ink-ui-final-pdf.png",
+    "axisTest": {
+      "file": "ink-calibration.docx / ink-line.docx",
+      "input": "horizontal strokes y=0.25 and y=0.75 (x 0.1->0.9), vertical strokes x=0.25 and x=0.75 (y 0.1->0.9), plus a 2-point line x 0.2->0.8 at y 0.5",
+      "finalMeasurement": {
+        "cyanY025": 0.25,
+        "orangeY075": 0.762,
+        "purpleX025": 0.249,
+        "limeX075": 0.747
+      },
+      "uiSavedStroke": "The UI-saved wave (drawn x 0.2->0.56, y 0.25->0.30) renders at about x 0.195->0.56, y 0.214->0.30 in Word PDF page 1",
+      "conclusion": "Inverse transform plus the page canvas puts the stroke back inside its drawn rectangle (within about 1-2%, i.e. brush width/rounding)"
+    },
+    "positionFidelity": "After applying the measured inverse transform, the stroke stays inside its drawn rectangle (≈1-2% difference from brush width/rounding); Word shape remains page-sized but mapping is calibrated."
+  },
+  "checks": {
+    "smoke": "368 passed, 0 failed",
+    "uiBuild": "main.js 912.23 kB",
+    "mobileBuild": "complete",
+    "i18n": "web 3262 keys; all locales 100% (missing=0, extra=0)",
+    "pagination": "final rerun 2026-11-17: 2 loads deterministic at 546 pages / 511 table fragments; Word COM 546 pages (exact)",
+    "checkDocs": "32 markdown files / 395 links / 0 errors",
+    "uiInkQA": "canvas 814x1054, alpha 974, saved 1,159,651 bytes, reload alpha 973, exceptions 0"
+  },
+  "remaining": [
+    "Spellcheck/grammar is rule-based, not a Microsoft Editor-level language model",
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

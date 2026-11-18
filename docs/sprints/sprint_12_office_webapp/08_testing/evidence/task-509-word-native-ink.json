@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-16",
+  "scope": "Native stroke layer for ink: canvas rendering, pointer pressure, OOXML ink part, draw/save/reload QA",
+  "implementation": {
+    "rendering": "Per-page <canvas class='op-word-ink'> 2D stroke layer replaces the SVG polyline overlay; redraw scheduled from a signal effect; canvas sized to devicePixelRatio",
+    "pressure": "InkPoint gained pressure; pointer events with pointerType pen keep event.pressure (mouse defaults 0.5); stroke width = width * (0.35 + 0.65 * pressure) per segment",
+    "persistence": "Strokes are stored in word/ink/ink1.xml (xmlns ink = http://schemas.microsoft.com/office/ink/2010/main), relationship type .../relationships/ink, content type application/vnd.openxmlformats-officedocument.wordprocessingml.ink+xml, anchored with w14:contentPart r:id='rIdInk' plus the _InkStrokes bookmark",
+    "compatibility": "Legacy customXml/ink.xml is still read and saved in place; new documents use the OOXML ink part"
+  },
+  "smoke": {
+    "total": "361 passed, 0 failed",
+    "checks": [
+      "word ink add stroke pressure [0.35, 0.8, 0.5]",
+      "word ink round-trip preserves pressure",
+      "word ink OOXML part {part:441 bytes, rel:true, contentType:true}",
+      "word ink anchor bookmark",
+      "word ink clear",
+      "word existing ink preserved (legacy customXml)"
+    ]
+  },
+  "runtimeQA": {
+    "script": "qa-ink.mjs on sample-real-proposal.docx (draw pen stroke with pressure, Ctrl+S, reload saved file)",
+    "draw": {
+      "inkButton": true,
+      "inkActive": true,
+      "canvas": "814x1054",
+      "alphaPixels": 974,
+      "drawn": true,
+      "saveState": "Đã lưu"
+    },
+    "savedFile": {
+      "path": "temp/ink-downloads2/sample-real-proposal.docx",
+      "bytes": 1158939,
+      "inkPart": true,
+      "inkPartBytes": 1061,
+      "strokeElements": 1,
+      "pressureValues": ["0.350", "0.390", "0.430", "0.470", "0.510", "0.550", "0.590", "0.630", "0.670", "0.710", "0.750", "0.790", "0.830"],
+      "relInk": true,
+      "contentType": true,
+      "parsedStrokes": 1,
+      "parsedPoints": 13
+    },
+    "reload": {
+      "alphaPixels": 976,
+      "rendered": true,
+      "exceptions": 0
+    }
+  },
+  "builds": {
+    "ui": "main.js 897.35 kB",
+    "mobile": "complete",
+    "i18n": "web 3262 keys; all locales 100% (missing=0, extra=0)",
+    "checkDocs": "32 markdown files / 390 links / 0 errors"
+  },
+  "remaining": [
+    "The ink part is a dedicated OOXML part using the Microsoft ink namespace but not full InkML/Word ink markup; external Word may not render it",
+    "Spellcheck/grammar is rule/dictionary based, not a cloud language model like Microsoft Editor",
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-16",
+  "scope": "Automatic TOC page-number refresh after pagination settles (no Update TOC click)",
+  "implementation": {
+    "core": "syncTocPageNumbers rewrites the trailing page number of TOC1..TOC9 paragraphs in place, preserving styles, hyperlinks and field structure",
+    "matching": "TOC entry text is normalized and matched to headings by exact text or heading-text suffix, so numbering prefixes like 'A ', '1.1 ' do not break the match",
+    "trigger": "measureWordHeights calls refreshTocPagesAutomatically when the two-snapshot pagination settles (or hits the attempt cap); a page-map key guard prevents loops and re-renders once when a number changes",
+    "saving": "The model run and XML w:t are updated silently (no dirty flag for pagination-only TOC refresh), so a later save persists the refreshed numbers"
+  },
+  "smoke": {
+    "total": "360 passed, 0 failed",
+    "checks": [
+      "word toc auto page sync {text:'Chương A\\t5', changed:1, secondCall:0}",
+      "word toc auto page sync round-trip ['Chương A\\t5']"
+    ]
+  },
+  "runtimeQA": {
+    "script": "qa-toc-auto.mjs (opens sample-real-proposal.docx, waits for data-settled, never clicks Update TOC)",
+    "settled": true,
+    "pages": 621,
+    "entries": [
+      {
+        "tocText": "A Giới thiệu về nhà thầu 5",
+        "tocPage": 5,
+        "headingPage": 5,
+        "matched": true
+      },
+      {
+        "tocText": "1.1 Tầng giao diện (Presensation Layer) 8",
+        "cachedValue": 9,
+        "tocPage": 8,
+        "headingPage": 8,
+        "matched": true,
+        "autoUpdated": true
+      }
+    ],
+    "exceptions": 0
+  },
+  "builds": {
+    "ui": "main.js 894.00 kB",
+    "mobile": "complete",
+    "i18n": "web 3262 keys; all locales 100% (missing=0, extra=0)",
+    "checkDocs": "32 markdown files / 388 links / 0 errors"
+  },
+  "remaining": [
+    "Page-number refresh does not mark the document dirty (recalculated display state, not a user edit)",
+    "Spellcheck/grammar is rule/dictionary based, not a cloud language model like Microsoft Editor",
+    "Ink is rendered as an SVG overlay, not native ink",
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

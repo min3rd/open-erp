@@ -19,6 +19,7 @@
         <module>form</module>
         <module>workflow</module>
         <module>attendance</module>
+        <module>office-webapp</module>
     </modules>
 
     <properties>

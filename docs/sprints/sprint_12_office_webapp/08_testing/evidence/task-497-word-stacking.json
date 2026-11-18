@@ -1,0 +1,35 @@
+{
+  "date": "2026-11-16",
+  "scope": "Behind/front stacking, topAndBottom flow behavior and absolute y positioning for floats",
+  "implementation": {
+    "behind": "wp:wrapNone + behindDoc=1 → absolute overlay at left/top, z-index 0 (under body text which uses z-index 1)",
+    "front": "wp:wrapNone + behindDoc=0 → absolute overlay at left/top, z-index 3 (above body text)",
+    "topAndBottom": "in-flow block (clear: both) placed before the anchor block; occupies height so following text starts below",
+    "absoluteY": "wrap float gets margin-top = max(0, float.y - measured flow height before the anchor); verified at y=100"
+  },
+  "runtimeQA": {
+    "behind": { "z": "0", "top": 197, "position": "absolute" },
+    "front": { "z": "3", "top": 297, "position": "absolute" },
+    "topAndBottom": {
+      "blockCount": 1,
+      "display": "block",
+      "position": "relative",
+      "top": 389,
+      "bottom": 469,
+      "afterTop": 499,
+      "belowBlock": true
+    },
+    "wrapY": { "count": 1, "marginTop": "76px", "top": 197, "expectedTop": 196, "float": "left" },
+    "exceptions": 0
+  },
+  "smoke": "343 passed, 0 failed",
+  "builds": {
+    "ui": "main.js 874.17 kB",
+    "mobile": "complete",
+    "i18n": "web 3259 keys; all locales 100%",
+    "checkDocs": "32 markdown files / 369 links / 0 errors"
+  },
+  "remaining": [
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

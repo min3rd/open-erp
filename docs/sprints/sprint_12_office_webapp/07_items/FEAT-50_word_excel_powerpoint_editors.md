@@ -30,6 +30,8 @@ Triển khai 3 module trình soạn thảo/trình chiếu cốt lõi trên trìn
 | `TASK-474` | Trình soạn thảo Word Fixed `div.Page` & Xuất `.docx`/`.md`/Print-PDF | `Open` | `TASK-472`, `TASK-473` | [TASK-474](./TASK-474_word_fixed_page_ooxml_editor.md) |
 | `TASK-475` | Bảng tính Excel `<canvas>` Ảo hóa + Web Worker Formula Engine & Xuất `.xlsx`/`.csv` | `Open` | `TASK-472`, `TASK-473` | [TASK-475](./TASK-475_excel_canvas_grid_web_worker_calc.md) |
 | `TASK-476` | Trình chiếu PowerPoint Stage 16:9 `<canvas>` + `<svg>` Overlay & Fullscreen Slideshow | `Open` | `TASK-472`, `TASK-473` | [TASK-476](./TASK-476_powerpoint_stage_svg_overlay_slideshow.md) |
+| `TASK-520` | Sửa bảng Word: tab Bảng theo ngữ cảnh, chèn/xóa hàng cột, hàng tiêu đề, sửa chữ trong ô | `Done` (chờ QA) | `TASK-474` | [TASK-520](./TASK-520_word_table_editing_commands.md) |
+| `TASK-521` | Gộp ô và tách ô Word như Office 365: `w:gridSpan`/`w:vMerge`, chọn vùng ô, nhóm Merge trong tab Bảng | `Done` (chờ QA) | `TASK-520` | [TASK-521](./TASK-521_word_merged_cells.md) |
 
 ---
 

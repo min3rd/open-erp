@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-16",
+  "scope": "Real wpg:wgp floating-object grouping (replaces customXml/arrange.xml)",
+  "model": {
+    "WordGroup": "width, height, children[]",
+    "WordRun": "group?: WordGroup; groupOffset?: {x,y}; rotate?: number",
+    "parser": "parseGroup reads wpg:wgp, grpSpPr xfrm, child wps:wsp/pic:pic offsets and rotations",
+    "writer": "groupFloatingRuns emits one wp:anchor containing wpg:wgp; ungroupFloatingRun splits children back into individual anchors"
+  },
+  "runtimeQA": {
+    "afterInsert": 2,
+    "groupButton": true,
+    "afterGroup": 1,
+    "groupChildren": 2,
+    "groupSelected": true,
+    "ungroupButton": true,
+    "afterUngroup": 2,
+    "exceptions": 0
+  },
+  "smoke": {
+    "total": 342,
+    "failed": 0,
+    "checks": [
+      "word wpg grouping {children:2,wpg:1}",
+      "word wpg group round-trip {children:['Hộp nổi','Neo']}",
+      "word wpg ungroup positions 120,80 / 100,50"
+    ]
+  },
+  "builds": {
+    "ui": "main.js 867.60 kB",
+    "mobile": "complete",
+    "i18n": "web 3259 keys; all locales 100% (missing=0, extra=0)",
+    "checkDocs": "32 markdown files / 365 links / 0 errors"
+  },
+  "remaining": [
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

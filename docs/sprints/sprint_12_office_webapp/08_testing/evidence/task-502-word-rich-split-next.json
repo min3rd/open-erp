@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-16",
+  "scope": "Line-level split for rich paragraphs (image/textbox runs) and run-level NEXT inside one block",
+  "lineSplit": {
+    "implementation": "Every rendered run carries data-run-index; findRunSplitAt returns {runIndex, offset} using element rects for atomic runs (image/textbox) and per-character Range rects inside text runs; splitRunsAt rebuilds before/after run arrays preserving order",
+    "richParagraph": {
+      "sample": "crossing-rich.docx (inline textbox run inside the crossing paragraph)",
+      "inlineCount": 1,
+      "blockCount": 0,
+      "insideParagraph": "P",
+      "textboxInParagraph": true,
+      "textboxAfterInline": false,
+      "textboxTop": 156,
+      "inlineTop": 254,
+      "textPreserved": true
+    },
+    "plainParagraph": {
+      "sample": "crossing-sample.docx",
+      "inlineCount": 1,
+      "blockCount": 0,
+      "beforeLines": 9,
+      "afterLines": 9
+    },
+    "flowSlot": "Split target derives from natural flow slot (paragraph flow top + y offset), so block-float insertion no longer hides the crossing"
+  },
+  "mailMergeNext": {
+    "implementation": "finishMerge uses a MergeCursor per block for both the XML field results and the merged run model; a NEXT run/field advances the cursor immediately, so later runs in the same paragraph use the next record; parser now reads NEXT fldSimple and complex NEXT fields into mergeRule",
+    "smoke": {
+      "check": "word mail merge NEXT inside paragraph",
+      "runLevelText": "A An B Bình",
+      "blocks": 1,
+      "pageBreaks": 0,
+      "parsed": "[{\"text\":\"A \"},{\"text\":\"«Name»\",\"field\":\"Name\"},{\"text\":\"\",\"rule\":{\"kind\":\"next\"}},{\"text\":\" B \"},{\"text\":\"«Name»\",\"field\":\"Name\"}]",
+      "roundTrip": "A |An|| B |Bình"
+    }
+  },
+  "verification": {
+    "smoke": "347 passed, 0 failed",
+    "uiBuild": "main.js 881.44 kB",
+    "mobileBuild": "complete",
+    "i18n": "web 3261 keys; all locales 100% (missing=0, extra=0)",
+    "checkDocs": "32 markdown files / 381 links / 0 errors",
+    "realDoc": "132 DOM tables, 999 rows, 145 pages, TOC 'A Giới thiệu về nhà thầu\\t5', 0 exceptions"
+  },
+  "remaining": [
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-16",
+  "scope": "Word ribbon UI parity with Office 365 web: 9 tabs, 30 groups, 96 commands, 12 dropdowns, quick actions, mode switch, status bar",
+  "smoke": { "passed": 297, "failed": 0 },
+  "ribbon": {
+    "tabs": ["Trang chủ", "Chèn", "Vẽ", "Thiết kế", "Bố cục", "Tham chiếu", "Xem lại", "Xem", "Trợ giúp"],
+    "tabIds": ["home", "insert", "draw", "design", "layout", "references", "review", "view", "help"],
+    "groups": {
+      "home": ["clipboard", "font", "paragraph", "styles", "editing"],
+      "insert": ["pages", "tables", "illustrations", "media", "links", "comments", "headerFooter", "text"],
+      "draw": ["pens"],
+      "design": ["pageBackground"],
+      "layout": ["pageSetup", "breaks", "paragraphLayout"],
+      "references": ["toc", "notes", "citations", "captions"],
+      "review": ["proofing", "reviewComments", "tracking"],
+      "view": ["views", "show", "zoomGroup", "window"],
+      "help": ["helpGroup"]
+    },
+    "groupLabelsVi": {
+      "home": ["Bảng tạm", "Phông chữ", "Đoạn văn", "Kiểu", "Chỉnh sửa"],
+      "insert": ["Trang", "Bảng", "Hình ảnh", "Phương tiện", "Liên kết", "Bình luận", "Đầu trang & chân trang", "Văn bản"],
+      "layout": ["Cài đặt trang", "Ngắt", "Đoạn văn"],
+      "references": ["Mục lục", "Chú thích", "Trích dẫn", "Tiêu đề & tham chiếu"],
+      "review": ["Kiểm tra", "Bình luận", "Theo dõi"]
+    },
+    "commands": 96,
+    "dropdowns": ["fontName", "fontSize", "fontColor", "highlight", "style", "spacing", "margins", "orientation", "pageSize", "columns", "lineNumbers", "zoom"],
+    "modeSwitch": { "options": ["editing", "suggesting", "viewing"], "selected": "editing" },
+    "ribbonModes": { "classic": true, "single": true, "tabsOnly": true }
+  },
+  "browser": {
+    "bold": { "selected": "Office", "weightAfter": "700", "buttonActive": true },
+    "wordCount": ["Số trang 1", "Số từ 52", "Số ký tự 191", "Số đoạn 4"],
+    "insertTablePanel": true,
+    "helpShortcuts": 5,
+    "urlSync": ["?tab=home", "?tab=review", "?tab=help"],
+    "statusBar": "52 từ · Trang 1 / 1 · − 100% + A"
+  },
+  "layoutPersistence": {
+    "savedFile": "sample.docx",
+    "bytes": 959,
+    "sectPr": {
+      "orientation": "landscape",
+      "pageWidth": 16838,
+      "pageHeight": 11906,
+      "margins": { "top": 720, "right": 720, "bottom": 720, "left": 720 }
+    }
+  },
+  "mobile": {
+    "portrait390x844": { "scrollWidth": 375, "innerWidth": 390, "overflowX": -15, "smallTargets": [] },
+    "landscape844x390": { "scrollWidth": 829, "innerWidth": 844, "overflowX": -15, "smallTargets": [] }
+  },
+  "screenshot": "unavailable — browser window not visible; DOM measurements and saved-file inspection used"
+}

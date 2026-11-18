@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-16",
+  "scope": "Excel cell styles/accounting, CF manage/clear, name manager/protection, comments",
+  "smoke": { "passed": 274, "failed": 0 },
+  "browser": {
+    "cfManage": {
+      "created": "B2:B4 cellIs > 10",
+      "list": "B2:B4 cellIs · greaterThan · 10",
+      "clearAll": "Chưa có quy tắc",
+      "keptForFile": "B2:B4 cellIs > 10"
+    },
+    "cellStyle": { "accounting": "#,##0 \"₫\"", "preset": "Good", "display": "120,000,000 ₫" },
+    "names": [{ "name": "Scores", "formula": "Data!$B$2:$B$4" }],
+    "protection": { "sheet": true, "workbook": true },
+    "comment": { "cell": "A2", "author": "ERP User", "text": "Ghi chú A2" },
+    "activeButtons": ["Bảo vệ sheet", "Bảo vệ workbook"]
+  },
+  "savedFile": {
+    "path": "saved/sample-excel-advanced.xlsx",
+    "bytes": 4036,
+    "names": [{ "name": "Scores", "formula": "Data!$B$2:$B$4", "localSheetId": 0 }],
+    "workbookProtected": true,
+    "sheetProtection": { "sheet": "1", "objects": "1", "scenarios": "1" },
+    "comments": [{ "ref": "A2", "author": "ERP User", "text": "Ghi chú A2" }],
+    "commentParts": { "commentsBytes": 379, "vmlBytes": 997 },
+    "legacyDrawing": 1,
+    "cfRules": [{ "range": "B2:B4", "type": "cellIs", "operator": "greaterThan", "formulas": ["10", "0"] }],
+    "b2Style": {
+      "color": "#006100",
+      "fill": "#C6EFCE",
+      "numberFormat": "#,##0 \"₫\"",
+      "display": "120,000,000 ₫"
+    }
+  },
+  "screenshot": "unavailable — browser window not visible; DOM measurements and saved-file inspection used"
+}

@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-16",
+  "scope": "Excel insert/delete cells, AutoSum, clear, merge/wrap/indent, custom sort/reapply",
+  "smoke": { "passed": 262, "failed": 0 },
+  "browser": {
+    "autoSum": { "cell": "B5", "formula": "=SUM(B2:B4)", "value": "540000000" },
+    "wrapIndentValign": { "cell": "A2", "wrapText": true, "indent": 1, "verticalAlign": "middle" },
+    "mergeCenter": { "range": "A6:C6", "xmlMerge": "A6:C6" },
+    "customSort": { "keys": ["B asc", "A asc"], "rows": [["01/2026", "120000000"], ["02/2026", "150000000"], ["Tổng", "270000000"]] },
+    "reapply": true
+  },
+  "savedFile": {
+    "path": "saved/sample-excel-edit.xlsx",
+    "bytes": 2019,
+    "b5": { "value": "540000000", "formula": "=SUM(B2:B4)" },
+    "a2Style": { "font": "Calibri", "sizePt": 11, "verticalAlign": "middle", "wrapText": true, "indent": 1 },
+    "merges": ["A4:A4", "A6:C6"],
+    "xmlMerges": ["A4:A4", "A6:C6"],
+    "rows": [
+      ["01/2026", "120000000"],
+      ["02/2026", "150000000"],
+      ["Tổng", "270000000"],
+      ["", "540000000"],
+      ["", ""]
+    ],
+    "styles": { "fonts": 1, "fills": 2, "borders": 1, "xfs": 3 }
+  },
+  "screenshot": "unavailable — browser window not visible; DOM measurements and saved-file inspection used"
+}

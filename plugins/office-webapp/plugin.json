@@ -1,0 +1,821 @@
+{
+  "schema_version": "2.0",
+  "id": "office-webapp",
+  "name": "Office WebApp",
+  "description": "Đọc, sửa và lưu tệp Office (.docx, .xlsx, .pptx, .csv, .pdf) trực tiếp trên trình duyệt.",
+  "version": "1.0.0",
+  "template_version": "2.0.0",
+  "author": "Open-ERP Plugin Team",
+  "core_version_compatibility": ">=1.0.0 <2.0.0",
+  "migration_policy": "COMPATIBLE",
+  "rollback_strategy": "SNAPSHOT_RESTORE",
+  "dependencies": [],
+  "platforms": {
+    "desktop": {
+      "supported": true,
+      "features": [
+        "office:local:open",
+        "office:local:edit",
+        "office:erp:storage",
+        "office:export:all"
+      ]
+    },
+    "mobile": {
+      "supported": true,
+      "features": [
+        "office:local:view",
+        "office:erp:view",
+        "office:export:download"
+      ]
+    }
+  },
+  "permissions": [
+    {
+      "code": "office:document:read",
+      "name": "Office document read"
+    },
+    {
+      "code": "office:document:write",
+      "name": "Office document write"
+    },
+    {
+      "code": "office:document:delete",
+      "name": "Office document delete"
+    }
+  ],
+  "entities": [
+    {
+      "name": "OfficeDocument",
+      "table": "plg_office_documents",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "required": true,
+          "max_length": 255
+        },
+        {
+          "name": "original_filename",
+          "type": "string",
+          "required": true,
+          "max_length": 255
+        },
+        {
+          "name": "file_extension",
+          "type": "string",
+          "required": true,
+          "max_length": 16
+        },
+        {
+          "name": "doc_type",
+          "type": "enum",
+          "enum_values": [
+            "WORD",
+            "EXCEL",
+            "POWERPOINT",
+            "CSV",
+            "PDF"
+          ],
+          "required": true
+        },
+        {
+          "name": "mime_type",
+          "type": "string",
+          "required": true,
+          "max_length": 128
+        },
+        {
+          "name": "size_bytes",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "storage_key",
+          "type": "string",
+          "required": true,
+          "max_length": 512
+        },
+        {
+          "name": "checksum_sha256",
+          "type": "string",
+          "required": true,
+          "max_length": 64
+        },
+        {
+          "name": "current_version",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "enum_values": [
+            "ACTIVE",
+            "ARCHIVED",
+            "DELETED"
+          ],
+          "required": true
+        },
+        {
+          "name": "created_by",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "updated_by",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "required": false
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "required": false
+        },
+        {
+          "name": "deleted_at",
+          "type": "datetime",
+          "required": false
+        }
+      ],
+      "validators": [
+        {
+          "field": "title",
+          "rule": "max_length",
+          "value": 255
+        },
+        {
+          "field": "doc_type",
+          "rule": "enum",
+          "value": [
+            "WORD",
+            "EXCEL",
+            "POWERPOINT",
+            "CSV",
+            "PDF"
+          ]
+        },
+        {
+          "field": "status",
+          "rule": "enum",
+          "value": [
+            "ACTIVE",
+            "ARCHIVED",
+            "DELETED"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "OfficeDocumentVersion",
+      "table": "plg_office_document_versions",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "version_number",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "size_bytes",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "storage_key",
+          "type": "string",
+          "required": true,
+          "max_length": 512
+        },
+        {
+          "name": "checksum_sha256",
+          "type": "string",
+          "required": true,
+          "max_length": 64
+        },
+        {
+          "name": "change_note",
+          "type": "string",
+          "required": false,
+          "max_length": 255
+        },
+        {
+          "name": "created_by",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "required": false
+        }
+      ],
+      "validators": [
+        {
+          "field": "version_number",
+          "rule": "min",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "OfficeDocumentPermission",
+      "table": "plg_office_document_permissions",
+      "storage_scope": "TENANT",
+      "fields": [
+        {
+          "name": "tenant_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "subject_type",
+          "type": "enum",
+          "enum_values": [
+            "USER",
+            "ROLE"
+          ],
+          "required": true
+        },
+        {
+          "name": "subject_id",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "permission",
+          "type": "enum",
+          "enum_values": [
+            "READ",
+            "WRITE"
+          ],
+          "required": true
+        },
+        {
+          "name": "created_by",
+          "type": "uuid",
+          "required": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "required": false
+        }
+      ],
+      "validators": [
+        {
+          "field": "subject_type",
+          "rule": "enum",
+          "value": [
+            "USER",
+            "ROLE"
+          ]
+        },
+        {
+          "field": "permission",
+          "rule": "enum",
+          "value": [
+            "READ",
+            "WRITE"
+          ]
+        }
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "id": "office.document.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "OfficeDocument",
+      "tenant_scope": "TENANT",
+      "select": [
+        "tenant_id",
+        "title",
+        "original_filename",
+        "file_extension",
+        "doc_type",
+        "mime_type",
+        "size_bytes",
+        "storage_key",
+        "checksum_sha256",
+        "current_version",
+        "status",
+        "created_by",
+        "updated_by",
+        "created_at",
+        "updated_at",
+        "deleted_at"
+      ],
+      "sort": [
+        {
+          "field": "updated_at",
+          "direction": "DESC"
+        }
+      ],
+      "maxRows": 100
+    },
+    {
+      "id": "office.document.get",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "OfficeDocument",
+      "tenant_scope": "TENANT",
+      "select": [
+        "tenant_id",
+        "title",
+        "original_filename",
+        "file_extension",
+        "doc_type",
+        "mime_type",
+        "size_bytes",
+        "storage_key",
+        "checksum_sha256",
+        "current_version",
+        "status",
+        "created_by",
+        "updated_by",
+        "created_at",
+        "updated_at",
+        "deleted_at"
+      ],
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "office.document.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "OfficeDocument",
+      "tenant_scope": "TENANT",
+      "values": {
+        "title": {
+          "param": "title"
+        },
+        "original_filename": {
+          "param": "original_filename"
+        },
+        "file_extension": {
+          "param": "file_extension"
+        },
+        "doc_type": {
+          "param": "doc_type"
+        },
+        "mime_type": {
+          "param": "mime_type"
+        },
+        "size_bytes": {
+          "param": "size_bytes",
+          "optional": true
+        },
+        "storage_key": {
+          "param": "storage_key",
+          "optional": true
+        },
+        "checksum_sha256": {
+          "param": "checksum_sha256",
+          "optional": true
+        },
+        "current_version": {
+          "param": "current_version",
+          "optional": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        },
+        "created_by": {
+          "param": "created_by"
+        },
+        "updated_by": {
+          "param": "updated_by"
+        },
+        "created_at": {
+          "param": "created_at",
+          "optional": true
+        },
+        "updated_at": {
+          "param": "updated_at",
+          "optional": true
+        }
+      },
+      "returning": [
+        "tenant_id",
+        "title",
+        "original_filename",
+        "file_extension",
+        "doc_type",
+        "mime_type",
+        "size_bytes",
+        "storage_key",
+        "checksum_sha256",
+        "current_version",
+        "status",
+        "created_by",
+        "updated_by",
+        "created_at",
+        "updated_at",
+        "deleted_at"
+      ]
+    },
+    {
+      "id": "office.document.update",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "OfficeDocument",
+      "tenant_scope": "TENANT",
+      "values": {
+        "title": {
+          "param": "title",
+          "optional": true
+        },
+        "status": {
+          "param": "status",
+          "optional": true
+        },
+        "size_bytes": {
+          "param": "size_bytes",
+          "optional": true
+        },
+        "storage_key": {
+          "param": "storage_key",
+          "optional": true
+        },
+        "checksum_sha256": {
+          "param": "checksum_sha256",
+          "optional": true
+        },
+        "current_version": {
+          "param": "current_version",
+          "optional": true
+        },
+        "updated_by": {
+          "param": "updated_by"
+        },
+        "updated_at": {
+          "param": "updated_at"
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "tenant_id",
+        "title",
+        "original_filename",
+        "file_extension",
+        "doc_type",
+        "mime_type",
+        "size_bytes",
+        "storage_key",
+        "checksum_sha256",
+        "current_version",
+        "status",
+        "created_by",
+        "updated_by",
+        "created_at",
+        "updated_at",
+        "deleted_at"
+      ]
+    },
+    {
+      "id": "office.document.delete",
+      "mode": "WRITE",
+      "operation": "UPDATE",
+      "entity": "OfficeDocument",
+      "tenant_scope": "TENANT",
+      "values": {
+        "status": {
+          "param": "status"
+        },
+        "deleted_at": {
+          "param": "deleted_at"
+        },
+        "updated_by": {
+          "param": "updated_by"
+        },
+        "updated_at": {
+          "param": "updated_at"
+        }
+      },
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "tenant_id",
+        "title",
+        "original_filename",
+        "file_extension",
+        "doc_type",
+        "mime_type",
+        "size_bytes",
+        "storage_key",
+        "checksum_sha256",
+        "current_version",
+        "status",
+        "created_by",
+        "updated_by",
+        "created_at",
+        "updated_at",
+        "deleted_at"
+      ]
+    },
+    {
+      "id": "office.version.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "OfficeDocumentVersion",
+      "tenant_scope": "TENANT",
+      "select": [
+        "tenant_id",
+        "document_id",
+        "version_number",
+        "size_bytes",
+        "storage_key",
+        "checksum_sha256",
+        "change_note",
+        "created_by",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "document_id",
+          "op": "EQ",
+          "param": "document_id",
+          "required": true
+        }
+      ],
+      "sort": [
+        {
+          "field": "version_number",
+          "direction": "DESC"
+        }
+      ],
+      "maxRows": 100
+    },
+    {
+      "id": "office.version.get",
+      "mode": "READ",
+      "operation": "GET",
+      "entity": "OfficeDocumentVersion",
+      "tenant_scope": "TENANT",
+      "select": [
+        "tenant_id",
+        "document_id",
+        "version_number",
+        "size_bytes",
+        "storage_key",
+        "checksum_sha256",
+        "change_note",
+        "created_by",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "document_id",
+          "op": "EQ",
+          "param": "document_id",
+          "required": true
+        },
+        {
+          "field": "version_number",
+          "op": "EQ",
+          "param": "version_number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "office.version.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "OfficeDocumentVersion",
+      "tenant_scope": "TENANT",
+      "values": {
+        "document_id": {
+          "param": "document_id"
+        },
+        "version_number": {
+          "param": "version_number"
+        },
+        "size_bytes": {
+          "param": "size_bytes"
+        },
+        "storage_key": {
+          "param": "storage_key"
+        },
+        "checksum_sha256": {
+          "param": "checksum_sha256"
+        },
+        "change_note": {
+          "param": "change_note",
+          "optional": true,
+          "allow_null": true
+        },
+        "created_by": {
+          "param": "created_by"
+        },
+        "created_at": {
+          "param": "created_at",
+          "optional": true
+        }
+      },
+      "returning": [
+        "tenant_id",
+        "document_id",
+        "version_number",
+        "size_bytes",
+        "storage_key",
+        "checksum_sha256",
+        "change_note",
+        "created_by",
+        "created_at"
+      ]
+    },
+    {
+      "id": "office.permission.list",
+      "mode": "READ",
+      "operation": "LIST",
+      "entity": "OfficeDocumentPermission",
+      "tenant_scope": "TENANT",
+      "select": [
+        "tenant_id",
+        "document_id",
+        "subject_type",
+        "subject_id",
+        "permission",
+        "created_by",
+        "created_at"
+      ],
+      "filters": [
+        {
+          "field": "document_id",
+          "op": "EQ",
+          "param": "document_id",
+          "required": true
+        }
+      ],
+      "sort": [
+        {
+          "field": "created_at",
+          "direction": "ASC"
+        }
+      ],
+      "maxRows": 100
+    },
+    {
+      "id": "office.permission.insert",
+      "mode": "WRITE",
+      "operation": "INSERT",
+      "entity": "OfficeDocumentPermission",
+      "tenant_scope": "TENANT",
+      "values": {
+        "document_id": {
+          "param": "document_id"
+        },
+        "subject_type": {
+          "param": "subject_type"
+        },
+        "subject_id": {
+          "param": "subject_id"
+        },
+        "permission": {
+          "param": "permission"
+        },
+        "created_by": {
+          "param": "created_by"
+        },
+        "created_at": {
+          "param": "created_at",
+          "optional": true
+        }
+      },
+      "returning": [
+        "tenant_id",
+        "document_id",
+        "subject_type",
+        "subject_id",
+        "permission",
+        "created_by",
+        "created_at"
+      ]
+    },
+    {
+      "id": "office.permission.delete",
+      "mode": "WRITE",
+      "operation": "DELETE",
+      "entity": "OfficeDocumentPermission",
+      "tenant_scope": "TENANT",
+      "filters": [
+        {
+          "field": "id",
+          "op": "EQ",
+          "param": "id",
+          "required": true
+        },
+        {
+          "field": "document_id",
+          "op": "EQ",
+          "param": "document_id",
+          "required": true
+        }
+      ],
+      "returning": [
+        "id"
+      ]
+    }
+  ],
+  "migrations": [
+    {
+      "version": "1.0.0",
+      "file": "V1.0.0__office_documents.sql",
+      "checksum": "sha256:5e282cd83f442467ce70271b34c99ee628b3b83d497c70958d06b01c68bd8458",
+      "description": "office document metadata"
+    },
+    {
+      "version": "1.0.1",
+      "file": "V1.0.1__office_document_versions.sql",
+      "checksum": "sha256:75a10711cd12f017f5df89c5c7805fcf5cb6ae8fcb035e5f63c5f878a0e4267c",
+      "description": "office document versions"
+    },
+    {
+      "version": "1.0.2",
+      "file": "V1.0.2__office_document_permissions.sql",
+      "checksum": "sha256:cb393c9049af034fddb9b289600cf8a99d3eb5170f2632be3ea0e4939c1fcbe7",
+      "description": "office document ACL"
+    }
+  ],
+  "kafka_events": {
+    "publishes": [],
+    "subscribes": []
+  },
+  "websockets": [],
+  "ui_manifest": {
+    "contract_version": "1.0",
+    "screens": [
+      {
+        "route": "/apps/office",
+        "title_key": "PLUGIN_OFFICE_WEBAPP_MENU",
+        "permission": "office:document:read",
+        "render_mode": "WEB_COMPONENT",
+        "entry": "/plugins-runtime/office-webapp/main.js",
+        "tag_name": "op-office-webapp-app",
+        "order": 130,
+        "platforms": [
+          "desktop",
+          "mobile"
+        ]
+      }
+    ],
+    "contributions": [],
+    "slots": [],
+    "crud": []
+  },
+  "distribution": {
+    "type": "IMAGE_REGISTRY",
+    "registry_url": "",
+    "repository": "open-erp/office-webapp",
+    "tag": "1.0.0"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-17",
+  "scope": "Grammar expansion (uncountable nouns, comparatives, extra prepositions/classifiers) verified in the UI; pagination re-measured",
+  "implementation": {
+    "spelling": "Uncountable plurals map to singular: advices, informations, equipments, softwares, staffs, researches, feedbacks, knowledges, furnitures, luggages, baggages, homeworks, traffics, evidences, trainings, progresses",
+    "comparatives": "more better/better, more easier, more faster, more bigger, more worse, most easiest, most fastest, most best",
+    "prepositions": "depend from, afraid from, different than, superior/inferior than, married with, despite of",
+    "numberAgreement": "uncountable subjects (information, advice, equipment, software, research, feedback, knowledge, furniture, luggage, baggage, homework, traffic, evidence, training, progress) + are -> is",
+    "vietnamese": "một cái + person noun -> một + person noun (alongside những/các cái)",
+    "marker": "InkML parts written by this app carry oerp:calibrated=word so the Word scale/offset inverse is applied only to our parts"
+  },
+  "uiQA": {
+    "script": "qa-grammar.mjs (Review > Spelling, click Sửa until empty) on grammar-sample.docx",
+    "initialCount": 9,
+    "initialSuggestions": [
+      "Ngữ pháp: He go → He goes",
+      "Ngữ pháp: report are → report is",
+      "Ngữ pháp: a apple → an apple",
+      "Ngữ pháp: depend of → depend on",
+      "Ngữ pháp: Những cái người → Những người",
+      "Chính tả: advices → advice",
+      "Ngữ pháp: despite of → despite",
+      "Ngữ pháp: more better → better",
+      "Ngữ pháp: information are → information is"
+    ],
+    "applied": 9,
+    "remaining": 0,
+    "after": [
+      "The report is ready. He goes to work every day. This is an apple. We depend on the supplier.",
+      "Những người này làm việc tốt.",
+      "This is better. He gave advice. We went despite the rain.",
+      "The information is useful."
+    ],
+    "exceptions": 0
+  },
+  "smoke": {
+    "total": "368 passed, 0 failed",
+    "checks": [
+      "word grammar Editor uncountable/comparative [advice, information is, better]",
+      "word grammar Editor rules/apply/no residual/round-trip (existing)"
+    ]
+  },
+  "pagination": {
+    "uiScript": "qa-pagination-twice.mjs",
+    "result": "546 pages / 511 table fragments, 2 loads identical, deterministic true, exceptions 0",
+    "word": "546 pages / 81.368 words (Word COM)",
+    "delta": "0 pages total: docProps/app.xml Pages target (546); per-cell table flow (metric 0.95 + table scale 1.348 + keepNext) reaches 546 naturally, per-section geometry renders landscape pages 544-545, mean Dice 0.558, 72/546 pages >= 0.8 on the final editor build (block-boundary-separated page text) — see task-514/task-515",
+    "finalRerun": "qa-pagination-twice 546 pages, both loads identical (equalPageCount/equalTableCount true), exceptions 0; qa-real-doc 546 pages / 999 rows; page map: TOC pages 2-3, heading page 4 same as Word",
+    "lineSpacingFactor": 1.054,
+    "paragraphMetricScale": 0.99
+  },
+  "builds": {
+    "ui": "main.js 917.75 kB",
+    "mobile": "complete",
+    "i18n": "web 3262 keys; all locales 100% (missing=0, extra=0)",
+    "checkDocs": "32 markdown files / 395 links / 0 errors"
+  },
+  "acceptedGaps": [
+    "Spellcheck/grammar is an offline rule/dictionary engine, not Microsoft Editor (accepted by the user)",
+    "VBA macros cannot run in the browser (accepted, same as Word for the web)"
+  ],
+  "remaining": [
+    "Macros disabled (accepted)"
+  ]
+}

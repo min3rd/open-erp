@@ -1918,5 +1918,14 @@
   "attendance.kiosk.branch_hn": "Chi nhánh Hà Nội",
   "attendance.kiosk.branch_hcm": "Chi nhánh TP. Hồ Chí Minh",
   "attendance.kiosk.branch_bd": "Nhà máy Sản xuất Bình Dương",
-  "attendance.kiosk.branch_notice": "Chỉ nhân viên thuộc chi nhánh này được hiển thị nhằm bảo mật danh tính tuyệt đối."
+  "attendance.kiosk.branch_notice": "Chỉ nhân viên thuộc chi nhánh này được hiển thị nhằm bảo mật danh tính tuyệt đối.",
+  "office.viewer.title": "Xem tài liệu Office",
+  "office.viewer.open": "Mở tệp",
+  "office.viewer.download": "Tải xuống",
+  "office.viewer.hint": "Chọn tệp .docx, .xlsx, .pptx hoặc .pdf để xem trên thiết bị",
+  "office.viewer.openFailed": "Không mở được tệp",
+  "office.viewer.dismiss": "Bỏ qua",
+  "office.viewer.loading": "Đang tải tài liệu",
+  "office.viewer.loadingHint": "Đang lấy nội dung từ ERP…",
+  "office.viewer.erpSource": "Nguồn ERP"
 }

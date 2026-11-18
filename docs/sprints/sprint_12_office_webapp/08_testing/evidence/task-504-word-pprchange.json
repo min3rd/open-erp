@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-16",
+  "scope": "Tracked paragraph-property revisions (w:pPrChange): accept, reject, model sync and UI",
+  "implementation": {
+    "parse": "listRevisions already enumerates w:pPrChange/w:rPrChange as format revisions; text now shows the affected paragraph/run text instead of a technical node name",
+    "reject": "restoreFormat replaces current pPr children with the historical w:pPr inside pPrChange, then syncParagraphModel re-reads style/heading/align/indent/lineSpacing/shading/borders/list state into the WordParagraph model so the UI updates without reload",
+    "accept": "pPrChange is removed, current properties stay, model is re-synced",
+    "markup": "paragraphHasRevision now detects pPrChange/rPrChange, so format-only revisions show the change bar; markup 'all' paragraph block also renders text-align/shading like the normal block"
+  },
+  "smoke": {
+    "total": "351 passed, 0 failed",
+    "checks": [
+      "pPrChange parsed as format revision {align:'left', revision text 'Định dạng đoạn'}",
+      "pPrChange reject restores paragraph format {align:'center', indent:720}",
+      "pPrChange reject round-trip {align:'center'}",
+      "pPrChange accept keeps current format {align:'left'}"
+    ]
+  },
+  "runtimeQA": {
+    "sample": "pPrChange-sample.docx (current left, pPrChange stores old center + indent 720)",
+    "opened": true,
+    "before": { "align": "left", "markupBar": true },
+    "revisionCount": 1,
+    "revisionType": "format",
+    "revisionText": "Đoạn có thay đổi định dạng",
+    "rejectClicked": true,
+    "after": { "align": "center", "markupBar": false },
+    "remainingCards": 0,
+    "exceptions": 0
+  },
+  "builds": {
+    "ui": "main.js 882.45 kB",
+    "mobile": "complete",
+    "i18n": "web 3261 keys; all locales 100% (missing=0, extra=0)",
+    "checkDocs": "32 markdown files / 383 links / 0 errors"
+  },
+  "remaining": [
+    "Spellcheck/grammar is a local rule set, not Microsoft Editor parity",
+    "Ink is rendered as an SVG overlay, not native ink",
+    "Real-document page count varies 145-147 between loads because heights are measured asynchronously",
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

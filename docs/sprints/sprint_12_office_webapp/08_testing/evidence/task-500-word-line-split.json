@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-16",
+  "scope": "Line-level paragraph split around a topAndBottom y",
+  "implementation": {
+    "split": "Every rendered run carries data-run-index; measureInlineFloatSplits maps the float y to the natural flow slot of a paragraph, then findRunSplitAt returns {runIndex, offset} using element rects for atomic runs and per-character Range rects inside text runs",
+    "render": "runs before the split, inline float block, then runs after; paragraph remains a single editable block",
+    "fallback": "paragraphs containing images/text boxes/video/page breaks fall back to block-boundary exclusion"
+  },
+  "runtimeQA": {
+    "inlineCount": 1,
+    "blockCount": 0,
+    "insideParagraph": "P",
+    "inlineTop": 182,
+    "inlineBottom": 262,
+    "beforeLines": 9,
+    "afterLines": 9,
+    "exceptions": 0
+  },
+  "smoke": "344 passed, 0 failed",
+  "builds": {
+    "ui": "main.js 881.43 kB",
+    "mobile": "complete",
+    "i18n": "web 3261 keys; all locales 100%",
+    "checkDocs": "32 markdown files / 375 links / 0 errors"
+  },
+  "remaining": [
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

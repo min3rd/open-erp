@@ -1,0 +1,71 @@
+{
+  "date": "2026-11-16",
+  "scope": "Editor-style grammar rules (subject-verb agreement, articles, prepositions, Vietnamese classifiers) with false-positive guards",
+  "implementation": {
+    "subjectVerb": "he/she/it + base verb (74 common verbs) -> third-person form derived by rule (have->has, be->is, do->does, go->goes, -s/-es/-ies)",
+    "numberAgreement": "plural technical subjects (reports/documents/users/systems/...) + is -> are; singular subject + are -> is",
+    "articles": "a/an chosen by vowel sound with exception lists (a university/user/one, an hour/honest/heir)",
+    "prepositions": "depend of->depend on, responsible of->responsible for, interested on->interested in, discuss/explain about, capable to, concentrate in, in Monday->on Monday; replacement keeps capitalization",
+    "vietnameseClassifiers": "những/các + cái + person noun -> drop cái; những/các + một/mỗi/từng -> drop the quantifier; một + những/các -> một",
+    "languageGuard": "paragraphs containing Vietnamese characters skip English-only rules (subject-verb/number/articles/prepositions) to avoid cross-language false positives",
+    "repeatedWords": "Unicode lookaround boundaries replace \\b so 'ng' inside 'Những người' is not a repeat; Vietnamese paragraphs skip the repeated-word rule to avoid reduplicative false positives (song song, thành phần phần mềm, Phân vùng Vùng)",
+    "sentenceCase": "only capitalizes after . ! ? inside a paragraph, requires a following letter, keeps the abbreviation guard"
+  },
+  "smoke": {
+    "total": "367 passed, 0 failed",
+    "checks": [
+      "word grammar Editor rules [He goes, report is, an apple, depend on, Những người]",
+      "word grammar Editor apply {english: 'The report is ready. He goes to work every day. This is an apple. We depend on the supplier.', vietnamese: 'Những người này làm việc tốt.'}",
+      "word grammar Editor no residual []",
+      "word grammar Editor round-trip (save + reparse keeps both corrected paragraphs)",
+      "word real proposal spellcheck {issues: 2, kinds: {repeated: 0, missed: 0, grammar: 2}, spellMs: 57}"
+    ]
+  },
+  "runtimeQA": {
+    "script": "qa-grammar.mjs on grammar-sample.docx (Review > Spelling, click Sửa until no issues)",
+    "initialCount": 5,
+    "initialSuggestions": [
+      "Ngữ pháp: He go → He goes",
+      "Ngữ pháp: report are → report is",
+      "Ngữ pháp: a apple → an apple",
+      "Ngữ pháp: depend of → depend on",
+      "Ngữ pháp: Những cái người → Những người"
+    ],
+    "applied": 5,
+    "remaining": 0,
+    "after": [
+      "The report is ready. He goes to work every day. This is an apple. We depend on the supplier.",
+      "Những người này làm việc tốt."
+    ],
+    "exceptions": 0
+  },
+  "realDocument": {
+    "file": "sample-real-proposal.docx",
+    "issuesBeforeRules": 114,
+    "issuesAfterRules": 2,
+    "details": [
+      "paragraph 106: 'CBCCVC:quản lý' missing space after colon",
+      "paragraph 373: double space before 'Vì vậy'"
+    ],
+    "falsePositiveFixes": [
+      "an toàn was flagged as article 'an' + Vietnamese word (now skipped by language guard)",
+      "c c / T T repeats inside Vietnamese words (now skipped, repeated rule uses Unicode boundaries)",
+      "song song / thành phần phần mềm / Phân vùng Vùng reduplication (now skipped in Vietnamese paragraphs)"
+    ],
+    "elapsedMs": 57
+  },
+  "builds": {
+    "ui": "main.js 904.95 kB",
+    "mobile": "complete",
+    "i18n": "web 3262 keys; all locales 100% (missing=0, extra=0)",
+    "checkDocs": "32 markdown files / 393 links / 0 errors"
+  },
+  "blocked": {
+    "desktopWordVerification": "No Microsoft Word installation is reachable on this machine (where winword.exe fails), so the saved InkML stroke still cannot be opened in desktop Word here; requires the user to open the saved file or provide a Word environment"
+  },
+  "remaining": [
+    "Grammar is rule-based, not a cloud language model like Microsoft Editor (no full Vietnamese lexicon/language model)",
+    "Desktop Word rendering of the InkML part unverified (Word not installed)",
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-16",
+  "scope": "Deterministic pagination: convergence on two identical height snapshots + stable table column widths",
+  "implementation": {
+    "convergence": "measureWordHeights builds a snapshot of paragraph heights and per-table-row heights; pagination is considered final after two consecutive identical snapshots, otherwise it re-measures (cap 20 passes). Stage exposes data-settled/data-measure-attempts for QA",
+    "tableSignature": "Rows are grouped per table block before comparing snapshots, so page fragmentation boundaries cannot change the signature",
+    "fixedTableLayout": "w:tblGrid is parsed into percentage column widths, rendered as <colgroup>, and .op-word-table uses table-layout: fixed; column widths no longer vary per page fragment (the main source of row-height oscillation)",
+    "nestedTables": "Nested tables no longer inherit data-block, so row measurement/pagination only sees top-level table rows"
+  },
+  "runtimeQA": {
+    "script": "qa-pagination-twice.mjs (loads sample-real-proposal.docx twice in fresh pages and waits for data-settled)",
+    "first": { "settled": true, "settleMs": 4043, "pages": 269, "tableFragments": 254 },
+    "second": { "settled": true, "settleMs": 4199, "pages": 269, "tableFragments": 254 },
+    "equalPageCount": true,
+    "equalTableCount": true,
+    "deterministic": true,
+    "exceptions": 0,
+    "realDoc": {
+      "pages": 269,
+      "tableFragments": 254,
+      "rows": 999,
+      "domNodes": 41671,
+      "toc": "A Giới thiệu về nhà thầu\\t5",
+      "wordAppXmlPages": 546,
+      "note": "Word metadata reports 546 pages; honoring w:tblGrid moved the renderer from 144-145 to 269 stable pages, closer to Word than before"
+    }
+  },
+  "smoke": "351 passed, 0 failed",
+  "builds": {
+    "ui": "main.js 883.63 kB",
+    "mobile": "complete",
+    "i18n": "web 3261 keys; all locales 100% (missing=0, extra=0)",
+    "checkDocs": "32 markdown files / 384 links / 0 errors"
+  },
+  "remaining": [
+    "Page count 269 vs Word 546 still differs because fonts/line spacing/paragraph spacing are approximated",
+    "Spellcheck/grammar is a local rule set, not Microsoft Editor parity",
+    "Ink is rendered as an SVG overlay, not native ink",
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

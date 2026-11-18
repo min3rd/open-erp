@@ -1,0 +1,29 @@
+Office WebApp — E2E multipart through gRPC gateway contract + PostgreSQL
+Date: 2026-11-16
+
+Test: OfficeDocumentResourceGatewayTest (@QuarkusTest, TestProfile)
+Path: HTTP POST/PUT/GET /api/v1/office/documents -> OfficeDocumentService ->
+      PluginDataClient (gRPC, real channel) -> in-process PluginDataService
+      contract server -> real PostgreSQL (schema office_e2e_<random>)
+
+Config overrides: plugin.data.gateway-url=http://localhost:19090 (plaintext),
+office.document.storage-dir=<temp>, MinIO disabled, migrations V1.0.0–V1.0.2 applied.
+
+Flow verified:
+1. POST /documents {title, originalFilename, fileExtension, docType} -> 200 OFFICE_DOCUMENT_CREATED;
+   row inserted through gRPC office.document.insert.
+2. PUT /documents/{id}/content multipart file (PK docx bytes) + expected_version=1 + change_note
+   -> 200 OFFICE_DOCUMENT_SAVED, currentVersion=2, sizeBytes=22, checksumSha256 matches.
+3. GET /documents/{id}/content -> 200, X-Document-Version: 2, bytes identical.
+4. PostgreSQL check: plg_office_document_versions has version 2, size 22, same checksum,
+   storage_key <tenant>/office/<doc>/v2_<name>.
+
+Result: Tests run: 1, Failures: 0, Errors: 0, Skipped: 0.
+Note: gRPC server is an in-process implementation of the core PluginDataService contract
+backed by real PostgreSQL; the core gateway implementation is covered by
+src/backend PluginDataGatewayTest. This test exercises the exact gRPC wire contract,
+the plugin's real PluginDataClient, and the real HTTP multipart endpoint.
+
+Full backend suite (with PostgreSQL up, MinIO stopped):
+  Tests run: 13, Failures: 0, Errors: 0, Skipped: 0
+  BUILD SUCCESS

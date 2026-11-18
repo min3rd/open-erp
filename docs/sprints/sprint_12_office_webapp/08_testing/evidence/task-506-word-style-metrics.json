@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-16",
+  "scope": "Word style metrics (styles.xml docDefaults, paragraph/table styles, page margins) applied to layout and pagination",
+  "implementation": {
+    "styles": "word-styles.ts parses w:docDefaults and paragraph/table styles with basedOn chains into resolved font size, font family, line spacing, space before/after, alignment and indent",
+    "paragraphs": "parseParagraph resolves the paragraph style (default Normal) and merges table-style metrics for cell paragraphs; direct pPr/rPr still wins",
+    "tableStyles": "Tables read w:tblStyle (TableGrid etc.); TableGrid resolves to 10pt Times, single line (1.0 x 1.15), space-after 0",
+    "lineHeight": "Word auto line spacing (w:line/240 of single) is rendered as multiplier x 1.15 single-line factor",
+    "margins": "w:pgMar is parsed into pageMargins and used for pagination content height and page padding; real doc top 96 / bottom 66.2 / left 96 / right 60",
+    "tables": "w:tblGrid fixes column widths (from earlier task) and cell vertical padding is 0"
+  },
+  "resolvedMetrics": {
+    "docDefaults": { "fontSizePt": 12, "font": "Times New Roman" },
+    "Normal": { "fontSizePt": 14, "align": "justify", "spaceAfterPx": 10.67, "lineSpacing": 1.24104 },
+    "Heading1": { "fontSizePt": 16, "spaceBeforePx": 16, "spaceAfterPx": 8 },
+    "TableGrid": { "fontSizePt": 10, "spaceAfterPx": 0, "lineSpacing": 1.15 }
+  },
+  "runtimeQA": {
+    "script": "qa-pagination-twice.mjs (two fresh loads, waits for data-settled)",
+    "first": { "settled": true, "settleMs": 5104, "pages": 621, "tableFragments": 598 },
+    "second": { "settled": true, "settleMs": 5193, "pages": 621, "tableFragments": 598 },
+    "equalPageCount": true,
+    "equalTableCount": true,
+    "deterministic": true,
+    "exceptions": 0,
+    "realDoc": {
+      "pages": 621,
+      "rows": 999,
+      "domNodes": 47232,
+      "toc": "A Giới thiệu về nhà thầu\\t5",
+      "exceptions": 0
+    },
+    "wordMetadata": {
+      "appXmlPages": 546,
+      "appXmlWords": 56519,
+      "parsedWords": 82025,
+      "note": "app.xml page/word metadata is stale (56,519 vs 82,025 words), so 546 is not a baseline for the current content; 621 is the modeled deterministic count"
+    }
+  },
+  "smoke": "355 passed, 0 failed",
+  "builds": {
+    "ui": "main.js 887.83 kB",
+    "mobile": "complete",
+    "i18n": "web 3261 keys; all locales 100% (missing=0, extra=0)",
+    "checkDocs": "32 markdown files / 385 links / 0 errors"
+  },
+  "remaining": [
+    "Word app.xml metadata is stale, so exact page parity cannot be validated against it",
+    "Spellcheck/grammar is a local rule set, not Microsoft Editor parity",
+    "Ink is rendered as an SVG overlay, not native ink",
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

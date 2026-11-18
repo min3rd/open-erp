@@ -1,0 +1,39 @@
+Office WebApp — PostgreSQL + MinIO integration evidence
+Date: 2026-11-16
+Baseline: 00a1539e + working tree
+
+Environment
+- PostgreSQL: openerp-postgres-primary, postgres:16-alpine, localhost:5432/openerp_dev
+- MinIO: openerp-minio, pgsty/minio RELEASE.2026-08-04, http://localhost:9000, bucket tenant-files
+- Credentials from docker-compose.yml; MinIO started with profile "storage", stopped after the run.
+
+PostgreSQL test (OfficeDocumentServicePostgresTest)
+- Creates a throwaway schema office_it_<random>, applies migrations V1.0.0–V1.0.2, drops schema afterwards.
+- Uses JdbcPluginDataClient (real JDBC) behind the real OfficeDocumentService.
+- Covers: create, list, get, update title/status, upload v2 + checksum, download v2/v3, version list,
+  version conflict (409 OFFICE_VERSION_CONFLICT), share READ/WRITE, ACL read/write enforcement,
+  cross-tenant isolation (404), revoke permission, soft delete.
+- Result: Tests run: 1, Failures: 0, Errors: 0, Skipped: 0.
+- Observed: POSTGRES_IT_OK document=<uuid> version=2 bytes=22 checksum=6dbd47a9... versions=1
+
+MinIO test (OfficeBlobStoreMinioTest)
+- Health check GET /minio/health/live -> 200; bucket tenant-files created/verified via SigV4 PUT.
+- put v1 -> key <tenant>/office/<doc>/v1_report.docx, SHA-256 asserted, get returns same bytes.
+- put v2 -> distinct storage key; get v1 and v2 both return their own bytes.
+- Cleanup: DELETE v1/v2 objects.
+- Result: Tests run: 1, Failures: 0, Errors: 0, Skipped: 0.
+- Observed: MINIO_IT_OK key=<tenant>/office/<doc>/v1_report.docx bytes=15 checksum=70c1d4ea...(sha256)
+  (command: mvn -f plugins/pom.xml -pl office-webapp -am test -Dtest=OfficeBlobStoreMinioTest
+   -Dsurefire.failIfNoSpecifiedTests=false -> BUILD SUCCESS)
+
+Full backend suite
+- Command: npm run office:server:test
+- Result: Tests run: 13, Failures: 0, Errors: 0, Skipped: 0
+- BUILD SUCCESS
+- Note: MinIO test runs when http://localhost:9000 is reachable, otherwise the test class is aborted (skipped);
+  PostgreSQL test falls back to skip when the DB is unreachable.
+
+Fixed during this block
+- OfficeBlobStore no longer sets the restricted Host header in java.net.http (MinIO path previously failed
+  with "restricted header name: Host"); Host is set automatically by HttpClient and remains in the SigV4
+  canonical request.

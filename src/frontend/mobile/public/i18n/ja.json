@@ -1918,5 +1918,14 @@
   "attendance.kiosk.branch_hn": "ハノイ拠点",
   "attendance.kiosk.branch_hcm": "ホーチミン拠点",
   "attendance.kiosk.branch_bd": "ビンズオン製造工場",
-  "attendance.kiosk.branch_notice": "プライバシーと個人情報保護のため、当拠点の所属従業員のみ表示されます。"
+  "attendance.kiosk.branch_notice": "プライバシーと個人情報保護のため、当拠点の所属従業員のみ表示されます。",
+  "office.viewer.title": "Office document viewer",
+  "office.viewer.open": "Open file",
+  "office.viewer.download": "Download",
+  "office.viewer.hint": "Pick a .docx, .xlsx, .pptx or .pdf file to view on this device",
+  "office.viewer.openFailed": "Could not open the file",
+  "office.viewer.dismiss": "Dismiss",
+  "office.viewer.loading": "Loading document",
+  "office.viewer.loadingHint": "Fetching content from ERP…",
+  "office.viewer.erpSource": "ERP source"
 }

@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-18",
+  "scope": "Word merged cells (w:gridSpan / w:vMerge): read, draw and edit them the way Office 365 Word does",
+  "reference": {
+    "word": "Office 365 Word table Layout tab: Merge group (Merge Cells, Split Cells), cell runs selected by dragging or Shift+click",
+    "gapBefore": "The parser treated every w:tc as its own cell, so a w:gridSpan cell drew as several cells and a w:vMerge restart/continue pair drew as a stacked cell plus an empty one. The Table tab had no Merge/Split commands.",
+    "sample": "plugins/office-webapp/web/samples/sample-merged-cells.docx (3x3 table, one w:vMerge pair) + sample-real-proposal.docx (546 pages, 1 w:gridSpan cell and 2 w:vMerge pairs in its 839-row table)"
+  },
+  "changes": {
+    "model": "types.ts: WordCellSpan { colSpan?, vMerge? } and WordBlock.cellSpans / WordNestedTable.cellSpans",
+    "parse": "docx.ts + word-tables.ts readTableSpans: every w:tcPr w:gridSpan (>=2) and w:vMerge (val=restart or bare = continue)",
+    "render": "office-webapp.component.html: <td colspan/rowspan> from tableCellLayout; continue cells of a vertical merge are not drawn; a page fragment that starts inside a merge draws the continue cell as a normal cell so no content is lost",
+    "commands": "word-tables.ts: mergeTableCells (rectangular run -> one cell, w:gridSpan + w:vMerge restart/continue, text joined in the first cell), splitTableCells (rows x columns, default 1x1 = unmerge), grid-aware insertTableColumn/deleteTableColumn (a merged cell is one column boundary, w:tcW follows gridSpan)",
+    "ui": "word-ribbon.ts: new Merge group with tableMergeCells / tableSplitCells and two Fluent icons; component: wordCellSelection signal, drag (mousedown/mousemove) and Shift+click selection, .op-word-cell-selected highlight, Split Cells panel with rows/columns inputs",
+    "measurement": "office-webapp.component.ts: the per-cell line measurement keys cells by td data-cell instead of DOM order, because hiding the continue cells shifted every cell of that row",
+    "i18n": "office.rb.group.tableMerge, office.word.table.mergeCells, office.word.table.splitCells, office.word.table.splitCellsHint, office.word.table.split in all 13 web locales and the plugin bundle",
+    "sample": "web/scripts/make-merged-cells-sample.mts writes samples/sample-merged-cells.docx for the QA probe"
+  },
+  "probes": {
+    "parseAndDraw": "sample-merged-cells.docx: row 2 cell 'Tall' renders rowspan=2; the two rows below it show only their own cells (Three, Four) - text is not shifted",
+    "selection": "mouse drag from row 0 cell 0 to row 0 cell 1: 2 td carry .op-word-cell-selected",
+    "merge": "click Gộp ô in the Table tab: row 0 becomes 2 td, first with colspan=2 and text 'Alpha Beta'",
+    "split": "click Tách ô: the Split Cells panel opens with the 1x1 default; applying it turns the merged cell back into a normal cell (no colspan)",
+    "realDoc": "sample-real-proposal.docx: 546 pages, 4 td[rowspan=2] (2 merges seen in the page fragments) and 2 td[colspan=6], 0 console errors",
+    "measurementFix": "before the data-cell fix the same probe read row 2 as 'Thre' / '' because the measurement indexed cells by DOM order"
+  },
+  "verification": {
+    "smoke": "394 passed, 0 failed (npm run office:test)",
+    "uiBuild": "npm run office:ui:build - main.js 994.88 kB, styles.css 146.45 kB",
+    "i18n": "web 3285 keys, all 13 locales 100% strict parity; mobile 100%",
+    "screenshot": "docs/sprints/sprint_12_office_webapp/08_testing/evidence/word-merged-cells.png (merged 'Tall' cell, Table tab with the Merge group)",
+    "console": "0 exceptions, 0 console errors during load, selection, merge and split"
+  },
+  "remaining": [
+    "Cells of a row split across pages stay read-only (slice-to-paragraph-range map still missing)",
+    "Merging a cell that holds a nested table is refused because the model cannot move the nested table yet; Word allows it",
+    "No full Table Properties dialog (cell margins, typed table width, borders) and no Split Table command yet",
+    "W-A21 page-level layout is unchanged: total pages match Word (546), per-row page starts still drift (task-514)"
+  ]
+}

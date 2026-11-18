@@ -1,0 +1,45 @@
+{
+  "route": "/office/viewer?docId=doc1&version=2",
+  "mode": "mobile ERP docId",
+  "harness": "iframe 390x844 same-origin dev server, mock API http://localhost:8099",
+  "date": "2026-11-16",
+  "cases": {
+    "docx": {
+      "docId": "doc1",
+      "version": 2,
+      "title": "sample.docx",
+      "erpBadge": "Nguồn ERP · v2",
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "overflowX": 0,
+      "buttons": 4,
+      "smallTargets": [],
+      "error": null
+    },
+    "xlsx": {
+      "docId": "doc2",
+      "version": 1,
+      "title": "sample.xlsx",
+      "erpBadge": "Nguồn ERP · v1",
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "overflowX": 0,
+      "buttons": 6,
+      "smallTargets": [],
+      "error": null
+    },
+    "missing": {
+      "docId": "missing-doc",
+      "error": "OFFICE_ERP_NOT_FOUND"
+    }
+  },
+  "download": {
+    "fileName": "sample.docx",
+    "originalBytes": 895,
+    "downloadedBytes": 895,
+    "originalSha256": "5b425e779a88b8dadeaf15715393d9065749c2df10954776dcb0b9ead8e62d75",
+    "downloadedSha256": "5b425e779a88b8dadeaf15715393d9065749c2df10954776dcb0b9ead8e62d75",
+    "byteIdentical": true
+  },
+  "notes": "Dev apiBaseUrl temporarily pointed at mock 8099 for the test, then restored to 8088. Production bundle uses environment.production apiBaseUrl."
+}

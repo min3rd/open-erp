@@ -1,0 +1,2938 @@
+<div class="op-office-root">
+  <header class="op-titlebar">
+    <div class="op-title-left">
+      <button type="button" class="op-icon-btn" [title]="'office.action.close' | translate" (click)="closeDocument()" [disabled]="!doc()">
+        <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      </button>
+      @if (app() === 'word' && doc()) {
+        <button type="button" class="op-icon-btn" [title]="'office.word.undo' | translate" (click)="runWordCommand('undo')">
+          <svg viewBox="0 0 20 20" aria-hidden="true">
+            @for (path of ribbonIcon('undo'); track $index) { <path [attr.d]="path" fill="currentColor" /> }
+          </svg>
+        </button>
+        <button type="button" class="op-icon-btn" [title]="'office.word.redo' | translate" (click)="runWordCommand('redo')">
+          <svg viewBox="0 0 20 20" aria-hidden="true">
+            @for (path of ribbonIcon('redo'); track $index) { <path [attr.d]="path" fill="currentColor" /> }
+          </svg>
+        </button>
+      }
+      <span class="op-app-badge" [attr.data-app]="app() ?? 'none'">
+        @switch (app()) {
+          @case ('word') { W }
+          @case ('excel') { X }
+          @case ('ppt') { P }
+          @case ('pdf') { D }
+          @default { O }
+        }
+      </span>
+      <span class="op-file-name">{{ doc()?.fileName ?? ('office.app.title' | translate) }}</span>
+      <span class="op-save-state">{{ (doc() ? (dirty() ? 'office.status.unsaved' : 'office.status.saved') : 'office.status.empty') | translate }}</span>
+    </div>
+    <div class="op-title-center">
+      <input class="op-command-search" type="search" [placeholder]="'office.search.placeholder' | translate" [disabled]="!doc()" />
+    </div>
+    <div class="op-title-right">
+      <button type="button" class="op-text-btn" (click)="toggleInfo()" [disabled]="!doc()">{{ 'office.action.info' | translate }}</button>
+    </div>
+  </header>
+
+  @if (doc()) {
+    <nav class="op-tabstrip" role="tablist">
+      <div class="op-tabs">
+        <button type="button" class="op-file-tab" (click)="toggleFileMenu()">{{ 'office.menu.file' | translate }}</button>
+        @for (tab of tabs(); track tab) {
+          <button type="button" role="tab" class="op-tab" [class.op-tab-active]="activeTab() === tab" (click)="setTab(tab)">
+            {{ ('office.ribbon.' + tab) | translate }}
+          </button>
+        }
+      </div>
+      <div class="op-tabstrip-right">
+        @if (app() === 'word') {
+          <select class="op-mode-select" [value]="activeWordMode()" (change)="setWordMode($any($event.target).value)"
+                  [title]="'office.rb.mode' | translate" [attr.aria-label]="'office.rb.mode' | translate">
+            <option value="editing">{{ 'office.mode.editing' | translate }}</option>
+            <option value="suggesting">{{ 'office.rb.suggesting' | translate }}</option>
+            <option value="viewing">{{ 'office.rb.viewing' | translate }}</option>
+          </select>
+          <button type="button" class="op-text-btn" (click)="openSharePanel()" [disabled]="!erpDocId()">{{ 'office.rb.share' | translate }}</button>
+          <button type="button" class="op-text-btn" [class.op-ribbon-active]="commentsOpen()" (click)="toggleComments()">{{ 'office.comments.title' | translate }}</button>
+          <button type="button" class="op-icon-btn" (click)="cycleRibbonMode()" [title]="'office.rb.ribbonMode' | translate"
+                  [attr.aria-label]="'office.rb.ribbonMode' | translate">
+            <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          </button>
+        } @else {
+          <span class="op-mode">{{ 'office.mode.editing' | translate }}</span>
+        }
+      </div>
+    </nav>
+
+    @if (fileMenuOpen()) {
+      <div class="op-file-menu" role="menu">
+        <div class="op-file-menu-head">{{ doc()?.fileName }}</div>
+        <button type="button" role="menuitem" (click)="newDocument('word')">{{ 'office.menu.newWord' | translate }}</button>
+        <button type="button" role="menuitem" (click)="newDocument('excel')">{{ 'office.menu.newExcel' | translate }}</button>
+        <button type="button" role="menuitem" (click)="newDocument('ppt')">{{ 'office.menu.newPpt' | translate }}</button>
+        <div class="op-menu-sep"></div>
+        <button type="button" role="menuitem" (click)="pickFile()">{{ 'office.menu.open' | translate }}</button>
+        <button type="button" role="menuitem" (click)="openErpPanel()">{{ 'office.menu.openErp' | translate }}</button>
+        <button type="button" role="menuitem" (click)="saveToErp()" [disabled]="!doc() || erpBusy()">{{ 'office.menu.saveErp' | translate }}</button>
+        <button type="button" role="menuitem" (click)="openSharePanel()" [disabled]="!erpDocId()">{{ 'office.menu.share' | translate }}</button>
+        <button type="button" role="menuitem" (click)="save()" [disabled]="!buffers() || saving()">{{ 'office.menu.save' | translate }}</button>
+        <button type="button" role="menuitem" (click)="exportOriginal()" [disabled]="!buffers()">{{ 'office.menu.export' | translate }}</button>
+        <button type="button" role="menuitem" (click)="print()">{{ 'office.menu.print' | translate }}</button>
+        <div class="op-menu-sep"></div>
+        <button type="button" role="menuitem" (click)="toggleInfo()">{{ 'office.menu.info' | translate }}</button>
+      </div>
+    }
+
+    @if (app() === 'word') {
+      <div class="op-ribbon op-ribbon-word" [class.op-ribbon-single]="ribbonMode() === 'single'"
+           [class.op-ribbon-tabs-only]="ribbonMode() === 'tabs'" role="toolbar">
+        @if (ribbonMode() !== 'tabs') {
+          @for (group of wordRibbonGroups(); track group.id) {
+            <div class="op-rb-group" [attr.data-group]="group.id">
+              <div class="op-rb-group-body">
+                @for (item of group.items; track item.id) {
+                  @switch (item.id) {
+                    @case ('fontName') {
+                      <select class="op-rb-select" [value]="currentWordFont()" (change)="setWordFont($any($event.target).value)"
+                              [title]="'office.rb.fontName' | translate" [attr.aria-label]="'office.rb.fontName' | translate">
+                        @for (font of wordFonts; track font) { <option [value]="font">{{ font }}</option> }
+                      </select>
+                    }
+                    @case ('fontSize') {
+                      <select class="op-rb-select op-rb-size" [value]="currentWordFontSize()" (change)="setWordFontSize(+$any($event.target).value)"
+                              [title]="'office.rb.fontSize' | translate" [attr.aria-label]="'office.rb.fontSize' | translate">
+                        @for (size of wordFontSizes; track size) { <option [value]="size">{{ size }}</option> }
+                      </select>
+                    }
+                    @case ('fontColor') {
+                      <label class="op-rb-color" [title]="'office.rb.fontColor' | translate">
+                        <span class="op-rb-glyph" [style.border-bottom-color]="currentWordColor()">A</span>
+                        <input type="color" [value]="currentWordColor()" (input)="setWordColor($any($event.target).value)" />
+                      </label>
+                    }
+                    @case ('highlight') {
+                      <select class="op-rb-select" [value]="currentWordHighlight()" (change)="setWordHighlight($any($event.target).value)"
+                              [title]="'office.word.highlight' | translate" [attr.aria-label]="'office.word.highlight' | translate">
+                        @for (color of wordHighlights; track color) {
+                          <option [value]="color">{{ ('office.word.highlight.' + color) | translate }}</option>
+                        }
+                      </select>
+                    }
+                    @case ('shading') {
+                      <label class="op-rb-color" [title]="'office.rb.shading' | translate">
+                        <svg class="op-rb-icon" viewBox="0 0 20 20" aria-hidden="true">
+                          @for (path of ribbonIcon('shading'); track $index) {
+                            <path [attr.d]="path" fill="currentColor" />
+                          }
+                        </svg>
+                        <input type="color" [value]="currentParagraphShading()" (input)="applyParagraphShading($any($event.target).value)" />
+                      </label>
+                    }
+                    @case ('style') {
+                      @if (ribbonMode() === 'single') {
+                        <div class="op-rb-style-buttons">
+                          @for (option of wordStyleOptions.slice(0, 3); track option.value) {
+                            <button type="button" class="op-rb-style-text"
+                                    [class.op-rb-active]="currentWordStyle() === option.value"
+                                    [title]="option.labelKey | translate"
+                                    (click)="setWordStyle(option.value)">{{ option.labelKey | translate }}</button>
+                          }
+                          <select class="op-rb-select op-rb-style-more" [value]="currentWordStyle()"
+                                  (change)="setWordStyle($any($event.target).value)"
+                                  [title]="'office.word.style' | translate" [attr.aria-label]="'office.word.style' | translate">
+                            @for (option of wordStyleOptions; track option.value) {
+                              <option [value]="option.value">{{ option.labelKey | translate }}</option>
+                            }
+                          </select>
+                        </div>
+                      } @else {
+                        <div class="op-rb-styles">
+                          @for (option of wordStyleOptions.slice(0, 4); track option.value) {
+                            <button type="button" class="op-rb-style-card"
+                                    [class.op-rb-active]="currentWordStyle() === option.value"
+                                    [title]="option.labelKey | translate"
+                                    (click)="setWordStyle(option.value)">
+                              <span class="op-rb-style-preview">Aa</span>
+                              <span class="op-rb-style-name">{{ option.labelKey | translate }}</span>
+                            </button>
+                          }
+                          <select class="op-rb-select op-rb-style-more" [value]="currentWordStyle()"
+                                  (change)="setWordStyle($any($event.target).value)"
+                                  [title]="'office.word.style' | translate" [attr.aria-label]="'office.word.style' | translate">
+                            @for (option of wordStyleOptions; track option.value) {
+                              <option [value]="option.value">{{ option.labelKey | translate }}</option>
+                            }
+                          </select>
+                        </div>
+                      }
+                    }
+                    @case ('spacing') {
+                      <select class="op-rb-select" [value]="selectedWordParagraph()?.lineSpacing ?? 1"
+                              (change)="setWordLineSpacing(+$any($event.target).value)"
+                              [title]="'office.word.lineSpacing' | translate" [attr.aria-label]="'office.word.lineSpacing' | translate">
+                        @for (value of [1, 1.15, 1.5, 2]; track value) { <option [value]="value">{{ value }}</option> }
+                      </select>
+                    }
+                    @case ('margins') {
+                      <select class="op-rb-select" [value]="pageMargin()" (change)="applyWordMargins($any($event.target).value)"
+                              [title]="'office.rb.margins' | translate" [attr.aria-label]="'office.rb.margins' | translate">
+                        <option value="normal">{{ 'office.rb.margin.normal' | translate }}</option>
+                        <option value="narrow">{{ 'office.rb.margin.narrow' | translate }}</option>
+                        <option value="wide">{{ 'office.rb.margin.wide' | translate }}</option>
+                      </select>
+                    }
+                    @case ('orientation') {
+                      <select class="op-rb-select" [value]="pageOrientation()" (change)="applyWordOrientation($any($event.target).value)"
+                              [title]="'office.rb.orientation' | translate" [attr.aria-label]="'office.rb.orientation' | translate">
+                        <option value="portrait">{{ 'office.rb.portrait' | translate }}</option>
+                        <option value="landscape">{{ 'office.rb.landscape' | translate }}</option>
+                      </select>
+                    }
+                    @case ('pageSize') {
+                      <select class="op-rb-select" [value]="pageSize()" (change)="applyWordPageSize($any($event.target).value)"
+                              [title]="'office.rb.pageSize' | translate" [attr.aria-label]="'office.rb.pageSize' | translate">
+                        <option value="A4">A4</option>
+                        <option value="Letter">Letter</option>
+                      </select>
+                    }
+                    @case ('columns') {
+                      <select class="op-rb-select op-rb-size" [value]="columnCount()" (change)="applyWordColumns(+$any($event.target).value)"
+                              [title]="'office.rb.columns' | translate" [attr.aria-label]="'office.rb.columns' | translate">
+                        @for (count of [1, 2, 3]; track count) { <option [value]="count">{{ count }}</option> }
+                      </select>
+                    }
+                    @case ('lineNumbers') {
+                      <select class="op-rb-select" [value]="lineNumberingMode()" (change)="applyWordLineNumbers($any($event.target).value)"
+                              [title]="'office.word.lineNumbers' | translate" [attr.aria-label]="'office.word.lineNumbers' | translate">
+                        <option value="off">{{ 'office.word.lineNumbers.off' | translate }}</option>
+                        <option value="continuous">{{ 'office.word.lineNumbers.continuous' | translate }}</option>
+                        <option value="newPage">{{ 'office.word.lineNumbers.newPage' | translate }}</option>
+                        <option value="newSection">{{ 'office.word.lineNumbers.newSection' | translate }}</option>
+                      </select>
+                    }
+                    @case ('zoom') {
+                      <select class="op-rb-select" [value]="zoom()" (change)="setWordZoom(+$any($event.target).value)"
+                              [title]="'office.status.zoom' | translate" [attr.aria-label]="'office.status.zoom' | translate">
+                        @for (value of [50, 75, 100, 125, 150, 200]; track value) { <option [value]="value">{{ value }}%</option> }
+                      </select>
+                    }
+                    @default {
+                      <button type="button" class="op-rb" [class.op-rb-large]="item.large"
+                              [class.op-rb-compact]="item.compact"
+                              [class.op-rb-active]="wordCommandActive(item.id)"
+                              [disabled]="item.disabled || wordCommandDisabled(item.id)"
+                              [title]="item.hintKey ? (item.hintKey | translate) : (item.labelKey | translate)"
+                              (click)="runWordCommand(item.id)">
+                        @if ((item.large || item.compact) && ribbonIcon(item.id).length) {
+                          <svg class="op-rb-icon" viewBox="0 0 20 20" aria-hidden="true">
+                            @for (path of ribbonIcon(item.id); track $index) {
+                              <path [attr.d]="path" fill="currentColor" />
+                            }
+                          </svg>
+                        }
+                        @if (item.glyph) { <span class="op-rb-glyph">{{ item.glyph }}</span> }
+                        @if (!item.compact) { <span class="op-rb-label">{{ item.labelKey | translate }}</span> }
+                      </button>
+                    }
+                  }
+                }
+              </div>
+              <div class="op-rb-group-label">{{ group.labelKey | translate }}</div>
+            </div>
+          }
+        }
+      </div>
+      <input #wordImageInput type="file" accept="image/*" class="op-hidden-input" (change)="onWordImagePicked($event)" />
+    } @else {
+      <div class="op-ribbon" role="toolbar">
+        <div class="op-ribbon-group">
+          <button type="button" class="op-ribbon-btn" (click)="pickFile()">{{ 'office.action.open' | translate }}</button>
+          <button type="button" class="op-ribbon-btn" (click)="save()" [disabled]="!buffers() || saving()">{{ 'office.action.save' | translate }}</button>
+          <button type="button" class="op-ribbon-btn" (click)="exportOriginal()" [disabled]="!buffers()">{{ 'office.action.export' | translate }}</button>
+          <button type="button" class="op-ribbon-btn" (click)="print()">{{ 'office.action.print' | translate }}</button>
+          @if (app() === 'ppt') {
+            <button type="button" class="op-ribbon-btn" (click)="present()">{{ 'office.action.present' | translate }}</button>
+            <button type="button" class="op-ribbon-btn" (click)="addPptSlide()">{{ 'office.ppt.addSlide' | translate }}</button>
+            <button type="button" class="op-ribbon-btn" (click)="duplicatePptSlide()">{{ 'office.ppt.duplicateSlide' | translate }}</button>
+            <button type="button" class="op-ribbon-btn" (click)="deletePptSlide()">{{ 'office.ppt.deleteSlide' | translate }}</button>
+            <button type="button" class="op-ribbon-btn" (click)="togglePptHidden()">{{ currentSlide()?.hidden ? ('office.ppt.showSlide' | translate) : ('office.ppt.hideSlide' | translate) }}</button>
+            <button type="button" class="op-ribbon-btn" (click)="movePptSlide(-1)" [disabled]="selectedSlide() === 0">‹</button>
+            <button type="button" class="op-ribbon-btn" (click)="movePptSlide(1)" [disabled]="selectedSlide() >= ppt()!.slides.length - 1">›</button>
+            <button type="button" class="op-ribbon-btn" [class.op-ribbon-active]="pptNotesOpen()" (click)="togglePptNotes()">{{ 'office.ppt.notes' | translate }}</button>
+            <button type="button" class="op-ribbon-btn" [class.op-ribbon-active]="pptCommentsOpen()" (click)="togglePptComments()">{{ 'office.ppt.comments' | translate }} ({{ slideComments().length }})</button>
+            <button type="button" class="op-ribbon-btn" [class.op-ribbon-active]="pptSetupOpen()" (click)="togglePptSetup()">{{ 'office.ppt.setup' | translate }}</button>
+            <button type="button" class="op-ribbon-btn" [class.op-ribbon-active]="pptEffectsOpen()" (click)="togglePptEffects()">{{ 'office.ppt.effects' | translate }}</button>
+          }
+        </div>
+        <div class="op-ribbon-group">
+          <span class="op-ribbon-label">{{ 'office.status.zoom' | translate }}</span>
+          <button type="button" class="op-ribbon-btn op-zoom-btn" (click)="zoomBy(-10)">−</button>
+          <span class="op-zoom-value">{{ zoom() }}%</span>
+          <button type="button" class="op-ribbon-btn op-zoom-btn" (click)="zoomBy(10)">+</button>
+        </div>
+        @if (app() === 'excel') {
+          <div class="op-ribbon-group">
+            <button type="button" class="op-ribbon-btn" [class.op-ribbon-active]="chartOpen()" (click)="toggleChart()">{{ 'office.ribbon.chart' | translate }}</button>
+            <button type="button" class="op-ribbon-btn" [class.op-ribbon-active]="pivotOpen()" (click)="togglePivot()">{{ 'office.ribbon.pivot' | translate }}</button>
+            <button type="button" class="op-ribbon-btn" [class.op-ribbon-active]="cfOpen()" (click)="toggleCf()">{{ 'office.ribbon.cf' | translate }}</button>
+            <button type="button" class="op-ribbon-btn" [class.op-ribbon-active]="dvOpen()" (click)="toggleDv()">{{ 'office.ribbon.dv' | translate }}</button>
+            <button type="button" class="op-ribbon-btn" [class.op-ribbon-active]="tableOpen()" (click)="toggleTable()">{{ 'office.ribbon.table' | translate }}</button>
+            <button type="button" class="op-ribbon-btn" [class.op-ribbon-active]="excelFormatOpen()" (click)="toggleExcelFormat()">{{ 'office.excel.formatCell' | translate }}</button>
+            <button type="button" class="op-ribbon-btn" [class.op-ribbon-active]="excelDataOpen()" (click)="toggleExcelData()">{{ 'office.excel.dataTools' | translate }}</button>
+          </div>
+        }
+        <div class="op-ribbon-spacer"></div>
+        <span class="op-ribbon-hint">{{ ('office.ribbon.' + activeTab()) | translate }}</span>
+      </div>
+    }
+  }
+
+  <main class="op-workspace">
+    @if (error()) {
+      <div class="op-error" role="alert">
+        <span>{{ 'office.error.openFailed' | translate }}</span>
+        <code>{{ error() }}</code>
+        <button type="button" class="op-text-btn" (click)="error.set(null)">{{ 'office.action.dismiss' | translate }}</button>
+      </div>
+    }
+
+    @if (!doc()) {
+      <section class="op-start" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+        <div class="op-start-head">
+          <h1>{{ 'office.workspace.title' | translate }}</h1>
+          <p>{{ 'office.workspace.hint' | translate }}</p>
+          <button type="button" class="op-primary" (click)="pickFile()">{{ 'office.action.openLocal' | translate }}</button>
+        </div>
+        <div class="op-app-grid">
+          <button type="button" class="op-app-card" (click)="newDocument('word')">
+            <span class="op-app-letter" data-app="word">W</span>
+            <span class="op-app-name">{{ 'office.app.word' | translate }}</span>
+            <span class="op-app-desc">.docx</span>
+          </button>
+          <button type="button" class="op-app-card" (click)="newDocument('excel')">
+            <span class="op-app-letter" data-app="excel">X</span>
+            <span class="op-app-name">{{ 'office.app.excel' | translate }}</span>
+            <span class="op-app-desc">.xlsx .csv</span>
+          </button>
+          <button type="button" class="op-app-card" (click)="newDocument('ppt')">
+            <span class="op-app-letter" data-app="ppt">P</span>
+            <span class="op-app-name">{{ 'office.app.ppt' | translate }}</span>
+            <span class="op-app-desc">.pptx</span>
+          </button>
+          <button type="button" class="op-app-card" (click)="pickFile()">
+            <span class="op-app-letter" data-app="pdf">D</span>
+            <span class="op-app-name">{{ 'office.app.pdf' | translate }}</span>
+            <span class="op-app-desc">.pdf</span>
+          </button>
+        </div>
+        <div class="op-drop-hint">{{ 'office.workspace.drop' | translate }}</div>
+      </section>
+    }
+
+    @if (doc() && app() === 'word') {
+      @if (readingView()) {
+        <div class="op-reading-bar">
+          <span>{{ 'office.word.reading' | translate }}</span>
+          <button type="button" class="op-text-btn" (click)="toggleReadingView()">{{ 'office.word.exitReading' | translate }}</button>
+        </div>
+      }
+      @if (wordProtected()) {
+        <div class="op-protected-banner">{{ 'office.rb.protectedBanner' | translate }}</div>
+      }
+      <section class="op-word-stage" [class.op-word-dark]="wordDark()" [class.op-word-immersive]="immersive()" [class.op-word-continuous]="!separatePages()" [style.zoom]="zoom() / 100"
+               [attr.data-measured]="measuredParagraphs()" [attr.data-settled]="wordSettled() ? 'true' : 'false'" [attr.data-measure-attempts]="wordMeasureAttempts()">
+        <ng-template #floatContent let-run="run">
+          @if (run.group) {
+            @for (child of run.group.children; track $index) {
+              <div class="op-word-group-child"
+                   [style.left.px]="child.groupOffset?.x ?? 0"
+                   [style.top.px]="child.groupOffset?.y ?? 0"
+                   [style.width.px]="floatWidth(child)"
+                   [style.transform]="child.rotate ? 'rotate(' + child.rotate + 'deg)' : null">
+                @if (child.imagePath && wordImageUrl(child.imagePath); as url) {
+                  <img class="op-word-float-image" [src]="url" [attr.alt]="child.alt ?? ''" />
+                } @else if (child.textBox) {
+                  <div class="op-word-float-box"
+                       [class.op-shape-round]="child.textBox.shape === 'roundRect'"
+                       [class.op-shape-ellipse]="child.textBox.shape === 'ellipse'"
+                       [class.op-shape-line]="child.textBox.shape === 'line'"
+                       [style.background]="child.textBox.fill ?? '#EAF1FB'"
+                       [style.min-height.px]="child.textBox.height">{{ child.textBox.text }}</div>
+                }
+              </div>
+            }
+          } @else if (run.imagePath && wordImageUrl(run.imagePath); as url) {
+            <img class="op-word-float-image" [src]="url" [attr.alt]="run.alt ?? ''" />
+          } @else if (run.textBox) {
+            <div class="op-word-float-box"
+                 [class.op-shape-round]="run.textBox.shape === 'roundRect'"
+                 [class.op-shape-ellipse]="run.textBox.shape === 'ellipse'"
+                 [class.op-shape-line]="run.textBox.shape === 'line'"
+                 [style.background]="run.textBox.fill ?? '#EAF1FB'"
+                 [style.min-height.px]="run.textBox.height">{{ run.textBox.text }}</div>
+          }
+        </ng-template>
+
+        <ng-template #wordRunTpl let-run="run" let-index="index">
+          @if (run.pageBreak) {
+            <span class="op-word-pagebreak" contenteditable="false" [attr.data-run-index]="index">{{ 'office.word.pageBreak' | translate }}</span>
+          } @else if (run.link) {
+            <a class="op-word-link" [class.op-word-anchor]="run.link.startsWith('#')" [href]="run.link" target="_blank" rel="noopener noreferrer"
+               [attr.data-run-index]="index" (click)="onWordAnchor($event, run.link)">{{ run.text }}</a>
+          } @else if (run.videoUrl) {
+            <a class="op-word-video" [href]="run.videoUrl" target="_blank" rel="noopener noreferrer" [attr.data-run-index]="index">{{ 'office.word.video' | translate }}</a>
+          } @else if (run.textBox && !run.float) {
+            <div class="op-word-textbox" contenteditable="false" [attr.data-run-index]="index"
+                 [class.op-shape-round]="run.textBox.shape === 'roundRect'"
+                 [class.op-shape-ellipse]="run.textBox.shape === 'ellipse'"
+                 [class.op-shape-line]="run.textBox.shape === 'line'"
+                 [style.background]="run.textBox.fill ?? '#EAF1FB'"
+                 [style.width.px]="run.textBox.width" [style.min-height.px]="run.textBox.height">{{ run.textBox.text }}</div>
+          } @else if (!run.float && run.imagePath && wordImageUrl(run.imagePath); as url) {
+            <img class="op-word-image" [src]="url" [attr.alt]="run.alt ?? ''" [attr.data-run-index]="index"
+                 [style.width.px]="run.imageWidth" [style.height.px]="run.imageHeight"
+                 contenteditable="false" />
+          } @else {
+            <span [style]="runStyle(run)" [class.op-merge-field]="wordRunHighlighted(run)"
+                  [class.op-merge-rule]="run.mergeRule" [attr.data-run-index]="index">{{ wordRunText(run) }}</span>
+          }
+        </ng-template>
+
+        <ng-template #paragraphTpl let-paragraph="paragraph">
+          <p [style.font-size.px]="wordParagraphFontPx(paragraph)"
+             [style.font-family]="paragraph.fontFamily ?? null"
+             [style.line-height]="wordLineHeight(paragraph)"
+             [style.margin-top.px]="paragraph.spaceBeforePx ?? null"
+             [style.margin-bottom.px]="paragraph.spaceAfterPx ?? null">
+            @for (run of paragraph.runs; track $index) {
+              <ng-container *ngTemplateOutlet="wordRunTpl; context: { run, index: $index }"></ng-container>
+            }
+          </p>
+        </ng-template>
+
+        <ng-template #tableTemplate let-rows="rows" let-nested="nested" let-depth="depth" let-rowOffset="rowOffset" let-blockIndex="blockIndex" let-grid="grid" let-rowHeights="rowHeights" let-cellStyles="cellStyles" let-cellSpans="cellSpans" let-splitRow="splitRow" let-align="align" let-widthPct="widthPct" let-rowMap="rowMap" let-fragment="fragment">
+          <table class="op-word-table" [class.op-word-nested-table]="depth > 0" [attr.data-block]="blockIndex ?? null"
+                 [attr.data-split]="splitRow ? 'true' : null" [attr.data-fragment]="fragment ? 'true' : null"
+                 [attr.contenteditable]="splitRow ? 'false' : null"
+                 [style.width.%]="depth === 0 ? (widthPct ?? 100) : null"
+                 [style.margin-left]="depth === 0 && (align === 'center' || align === 'right') ? 'auto' : null"
+                 [style.margin-right]="depth === 0 && align === 'center' ? 'auto' : null">
+            @if (grid?.length) {
+              <colgroup>
+                @for (width of grid; track $index) {
+                  <col [style.width.%]="width" />
+                }
+              </colgroup>
+            }
+            <tbody>
+              @for (row of rows; track $index; let rowIndex = $index) {
+                <tr [attr.data-row]="rowMap?.[rowIndex] ?? (rowOffset + rowIndex)" [style.height.px]="rowHeights?.[rowIndex] || null">
+                  @for (cell of row; track $index; let cellIndex = $index) {
+                    @if (!wordCellCovered(cellSpans, rowIndex, cellIndex)) {
+                    <td [style]="wordCellStyle(cellStyles?.[rowIndex]?.[cellIndex])" [attr.data-cell]="cellIndex"
+                        [attr.colspan]="wordCellColSpan(cellSpans, rowIndex, cellIndex)"
+                        [attr.rowspan]="wordCellRowSpan(cellSpans, rowIndex, cellIndex)"
+                        [class.op-word-cell-selected]="isWordCellSelected(blockIndex, rowMap?.[rowIndex] ?? (rowOffset + rowIndex), cellIndex)">
+                      @if (depth === 0 && blockIndex !== null && !splitRow) {
+                        @for (paragraph of cell; track $index; let paragraphIndex = $index) {
+                          <p [style.font-size.px]="wordParagraphFontPx(paragraph)"
+                             [style.font-family]="paragraph.fontFamily ?? null"
+                             [style.line-height]="wordLineHeight(paragraph)"
+                             [style.margin-top.px]="paragraph.spaceBeforePx ?? null"
+                             [style.margin-bottom.px]="paragraph.spaceAfterPx ?? null"
+                             [attr.data-cell-block]="blockIndex"
+                             [attr.data-cell-row]="rowMap?.[rowIndex] ?? (rowOffset + rowIndex)"
+                             [attr.data-cell-col]="cellIndex"
+                             [attr.data-cell-p]="paragraph.sourceIndex ?? paragraphIndex">
+                            @for (run of paragraph.runs; track $index) {
+                              <ng-container *ngTemplateOutlet="wordRunTpl; context: { run, index: $index }"></ng-container>
+                            }
+                          </p>
+                        }
+                      } @else {
+                        @for (paragraph of cell; track $index) {
+                          <ng-container *ngTemplateOutlet="paragraphTpl; context: { paragraph }"></ng-container>
+                        }
+                      }
+                      @for (child of nestedTablesIn(nested, rowOffset + rowIndex, cellIndex); track $index) {
+                        <ng-container *ngTemplateOutlet="tableTemplate; context: { rows: child.rows, nested: child.nested, depth: depth + 1, rowOffset: 0, blockIndex: null, grid: child.grid, rowHeights: child.rowHeights, cellStyles: child.cellStyles, cellSpans: child.cellSpans, splitRow: false }"></ng-container>
+                      }
+                    </td>
+                    }
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </ng-template>
+        @if (rulerOpen()) {
+          <div class="op-word-ruler" aria-hidden="true">
+            @for (tick of [0,1,2,3,4,5,6,7,8]; track tick) {
+              <span class="op-word-ruler-tick" [style.left.%]="tick * 12.5"></span>
+            }
+          </div>
+        }
+        @for (page of wordPages(); track page.index + ':' + wordDomVersion()) {
+        <article class="op-word-page"
+                 [attr.data-page]="page.index"
+                 [attr.contenteditable]="wordEditEnabled && !readingView() && !wordProtected() ? 'true' : 'false'"
+                 (click)="focusWordPage(page, $event); captureWordTable($event)"
+                 (keyup)="captureWordTable($event)"
+                 (mousedown)="beginWordCellDrag($event)"
+                 (mousemove)="extendWordCellDrag($event)"
+                 (keydown)="onWordPageKeydown($event)"
+                 (focusout)="onWordPageFocusOut($event)"
+                 [style.width.px]="wordPageWidth(page)"
+                 [style.min-height.px]="wordPageHeight(page)"
+                 [style.background]="pageColor()"
+                 [style.padding-top.px]="wordPageMargin('top', page)"
+                 [style.padding-bottom.px]="wordPageMargin('bottom', page)"
+                 [style.padding-left.px]="wordPageMargin('left', page)"
+                 [style.padding-right.px]="wordPageMargin('right', page)"
+                 [style.border-style]="pageBorderCss()"
+                 [style.border-color]="pageBorderColorCss()"
+                 [style.border-width.px]="pageBorderPx() || 1"
+                 [class.op-show-marks]="showMarks()"
+                 [style.--op-accent]="word()?.theme?.accent ?? null"
+                 [style.--op-theme-font]="word()?.theme?.font ?? null"
+                 [class.op-style-modern]="word()?.styleSet === 'modern'"
+                 [class.op-style-classic]="word()?.styleSet === 'classic'">
+          @if (word()?.watermark) {
+            <div class="op-word-watermark" contenteditable="false" aria-hidden="true">{{ word()!.watermark }}</div>
+          }
+          @if (currentHeader(); as header) {
+            <div class="op-word-header" contenteditable="false">
+              @for (image of wordHeaderImages(header); track image.path) {
+                <img class="op-word-header-image" [src]="wordImageUrl(image.path)" [alt]="image.alt ?? ''"
+                     [style.height.px]="image.height" [style.width.px]="image.width" />
+              }
+              @if (header.text) { <div class="op-word-header-text">{{ header.text }}</div> }
+            </div>
+          }
+          <canvas #inkCanvas class="op-word-ink" [class.op-ink-active]="inkOpen()" [attr.data-page]="page.index"
+                  (pointerdown)="onInkPointerDown($event, page.index)" (pointermove)="onInkPointerMove($event)"
+                  (pointerup)="onInkPointerUp($event)" (pointercancel)="onInkPointerUp($event)"></canvas>
+          @for (float of wordPageOverlayFloats(page); track float.key) {
+            <div class="op-word-float" [class.op-float-selected]="isWordFloatSelected(float.run)"
+                 [class.op-float-hidden]="float.run.float!.hidden"
+                 [style.left.px]="wordPageMargin('left') + float.run.float!.x" [style.top.px]="wordPageMargin('top') + float.run.float!.y"
+                 [style.width.px]="floatWidth(float.run)"
+                 [style.height.px]="float.run.group ? floatHeight(float.run) : null"
+                 [style.transform]="float.run.float!.rotate ? 'rotate(' + float.run.float!.rotate + 'deg)' : null"
+                 [style.z-index]="floatZ(float.run)"
+                 (click)="selectWordFloat($event, float.run)">
+              <ng-container *ngTemplateOutlet="floatContent; context: { run: float.run }"></ng-container>
+            </div>
+          }
+          @for (float of wordPageWrapFloats(page); track float.key) {
+            <div class="op-word-float-wrap" [class.op-wrap-right]="wrapSide(float.run) === 'right'"
+                 [class.op-float-selected]="isWordFloatSelected(float.run)"
+                 [class.op-float-hidden]="float.run.float!.hidden"
+                 [style.width.px]="floatWidth(float.run)"
+                 [style.height.px]="floatHeight(float.run)"
+                 [style.margin-top.px]="pageWrapTop(float.run)"
+                 [style.margin-left.px]="wrapMarginLeft(float.run)"
+                 [style.margin-right.px]="wrapMarginRight(float.run)"
+                 [style.shape-outside]="wrapShapeOutside(float.run)"
+                 [style.transform]="float.run.float!.rotate ? 'rotate(' + float.run.float!.rotate + 'deg)' : null"
+                 [attr.data-float-key]="float.key"
+                 (click)="selectWordFloat($event, float.run)">
+              <ng-container *ngTemplateOutlet="floatContent; context: { run: float.run }"></ng-container>
+            </div>
+          }
+          @for (item of page.items; track item.blockIndex + ':' + (item.rowStart ?? 0); let itemIndex = $index) {
+            @for (entry of blockFloatsBefore(page, itemIndex); track entry.key) {
+              @if (entry.margin > 0) {
+                <div class="op-word-float-gap" [style.height.px]="entry.margin" aria-hidden="true"></div>
+              }
+              <div class="op-word-float-block"
+                   [class.op-float-selected]="isWordFloatSelected(entry.run)"
+                   [class.op-float-hidden]="entry.run.float!.hidden"
+                   [style.width.px]="floatWidth(entry.run)"
+                   [style.height.px]="floatHeight(entry.run)"
+                   [style.margin-left.px]="blockMarginLeft(entry.run)"
+                   [style.transform]="entry.run.float!.rotate ? 'rotate(' + entry.run.float!.rotate + 'deg)' : null"
+                   [attr.data-float-key]="entry.key"
+                   (click)="selectWordFloat($event, entry.run)">
+                <ng-container *ngTemplateOutlet="floatContent; context: { run: entry.run }"></ng-container>
+              </div>
+            }
+            @if (item.block.kind === 'paragraph') {
+              @if (markupMode() === 'all' && hasRevision(item.blockIndex)) {
+                <div class="op-word-p op-markup-all" [innerHTML]="markupHtml(item.blockIndex)" data-revision="true"
+                     [class.op-word-find]="wordFindBlocks().has(item.blockIndex)"
+                     [class.op-word-find-current]="currentFindBlock() === item.blockIndex"
+                     [class.op-word-borders]="item.block.paragraph.borders"
+                     [attr.data-style]="item.block.paragraph.style ?? null"
+                     [attr.data-list]="item.block.paragraph.listType ?? null"
+                     [style.padding-left.px]="wordIndentPx(item.block.paragraph.indent)"
+                     [style.line-height]="wordLineHeight(item.block.paragraph)"
+                     [style.font-size.px]="wordParagraphFontPx(item.block.paragraph)"
+                     [style.font-family]="item.block.paragraph.fontFamily ?? null"
+                     [style.margin-top.px]="item.block.paragraph.spaceBeforePx ?? null"
+                     [style.margin-bottom.px]="item.block.paragraph.spaceAfterPx ?? null"
+                     [style.background]="item.block.paragraph.shading ?? null"
+                     [style.text-align]="item.block.paragraph.align"
+                     [attr.contenteditable]="readingView() || wordProtected() ? 'false' : 'true'"
+                     [attr.data-paragraph]="item.blockIndex" (click)="selectParagraph(item.blockIndex)"
+                     (mouseup)="captureWordSelection()" (keyup)="captureWordSelection()"
+                     (blur)="onMarkupBlur(item.blockIndex, item.block, $event)"></div>
+              } @else {
+                <p class="op-word-p" [attr.data-heading]="item.block.paragraph.headingLevel ?? null" [attr.data-paragraph]="item.blockIndex"
+                   [class.op-word-selected]="selectedParagraph() === item.blockIndex"
+                   [class.op-word-borders]="item.block.paragraph.borders"
+                   [class.op-word-find]="wordFindBlocks().has(item.blockIndex)"
+                   [class.op-word-find-current]="currentFindBlock() === item.blockIndex"
+                   [class.op-markup-bar]="markupClass(item.blockIndex)"
+                   [attr.data-revision]="hasRevision(item.blockIndex) ? 'true' : null"
+                   [attr.data-markup]="markupMode()"
+                   [attr.data-style]="item.block.paragraph.style ?? null"
+                   [attr.data-list]="item.block.paragraph.listType ?? null"
+                   [style.padding-left.px]="wordIndentPx(item.block.paragraph.indent)"
+                   [style.line-height]="wordLineHeight(item.block.paragraph)"
+                   [style.font-size.px]="wordParagraphFontPx(item.block.paragraph)"
+                   [style.font-family]="item.block.paragraph.fontFamily ?? null"
+                   [style.margin-top.px]="item.block.paragraph.spaceBeforePx ?? null"
+                   [style.margin-bottom.px]="item.block.paragraph.spaceAfterPx ?? null"
+                   [style.background]="item.block.paragraph.shading ?? null"
+                   [style.text-align]="item.block.paragraph.align"
+                   (click)="selectParagraph(item.blockIndex)"
+                   (mouseup)="captureWordSelection()" (keyup)="captureWordSelection()">
+                  @if (inlineSplitFor(item.blockIndex); as split) {
+                     @for (run of splitRunsFor(item.block, item.blockIndex, 'before'); track $index) {
+                       <ng-container *ngTemplateOutlet="wordRunTpl; context: { run }"></ng-container>
+                     }
+                     <span class="op-word-float-inline" contenteditable="false"
+                           [class.op-float-selected]="isWordFloatSelected(split.run)"
+                           [style.height.px]="floatHeight(split.run)"
+                           [style.margin-left.px]="blockMarginLeft(split.run)"
+                           (click)="selectWordFloat($event, split.run)">
+                       <ng-container *ngTemplateOutlet="floatContent; context: { run: split.run }"></ng-container>
+                     </span>
+                     @for (run of splitRunsFor(item.block, item.blockIndex, 'after'); track $index) {
+                       <ng-container *ngTemplateOutlet="wordRunTpl; context: { run }"></ng-container>
+                     }
+                   } @else {
+                     @for (run of item.block.paragraph.runs; track $index) {
+                        <ng-container *ngTemplateOutlet="wordRunTpl; context: { run, index: $index }"></ng-container>
+                      }
+                    }
+                  @for (note of notesFor(item.blockIndex); track note.kind + '-' + note.id) {
+                    <sup class="op-note-ref" [title]="note.text">{{ note.numbering }}</sup>
+                  }
+                  @for (equation of equationsFor(item.blockIndex); track $index) {
+                    <span class="op-equation" [title]="equation.kind">{{ equation.label }}</span>
+                  }
+                </p>
+              }
+            } @else {
+              <ng-container *ngTemplateOutlet="tableTemplate; context: {
+                rows: item.block.rows.slice(item.rowStart ?? 0, item.rowEnd ?? item.block.rows.length),
+                nested: item.block.nested,
+                depth: 0,
+                rowOffset: item.rowStart ?? 0,
+                blockIndex: item.blockIndex,
+                grid: item.block.grid,
+                rowHeights: item.block.rowHeights?.slice(item.rowStart ?? 0, item.rowEnd ?? item.block.rows.length),
+                cellStyles: item.block.cellStyles?.slice(item.rowStart ?? 0, item.rowEnd ?? item.block.rows.length),
+                cellSpans: item.block.cellSpans?.slice(item.rowStart ?? 0, item.rowEnd ?? item.block.rows.length),
+                splitRow: item.block.splitRow ?? false,
+                align: item.block.align,
+                widthPct: item.block.widthPct,
+                rowMap: item.block.rowMap,
+                fragment: item.block.fragment ?? false
+              }"></ng-container>
+            }
+          }
+          @for (entry of blockFloatsAfter(page); track entry.key) {
+            @if (entry.margin > 0) {
+              <div class="op-word-float-gap" [style.height.px]="entry.margin" aria-hidden="true"></div>
+            }
+            <div class="op-word-float-block"
+                 [class.op-float-selected]="isWordFloatSelected(entry.run)"
+                 [class.op-float-hidden]="entry.run.float!.hidden"
+                 [style.width.px]="floatWidth(entry.run)"
+                 [style.height.px]="floatHeight(entry.run)"
+                 [style.margin-left.px]="blockMarginLeft(entry.run)"
+                 [style.transform]="entry.run.float!.rotate ? 'rotate(' + entry.run.float!.rotate + 'deg)' : null"
+                 [attr.data-float-key]="entry.key"
+                 (click)="selectWordFloat($event, entry.run)">
+              <ng-container *ngTemplateOutlet="floatContent; context: { run: entry.run }"></ng-container>
+            </div>
+          }
+          @if (page.index === wordPages().length - 1 && (footnotes().length || endnotes().length)) {
+            <div class="op-word-notes">
+              @for (note of footnotes(); track 'f' + note.id) {
+                <p><sup>{{ note.numbering }}</sup> {{ note.text }}</p>
+              }
+              @for (note of endnotes(); track 'e' + note.id) {
+                <p><sup>{{ note.numbering }}</sup> {{ note.text }}</p>
+              }
+            </div>
+          }
+          @if (currentFooter(); as footer) {
+            <div class="op-word-footer" contenteditable="false">
+              <span>{{ footer.text }}</span>
+              @if (footer.hasPageNumber) { <span class="op-word-page-number">{{ page.index + 1 }}</span> }
+            </div>
+          } @else if (footerText() || footerPageNumber()) {
+            <div class="op-word-footer" contenteditable="false">
+              <span>{{ footerText() }}</span>
+              @if (footerPageNumber()) {
+                <span class="op-word-page-number">{{ page.index + 1 }}</span>
+              }
+            </div>
+          }
+        </article>
+        }
+      </section>
+    }
+
+    @if (doc() && app() === 'excel') {
+      <section class="op-excel-stage" [style.zoom]="zoom() / 100" (touchstart)="onSwipeStart($event)" (touchend)="onSwipeEnd($event, 'sheet')">
+        <div class="op-formula-bar">
+          <span class="op-name-box">{{ selectedCell() }}</span>
+          <span class="op-fx">fx</span>
+          <input class="op-formula-input" [value]="selectedCellValue()" (keydown.enter)="commitFormula($any($event.target).value)" spellcheck="false" />
+        </div>
+        @if (cellError()) {
+          <div class="op-cell-error" role="alert">
+            <span>{{ 'office.error.validation' | translate }}</span>
+            <code>{{ cellError() }}</code>
+            <button type="button" class="op-text-btn" (click)="cellError.set(null)">{{ 'office.action.dismiss' | translate }}</button>
+          </div>
+        }
+        <canvas class="op-grid" #gridCanvas (click)="onGridClick($event)"></canvas>
+        @if (chartOpen()) {
+          <div class="op-chart-panel">
+            <div class="op-chart-head">
+              <strong>{{ 'office.chart.title' | translate }}</strong>
+              <div class="op-chart-types">
+                <button type="button" class="op-text-btn" (click)="setChartType('column')">{{ 'office.chart.column' | translate }}</button>
+                <button type="button" class="op-text-btn" (click)="setChartType('bar')">{{ 'office.chart.bar' | translate }}</button>
+                <button type="button" class="op-text-btn" (click)="setChartType('line')">{{ 'office.chart.line' | translate }}</button>
+                <button type="button" class="op-text-btn" (click)="setChartType('pie')">{{ 'office.chart.pie' | translate }}</button>
+                <button type="button" class="op-text-btn" (click)="toggleChart()">{{ 'office.action.close' | translate }}</button>
+              </div>
+            </div>
+            @if (chartModel()?.error) {
+              <div class="op-empty">{{ 'office.chart.empty' | translate }}</div>
+            } @else if (chartLayout(); as layout) {
+              <div class="op-chart-form">
+                <label class="op-hf-field"><span>{{ 'office.chart.fieldTitle' | translate }}</span>
+                  <input class="op-share-input" [value]="chartTitle()" (input)="chartTitle.set($any($event.target).value)" /></label>
+                <label class="op-hf-field"><span>{{ 'office.chart.categories' | translate }}</span>
+                  <input class="op-share-input" [value]="chartCategories()" (input)="chartCategories.set($any($event.target).value)" /></label>
+                @for (series of chartSeriesList(); track $index; let s = $index) {
+                  <div class="op-chart-series">
+                    <input class="op-share-input" [value]="series.range" (input)="updateChartSeries(s, 'range', $any($event.target).value)" />
+                    <input class="op-share-input" [value]="series.label ?? ''" (input)="updateChartSeries(s, 'label', $any($event.target).value)" />
+                    <button type="button" class="op-text-btn" (click)="removeChartSeries(s)">{{ 'office.chart.removeSeries' | translate }}</button>
+                  </div>
+                }
+                <div class="op-track-actions">
+                  <button type="button" class="op-text-btn" (click)="addChartSeries()">{{ 'office.chart.addSeries' | translate }}</button>
+                  <label class="op-hf-check"><input type="checkbox" [checked]="chartShowLegend()" (change)="chartShowLegend.set($any($event.target).checked)" /> {{ 'office.chart.legend' | translate }}</label>
+                </div>
+                <label class="op-hf-field"><span>{{ 'office.chart.axisTitle' | translate }}</span>
+                  <input class="op-share-input" [value]="chartAxisTitle()" (input)="chartAxisTitle.set($any($event.target).value)" /></label>
+                <button type="button" class="op-text-btn" (click)="applyChart()">{{ 'office.chart.apply' | translate }}</button>
+              </div>
+              <svg class="op-chart-svg" viewBox="0 0 480 280" role="img" [attr.aria-label]="'office.chart.title' | translate">
+                <line [attr.x1]="layout.plot.x" [attr.y1]="layout.plot.y" [attr.x2]="layout.plot.x" [attr.y2]="layout.plot.y + layout.plot.height" stroke="#9ca3af" />
+                <line [attr.x1]="layout.plot.x" [attr.y1]="layout.plot.y + layout.plot.height" [attr.x2]="layout.plot.x + layout.plot.width" [attr.y2]="layout.plot.y + layout.plot.height" stroke="#9ca3af" />
+                @if (layout.axisTitle; as axis) {
+                  <text [attr.x]="axis.x" [attr.y]="axis.y" font-size="10" fill="#374151">{{ axis.label }}</text>
+                }
+                @for (tick of layout.ticksY; track $index) {
+                  <text [attr.x]="tick.x" [attr.y]="tick.y" text-anchor="end" font-size="10" fill="#6b7280">{{ tick.label }}</text>
+                }
+                @for (tick of layout.ticksX; track $index) {
+                  <text [attr.x]="tick.x" [attr.y]="tick.y" text-anchor="middle" font-size="10" fill="#6b7280">{{ tick.label }}</text>
+                }
+                @for (bar of layout.bars; track $index) {
+                  <rect [attr.x]="bar.x" [attr.y]="bar.y" [attr.width]="bar.width" [attr.height]="bar.height" [attr.fill]="bar.color" />
+                }
+                @for (line of layout.lines; track $index) {
+                  <polyline [attr.points]="polyline(line)" fill="none" [attr.stroke]="line[0]?.color ?? '#4472c4'" stroke-width="2" />
+                }
+                @for (slice of layout.slices; track $index) {
+                  <path [attr.d]="slice.path" [attr.fill]="slice.color" stroke="#fff" stroke-width="1" />
+                }
+                @for (item of layout.legend; track $index) {
+                  <rect [attr.x]="item.x" [attr.y]="item.y - 8" width="8" height="8" [attr.fill]="item.color" />
+                  <text [attr.x]="item.x + 12" [attr.y]="item.y" font-size="10" fill="#374151">{{ item.label }}</text>
+                }
+              </svg>
+            }
+          </div>
+        }
+        @if (pivotOpen()) {
+          <div class="op-pivot-panel">
+            <div class="op-chart-head">
+              <strong>{{ 'office.pivot.title' | translate }}</strong>
+              <button type="button" class="op-text-btn" (click)="togglePivot()">{{ 'office.action.close' | translate }}</button>
+            </div>
+            <div class="op-pivot-fields">
+              <label class="op-hf-field"><span>{{ 'office.pivot.source' | translate }}</span>
+                <input class="op-share-input" [value]="pivotSource()" (change)="setPivotSource($any($event.target).value)" /></label>
+              <div class="op-pivot-chips">
+                @for (header of pivotHeaders(); track header.column) {
+                  <button type="button" class="op-pivot-chip" draggable="true"
+                          (dragstart)="onFieldDragStart(header.column, $event)">{{ header.name }}</button>
+                }
+              </div>
+              <div class="op-pivot-zones">
+                <div class="op-pivot-zone" (dragover)="$event.preventDefault()" (drop)="dropPivotField('row', $event)">
+                  <span>{{ 'office.pivot.rows' | translate }}</span>
+                  @if (pivotRowField()) {
+                    <button type="button" class="op-pivot-chip" (click)="clearPivotField('row')">{{ pivotFieldName(pivotRowField()) }} ×</button>
+                  }
+                </div>
+                <div class="op-pivot-zone" (dragover)="$event.preventDefault()" (drop)="dropPivotField('column', $event)">
+                  <span>{{ 'office.pivot.columns' | translate }}</span>
+                  @if (pivotColumnField()) {
+                    <button type="button" class="op-pivot-chip" (click)="clearPivotField('column')">{{ pivotFieldName(pivotColumnField()) }} ×</button>
+                  }
+                </div>
+                <div class="op-pivot-zone" (dragover)="$event.preventDefault()" (drop)="dropPivotField('value', $event)">
+                  <span>{{ 'office.pivot.values' | translate }}</span>
+                  @if (pivotValueField()) {
+                    <button type="button" class="op-pivot-chip" (click)="clearPivotField('value')">{{ pivotFieldName(pivotValueField()) }} ×</button>
+                  }
+                </div>
+              </div>
+              <div class="op-track-actions">
+                <select class="op-share-select" [value]="pivotAggregate()" (change)="pivotAggregate.set($any($event.target).value)">
+                  @for (aggregate of ['SUM','COUNT','AVERAGE','MIN','MAX']; track aggregate) {
+                    <option [value]="aggregate">{{ ('office.pivot.aggregate.' + aggregate) | translate }}</option>
+                  }
+                </select>
+                <button type="button" class="op-text-btn" (click)="buildPivotFromFields()"
+                        [disabled]="!pivotRowField() || !pivotValueField()">{{ 'office.pivot.build' | translate }}</button>
+              </div>
+            </div>
+            @if (pivotResult(); as pivot) {
+              @if (pivot.error) {
+                <div class="op-empty">{{ 'office.pivot.empty' | translate }}</div>
+              } @else {
+                <table class="op-pivot-table">
+                  <thead>
+                    <tr>
+                      <th>{{ 'office.pivot.row' | translate }}</th>
+                      @for (label of pivot.valueHeaders; track label; let v = $index) {
+                        <th>{{ ('office.pivot.aggregate.' + pivot.valueAggregates[v]) | translate }} · {{ label }}</th>
+                      }
+                      <th>{{ 'office.pivot.total' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (rowKey of pivot.rowKeys; track rowKey; let r = $index) {
+                      <tr>
+                        <th>{{ rowKey }}</th>
+                        @for (label of pivot.valueLabels; track label; let v = $index) {
+                          <td>{{ pivot.cells[r][0][v] }}</td>
+                        }
+                        <td>{{ pivot.rowTotals[r][0] }}</td>
+                      </tr>
+                    }
+                    <tr class="op-pivot-total">
+                      <th>{{ 'office.pivot.total' | translate }}</th>
+                      @for (label of pivot.valueLabels; track label; let v = $index) {
+                        <td>{{ pivot.grandTotals[v] }}</td>
+                      }
+                      <td>{{ pivot.grandTotals[0] }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              }
+            }
+          </div>
+        }
+        @if (tableOpen()) {
+          <div class="op-pivot-panel">
+            <div class="op-chart-head">
+              <strong>{{ 'office.table.title' | translate }}</strong>
+              <button type="button" class="op-text-btn" (click)="toggleTable()">{{ 'office.action.close' | translate }}</button>
+            </div>
+            <div class="op-pivot-fields">
+              <label class="op-hf-field"><span>{{ 'office.pivot.source' | translate }}</span>
+                <input class="op-share-input" [value]="tableSource()" (input)="tableSource.set($any($event.target).value)" /></label>
+              <label class="op-hf-field"><span>{{ 'office.table.name' | translate }}</span>
+                <input class="op-share-input" [value]="tableName()" (input)="tableName.set($any($event.target).value)" /></label>
+              <button type="button" class="op-text-btn" (click)="createTable()">{{ 'office.table.create' | translate }}</button>
+              <div class="op-pivot-chips">
+                @for (table of tableList(); track table.id) {
+                  <button type="button" class="op-pivot-chip" [class.op-ribbon-active]="activeTableId() === table.id"
+                          (click)="selectTable(table)">{{ table.name }}</button>
+                }
+              </div>
+              @if (activeTableId()) {
+                <label class="op-hf-field"><span>{{ 'office.table.slicerColumn' | translate }}</span>
+                  <select class="op-share-select" [value]="slicerColumn()" (change)="chooseSlicerColumn($any($event.target).value)">
+                    @for (column of tableColumns(); track column) {
+                      <option [value]="column">{{ column }}</option>
+                    }
+                  </select>
+                </label>
+                <div class="op-pivot-chips">
+                  @for (value of slicerChoices(); track value) {
+                    <button type="button" class="op-pivot-chip" [class.op-ribbon-active]="slicerSelected().includes(value)"
+                            (click)="toggleSlicerValue(value)">{{ value }}</button>
+                  }
+                  <button type="button" class="op-text-btn" (click)="clearSlicers()">{{ 'office.table.clearSlicer' | translate }}</button>
+                </div>
+                <table class="op-pivot-table">
+                  <thead>
+                    <tr>
+                      @for (column of tableColumns(); track column) { <th>{{ column }}</th> }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of tablePreview(); track row.key) {
+                      <tr>
+                        @for (cell of row.cells; track $index) { <td>{{ cell }}</td> }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+            </div>
+          </div>
+        }
+        @if (excelFormatOpen()) {
+          <div class="op-pivot-panel">
+            <div class="op-chart-head">
+              <strong>{{ 'office.excel.formatCell' | translate }}</strong>
+              <button type="button" class="op-text-btn" (click)="toggleExcelFormat()">{{ 'office.action.close' | translate }}</button>
+            </div>
+            <p class="op-hf-hint">{{ selectedCell() }} · {{ 'office.excel.formatHint' | translate }}</p>
+            <div class="op-format-row">
+              <select class="op-share-select" [value]="selectedExcelStyle().font ?? 'Calibri'" (change)="applyExcelFormat({ font: $any($event.target).value })"
+                      [attr.aria-label]="'office.excel.fontFamily' | translate">
+                @for (font of excelFonts; track font) { <option [value]="font">{{ font }}</option> }
+              </select>
+              <select class="op-share-select" [value]="selectedExcelStyle().sizePt ?? 11" (change)="applyExcelFormat({ sizePt: +$any($event.target).value })"
+                      [attr.aria-label]="'office.excel.fontSize' | translate">
+                @for (size of excelFontSizes; track size) { <option [value]="size">{{ size }}</option> }
+              </select>
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="selectedExcelStyle().bold" (click)="applyExcelFormat({ bold: !selectedExcelStyle().bold })" [title]="'office.word.bold' | translate">B</button>
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="selectedExcelStyle().italic" (click)="applyExcelFormat({ italic: !selectedExcelStyle().italic })" [title]="'office.word.italic' | translate">I</button>
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="selectedExcelStyle().underline" (click)="applyExcelFormat({ underline: !selectedExcelStyle().underline })" [title]="'office.word.underline' | translate">U</button>
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="selectedExcelStyle().doubleUnderline" (click)="applyExcelFormat({ doubleUnderline: !selectedExcelStyle().doubleUnderline })" [title]="'office.excel.doubleUnderline' | translate">U2</button>
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="selectedExcelStyle().strike" (click)="applyExcelFormat({ strike: !selectedExcelStyle().strike })" [title]="'office.word.strike' | translate">S</button>
+              <button type="button" class="op-text-btn" (click)="growExcelFont(-1)" [title]="'office.word.shrinkFont' | translate">A−</button>
+              <button type="button" class="op-text-btn" (click)="growExcelFont(1)" [title]="'office.word.growFont' | translate">A+</button>
+            </div>
+            <div class="op-format-row">
+              <label class="op-hf-check">{{ 'office.excel.fontColor' | translate }}
+                <input type="color" [value]="selectedExcelStyle().color ?? '#000000'" (input)="applyExcelFormat({ color: $any($event.target).value })" />
+              </label>
+              <label class="op-hf-check">{{ 'office.excel.fillColor' | translate }}
+                <input type="color" [value]="selectedExcelStyle().fill ?? '#ffffff'" (input)="applyExcelFormat({ fill: $any($event.target).value })" />
+              </label>
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="selectedExcelStyle().border" (click)="toggleExcelBorder()">{{ 'office.excel.border' | translate }}</button>
+            </div>
+            <div class="op-format-row">
+              <span class="op-ribbon-label">{{ 'office.excel.align' | translate }}</span>
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="selectedExcelStyle().align === 'left'" (click)="applyExcelFormat({ align: 'left' })">{{ 'office.word.align.left' | translate }}</button>
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="selectedExcelStyle().align === 'center'" (click)="applyExcelFormat({ align: 'center' })">{{ 'office.word.align.center' | translate }}</button>
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="selectedExcelStyle().align === 'right'" (click)="applyExcelFormat({ align: 'right' })">{{ 'office.word.align.right' | translate }}</button>
+            </div>
+            <div class="op-format-row">
+              <span class="op-ribbon-label">{{ 'office.excel.verticalAlign' | translate }}</span>
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="selectedExcelStyle().verticalAlign === 'top'" (click)="applyExcelFormat({ verticalAlign: 'top' })">{{ 'office.excel.valign.top' | translate }}</button>
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="selectedExcelStyle().verticalAlign === 'middle'" (click)="applyExcelFormat({ verticalAlign: 'middle' })">{{ 'office.excel.valign.middle' | translate }}</button>
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="selectedExcelStyle().verticalAlign === 'bottom'" (click)="applyExcelFormat({ verticalAlign: 'bottom' })">{{ 'office.excel.valign.bottom' | translate }}</button>
+            </div>
+            <div class="op-format-row">
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="selectedExcelStyle().wrapText" (click)="toggleExcelWrap()">{{ 'office.excel.wrap' | translate }}</button>
+              <span class="op-ribbon-label">{{ 'office.excel.indent' | translate }}</span>
+              <button type="button" class="op-text-btn" (click)="indentExcel(-1)">−</button>
+              <span class="op-zoom-value">{{ selectedExcelStyle().indent ?? 0 }}</span>
+              <button type="button" class="op-text-btn" (click)="indentExcel(1)">+</button>
+              <select class="op-share-select" [value]="selectedExcelStyle().rotation ?? 0"
+                      (change)="applyExcelFormat({ rotation: +$any($event.target).value })"
+                      [attr.aria-label]="'office.excel.orientation' | translate">
+                <option value="0">0°</option>
+                <option value="45">45°</option>
+                <option value="90">90°</option>
+              </select>
+            </div>
+            <div class="op-format-row">
+              <input class="op-share-input" [value]="excelRange()" (input)="excelRange.set($any($event.target).value)"
+                     [placeholder]="'office.excel.range' | translate" />
+              <button type="button" class="op-text-btn" (click)="mergeExcelRange()">{{ 'office.excel.mergeCenter' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="unmergeExcelRange()">{{ 'office.excel.unmerge' | translate }}</button>
+            </div>
+            <label class="op-hf-field"><span>{{ 'office.excel.numberFormat' | translate }}</span>
+              <select class="op-share-select" [value]="selectedExcelStyle().numberFormat ?? 'General'" (change)="setExcelNumberFormat($any($event.target).value)">
+                @for (format of excelNumberFormats; track format) { <option [value]="format">{{ format }}</option> }
+              </select>
+            </label>
+            <div class="op-format-row">
+              <button type="button" class="op-text-btn" (click)="setExcelNumberFormat('0%')">%</button>
+              <button type="button" class="op-text-btn" (click)="setExcelNumberFormat('#,##0')">,</button>
+              <button type="button" class="op-text-btn" (click)="setExcelNumberFormat('#,##0 &quot;₫&quot;')">₫</button>
+              <button type="button" class="op-text-btn" (click)="changeExcelDecimals(-1)">.0−</button>
+              <button type="button" class="op-text-btn" (click)="changeExcelDecimals(1)">.0+</button>
+            </div>
+            <div class="op-format-row">
+              <span class="op-ribbon-label">{{ 'office.excel.cellStyles' | translate }}</span>
+              <button type="button" class="op-text-btn" (click)="applyExcelStylePreset('normal')">{{ 'office.excel.style.normal' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="applyExcelStylePreset('good')">{{ 'office.excel.style.good' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="applyExcelStylePreset('bad')">{{ 'office.excel.style.bad' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="applyExcelStylePreset('neutral')">{{ 'office.excel.style.neutral' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="applyExcelStylePreset('total')">{{ 'office.excel.style.total' | translate }}</button>
+            </div>
+            <div class="op-format-row">
+              <button type="button" class="op-text-btn" (click)="toggleFreezePane()">{{ excelFreeze() ? ('office.excel.unfreeze' | translate) : ('office.excel.freeze' | translate) }}</button>
+              @if (excelFreezeLabel()) { <span class="op-zoom-value">{{ excelFreezeLabel() }}</span> }
+            </div>
+          </div>
+        }
+        @if (excelDataOpen()) {
+          <div class="op-pivot-panel">
+            <div class="op-chart-head">
+              <strong>{{ 'office.excel.dataTools' | translate }}</strong>
+              <button type="button" class="op-text-btn" (click)="toggleExcelData()">{{ 'office.action.close' | translate }}</button>
+            </div>
+            <label class="op-hf-field"><span>{{ 'office.excel.find' | translate }}</span>
+              <input class="op-share-input" [value]="excelFindQuery()" (input)="updateExcelFind($any($event.target).value)"
+                     (keydown.enter)="nextExcelFind(1)" />
+            </label>
+            <div class="op-format-row">
+              <span class="op-hf-hint">{{ excelFindMatches().length }} {{ 'office.word.matches' | translate }}</span>
+              <button type="button" class="op-text-btn" (click)="nextExcelFind(-1)" [disabled]="!excelFindMatches().length">‹</button>
+              <button type="button" class="op-text-btn" (click)="nextExcelFind(1)" [disabled]="!excelFindMatches().length">›</button>
+            </div>
+            <div class="op-format-row">
+              <span class="op-ribbon-label">{{ 'office.excel.sort' | translate }} {{ selectedCell() }}</span>
+              <button type="button" class="op-text-btn" (click)="sortExcel(true)">{{ 'office.excel.sortAsc' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="sortExcel(false)">{{ 'office.excel.sortDesc' | translate }}</button>
+            </div>
+            <div class="op-format-row">
+              <span class="op-ribbon-label">{{ 'office.excel.secondarySort' | translate }}</span>
+              <input class="op-share-input" type="number" min="0" max="20" [value]="excelSecondarySort()"
+                     (input)="excelSecondarySort.set(+$any($event.target).value || 0)" />
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="excelSortAscending()"
+                      (click)="excelSortAscending.set(true)">{{ 'office.excel.sortAsc' | translate }}</button>
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="!excelSortAscending()"
+                      (click)="excelSortAscending.set(false)">{{ 'office.excel.sortDesc' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="customSortExcel()">{{ 'office.excel.customSort' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="reapplyExcelSort()" [disabled]="!excelLastSort()">{{ 'office.excel.reapply' | translate }}</button>
+            </div>
+            <div class="op-format-row">
+              <span class="op-ribbon-label">{{ 'office.excel.cellOps' | translate }}</span>
+              <button type="button" class="op-text-btn" (click)="insertExcelCells('right')">{{ 'office.excel.insertRight' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="insertExcelCells('down')">{{ 'office.excel.insertDown' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="deleteExcelCells('left')">{{ 'office.excel.deleteLeft' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="deleteExcelCells('up')">{{ 'office.excel.deleteUp' | translate }}</button>
+            </div>
+            <div class="op-format-row">
+              <button type="button" class="op-text-btn" (click)="insertExcelRow()">{{ 'office.excel.insertRow' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="deleteExcelRow()">{{ 'office.excel.deleteRow' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="insertExcelColumn()">{{ 'office.excel.insertColumn' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="deleteExcelColumn()">{{ 'office.excel.deleteColumn' | translate }}</button>
+            </div>
+            <div class="op-format-row">
+              <button type="button" class="op-text-btn" (click)="autoSumExcel()">{{ 'office.excel.autoSum' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="clearExcelCell('contents')">{{ 'office.excel.clearContents' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="clearExcelCell('formats')">{{ 'office.excel.clearFormats' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="clearExcelCell('all')">{{ 'office.excel.clearAll' | translate }}</button>
+            </div>
+            <div class="op-format-row">
+              <input class="op-share-input" [value]="excelFilterValue()" (input)="excelFilterValue.set($any($event.target).value)"
+                     [placeholder]="'office.excel.filterValue' | translate" />
+              <button type="button" class="op-text-btn" (click)="applyExcelFilter()">{{ 'office.excel.applyFilter' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="clearExcelFilter()">{{ 'office.excel.clearFilter' | translate }}</button>
+            </div>
+            @if (excelFilter()) {
+              <p class="op-hf-hint">{{ 'office.excel.filterActive' | translate }}: {{ excelFilter()?.value }}</p>
+            }
+            <div class="op-format-row">
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="excelShowFormulas()" (click)="toggleExcelShowFormulas()">{{ 'office.excel.showFormulas' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="calculateExcel()">{{ 'office.excel.calculate' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="calculateExcelWorkbook()">{{ 'office.excel.calculateWorkbook' | translate }}</button>
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="excelManualCalc()" (click)="toggleExcelManualCalc()">{{ 'office.excel.manualCalc' | translate }}</button>
+            </div>
+            <div class="op-format-row">
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="excelSheetProtected()" (click)="toggleExcelSheetProtection()">{{ 'office.excel.protectSheet' | translate }}</button>
+              <button type="button" class="op-text-btn" [class.op-ribbon-active]="excelWorkbookProtected()" (click)="toggleExcelWorkbookProtection()">{{ 'office.excel.protectWorkbook' | translate }}</button>
+            </div>
+            <div class="op-format-row">
+              <input class="op-share-input" [value]="excelNameDraft()" (input)="excelNameDraft.set($any($event.target).value)"
+                     [placeholder]="'office.excel.namePlaceholder' | translate" />
+              <input class="op-share-input" [value]="excelFormulaDraft()" (input)="excelFormulaDraft.set($any($event.target).value)"
+                     [placeholder]="'office.excel.formulaPlaceholder' | translate" />
+              <button type="button" class="op-text-btn" (click)="addExcelDefinedName()">{{ 'office.excel.addName' | translate }}</button>
+            </div>
+            <div class="op-note-list">
+              @for (name of excelNames(); track name.name) {
+                <div class="op-note-item">
+                  <span class="op-note-link">{{ name.name }}</span>
+                  <span class="op-note-text">{{ name.formula }}</span>
+                  <button type="button" class="op-text-btn" (click)="deleteExcelDefinedName(name.name)">{{ 'office.action.delete' | translate }}</button>
+                </div>
+              } @empty {
+                <div class="op-empty">{{ 'office.excel.noNames' | translate }}</div>
+              }
+            </div>
+            <div class="op-format-row">
+              <span class="op-ribbon-label">{{ 'office.excel.comments' | translate }}: {{ selectedCell() }}</span>
+              <button type="button" class="op-text-btn" (click)="nextExcelComment(-1)" [disabled]="!excelComments().length">‹</button>
+              <button type="button" class="op-text-btn" (click)="nextExcelComment(1)" [disabled]="!excelComments().length">›</button>
+            </div>
+            <div class="op-format-row">
+              <input class="op-share-input" [value]="excelCommentDraft()" (input)="excelCommentDraft.set($any($event.target).value)"
+                     [placeholder]="'office.excel.commentPlaceholder' | translate" />
+              <button type="button" class="op-text-btn" (click)="saveExcelComment()">{{ 'office.excel.saveComment' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="deleteExcelComment()">{{ 'office.action.delete' | translate }}</button>
+            </div>
+            <p class="op-hf-hint">{{ 'office.excel.dataHint' | translate }}</p>
+          </div>
+        }
+        @if (cfOpen()) {
+          <div class="op-pivot-panel">
+            <div class="op-chart-head">
+              <strong>{{ 'office.cf.title' | translate }}</strong>
+              <button type="button" class="op-text-btn" (click)="toggleCf()">{{ 'office.action.close' | translate }}</button>
+            </div>
+            <label class="op-hf-field"><span>{{ 'office.cf.range' | translate }}</span>
+              <input class="op-share-input" [value]="cfRange()" (input)="cfRange.set($any($event.target).value)" /></label>
+            <label class="op-hf-field"><span>{{ 'office.cf.type' | translate }}</span>
+              <select class="op-share-select" [value]="cfType()" (change)="cfType.set($any($event.target).value)">
+                <option value="cellIs">{{ 'office.cf.cellIs' | translate }}</option>
+                <option value="containsText">{{ 'office.cf.containsText' | translate }}</option>
+                <option value="dataBar">{{ 'office.cf.dataBar' | translate }}</option>
+                <option value="colorScale">{{ 'office.cf.colorScale' | translate }}</option>
+              </select>
+            </label>
+            @if (cfType() === 'cellIs') {
+              <label class="op-hf-field"><span>{{ 'office.cf.operator' | translate }}</span>
+                <select class="op-share-select" [value]="cfOperator()" (change)="cfOperator.set($any($event.target).value)">
+                  @for (op of ['greaterThan','lessThan','greaterThanOrEqual','lessThanOrEqual','equal','notEqual','between']; track op) {
+                    <option [value]="op">{{ ('office.cf.op.' + op) | translate }}</option>
+                  }
+                </select>
+              </label>
+              <label class="op-hf-field"><span>{{ 'office.cf.value' | translate }}</span>
+                <input class="op-share-input" [value]="cfValue()" (input)="cfValue.set($any($event.target).value)" /></label>
+              @if (cfOperator() === 'between') {
+                <label class="op-hf-field"><span>{{ 'office.cf.value2' | translate }}</span>
+                  <input class="op-share-input" [value]="cfValue2()" (input)="cfValue2.set($any($event.target).value)" /></label>
+              }
+            }
+            @if (cfType() === 'containsText') {
+              <label class="op-hf-field"><span>{{ 'office.cf.text' | translate }}</span>
+                <input class="op-share-input" [value]="cfText()" (input)="cfText.set($any($event.target).value)" /></label>
+            }
+            @if (cfType() === 'dataBar' || cfType() === 'colorScale') {
+              <label class="op-hf-field"><span>{{ 'office.pdf.color' | translate }}</span>
+                <input class="op-pdf-color" type="color" [value]="cfColor()" (input)="cfColor.set($any($event.target).value)" /></label>
+            }
+            <button type="button" class="op-text-btn" (click)="applyConditionalFormatting()">{{ 'office.cf.apply' | translate }}</button>
+            <div class="op-format-row">
+              <span class="op-ribbon-label">{{ 'office.cf.manage' | translate }} ({{ excelCfRules().length }})</span>
+              <button type="button" class="op-text-btn" (click)="clearExcelConditionalRules()" [disabled]="!excelCfRules().length">{{ 'office.cf.clearAll' | translate }}</button>
+            </div>
+            <div class="op-note-list">
+              @for (rule of excelCfRules(); track $index; let ruleIndex = $index) {
+                <div class="op-note-item">
+                  <span class="op-note-link">{{ rule.range }}</span>
+                  <span class="op-note-text">{{ rule.type }}{{ rule.operator ? ' · ' + rule.operator : '' }}{{ rule.formulas.length ? ' · ' + rule.formulas.join(',') : '' }}</span>
+                  <button type="button" class="op-text-btn" (click)="deleteExcelConditionalRule(ruleIndex)">{{ 'office.action.delete' | translate }}</button>
+                </div>
+              } @empty {
+                <div class="op-empty">{{ 'office.cf.noRules' | translate }}</div>
+              }
+            </div>
+          </div>
+        }
+        @if (dvOpen()) {
+          <div class="op-pivot-panel">
+            <div class="op-chart-head">
+              <strong>{{ 'office.dv.title' | translate }}</strong>
+              <button type="button" class="op-text-btn" (click)="toggleDv()">{{ 'office.action.close' | translate }}</button>
+            </div>
+            <label class="op-hf-field"><span>{{ 'office.dv.range' | translate }}</span>
+              <input class="op-share-input" [value]="dvRange()" (input)="dvRange.set($any($event.target).value)" /></label>
+            <label class="op-hf-field"><span>{{ 'office.dv.type' | translate }}</span>
+              <select class="op-share-select" [value]="dvType()" (change)="dvType.set($any($event.target).value)">
+                <option value="whole">{{ 'office.dv.whole' | translate }}</option>
+                <option value="decimal">{{ 'office.dv.decimal' | translate }}</option>
+                <option value="list">{{ 'office.dv.list' | translate }}</option>
+                <option value="textLength">{{ 'office.dv.textLength' | translate }}</option>
+              </select>
+            </label>
+            <label class="op-hf-field"><span>{{ 'office.dv.formula1' | translate }}</span>
+              <input class="op-share-input" [value]="dvFormula1()" (input)="dvFormula1.set($any($event.target).value)" /></label>
+            <label class="op-hf-field"><span>{{ 'office.dv.formula2' | translate }}</span>
+              <input class="op-share-input" [value]="dvFormula2()" (input)="dvFormula2.set($any($event.target).value)" /></label>
+            <label class="op-hf-field"><span>{{ 'office.dv.message' | translate }}</span>
+              <input class="op-share-input" [value]="dvMessage()" (input)="dvMessage.set($any($event.target).value)" /></label>
+            <button type="button" class="op-text-btn" (click)="applyDataValidation()">{{ 'office.dv.apply' | translate }}</button>
+          </div>
+        }
+        <div class="op-sheet-tabs">
+          @for (sheet of excel()!.sheets; track sheet.name; let index = $index) {
+            <button type="button" class="op-sheet-tab" [class.op-sheet-active]="selectedSheet() === index" (click)="selectSheet(index)">
+              {{ sheet.name }}
+            </button>
+          }
+        </div>
+      </section>
+    }
+
+    @if (doc() && app() === 'ppt') {
+      <section class="op-ppt-stage">
+        <aside class="op-ppt-thumbs">
+          @for (slide of ppt()!.slides; track slide.index; let index = $index) {
+            <button type="button" class="op-ppt-thumb" [class.op-ppt-thumb-active]="selectedSlide() === index" [class.op-ppt-thumb-hidden]="slide.hidden" (click)="selectSlide(index)">
+              <span class="op-ppt-thumb-index">{{ slide.index }}</span>
+              <span class="op-ppt-thumb-text">{{ slide.shapes[0]?.text ?? ('office.ppt.blank' | translate) }}</span>
+              @if (slide.hidden) { <span class="op-ppt-thumb-badge">{{ 'office.ppt.hidden' | translate }}</span> }
+            </button>
+          }
+        </aside>
+        <div class="op-ppt-canvas-wrap" (touchstart)="onSwipeStart($event)" (touchend)="onSwipeEnd($event, 'slide')">
+          <div class="op-ppt-canvas" [style.width.px]="stageWidth" [style.height.px]="stageHeight()" [style.background]="currentSlide()?.background ?? '#ffffff'">
+            @for (shape of currentSlide()?.shapes ?? []; track shape.id) {
+              <div class="op-ppt-shape" [class.op-ppt-selected]="selectedShapeId() === shape.id" [attr.data-kind]="shape.kind ?? 'text'"
+                   [style]="shapeStyle(shape)" [attr.contenteditable]="isEditableShape(shape) ? 'true' : null"
+                   spellcheck="false" (click)="selectShape(shape)" (blur)="onShapeBlur(shape, $event)">
+                @if (shape.kind === 'video' && mediaUrlFor(shape); as url) {
+                  <video class="op-ppt-media" [src]="url" controls playsinline preload="metadata"></video>
+                } @else if (shape.kind === 'audio' && mediaUrlFor(shape); as url) {
+                  <audio class="op-ppt-media" [src]="url" controls preload="metadata"></audio>
+                } @else {
+                  {{ shape.text }}
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+      @if (pptEffectsOpen()) {
+        <section class="op-ppt-effects">
+          <div class="op-effects-col">
+            <strong>{{ 'office.ppt.transition.title' | translate }}</strong>
+            <select class="op-share-select" [value]="transitionType()" (change)="transitionType.set($any($event.target).value)">
+              @for (type of ['none','fade','push','wipe','split','reveal','cut','zoom','cover','pull','morph']; track type) {
+                <option [value]="type">{{ ('office.ppt.transition.' + type) | translate }}</option>
+              }
+            </select>
+            <label class="op-effects-duration">
+              <span>{{ 'office.ppt.transition.duration' | translate }}</span>
+              <input type="number" min="100" step="100" [value]="transitionDuration()" (input)="transitionDuration.set(+$any($event.target).value || 500)" />
+              <span>ms</span>
+            </label>
+            <div class="op-track-actions">
+              <button type="button" class="op-text-btn" (click)="applyTransitionToSlide()">{{ 'office.ppt.transition.apply' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="applyTransitionEverywhere()">{{ 'office.ppt.transition.applyAll' | translate }}</button>
+            </div>
+          </div>
+          <div class="op-effects-col">
+            <strong>{{ 'office.ppt.animation.title' | translate }}</strong>
+            <span class="op-effects-selected">{{ selectedShapeId() ?? ('office.ppt.animation.selectShape' | translate) }}</span>
+            @if (pptEffectStatus()) {
+              <span class="op-effects-selected">{{ pptEffectStatus() }}</span>
+            }
+            <div class="op-track-actions">
+              <select class="op-share-select" [value]="animationEffect()" (change)="animationEffect.set($any($event.target).value)">
+                @for (effect of ['appear','fade','fly-in','zoom','wipe']; track effect) {
+                  <option [value]="effect">{{ ('office.ppt.animation.' + effect) | translate }}</option>
+                }
+              </select>
+              <select class="op-share-select" [value]="animationTrigger()" (change)="animationTrigger.set($any($event.target).value)">
+                <option value="click">{{ 'office.ppt.animation.onClick' | translate }}</option>
+                <option value="after">{{ 'office.ppt.animation.after' | translate }}</option>
+              </select>
+              <button type="button" class="op-text-btn" (click)="addShapeAnimation()" [disabled]="!selectedShapeId()">{{ 'office.ppt.animation.add' | translate }}</button>
+            </div>
+            <ul class="op-animation-list">
+              @for (animation of slideAnimations(); track $index) {
+                <li>
+                  <span>{{ animation.targetId }}</span>
+                  <span>{{ ('office.ppt.animation.' + animation.effect) | translate }}</span>
+                  <button type="button" class="op-text-btn" (click)="removeShapeAnimation($index)">{{ 'office.ppt.animation.remove' | translate }}</button>
+                </li>
+              } @empty {
+                <li class="op-empty">{{ 'office.ppt.animation.empty' | translate }}</li>
+              }
+            </ul>
+          </div>
+        </section>
+      }
+    }
+
+    @if (doc() && app() === 'pdf') {
+      <section class="op-pdf-stage">
+        <div class="op-pdf-toolbar">
+          <div class="op-pdf-group">
+            <button type="button" class="op-text-btn" (click)="prevPdfPage()" [disabled]="pdfPage() <= 1" [title]="'office.pdf.prev' | translate">‹</button>
+            <input class="op-pdf-page-input" type="number" min="1" [max]="pdfInfo()?.pageCount ?? 1" [value]="pdfPage()"
+                   (change)="setPdfPage(+$any($event.target).value)" [attr.aria-label]="'office.pdf.page' | translate" />
+            <span>/ {{ pdfInfo()?.pageCount ?? 1 }}</span>
+            <button type="button" class="op-text-btn" (click)="nextPdfPage()" [disabled]="pdfPage() >= (pdfInfo()?.pageCount ?? 1)" [title]="'office.pdf.next' | translate">›</button>
+          </div>
+          <div class="op-pdf-group">
+            <button type="button" class="op-text-btn op-zoom-btn" (click)="zoomBy(-10)">−</button>
+            <span class="op-zoom-value">{{ zoom() }}%</span>
+            <button type="button" class="op-text-btn op-zoom-btn" (click)="zoomBy(10)">+</button>
+            <button type="button" class="op-text-btn" (click)="rotatePdf()">{{ 'office.pdf.rotate' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="openPdfSearch()">{{ 'office.pdf.search' | translate }}</button>
+          </div>
+          <div class="op-pdf-group">
+            <button type="button" class="op-text-btn" [class.op-ribbon-active]="annotationTool() === 'highlight'" (click)="setAnnotationTool('highlight')">{{ 'office.pdf.tool.highlight' | translate }}</button>
+            <button type="button" class="op-text-btn" [class.op-ribbon-active]="annotationTool() === 'ink'" (click)="setAnnotationTool('ink')">{{ 'office.pdf.tool.ink' | translate }}</button>
+            <button type="button" class="op-text-btn" [class.op-ribbon-active]="annotationTool() === 'note'" (click)="setAnnotationTool('note')">{{ 'office.pdf.tool.note' | translate }}</button>
+            <button type="button" class="op-text-btn" [class.op-ribbon-active]="annotationTool() === 'eraser'" (click)="setAnnotationTool('eraser')">{{ 'office.pdf.tool.eraser' | translate }}</button>
+            <input class="op-pdf-color" type="color" [value]="annotationColor()" (input)="annotationColor.set($any($event.target).value)" [title]="'office.pdf.color' | translate" />
+            <button type="button" class="op-text-btn" (click)="clearPageAnnotations()">{{ 'office.pdf.clearPage' | translate }}</button>
+          </div>
+        </div>
+        @if (pdfSearchOpen()) {
+          <div class="op-pdf-searchbar">
+            <input class="op-share-input op-pdf-search-input" type="search" [value]="pdfSearchQuery()"
+                   (input)="updatePdfSearch($any($event.target).value)"
+                   (keydown)="onPdfSearchEnter($event)"
+                   [placeholder]="'office.pdf.searchPlaceholder' | translate"
+                   [attr.aria-label]="'office.pdf.searchPlaceholder' | translate" />
+            <span class="op-pdf-search-count">{{ pdfSearchPosition().position }} / {{ pdfSearchPosition().total }}</span>
+            <button type="button" class="op-text-btn" (click)="prevPdfHit()" [disabled]="!pdfSearchHits().length"
+                    [title]="'office.pdf.prevHit' | translate">‹</button>
+            <button type="button" class="op-text-btn" (click)="nextPdfHit()" [disabled]="!pdfSearchHits().length"
+                    [title]="'office.pdf.nextHit' | translate">›</button>
+            <button type="button" class="op-text-btn" (click)="closePdfSearch()">{{ 'office.action.close' | translate }}</button>
+          </div>
+          @if (pdfSearchQuery().trim() && !pdfSearchHits().length) {
+            <div class="op-pdf-noresult" role="status">{{ 'office.pdf.noResults' | translate }}</div>
+          } @else if (pdfSearchHits().length) {
+            <ul class="op-pdf-hits">
+              @for (hit of pdfSearchHits(); track hit.index) {
+                <li>
+                  <button type="button" class="op-pdf-hit" [class.op-ribbon-active]="pdfSearchIndex() === hit.index"
+                          (click)="pdfSearchIndex.set(hit.index); setPdfPage(hit.page)">
+                    <span class="op-pdf-hit-page">{{ hit.page }}</span>
+                    <span class="op-pdf-hit-text">{{ hit.before }}<mark>{{ hit.match }}</mark>{{ hit.after }}</span>
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        }
+        @if (pdfPageUrl()) {
+          <div class="op-pdf-body">
+            <aside class="op-pdf-thumbs">
+              @for (page of pdfPageNumbers(); track page) {
+                <button type="button" class="op-pdf-thumb" [class.op-pdf-thumb-active]="pdfPage() === page"
+                        (click)="setPdfPage(page)" [title]="('office.pdf.page' | translate) + ' ' + page">
+                  @if (pdfThumbUrl(page); as thumb) {
+                    <iframe class="op-pdf-thumb-frame" [src]="thumb" tabindex="-1" aria-hidden="true" loading="lazy"></iframe>
+                  }
+                  <span class="op-pdf-thumb-index">{{ page }}</span>
+                </button>
+              }
+            </aside>
+            <div class="op-pdf-page-scroll">
+            <div class="op-pdf-page" [style.aspect-ratio]="pdfAspect()" [style.zoom]="zoom() / 100" [style.transform]="'rotate(' + pdfRotation() + 'deg)'">
+              @if (pdfPageSegments().length) {
+                <div class="op-pdf-textlayer">
+                  @for (segment of pdfPageSegments(); track $index) {
+                    @if (segment.match) {
+                      <mark>{{ segment.text }}</mark>
+                    } @else {
+                      <span>{{ segment.text }}</span>
+                    }
+                  }
+                </div>
+              } @else {
+                @for (pageUrl of [pdfPageUrl()]; track pdfPage()) {
+                  <iframe class="op-pdf-page-frame" [src]="pageUrl" [title]="doc()!.fileName"></iframe>
+                }
+              }
+              <svg class="op-pdf-annotations" viewBox="0 0 1000 1000" preserveAspectRatio="none"
+                   (pointerdown)="onAnnotationPointerDown($event)" (pointermove)="onAnnotationPointerMove($event)"
+                   (pointerup)="onAnnotationPointerUp($event)" (pointercancel)="onAnnotationPointerUp($event)">
+                @for (annotation of pageAnnotations(); track annotation.id) {
+                  @if (annotation.type === 'highlight') {
+                    <rect [attr.x]="annotation.x * 1000" [attr.y]="annotation.y * 1000"
+                          [attr.width]="(annotation.width ?? 0) * 1000" [attr.height]="(annotation.height ?? 0) * 1000"
+                          [attr.fill]="annotation.color" fill-opacity="0.35" (click)="eraseAnnotation(annotation)" />
+                  } @else if (annotation.type === 'ink') {
+                    <polyline [attr.points]="annotationPointsValue(annotation)" [attr.stroke]="annotation.color"
+                              stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"
+                              (click)="eraseAnnotation(annotation)" />
+                  } @else {
+                    <circle [attr.cx]="annotation.x * 1000" [attr.cy]="annotation.y * 1000" r="12"
+                            [attr.fill]="annotation.color" stroke="#92400e" stroke-width="1"
+                            (click)="eraseAnnotation(annotation)">
+                      <title>{{ annotation.text }}</title>
+                    </circle>
+                  }
+                }
+                @if (annotationPreview(); as preview) {
+                  @if (preview.type === 'highlight') {
+                    <rect [attr.x]="preview.x * 1000" [attr.y]="preview.y * 1000"
+                          [attr.width]="(preview.width ?? 0) * 1000" [attr.height]="(preview.height ?? 0) * 1000"
+                          [attr.fill]="preview.color" fill-opacity="0.25" stroke="#334155" stroke-dasharray="4 3" />
+                  } @else {
+                    <polyline [attr.points]="annotationPointsValue(preview)" [attr.stroke]="preview.color"
+                              stroke-width="3" fill="none" stroke-dasharray="4 3" />
+                  }
+                }
+              </svg>
+            </div>
+          </div>
+          </div>
+        } @else {
+          <div class="op-empty">{{ 'office.pdf.loading' | translate }}</div>
+        }
+        @if (annotationTool() === 'note') {
+          <div class="op-pdf-note">
+            <span>{{ pendingNote() ? ('office.pdf.notePick' | translate) : ('office.pdf.noteHint' | translate) }}</span>
+            <input class="op-share-input" [value]="noteDraft()" (input)="noteDraft.set($any($event.target).value)"
+                   [placeholder]="'office.pdf.notePlaceholder' | translate" />
+            <button type="button" class="op-text-btn" (click)="addNote()" [disabled]="!pendingNote() || !noteDraft().trim()">{{ 'office.pdf.noteAdd' | translate }}</button>
+          </div>
+        }
+      </section>
+    }
+
+    @if (infoOpen() && doc()) {
+      <aside class="op-info-drawer">
+        <div class="op-info-head">
+          <strong>{{ 'office.menu.info' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleInfo()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <dl>
+          <dt>{{ 'office.info.file' | translate }}</dt><dd>{{ doc()!.fileName }}</dd>
+          <dt>{{ 'office.info.app' | translate }}</dt><dd>{{ app() }}</dd>
+          <dt>{{ 'office.info.warnings' | translate }}</dt><dd>{{ doc()!.warnings.length }}</dd>
+        </dl>
+        @if (hasNestedTables()) {
+          <p class="op-hf-hint">{{ 'office.info.nestedTables' | translate }}</p>
+        }
+      </aside>
+    }
+
+    @if (commentsOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.comments.title' | translate }}</strong>
+          <div class="op-comment-nav">
+            <button type="button" class="op-text-btn" (click)="gotoComment(-1)" [title]="'office.comments.prev' | translate">‹</button>
+            <button type="button" class="op-text-btn" (click)="gotoComment(1)" [title]="'office.comments.next' | translate">›</button>
+            <button type="button" class="op-text-btn" (click)="toggleComments()">{{ 'office.action.close' | translate }}</button>
+          </div>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.comments.filter' | translate }}</span>
+          <select class="op-share-select" [value]="commentFilter()" (change)="commentFilter.set($any($event.target).value)">
+            <option value="all">{{ 'office.comments.filter.all' | translate }}</option>
+            <option value="unresolved">{{ 'office.comments.filter.unresolved' | translate }}</option>
+            <option value="resolved">{{ 'office.comments.filter.resolved' | translate }}</option>
+          </select>
+        </label>
+        <div class="op-comment-compose">
+          <textarea class="op-comment-input" rows="3" [value]="commentDraft()"                    (input)="commentDraft.set($any($event.target).value)"
+                    [placeholder]="(selectedParagraph() === null ? 'office.comments.selectParagraph' : 'office.comments.placeholder') | translate"></textarea>
+          <button type="button" class="op-text-btn" (click)="addComment()"
+                  [disabled]="selectedParagraph() === null || !commentDraft().trim()">{{ 'office.comments.add' | translate }}</button>
+        </div>
+        @for (thread of filteredCommentThreads(); track thread.root.id) {
+          <article class="op-comment-card" [class.op-comment-resolved]="thread.root.resolved">
+            <header class="op-comment-head">
+              <span class="op-comment-unread" [class.op-read]="isCommentRead(thread.root.id)" aria-hidden="true"></span>
+              <span class="op-comment-avatar">{{ thread.root.initials }}</span>
+              <span class="op-comment-author">{{ thread.root.author }}</span>
+              <span class="op-comment-date">{{ thread.root.date.slice(0, 16).replace('T', ' ') }}</span>
+            </header>
+            <p class="op-comment-text">{{ thread.root.text }}</p>
+            @for (reply of thread.replies; track reply.id) {
+              <div class="op-comment-reply">
+                <header class="op-comment-head">
+                  <span class="op-comment-avatar">{{ reply.initials }}</span>
+                  <span class="op-comment-author">{{ reply.author }}</span>
+                </header>
+                <p class="op-comment-text">{{ reply.text }}</p>
+              </div>
+            }
+            <footer class="op-comment-actions">
+              <button type="button" class="op-text-btn" (click)="replyTarget.set(replyTarget() === thread.root.id ? null : thread.root.id)">{{ 'office.comments.reply' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="toggleResolved(thread.root)">{{ (thread.root.resolved ? 'office.comments.unresolve' : 'office.comments.resolve') | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="removeThread(thread.root)">{{ 'office.comments.delete' | translate }}</button>
+            </footer>
+            @if (replyTarget() === thread.root.id) {
+              <div class="op-comment-compose">
+                <textarea class="op-comment-input" rows="2" [value]="replyDraft()"
+                          (input)="replyDraft.set($any($event.target).value)"
+                          [placeholder]="'office.comments.replyPlaceholder' | translate"></textarea>
+                <button type="button" class="op-text-btn" (click)="submitReply(thread.root)" [disabled]="!replyDraft().trim()">{{ 'office.comments.send' | translate }}</button>
+              </div>
+            }
+          </article>
+        } @empty {
+          <div class="op-empty">{{ 'office.comments.empty' | translate }}</div>
+        }
+      </aside>
+    }
+
+    @if (revisionsOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.track.title' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleRevisions()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="acceptEveryRevision()" [disabled]="!revisions().length">{{ 'office.track.acceptAll' | translate }}</button>
+          <button type="button" class="op-text-btn" (click)="rejectEveryRevision()" [disabled]="!revisions().length">{{ 'office.track.rejectAll' | translate }}</button>
+        </div>
+        <div class="op-track-actions op-markup-modes">
+          <span class="op-effects-selected">{{ 'office.word.markup' | translate }}</span>
+          <button type="button" class="op-text-btn" [class.op-ribbon-active]="markupMode() === 'all'" (click)="setMarkupMode('all')">{{ 'office.word.markup.all' | translate }}</button>
+          <button type="button" class="op-text-btn" [class.op-ribbon-active]="markupMode() === 'simple'" (click)="setMarkupMode('simple')">{{ 'office.word.markup.simple' | translate }}</button>
+          <button type="button" class="op-text-btn" [class.op-ribbon-active]="markupMode() === 'none'" (click)="setMarkupMode('none')">{{ 'office.word.markup.none' | translate }}</button>
+        </div>
+        <div class="op-track-summary">
+          <span>{{ 'office.track.insert' | translate }}: {{ revisionCounts().insert }}</span>
+          <span>{{ 'office.track.delete' | translate }}: {{ revisionCounts().delete }}</span>
+          <span>{{ 'office.track.format' | translate }}: {{ revisionCounts().format }}</span>
+        </div>
+        @for (revision of revisions(); track revision.id) {
+          <article class="op-revision-card" [attr.data-type]="revision.type">
+            <span class="op-revision-type">{{ ('office.track.' + revision.type) | translate }}</span>
+            <p class="op-comment-text">{{ revisionLabel(revision) }}</p>
+            <span class="op-comment-date">{{ revision.author }} · {{ revision.date.slice(0, 16).replace('T', ' ') }}</span>
+            <footer class="op-comment-actions">
+              <button type="button" class="op-text-btn" (click)="accept(revision.id)">{{ 'office.track.accept' | translate }}</button>
+              <button type="button" class="op-text-btn" (click)="reject(revision.id)">{{ 'office.track.reject' | translate }}</button>
+            </footer>
+          </article>
+        } @empty {
+          <div class="op-empty">{{ 'office.track.empty' | translate }}</div>
+        }
+      </aside>
+    }
+
+    @if (headerFooterOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.headerFooter' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleHeaderFooter()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.header' | translate }}</span>
+          <input class="op-share-input" [value]="headerText()" (input)="updateHeaderText($any($event.target).value)" />
+        </label>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.footer' | translate }}</span>
+          <input class="op-share-input" [value]="footerText()" (input)="updateFooterText($any($event.target).value)" />
+        </label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="insertFooterPageNumber()" [disabled]="footerPageNumber()">{{ 'office.word.insertPageNumber' | translate }}</button>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.pageFormat' | translate }}</span>
+          <select class="op-share-select" [value]="pageNumberFormat()" (change)="pageNumberFormat.set($any($event.target).value)">
+            @for (format of ['decimal','upperRoman','lowerRoman','upperLetter','lowerLetter']; track format) {
+              <option [value]="format">{{ ('office.word.pageFormat.' + format) | translate }}</option>
+            }
+          </select>
+        </label>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.pageStart' | translate }}</span>
+          <input class="op-share-input" type="number" min="1" [value]="pageNumberStart() ?? 1"
+                 (input)="pageNumberStart.set(+$any($event.target).value || null)" />
+        </label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="applyPageNumberingSettings()">{{ 'office.word.applyPageNumber' | translate }}</button>
+        </div>
+        <label class="op-hf-check">
+          <input type="checkbox" [checked]="differentFirstPage()" (change)="updateDifferentFirstPage($any($event.target).checked)" />
+          <span>{{ 'office.word.differentFirst' | translate }}</span>
+        </label>
+        <p class="op-hf-hint">{{ 'office.word.headerFooterHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (notesPanelOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.notes' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleNotes()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <div class="op-comment-compose">
+          <select class="op-share-select" [value]="noteKind()" (change)="noteKind.set($any($event.target).value)">
+            <option value="footnote">{{ 'office.word.footnote' | translate }}</option>
+            <option value="endnote">{{ 'office.word.endnote' | translate }}</option>
+          </select>
+          <textarea class="op-comment-input" rows="3" [value]="wordNoteDraft()"
+                    (input)="wordNoteDraft.set($any($event.target).value)"
+                    [placeholder]="(selectedParagraph() === null ? 'office.comments.selectParagraph' : 'office.word.notePlaceholder') | translate"></textarea>
+          <button type="button" class="op-text-btn" (click)="addWordNote()"
+                  [disabled]="selectedParagraph() === null || !wordNoteDraft().trim()">{{ 'office.word.addNote' | translate }}</button>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.footnoteFormat' | translate }}</span>
+          <select class="op-share-select" [value]="noteFormat()" (change)="updateNoteNumbering('footnote', $any($event.target).value)">
+            @for (format of ['decimal','lowerRoman','upperRoman','lowerLetter','upperLetter']; track format) {
+              <option [value]="format">{{ ('office.word.pageFormat.' + format) | translate }}</option>
+            }
+          </select>
+        </label>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.endnoteFormat' | translate }}</span>
+          <select class="op-share-select" [value]="endnoteFormat()" (change)="updateNoteNumbering('endnote', $any($event.target).value)">
+            @for (format of ['decimal','lowerRoman','upperRoman','lowerLetter','upperLetter']; track format) {
+              <option [value]="format">{{ ('office.word.pageFormat.' + format) | translate }}</option>
+            }
+          </select>
+        </label>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.noteRestart' | translate }}</span>
+          <select class="op-share-select" [value]="wordNotes()?.footnoteRestart ?? 'continuous'"
+                  (change)="updateNoteNumbering('footnote', noteFormat(), $any($event.target).value)">
+            <option value="continuous">{{ 'office.word.restart.continuous' | translate }}</option>
+            <option value="eachSect">{{ 'office.word.restart.eachSect' | translate }}</option>
+            <option value="eachPage">{{ 'office.word.restart.eachPage' | translate }}</option>
+          </select>
+        </label>
+        <div class="op-note-list">
+          @for (note of footnotes(); track 'f' + note.id) {
+            <div class="op-note-item">
+              <button type="button" class="op-note-link" (click)="gotoNote(note)">{{ note.numbering }}</button>
+              <span class="op-note-text">{{ note.text }}</span>
+              <button type="button" class="op-text-btn" (click)="removeNoteItem(note)">{{ 'office.comments.delete' | translate }}</button>
+            </div>
+          }
+          @for (note of endnotes(); track 'e' + note.id) {
+            <div class="op-note-item">
+              <button type="button" class="op-note-link" (click)="gotoNote(note)">i{{ note.numbering }}</button>
+              <span class="op-note-text">{{ note.text }}</span>
+              <button type="button" class="op-text-btn" (click)="removeNoteItem(note)">{{ 'office.comments.delete' | translate }}</button>
+            </div>
+          }
+          @if (!footnotes().length && !endnotes().length) {
+            <div class="op-empty">{{ 'office.word.noNotes' | translate }}</div>
+          }
+        </div>
+      </aside>
+    }
+
+    @if (citationsOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.citations' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleCitations()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.citationType' | translate }}</span>
+          <select class="op-share-select" [value]="citationType()" (change)="citationType.set($any($event.target).value)">
+            <option value="book">{{ 'office.word.citation.book' | translate }}</option>
+            <option value="journalArticle">{{ 'office.word.citation.journalArticle' | translate }}</option>
+            <option value="website">{{ 'office.word.citation.website' | translate }}</option>
+            <option value="report">{{ 'office.word.citation.report' | translate }}</option>
+          </select>
+        </label>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.citationAuthor' | translate }}</span>
+          <input class="op-share-input" [value]="citationAuthor()" (input)="citationAuthor.set($any($event.target).value)" />
+        </label>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.citationTitle' | translate }}</span>
+          <input class="op-share-input" [value]="citationTitle()" (input)="citationTitle.set($any($event.target).value)" />
+        </label>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.citationYear' | translate }}</span>
+          <input class="op-share-input" type="number" [value]="citationYear()" (input)="citationYear.set($any($event.target).value)" />
+        </label>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.citationPublisher' | translate }}</span>
+          <input class="op-share-input" [value]="citationPublisher()" (input)="citationPublisher.set($any($event.target).value)" />
+        </label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="addCitation()" [disabled]="!citationAuthor().trim() || !citationTitle().trim()">{{ 'office.word.addCitation' | translate }}</button>
+        </div>
+        <div class="op-note-list">
+          @for (source of sources(); track source.tag) {
+            <div class="op-note-item">
+              <button type="button" class="op-note-link" (click)="citeSource(source)" [title]="'office.word.cite' | translate">{{ source.year || 'n.d.' }}</button>
+              <span class="op-note-text">{{ sourcePreview(source) }}</span>
+              <button type="button" class="op-text-btn" (click)="removeSource(source)">{{ 'office.comments.delete' | translate }}</button>
+            </div>
+          } @empty {
+            <div class="op-empty">{{ 'office.word.noSources' | translate }}</div>
+          }
+        </div>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="insertBibliography()" [disabled]="!sources().length">{{ 'office.word.bibliography' | translate }}</button>
+        </div>
+        <p class="op-hf-hint">{{ 'office.word.citationHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (mailMergeOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.mailMerge.title' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleMailMerge()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.mailMerge.target' | translate }}</span>
+          <select class="op-share-select" [value]="mailMerge().target" (change)="setMergeTarget($any($event.target).value)">
+            <option value="letters">{{ 'office.mailMerge.letters' | translate }}</option>
+            <option value="envelopes">{{ 'office.mailMerge.envelopes' | translate }}</option>
+            <option value="labels">{{ 'office.mailMerge.labels' | translate }}</option>
+          </select>
+        </label>
+        <input #mergeFileInput type="file" accept=".csv,.xlsx,.txt" hidden (change)="loadMergeData($event)" />
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="pickMergeData()">{{ 'office.mailMerge.choose' | translate }}</button>
+        </div>
+        @if (mailMerge().sourceName) {
+          <p class="op-hf-hint">{{ mailMerge().sourceName }} — {{ mailMerge().recipients.length }} {{ 'office.mailMerge.recipients' | translate }}</p>
+        }
+        @if (mailMerge().fields.length) {
+          <label class="op-hf-field">
+            <span>{{ 'office.mailMerge.insertField' | translate }}</span>
+            <select class="op-share-select" [value]="mergeFieldDraft()" (change)="mergeFieldDraft.set($any($event.target).value)">
+              @for (field of mailMerge().fields; track field) {
+                <option [value]="field">{{ field }}</option>
+              }
+            </select>
+          </label>
+          <div class="op-track-actions">
+            <button type="button" class="op-text-btn" (click)="insertMergeFieldNow()">{{ 'office.mailMerge.insertField' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="insertAddressBlockNow()">{{ 'office.mailMerge.addressBlock' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="insertGreetingLineNow()">{{ 'office.mailMerge.greetingLine' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="insertLabelsNow()">{{ 'office.mailMerge.labels' | translate }}</button>
+          </div>
+          <label class="op-hf-field">
+            <span>{{ 'office.mailMerge.greetingField' | translate }}</span>
+            <select class="op-share-select" [value]="mailMerge().greetingLine"
+                    (change)="mailMerge.set({ ...mailMerge(), greetingLine: $any($event.target).value })">
+              @for (field of mailMerge().fields; track field) {
+                <option [value]="field">{{ field }}</option>
+              }
+            </select>
+          </label>
+        }
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" [class.op-rb-active]="mailMerge().highlight" (click)="toggleMergeHighlight()">{{ 'office.mailMerge.highlight' | translate }}</button>
+          <button type="button" class="op-text-btn" [class.op-rb-active]="mailMerge().previewIndex !== null" (click)="toggleMergePreview()">{{ 'office.mailMerge.preview' | translate }}</button>
+          <button type="button" class="op-text-btn" (click)="checkMergeErrorsNow()">{{ 'office.mailMerge.checkErrors' | translate }}</button>
+          <button type="button" class="op-text-btn" (click)="finishMergeNow()">{{ 'office.mailMerge.finish' | translate }}</button>
+        </div>
+        @if (mailMerge().previewIndex !== null) {
+          <div class="op-track-actions">
+            <button type="button" class="op-text-btn" (click)="stepMergePreview(-1)" [title]="'office.mailMerge.prev' | translate">‹</button>
+            <span class="op-hf-hint">{{ (mailMerge().previewIndex ?? 0) + 1 }} / {{ mailMerge().recipients.length }}</span>
+            <button type="button" class="op-text-btn" (click)="stepMergePreview(1)" [title]="'office.mailMerge.next' | translate">›</button>
+          </div>
+        }
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" [class.op-rb-active]="mergePanelMode() === 'rules'"
+                  (click)="mergePanelMode.set(mergePanelMode() === 'rules' ? 'main' : 'rules')">{{ 'office.mailMerge.rules' | translate }}</button>
+        </div>
+        @if (mergePanelMode() === 'rules') {
+          <label class="op-hf-field">
+            <span>{{ 'office.mailMerge.rules' | translate }}</span>
+            <select class="op-share-select" [value]="mergeRuleKind()" (change)="mergeRuleKind.set($any($event.target).value)">
+              <option value="next">{{ 'office.mailMerge.ruleNext' | translate }}</option>
+              <option value="if">{{ 'office.mailMerge.ruleIf' | translate }}</option>
+            </select>
+          </label>
+          @if (mergeRuleKind() === 'if') {
+            <label class="op-hf-field">
+              <span>{{ 'office.mailMerge.ruleField' | translate }}</span>
+              <select class="op-share-select" [value]="mergeRuleField()" (change)="mergeRuleField.set($any($event.target).value)">
+                @for (field of mailMerge().fields; track field) {
+                  <option [value]="field">{{ field }}</option>
+                }
+              </select>
+            </label>
+            <label class="op-hf-field">
+              <span>{{ 'office.mailMerge.ruleOperator' | translate }}</span>
+              <select class="op-share-select" [value]="mergeRuleOperator()" (change)="mergeRuleOperator.set($any($event.target).value)">
+                <option value="=">=</option>
+                <option value="<>">&lt;&gt;</option>
+                <option value="&gt;">&gt;</option>
+                <option value="&lt;">&lt;</option>
+                <option value="&gt;=">&gt;=</option>
+                <option value="&lt;=">&lt;=</option>
+              </select>
+            </label>
+            <label class="op-hf-field">
+              <span>{{ 'office.mailMerge.ruleValue' | translate }}</span>
+              <input class="op-share-input" [value]="mergeRuleValue()" (input)="mergeRuleValue.set($any($event.target).value)" />
+            </label>
+            <label class="op-hf-field">
+              <span>{{ 'office.mailMerge.ruleTrue' | translate }}</span>
+              <input class="op-share-input" [value]="mergeRuleTrue()" (input)="mergeRuleTrue.set($any($event.target).value)" />
+            </label>
+            <label class="op-hf-field">
+              <span>{{ 'office.mailMerge.ruleFalse' | translate }}</span>
+              <input class="op-share-input" [value]="mergeRuleFalse()" (input)="mergeRuleFalse.set($any($event.target).value)" />
+            </label>
+          }
+          <div class="op-track-actions">
+            <button type="button" class="op-text-btn" (click)="insertMergeRuleNow()">{{ 'office.mailMerge.insertRule' | translate }}</button>
+          </div>
+        }
+        @if (mailMerge().recipients.length) {
+          <label class="op-hf-field">
+            <span>{{ 'office.mailMerge.find' | translate }}</span>
+            <input class="op-share-input" [value]="mergeFind()" (input)="mergeFind.set($any($event.target).value)" />
+          </label>
+          <div class="op-track-actions">
+            <button type="button" class="op-text-btn" (click)="setMergeRecipients(true)">{{ 'office.mailMerge.selectAll' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="setMergeRecipients(false)">{{ 'office.mailMerge.clearAll' | translate }}</button>
+          </div>
+          <div class="op-note-list">
+            @for (item of mergeRecipients(); track item.index) {
+              <label class="op-note-item">
+                <input type="checkbox" [checked]="mailMerge().selected.includes(item.index)"
+                       (change)="toggleMergeRecipient(item.index)" />
+                <span class="op-note-text">{{ mergeRecipientLabel(item.record, item.index) }}</span>
+              </label>
+            } @empty {
+              <div class="op-empty">{{ 'office.mailMerge.noMatches' | translate }}</div>
+            }
+          </div>
+        }
+        @if (mailMerge().errors.length) {
+          <div class="op-note-list">
+            @for (error of mailMerge().errors; track error) {
+              <div class="op-note-item"><span class="op-note-text">{{ error }}</span></div>
+            }
+          </div>
+        }
+        @if (mergeMessage()) {
+          <p class="op-hf-hint">{{ mergeMessage()! | translate }}</p>
+        }
+      </aside>
+    }
+
+    @if (indexOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.index.title' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleIndex()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.index.term' | translate }}</span>
+          <input class="op-share-input" [value]="indexTerm()" (input)="indexTerm.set($any($event.target).value)" />
+        </label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="markIndexEntryNow()" [disabled]="!indexTerm().trim()">{{ 'office.index.mark' | translate }}</button>
+        </div>
+        <div class="op-note-list">
+          @for (entry of indexDisplay(); track $index) {
+            <div class="op-note-item">
+              <span class="op-note-link">{{ entry.page || '—' }}</span>
+              <span class="op-note-text">{{ entry.term }}</span>
+            </div>
+          } @empty {
+            <div class="op-empty">{{ 'office.index.empty' | translate }}</div>
+          }
+        </div>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="insertIndexNow()" [disabled]="!indexDisplay().length">{{ 'office.index.insert' | translate }}</button>
+          <button type="button" class="op-text-btn" (click)="updateIndexNow()" [disabled]="!indexDisplay().length">{{ 'office.index.update' | translate }}</button>
+        </div>
+        <p class="op-hf-hint">{{ 'office.index.hint' | translate }}</p>
+      </aside>
+    }
+
+    @if (arrangePanel() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ arrangeTitleKey() | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="arrangePanel.set(null)">{{ 'office.action.close' | translate }}</button>
+        </div>
+        @if (arrangePanel() === 'position') {
+          <div class="op-arrange-grid">
+            <button type="button" class="op-text-btn" (click)="applyFloatAlign('left', 'top')">{{ 'office.arrange.topLeft' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="applyFloatAlign('center', 'top')">{{ 'office.arrange.topCenter' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="applyFloatAlign('right', 'top')">{{ 'office.arrange.topRight' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="applyFloatAlign('left', 'middle')">{{ 'office.arrange.middleLeft' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="applyFloatAlign('center', 'middle')">{{ 'office.arrange.middleCenter' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="applyFloatAlign('right', 'middle')">{{ 'office.arrange.middleRight' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="applyFloatAlign('left', 'bottom')">{{ 'office.arrange.bottomLeft' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="applyFloatAlign('center', 'bottom')">{{ 'office.arrange.bottomCenter' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="applyFloatAlign('right', 'bottom')">{{ 'office.arrange.bottomRight' | translate }}</button>
+          </div>
+          <label class="op-hf-field">
+            <span>{{ 'office.arrange.x' | translate }}</span>
+            <input class="op-share-input" type="number" [value]="floatX()" (input)="floatX.set(+$any($event.target).value)" />
+          </label>
+          <label class="op-hf-field">
+            <span>{{ 'office.arrange.y' | translate }}</span>
+            <input class="op-share-input" type="number" [value]="floatY()" (input)="floatY.set(+$any($event.target).value)" />
+          </label>
+          <div class="op-track-actions">
+            <button type="button" class="op-text-btn" (click)="applyFloatPosition(floatX(), floatY())">{{ 'office.arrange.apply' | translate }}</button>
+          </div>
+        }
+        @if (arrangePanel() === 'wrap') {
+          <label class="op-hf-field">
+            <span>{{ 'office.arrange.wrap' | translate }}</span>
+            <select class="op-share-select" (change)="applyFloatWrap($any($event.target).value)">
+              <option value="square">{{ 'office.arrange.square' | translate }}</option>
+              <option value="tight">{{ 'office.arrange.tight' | translate }}</option>
+              <option value="through">{{ 'office.arrange.through' | translate }}</option>
+              <option value="topAndBottom">{{ 'office.arrange.topAndBottom' | translate }}</option>
+              <option value="behind">{{ 'office.arrange.behind' | translate }}</option>
+              <option value="front">{{ 'office.arrange.front' | translate }}</option>
+            </select>
+          </label>
+          <p class="op-hf-hint">{{ 'office.arrange.wrapHint' | translate }}</p>
+        }
+        @if (arrangePanel() === 'align') {
+          <div class="op-arrange-grid">
+            <button type="button" class="op-text-btn" (click)="applyFloatAlign('left', 'top')">{{ 'office.arrange.left' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="applyFloatAlign('center', 'top')">{{ 'office.arrange.center' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="applyFloatAlign('right', 'top')">{{ 'office.arrange.right' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="applyFloatAlign('left', 'top')">{{ 'office.arrange.top' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="applyFloatAlign('left', 'middle')">{{ 'office.arrange.middle' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="applyFloatAlign('left', 'bottom')">{{ 'office.arrange.bottom' | translate }}</button>
+          </div>
+        }
+        @if (arrangePanel() === 'rotate') {
+          <div class="op-arrange-grid">
+            <button type="button" class="op-text-btn" (click)="applyFloatRotate(0)">0°</button>
+            <button type="button" class="op-text-btn" (click)="applyFloatRotate(90)">90°</button>
+            <button type="button" class="op-text-btn" (click)="applyFloatRotate(180)">180°</button>
+            <button type="button" class="op-text-btn" (click)="applyFloatRotate(270)">270°</button>
+          </div>
+        }
+        @if (arrangePanel() === 'selection') {
+          <div class="op-note-list">
+            @for (item of wordFloatList(); track item.run) {
+              <div class="op-note-item">
+                <button type="button" class="op-note-link" (click)="selectWordFloat($event, item.run)">{{ item.page }}</button>
+                <span class="op-note-text">{{ wordFloatLabel(item.run) || (wordFloatKindKey(item.run) | translate) }}</span>
+                <button type="button" class="op-text-btn" (click)="toggleFloatVisibility(item.run)">
+                  {{ (item.run.float?.hidden ? 'office.arrange.show' : 'office.arrange.hide') | translate }}
+                </button>
+              </div>
+            } @empty {
+              <div class="op-empty">{{ 'office.arrange.noObjects' | translate }}</div>
+            }
+          </div>
+          <div class="op-track-actions">
+            <button type="button" class="op-text-btn" (click)="groupSelectedFloats()" [disabled]="selectedWordFloats().length < 2">{{ 'office.arrange.group' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="ungroupSelectedFloats()" [disabled]="!selectedWordFloats().length">{{ 'office.arrange.ungroup' | translate }}</button>
+          </div>
+          <p class="op-hf-hint">{{ 'office.arrange.groupHint' | translate }}</p>
+        }
+        @if (arrangePanel() === 'position' || arrangePanel() === 'wrap' || arrangePanel() === 'align' || arrangePanel() === 'rotate') {
+          <p class="op-hf-hint">{{ 'office.arrange.hint' | translate }}</p>
+        }
+      </aside>
+    }
+
+    @if (paragraphOptionsOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.paragraphOptions' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="paragraphOptionsOpen.set(false)">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.lineSpacingLabel' | translate }}</span>
+          <select class="op-share-select" (change)="setWordLineSpacing(+$any($event.target).value)">
+            <option value="1">1.0</option>
+            <option value="1.15">1.15</option>
+            <option value="1.5">1.5</option>
+            <option value="2">2.0</option>
+          </select>
+        </label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="indentWordParagraph(-720)" [title]="'office.rb.indentDec' | translate">←</button>
+          <button type="button" class="op-text-btn" (click)="indentWordParagraph(720)" [title]="'office.rb.indentInc' | translate">→</button>
+        </div>
+        <p class="op-hf-hint">{{ 'office.word.paragraphOptionsHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (emojiOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.emojiTitle' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="emojiOpen.set(false)">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <div class="op-emoji-grid">
+          @for (item of wordEmojis; track item.char) {
+            <button type="button" class="op-text-btn" (click)="insertEmoji(item.char)">{{ item.labelKey | translate }}</button>
+          }
+        </div>
+        <p class="op-hf-hint">{{ 'office.word.emojiHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (tocOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.toc' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleToc()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="buildToc()" [disabled]="!tocList().length">{{ 'office.word.insertToc' | translate }}</button>
+        </div>
+        <div class="op-note-list">
+          @for (entry of tocList(); track $index) {
+            <div class="op-note-item">
+              <span class="op-note-link">{{ entry.level }}</span>
+              <span class="op-note-text">{{ entry.text }}</span>
+            </div>
+          } @empty {
+            <div class="op-empty">{{ 'office.word.noHeadings' | translate }}</div>
+          }
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.bookmarkName' | translate }}</span>
+          <input class="op-share-input" [value]="bookmarkName()" (input)="bookmarkName.set($any($event.target).value)" />
+        </label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="addNewBookmark()" [disabled]="selectedParagraph() === null || !bookmarkName().trim()">{{ 'office.word.addBookmark' | translate }}</button>
+        </div>
+        <div class="op-note-list">
+          @for (bookmark of bookmarks(); track bookmark.id) {
+            <div class="op-note-item">
+              <button type="button" class="op-note-link" (click)="insertReference(bookmark)" [title]="'office.word.insertReference' | translate">{{ bookmark.id }}</button>
+              <span class="op-note-text">{{ bookmark.name }}</span>
+              <button type="button" class="op-text-btn" (click)="removeBookmarkItem(bookmark)">{{ 'office.comments.delete' | translate }}</button>
+            </div>
+          } @empty {
+            <div class="op-empty">{{ 'office.word.noBookmarks' | translate }}</div>
+          }
+        </div>
+      </aside>
+    }
+
+    @if (equationOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.equation' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleEquation()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.equationKind' | translate }}</span>
+          <select class="op-share-select" [value]="equationKind()" (change)="equationKind.set($any($event.target).value)">
+            <option value="fraction">{{ 'office.word.equation.fraction' | translate }}</option>
+            <option value="sqrt">{{ 'office.word.equation.sqrt' | translate }}</option>
+            <option value="superscript">{{ 'office.word.equation.superscript' | translate }}</option>
+            <option value="subscript">{{ 'office.word.equation.subscript' | translate }}</option>
+            <option value="linear">{{ 'office.word.equation.linear' | translate }}</option>
+          </select>
+        </label>
+        @if (equationKind() === 'fraction') {
+          <label class="op-hf-field"><span>{{ 'office.word.equation.numerator' | translate }}</span>
+            <input class="op-share-input" [value]="equationNumerator()" (input)="equationNumerator.set($any($event.target).value)" /></label>
+          <label class="op-hf-field"><span>{{ 'office.word.equation.denominator' | translate }}</span>
+            <input class="op-share-input" [value]="equationDenominator()" (input)="equationDenominator.set($any($event.target).value)" /></label>
+        } @else if (equationKind() === 'superscript') {
+          <label class="op-hf-field"><span>{{ 'office.word.equation.base' | translate }}</span>
+            <input class="op-share-input" [value]="equationBase()" (input)="equationBase.set($any($event.target).value)" /></label>
+          <label class="op-hf-field"><span>{{ 'office.word.equation.exponent' | translate }}</span>
+            <input class="op-share-input" [value]="equationExponent()" (input)="equationExponent.set($any($event.target).value)" /></label>
+        } @else if (equationKind() === 'subscript') {
+          <label class="op-hf-field"><span>{{ 'office.word.equation.base' | translate }}</span>
+            <input class="op-share-input" [value]="equationBase()" (input)="equationBase.set($any($event.target).value)" /></label>
+          <label class="op-hf-field"><span>{{ 'office.word.equation.subscriptValue' | translate }}</span>
+            <input class="op-share-input" [value]="equationSubscript()" (input)="equationSubscript.set($any($event.target).value)" /></label>
+        } @else {
+          <label class="op-hf-field"><span>{{ 'office.word.equation.text' | translate }}</span>
+            <input class="op-share-input" [value]="equationText()" (input)="equationText.set($any($event.target).value)" /></label>
+        }
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="insertEquationItem()" [disabled]="selectedParagraph() === null">{{ 'office.word.insertEquation' | translate }}</button>
+        </div>
+        <div class="op-note-list">
+          @for (equation of equations(); track $index) {
+            <div class="op-note-item">
+              <span class="op-note-link">{{ equation.kind }}</span>
+              <span class="op-note-text">{{ equation.label }}</span>
+              <button type="button" class="op-text-btn" (click)="removeEquationItem(equation)">{{ 'office.comments.delete' | translate }}</button>
+            </div>
+          } @empty {
+            <div class="op-empty">{{ 'office.word.noEquations' | translate }}</div>
+          }
+        </div>
+      </aside>
+    }
+
+    @if (inkOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.ink' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleInk()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field"><span>{{ 'office.pdf.color' | translate }}</span>
+          <input class="op-pdf-color" type="color" [value]="inkColor()" (input)="inkColor.set($any($event.target).value)" /></label>
+        <label class="op-hf-field"><span>{{ 'office.word.inkWidth' | translate }}</span>
+          <input class="op-share-input" type="number" min="1" max="12" [value]="inkWidth()" (input)="inkWidth.set(+$any($event.target).value || 2)" /></label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="undoInkStroke()" [disabled]="!inkStrokes().length">{{ 'office.word.undoInk' | translate }}</button>
+          <button type="button" class="op-text-btn" (click)="clearInkStrokes()" [disabled]="!inkStrokes().length">{{ 'office.word.clearInk' | translate }}</button>
+        </div>
+        <p class="op-hf-hint">{{ 'office.word.inkHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (pptNotesOpen() && app() === 'ppt') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.ppt.notes' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="togglePptNotes()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.ppt.notesText' | translate }}</span>
+          <textarea class="op-share-input op-ppt-notes" rows="6" [value]="pptNotesDraft()"
+                    (input)="pptNotesDraft.set($any($event.target).value)"></textarea>
+        </label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="savePptNotes()">{{ 'office.action.save' | translate }}</button>
+        </div>
+        <p class="op-hf-hint">{{ 'office.ppt.notesHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (pptCommentsOpen() && app() === 'ppt') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.ppt.comments' | translate }} ({{ slideComments().length }})</strong>
+          <button type="button" class="op-text-btn" (click)="togglePptComments()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="nextPptComment(-1)" [disabled]="!slideComments().length">‹</button>
+          <button type="button" class="op-text-btn" (click)="nextPptComment(1)" [disabled]="!slideComments().length">›</button>
+          <span class="op-hf-hint">{{ pptCommentIndex() + 1 }} / {{ slideComments().length }}</span>
+        </div>
+        @if (currentPptComment(); as comment) {
+          <div class="op-note-item">
+            <span class="op-note-link">{{ comment.author }}</span>
+            <span class="op-note-text">{{ comment.text }}</span>
+            <button type="button" class="op-text-btn" (click)="deletePptComment(comment.id)">{{ 'office.action.delete' | translate }}</button>
+          </div>
+        } @else {
+          <div class="op-empty">{{ 'office.ppt.noComments' | translate }}</div>
+        }
+        <label class="op-hf-field">
+          <span>{{ 'office.ppt.commentText' | translate }}</span>
+          <input class="op-share-input" [value]="pptCommentDraft()" (input)="pptCommentDraft.set($any($event.target).value)" />
+        </label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="addPptComment()">{{ 'office.ppt.addComment' | translate }}</button>
+        </div>
+      </aside>
+    }
+
+    @if (pptSetupOpen() && app() === 'ppt') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.ppt.setup' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="togglePptSetup()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.ppt.background' | translate }}</span>
+          <input type="color" [value]="pptBackground()" (input)="applyPptBackground($any($event.target).value)" />
+        </label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="clearPptBackground()">{{ 'office.ppt.clearBackground' | translate }}</button>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.ppt.slideSize' | translate }}</span>
+          <select class="op-share-select" [value]="pptSize()" (change)="applyPptSize($any($event.target).value)">
+            <option value="16:9">16:9</option>
+            <option value="4:3">4:3</option>
+          </select>
+        </label>
+        <p class="op-hf-hint">{{ 'office.ppt.layout' | translate }}: {{ currentSlide()?.layoutName ?? '—' }}</p>
+        <p class="op-hf-hint">{{ 'office.ppt.setupHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (smartArtOpen() && app() === 'ppt') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.ppt.smartart.title' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleSmartArt()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        @if (smartArtShape(); as shape) {
+          <p class="op-hf-hint">{{ shape.name ?? 'SmartArt' }}</p>
+          <div class="op-smartart-nodes">
+            @for (text of smartArtDraft(); track $index; let nodeIndex = $index) {
+              <label class="op-hf-field">
+                <span>{{ 'office.ppt.smartart.node' | translate }} {{ nodeIndex + 1 }}</span>
+                <input class="op-share-input" [value]="text"
+                       (input)="updateSmartArtDraft(nodeIndex, $any($event.target).value)" />
+              </label>
+            }
+          </div>
+          <div class="op-track-actions">
+            <button type="button" class="op-text-btn" (click)="applySmartArt()">{{ 'office.ppt.smartart.apply' | translate }}</button>
+          </div>
+          <p class="op-hf-hint">{{ 'office.ppt.smartart.hint' | translate }}</p>
+        }
+      </aside>
+    }
+
+    @if (layoutOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.layout' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleLayout()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <p class="op-hf-hint">{{ 'office.word.sections' | translate }}: {{ sectionCount() }}</p>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.columns' | translate }}</span>
+          <input class="op-share-input" type="number" min="1" max="4" [value]="columnCount()"
+                 (input)="columnCount.set(+$any($event.target).value || 1)" />
+        </label>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.columnSpace' | translate }}</span>
+          <input class="op-share-input" type="number" min="0" step="60" [value]="columnSpace()"
+                 (input)="columnSpace.set(+$any($event.target).value || 0)" />
+        </label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="applyColumns()">{{ 'office.word.applyColumns' | translate }}</button>
+          <button type="button" class="op-text-btn" (click)="addSectionBreak()">{{ 'office.word.insertSectionBreak' | translate }}</button>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.pageSize' | translate }}</span>
+          <select class="op-share-select" [value]="pageSize()" (change)="pageSize.set($any($event.target).value)">
+            <option value="A4">A4</option>
+            <option value="Letter">Letter</option>
+          </select>
+        </label>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.orientation' | translate }}</span>
+          <select class="op-share-select" [value]="pageOrientation()" (change)="pageOrientation.set($any($event.target).value)">
+            <option value="portrait">{{ 'office.word.portrait' | translate }}</option>
+            <option value="landscape">{{ 'office.word.landscape' | translate }}</option>
+          </select>
+        </label>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.margins' | translate }}</span>
+          <select class="op-share-select" [value]="pageMargin()" (change)="pageMargin.set($any($event.target).value)">
+            <option value="normal">{{ 'office.word.margin.normal' | translate }}</option>
+            <option value="narrow">{{ 'office.word.margin.narrow' | translate }}</option>
+            <option value="wide">{{ 'office.word.margin.wide' | translate }}</option>
+          </select>
+        </label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="applyPageSetup()">{{ 'office.word.applyPageSetup' | translate }}</button>
+        </div>
+        <p class="op-hf-hint">{{ 'office.word.layoutHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (accessOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.accessibility' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleAccessibility()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <div class="op-track-summary">
+          <span>Alt: {{ accessSummary().IMAGE_ALT_MISSING }}</span>
+          <span>H: {{ accessSummary().HEADING_SKIP + accessSummary().EMPTY_HEADING }}</span>
+          <span>Table: {{ accessSummary().TABLE_NO_HEADER }}</span>
+        </div>
+        <div class="op-note-list">
+          @for (issue of accessIssues(); track $index; let issueIndex = $index) {
+            <div class="op-note-item">
+              <span class="op-note-link">{{ issue.code === 'IMAGE_ALT_MISSING' ? 'Alt' : issue.code === 'TABLE_NO_HEADER' ? 'Tbl' : 'H' }}</span>
+              <span class="op-note-text">
+                {{ accessLabelKey(issue.code) | translate }}
+                @if (issue.context) { <em>{{ issue.context }}</em> }
+                @if (issue.paragraphIndex >= 0) { <em>#{{ issue.paragraphIndex + 1 }}</em> }
+              </span>
+              @if (issue.code === 'IMAGE_ALT_MISSING') {
+                <input class="op-share-input" [value]="altDrafts()[issueIndex] ?? ''"
+                       [placeholder]="'office.word.altText' | translate"
+                       (input)="setAltDraft(issueIndex, $any($event.target).value)" />
+                <button type="button" class="op-text-btn" (click)="applyImageAlt(issue, issueIndex)">{{ 'office.word.applyAlt' | translate }}</button>
+              } @else if (issue.code === 'TABLE_NO_HEADER') {
+                <button type="button" class="op-text-btn" (click)="applyTableHeader(issue)">{{ 'office.word.markHeader' | translate }}</button>
+              }
+            </div>
+          } @empty {
+            <div class="op-empty">{{ 'office.word.noAccessIssues' | translate }}</div>
+          }
+        </div>
+      </aside>
+    }
+
+    @if (navPaneOpen() && app() === 'word') {
+      <aside class="op-comments-panel op-word-nav">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.navigation' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleNavPane()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <div class="op-format-row">
+          <button type="button" class="op-text-btn" (click)="toggleFind()">{{ 'office.word.findReplace' | translate }}</button>
+        </div>
+        <div class="op-note-list">
+          @for (entry of tocList(); track entry.paragraphIndex) {
+            <button type="button" class="op-note-item op-find-hit" (click)="jumpToParagraph(entry.paragraphIndex)">
+              <span class="op-note-link">H{{ entry.level }}</span>
+              <span class="op-note-text">{{ entry.text }}</span>
+            </button>
+          } @empty {
+            <div class="op-empty">{{ 'office.word.noHeadings' | translate }}</div>
+          }
+        </div>
+      </aside>
+    }
+
+    @if (linkOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.link' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleLink()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field"><span>{{ 'office.word.linkText' | translate }}</span>
+          <input class="op-share-input" [value]="linkText()" (input)="linkText.set($any($event.target).value)" /></label>
+        <label class="op-hf-field"><span>URL</span>
+          <input class="op-share-input" [value]="linkUrl()" (input)="linkUrl.set($any($event.target).value)" /></label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="applyHyperlink()">{{ 'office.word.insertLink' | translate }}</button>
+        </div>
+      </aside>
+    }
+
+    @if (symbolOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.symbol' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleSymbol()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <div class="op-symbol-grid">
+          @for (symbol of symbols; track symbol) {
+            <button type="button" class="op-symbol-btn" (click)="insertWordSymbol(symbol)">{{ symbol }}</button>
+          }
+        </div>
+        <p class="op-hf-hint">{{ 'office.word.symbolHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (videoOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.videoInsert' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleVideo()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field"><span>URL</span>
+          <input class="op-share-input" [value]="videoUrlDraft()" (input)="videoUrlDraft.set($any($event.target).value)" /></label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="applyVideo()">{{ 'office.word.insertVideo' | translate }}</button>
+        </div>
+        <p class="op-hf-hint">{{ 'office.word.videoHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (spellOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.spellcheck' | translate }} ({{ spellIssues().length }})</strong>
+          <button type="button" class="op-text-btn" (click)="toggleSpell()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <div class="op-note-list">
+          @for (issue of spellIssues(); track issue.paragraphIndex + '-' + issue.start) {
+            <div class="op-note-item">
+              <span class="op-note-link">#{{ issue.paragraphIndex + 1 }}</span>
+              <span class="op-note-text">{{ ('office.word.issue.' + issue.kind) | translate }}: {{ issue.word.trim() ? issue.word : ('office.word.issue.whitespace' | translate) }} → {{ issue.suggestion }}</span>
+              <button type="button" class="op-text-btn" (click)="fixSpell(issue)">{{ 'office.word.fix' | translate }}</button>
+              @for (alternative of issue.alternatives ?? []; track alternative) {
+                <button type="button" class="op-text-btn" (click)="fixSpellWith(issue, alternative)">{{ alternative }}</button>
+              }
+              <button type="button" class="op-text-btn" (click)="ignoreSpell(issue)">{{ 'office.word.ignore' | translate }}</button>
+            </div>
+          } @empty {
+            <div class="op-empty">{{ 'office.word.noSpellingIssues' | translate }}</div>
+          }
+        </div>
+        <p class="op-hf-hint">{{ 'office.word.spellHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (wordCountOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.rb.wordCount' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleWordCount()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <dl class="op-word-count-list">
+          <div><dt>{{ 'office.rb.count.pages' | translate }}</dt><dd>{{ wordStats().pages }}</dd></div>
+          <div><dt>{{ 'office.rb.count.words' | translate }}</dt><dd>{{ wordStats().words }}</dd></div>
+          <div><dt>{{ 'office.rb.count.characters' | translate }}</dt><dd>{{ wordStats().characters }}</dd></div>
+          <div><dt>{{ 'office.rb.count.paragraphs' | translate }}</dt><dd>{{ wordStats().paragraphs }}</dd></div>
+        </dl>
+        <p class="op-hf-hint">{{ 'office.rb.wordCountHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (helpOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.rb.help' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleHelp()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <p class="op-hf-hint">{{ 'office.rb.helpHint' | translate }}</p>
+        <div class="op-shortcut-list">
+          <div><kbd>Ctrl</kbd> + <kbd>S</kbd><span>{{ 'office.rb.shortcut.save' | translate }}</span></div>
+          <div><kbd>Ctrl</kbd> + <kbd>Z</kbd><span>{{ 'office.rb.shortcut.undo' | translate }}</span></div>
+          <div><kbd>Ctrl</kbd> + <kbd>Y</kbd><span>{{ 'office.rb.shortcut.redo' | translate }}</span></div>
+          <div><kbd>Ctrl</kbd> + <kbd>F</kbd><span>{{ 'office.rb.shortcut.find' | translate }}</span></div>
+          <div><kbd>Ctrl</kbd> + <kbd>P</kbd><span>{{ 'office.rb.shortcut.print' | translate }}</span></div>
+        </div>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="toggleInfo()">{{ 'office.rb.feedback' | translate }}</button>
+        </div>
+      </aside>
+    }
+
+    @if (shapesOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.rb.shapes' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleShapes()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <div class="op-shape-grid">
+          @for (shape of wordShapes; track shape.id) {
+            <button type="button" class="op-shape-btn" [attr.data-shape]="shape.id" (click)="insertShapeNow(shape.id)">
+              <span class="op-shape-preview" [attr.data-shape]="shape.id"></span>
+              <span>{{ shape.labelKey | translate }}</span>
+            </button>
+          }
+        </div>
+        <p class="op-hf-hint">{{ 'office.rb.shapesHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (iconsOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.rb.icons' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleIcons()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <div class="op-icon-grid">
+          @for (icon of wordIcons; track icon.id) {
+            <button type="button" class="op-icon-pick" [title]="icon.labelKey | translate" (click)="insertIconNow(icon)">
+              <img [src]="iconDataUrl(icon.svg)" [alt]="icon.labelKey | translate" width="24" height="24" />
+            </button>
+          }
+        </div>
+        <p class="op-hf-hint">{{ 'office.rb.iconsHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (wordChartOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.rb.chart' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleWordChart()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field"><span>{{ 'office.rb.chartType' | translate }}</span>
+          <select class="op-share-select" [value]="wordChartType()" (change)="wordChartType.set($any($event.target).value)">
+            <option value="bar">{{ 'office.rb.chart.bar' | translate }}</option>
+            <option value="line">{{ 'office.rb.chart.line' | translate }}</option>
+            <option value="pie">{{ 'office.rb.chart.pie' | translate }}</option>
+          </select></label>
+        <label class="op-hf-field"><span>{{ 'office.rb.chartData' | translate }}</span>
+          <textarea class="op-share-input" rows="3" [value]="wordChartData()" (input)="wordChartData.set($any($event.target).value)"></textarea></label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="insertWordChart()">{{ 'office.rb.insert' | translate }}</button>
+        </div>
+        <p class="op-hf-hint">{{ 'office.rb.chartHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (themesOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.rb.themes' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleThemes()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <div class="op-theme-grid">
+          @for (theme of wordThemes; track theme.id) {
+            <button type="button" class="op-theme-btn" (click)="applyThemePreset(theme.id)">
+              <span class="op-theme-swatch" [style.background]="'#' + theme.accent"></span>
+              <span>{{ theme.labelKey | translate }}</span>
+            </button>
+          }
+        </div>
+        <p class="op-hf-hint">{{ 'office.rb.themesHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (styleSetsOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.rb.styleSets' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleStyleSets()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <div class="op-track-actions">
+          @for (set of wordStyleSets; track set.id) {
+            <button type="button" class="op-text-btn" (click)="applyStyleSetPreset(set.id)">{{ set.labelKey | translate }}</button>
+          }
+        </div>
+        <p class="op-hf-hint">{{ 'office.rb.styleSetsHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (thesaurusOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.rb.thesaurus' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleThesaurus()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field"><span>{{ 'office.rb.thesaurusWord' | translate }}</span>
+          <input class="op-share-input" [value]="thesaurusQuery()" (input)="thesaurusQuery.set($any($event.target).value)" /></label>
+        <div class="op-note-list">
+          @for (word of thesaurusResults(); track word) {
+            <div class="op-note-item"><span class="op-note-text">{{ word }}</span></div>
+          } @empty {
+            <div class="op-empty">{{ 'office.rb.noSynonyms' | translate }}</div>
+          }
+        </div>
+        <p class="op-hf-hint">{{ 'office.rb.thesaurusHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (coverOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.rb.coverPage' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleCover()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field"><span>{{ 'office.rb.coverTitle' | translate }}</span>
+          <input class="op-share-input" [value]="coverTitle()" (input)="coverTitle.set($any($event.target).value)" /></label>
+        <label class="op-hf-field"><span>{{ 'office.rb.coverSubtitle' | translate }}</span>
+          <input class="op-share-input" [value]="coverSubtitle()" (input)="coverSubtitle.set($any($event.target).value)" /></label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="applyCoverPage()">{{ 'office.rb.insertCover' | translate }}</button>
+        </div>
+        <p class="op-hf-hint">{{ 'office.rb.coverHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (textBoxOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.rb.textBox' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleTextBox()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field"><span>{{ 'office.rb.textBoxText' | translate }}</span>
+          <textarea class="op-share-input" rows="3" [value]="textBoxDraft()" (input)="textBoxDraft.set($any($event.target).value)"></textarea></label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="applyTextBox()">{{ 'office.rb.insert' | translate }}</button>
+        </div>
+        <p class="op-hf-hint">{{ 'office.rb.textBoxHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (captionOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.rb.insertCaption' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleCaption()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field"><span>{{ 'office.rb.captionLabel' | translate }}</span>
+          <select class="op-share-select" [value]="captionLabel()" (change)="captionLabel.set($any($event.target).value)">
+            <option value="Hình">{{ 'office.rb.caption.figure' | translate }}</option>
+            <option value="Bảng">{{ 'office.rb.caption.table' | translate }}</option>
+          </select></label>
+        <label class="op-hf-field"><span>{{ 'office.rb.captionText' | translate }}</span>
+          <input class="op-share-input" [value]="captionText()" (input)="captionText.set($any($event.target).value)" /></label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="applyCaption()" [disabled]="!captionText().trim()">{{ 'office.rb.insert' | translate }}</button>
+        </div>
+        <p class="op-hf-hint">{{ 'office.rb.captionHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (watermarkOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.rb.watermark' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleWatermark()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field"><span>{{ 'office.rb.watermarkText' | translate }}</span>
+          <input class="op-share-input" [value]="watermarkDraft()" (input)="watermarkDraft.set($any($event.target).value)" /></label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="applyWatermark()">{{ 'office.rb.applyWatermark' | translate }}</button>
+          <button type="button" class="op-text-btn" (click)="clearWatermark()">{{ 'office.rb.removeWatermark' | translate }}</button>
+        </div>
+        <p class="op-hf-hint">{{ 'office.rb.watermarkHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (pageSetupOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.pageSetup' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="togglePageSetup()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.pageBorderStyle' | translate }}</span>
+          <select class="op-share-select" [value]="pageBorderStyle()" (change)="pageBorderStyle.set($any($event.target).value)">
+            <option value="single">{{ 'office.word.border.single' | translate }}</option>
+            <option value="double">{{ 'office.word.border.double' | translate }}</option>
+            <option value="dashed">{{ 'office.word.border.dashed' | translate }}</option>
+            <option value="none">{{ 'office.word.border.none' | translate }}</option>
+          </select>
+        </label>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.pageBorderSize' | translate }}</span>
+          <select class="op-share-select" [value]="pageBorderSize()" (change)="pageBorderSize.set(+$any($event.target).value)">
+            <option value="0.5">0.5 pt</option>
+            <option value="1">1 pt</option>
+            <option value="1.5">1.5 pt</option>
+            <option value="2">2 pt</option>
+          </select>
+        </label>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.pageBorderColor' | translate }}</span>
+          <input type="color" [value]="pageBorderColor()" (input)="pageBorderColor.set($any($event.target).value)" />
+        </label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="applyPageBorder()">{{ 'office.word.apply' | translate }}</button>
+          <button type="button" class="op-text-btn" (click)="clearPageBorder()">{{ 'office.word.removeBorder' | translate }}</button>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.pageColor' | translate }}</span>
+          <input type="color" [value]="pageColor()" (input)="pageColor.set($any($event.target).value)" />
+        </label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="applyPageColor()">{{ 'office.word.apply' | translate }}</button>
+          <button type="button" class="op-text-btn" (click)="clearPageColor()">{{ 'office.word.clearPageColor' | translate }}</button>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.lineNumbers' | translate }}</span>
+          <select class="op-share-select" [value]="lineNumberingMode()" (change)="lineNumberingMode.set($any($event.target).value)">
+            <option value="off">{{ 'office.word.lineNumbers.off' | translate }}</option>
+            <option value="continuous">{{ 'office.word.lineNumbers.continuous' | translate }}</option>
+            <option value="newPage">{{ 'office.word.lineNumbers.newPage' | translate }}</option>
+            <option value="newSection">{{ 'office.word.lineNumbers.newSection' | translate }}</option>
+          </select>
+        </label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="applyLineNumbering()">{{ 'office.word.apply' | translate }}</button>
+        </div>
+        <p class="op-hf-hint">{{ 'office.word.pageSetupHint' | translate }}</p>
+      </aside>
+    }
+
+    @if (findOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.findReplace' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleFind()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.find' | translate }}</span>
+          <input class="op-share-input op-word-find-input" [value]="findQuery()"
+                 (input)="updateFindQuery($any($event.target).value)"
+                 (keydown.enter)="nextFind()" />
+        </label>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.replace' | translate }}</span>
+          <input class="op-share-input" [value]="findReplacement()"
+                 (input)="findReplacement.set($any($event.target).value)" />
+        </label>
+        <div class="op-track-actions">
+          <label class="op-hf-check"><input type="checkbox" [checked]="findMatchCase()"
+                 (change)="findMatchCase.set($any($event.target).checked)" /> {{ 'office.word.matchCase' | translate }}</label>
+          <label class="op-hf-check"><input type="checkbox" [checked]="findWholeWord()"
+                 (change)="findWholeWord.set($any($event.target).checked)" /> {{ 'office.word.wholeWord' | translate }}</label>
+        </div>
+        <p class="op-hf-hint">{{ wordFindMatches().length }} {{ 'office.word.matches' | translate }}</p>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="prevFind()" [disabled]="!wordFindMatches().length">‹</button>
+          <button type="button" class="op-text-btn" (click)="nextFind()" [disabled]="!wordFindMatches().length">›</button>
+          <button type="button" class="op-text-btn" (click)="replaceFindOne()" [disabled]="!wordFindMatches().length">{{ 'office.word.replaceOne' | translate }}</button>
+          <button type="button" class="op-text-btn" (click)="replaceFindAll()" [disabled]="!wordFindMatches().length">{{ 'office.word.replaceAll' | translate }}</button>
+        </div>
+        <div class="op-note-list">
+          @for (match of wordFindMatches(); track match.blockIndex + '-' + match.start; let matchIndex = $index) {
+            <button type="button" class="op-note-item op-find-hit" [class.op-ribbon-active]="findIndex() === matchIndex"
+                    (click)="jumpToFind(matchIndex)">
+              <span class="op-note-link">#{{ match.blockIndex + 1 }}</span>
+              <span class="op-note-text">{{ match.before }}<mark>{{ match.match }}</mark>{{ match.after }}</span>
+            </button>
+          } @empty {
+            <div class="op-empty">{{ 'office.word.noMatches' | translate }}</div>
+          }
+        </div>
+      </aside>
+    }
+
+    @if (splitCellsOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.table.splitCells' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="splitCellsOpen.set(false)">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <p class="op-hf-hint">{{ 'office.word.table.splitCellsHint' | translate }}</p>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.rows' | translate }}</span>
+          <input class="op-share-input" type="number" min="1" max="10" [value]="splitCellRows()"
+                 (input)="splitCellRows.set(+$any($event.target).value || 1)" />
+        </label>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.columns' | translate }}</span>
+          <input class="op-share-input" type="number" min="1" max="10" [value]="splitCellColumns()"
+                 (input)="splitCellColumns.set(+$any($event.target).value || 1)" />
+        </label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="applyWordSplitCells()">{{ 'office.word.table.split' | translate }}</button>
+        </div>
+      </aside>
+    }
+
+    @if (insertTableOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.insertTable' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleInsertTable()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.rows' | translate }}</span>
+          <input class="op-share-input" type="number" min="1" max="10" [value]="insertRows()"
+                 (input)="insertRows.set(+$any($event.target).value || 1)" />
+        </label>
+        <label class="op-hf-field">
+          <span>{{ 'office.word.columns' | translate }}</span>
+          <input class="op-share-input" type="number" min="1" max="10" [value]="insertCols()"
+                 (input)="insertCols.set(+$any($event.target).value || 1)" />
+        </label>
+        <div class="op-track-actions">
+          <button type="button" class="op-text-btn" (click)="insertTableNow()">{{ 'office.word.insert' | translate }}</button>
+        </div>
+      </aside>
+    }
+
+    @if (formatOpen() && app() === 'word') {
+      <aside class="op-comments-panel">
+        <div class="op-info-head">
+          <strong>{{ 'office.word.format' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="toggleFormat()">{{ 'office.action.close' | translate }}</button>
+        </div>
+        @if (selectedWordParagraph(); as paragraph) {
+          <label class="op-hf-field">
+            <span>{{ 'office.word.style' | translate }}</span>
+            <select class="op-share-select" [value]="currentWordStyle()" (change)="setWordStyle($any($event.target).value)">
+              @for (option of wordStyleOptions; track option.value) {
+                <option [value]="option.value">{{ option.labelKey | translate }}</option>
+              }
+            </select>
+          </label>
+          <div class="op-style-preview" [attr.data-style]="currentWordStyle()">
+            <span>Aa</span>
+            <span>{{ 'office.word.stylePreview' | translate }}</span>
+          </div>
+          <div class="op-format-row">
+            <select class="op-share-select" [value]="currentWordFont()" (change)="setWordFont($any($event.target).value)"
+                    [attr.aria-label]="'office.word.fontFamily' | translate">
+              @for (font of wordFonts; track font) {
+                <option [value]="font">{{ font }}</option>
+              }
+            </select>
+            <select class="op-share-select" [value]="currentWordFontSize()" (change)="setWordFontSize(+$any($event.target).value)"
+                    [attr.aria-label]="'office.word.fontSize' | translate">
+              @for (size of wordFontSizes; track size) {
+                <option [value]="size">{{ size }}</option>
+              }
+            </select>
+            <button type="button" class="op-text-btn" (click)="growWordFont(-1)" [title]="'office.word.shrinkFont' | translate">A−</button>
+            <button type="button" class="op-text-btn" (click)="growWordFont(1)" [title]="'office.word.growFont' | translate">A+</button>
+          </div>
+          <div class="op-format-row">
+            <button type="button" class="op-text-btn" [class.op-ribbon-active]="isRunActive('bold')" (click)="toggleWordRunProperty('bold')" [title]="'office.word.bold' | translate">B</button>
+            <button type="button" class="op-text-btn" [class.op-ribbon-active]="isRunActive('italic')" (click)="toggleWordRunProperty('italic')" [title]="'office.word.italic' | translate">I</button>
+            <button type="button" class="op-text-btn" [class.op-ribbon-active]="isRunActive('underline')" (click)="toggleWordRunProperty('underline')" [title]="'office.word.underline' | translate">U</button>
+            <button type="button" class="op-text-btn" [class.op-ribbon-active]="isRunActive('strike')" (click)="toggleWordRunProperty('strike')" [title]="'office.word.strike' | translate">S</button>
+            <label class="op-hf-check" [title]="'office.word.fontColor' | translate">
+              <input type="color" [value]="currentWordColor()" (input)="setWordColor($any($event.target).value)" />
+              {{ 'office.word.fontColor' | translate }}
+            </label>
+            <select class="op-share-select" [value]="currentWordHighlight()" (change)="setWordHighlight($any($event.target).value)"
+                    [attr.aria-label]="'office.word.highlight' | translate">
+              @for (color of wordHighlights; track color) {
+                <option [value]="color">{{ ('office.word.highlight.' + color) | translate }}</option>
+              }
+            </select>
+          </div>
+          <div class="op-format-row">
+            <button type="button" class="op-text-btn" (click)="copyWordText()">{{ 'office.word.copy' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="cutWordText()">{{ 'office.word.cut' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="pasteWordText()">{{ 'office.word.paste' | translate }}</button>
+            <button type="button" class="op-text-btn" [class.op-ribbon-active]="wordPainter()" (click)="copyWordFormat()">{{ 'office.word.formatPainter' | translate }}</button>
+            <button type="button" class="op-text-btn" (click)="clearWordFormatting()">{{ 'office.word.clearFormat' | translate }}</button>
+          </div>
+          @if (wordPainter()) {
+            <p class="op-hf-hint">{{ 'office.word.painterHint' | translate }}</p>
+          }
+          @if (wordClipboardStatus() === 'error') {
+            <p class="op-hf-hint">{{ 'office.word.clipboardError' | translate }}</p>
+          }
+          <div class="op-format-row">
+            <span class="op-ribbon-label">{{ 'office.word.align' | translate }}</span>
+            <button type="button" class="op-text-btn" [class.op-ribbon-active]="paragraph.align === 'left'" (click)="applyWordAlignment('left')">{{ 'office.word.align.left' | translate }}</button>
+            <button type="button" class="op-text-btn" [class.op-ribbon-active]="paragraph.align === 'center'" (click)="applyWordAlignment('center')">{{ 'office.word.align.center' | translate }}</button>
+            <button type="button" class="op-text-btn" [class.op-ribbon-active]="paragraph.align === 'right'" (click)="applyWordAlignment('right')">{{ 'office.word.align.right' | translate }}</button>
+            <button type="button" class="op-text-btn" [class.op-ribbon-active]="paragraph.align === 'justify'" (click)="applyWordAlignment('justify')">{{ 'office.word.align.justify' | translate }}</button>
+          </div>
+          <div class="op-format-row">
+            <span class="op-ribbon-label">{{ 'office.word.indent' | translate }}</span>
+            <button type="button" class="op-text-btn" (click)="indentWordParagraph(-720)">−</button>
+            <span class="op-zoom-value">{{ wordIndentPx(paragraph.indent) }}px</span>
+            <button type="button" class="op-text-btn" (click)="indentWordParagraph(720)">+</button>
+          </div>
+          <label class="op-hf-field">
+            <span>{{ 'office.word.lineSpacing' | translate }}</span>
+            <select class="op-share-select" [value]="paragraph.lineSpacing ?? 1" (change)="setWordLineSpacing(+$any($event.target).value)">
+              <option value="1">1.0</option>
+              <option value="1.15">1.15</option>
+              <option value="1.5">1.5</option>
+              <option value="2">2.0</option>
+            </select>
+          </label>
+          <div class="op-format-row">
+            <span class="op-ribbon-label">{{ 'office.word.list' | translate }}</span>
+            <button type="button" class="op-text-btn" [class.op-ribbon-active]="paragraph.listType === 'bullet'" (click)="toggleWordList('bullet')">{{ 'office.word.list.bullet' | translate }}</button>
+            <button type="button" class="op-text-btn" [class.op-ribbon-active]="paragraph.listType === 'number'" (click)="toggleWordList('number')">{{ 'office.word.list.number' | translate }}</button>
+          </div>
+          <p class="op-hf-hint">{{ 'office.word.formatHint' | translate }}</p>
+        } @else {
+          <div class="op-empty">{{ 'office.word.formatPick' | translate }}</div>
+        }
+      </aside>
+    }
+
+    @if (erpOpen()) {
+      <aside class="op-erp-drawer">
+        <div class="op-info-head">
+          <strong>{{ 'office.erp.title' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="erpOpen.set(false)">{{ 'office.action.close' | translate }}</button>
+        </div>
+        @if (erpError()) {
+          <div class="op-erp-error">{{ 'office.erp.error' | translate }} <code>{{ erpError() }}</code></div>
+        }
+        @if (erpBusy()) {
+          <div class="op-empty">{{ 'office.erp.loading' | translate }}</div>
+        } @else if (erpDocs().length === 0) {
+          <div class="op-empty">{{ 'office.erp.empty' | translate }}</div>
+        } @else {
+          <ul class="op-erp-list">
+            @for (item of erpDocs(); track item.id) {
+              <li>
+                <button type="button" class="op-erp-item" (click)="openErpDocument(item)">
+                  <span class="op-erp-name">{{ item.title }}</span>
+                  <span class="op-erp-meta">{{ item.doc_type }} · v{{ item.current_version }} · {{ item.original_filename }}</span>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </aside>
+    }
+
+    @if (shareOpen()) {
+      <aside class="op-erp-drawer">
+        <div class="op-info-head">
+          <strong>{{ 'office.share.title' | translate }}</strong>
+          <button type="button" class="op-text-btn" (click)="shareOpen.set(false)">{{ 'office.action.close' | translate }}</button>
+        </div>
+        @if (shareError()) {
+          <div class="op-erp-error">{{ shareError() }}</div>
+        }
+        <div class="op-share-form">
+          <input class="op-share-input" type="text" [value]="shareSubject()" (input)="shareSubject.set($any($event.target).value)"
+                 [placeholder]="'office.share.subject' | translate" />
+          <select class="op-share-select" [value]="sharePermission()" (change)="sharePermission.set($any($event.target).value)">
+            <option value="READ">{{ 'office.share.permission.read' | translate }}</option>
+            <option value="WRITE">{{ 'office.share.permission.write' | translate }}</option>
+          </select>
+          <button type="button" class="op-text-btn" (click)="addShare()" [disabled]="shareBusy()">{{ 'office.share.add' | translate }}</button>
+        </div>
+        <ul class="op-erp-list">
+          @for (permission of shareList(); track permission.id) {
+            <li class="op-share-row">
+              <span class="op-erp-name">{{ permission.subject_id }}</span>
+              <span class="op-erp-meta">{{ permission.permission }} · {{ permission.subject_type }}</span>
+              <button type="button" class="op-text-btn" (click)="revokeShare(permission)" [disabled]="shareBusy()">{{ 'office.share.revoke' | translate }}</button>
+            </li>
+          } @empty {
+            <li class="op-empty">{{ 'office.share.empty' | translate }}</li>
+          }
+        </ul>
+      </aside>
+    }
+  </main>
+
+  @if (newWindowHint()) {
+    <div class="op-toast" role="status">{{ ('office.rb.newWindow.' + newWindowHint()) | translate }}</div>
+  }
+
+  <footer class="op-statusbar">
+    @if (statusUnitKey()) {
+      @if (app() === 'word') {
+        <button type="button" class="op-status-btn" (click)="toggleWordCount()">{{ statusCount() }} {{ statusUnitKey() | translate }}</button>
+      } @else {
+        <span>{{ statusCount() }} {{ statusUnitKey() | translate }}</span>
+      }
+    }
+    @if (app() === 'word') { <span>{{ 'office.status.page' | translate }} 1 / {{ wordPageCount() }}</span> }
+    @if (app() === 'ppt') { <span>{{ 'office.status.slide' | translate }} {{ selectedSlide() + 1 }} / {{ ppt()?.slides?.length ?? 0 }}</span> }
+    <span class="op-status-spacer"></span>
+    @if (app() === 'word') {
+      <button type="button" class="op-status-btn" (click)="zoomBy(-10)" [title]="'office.rb.zoomOut' | translate">−</button>
+      <span>{{ zoom() }}%</span>
+      <button type="button" class="op-status-btn" (click)="zoomBy(10)" [title]="'office.rb.zoomIn' | translate">+</button>
+      <button type="button" class="op-status-btn" [class.op-status-active]="readingView()" (click)="toggleReadingView()" [title]="'office.word.reading' | translate">A</button>
+    } @else {
+      <span>{{ 'office.status.zoom' | translate }} {{ zoom() }}%</span>
+    }
+  </footer>
+
+  @if (presenting() && ppt()) {
+    <div class="op-present-overlay" (click)="nextSlide()">
+      @if (currentSlide(); as slide) {
+        @for (item of [slide]; track selectedSlide()) {
+          <div [class]="'op-present-stage ' + slideTransitionClass()" [style.animation-duration]="slideTransitionDuration()">
+            @for (shape of item.shapes; track selectedSlide() + '-' + shape.id) {
+              <div [class]="'op-ppt-shape ' + animationClass(shape.id)" [attr.data-kind]="shape.kind ?? 'text'"
+                   [style]="shapeStyle(shape)"
+                   [style.animation-delay]="animationDelay(shape.id)"
+                   [style.animation-duration.ms]="shapeAnimation(shape.id)?.durationMs ?? 500"
+                   (click)="$event.stopPropagation()">
+                @if (shape.kind === 'video' && mediaUrlFor(shape); as url) {
+                  <video class="op-ppt-media" [src]="url" controls playsinline autoplay></video>
+                } @else if (shape.kind === 'audio' && mediaUrlFor(shape); as url) {
+                  <audio class="op-ppt-media" [src]="url" controls autoplay></audio>
+                } @else {
+                  {{ shape.text }}
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+      <div class="op-present-bar" (click)="$event.stopPropagation()">
+        <span>{{ selectedSlide() + 1 }} / {{ ppt()!.slides.length }}</span>
+        <button type="button" class="op-text-btn" (click)="prevSlide()">‹</button>
+        <button type="button" class="op-text-btn" (click)="nextSlide()">›</button>
+        <button type="button" class="op-text-btn" (click)="exitPresent()">{{ 'office.present.exit' | translate }}</button>
+      </div>
+    </div>
+  }
+
+  <input #fileInput type="file" class="op-hidden-input" accept=".docx,.xlsx,.csv,.pptx,.pdf" (change)="onFileInput($event)" />
+</div>

@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-16",
+  "scope": "Body-text reflow around square/tight/through floats and recursive nested-table rendering",
+  "wrapReflow": {
+    "implementation": "square/tight/through floats render as in-flow CSS floats (not absolute overlays) before the anchor block; side and margins derive from float x/width; shape-outside covers rect/roundRect/ellipse; behind/front/topAndBottom stay as overlays",
+    "runtime": {
+      "wrapCount": 1,
+      "overlayCount": 0,
+      "float": "left",
+      "position": "relative",
+      "shapeOutside": "inset(0px)",
+      "wrapRight": 609,
+      "firstTextLeft": 609,
+      "wrapped": true,
+      "exceptions": 0
+    }
+  },
+  "nestedTables": {
+    "implementation": "recursive ng-template (tableTemplate) renders child WordNestedTable at any depth; rowOffset keeps pagination slicing correct",
+    "runtime": {
+      "tables": 3,
+      "nestedTables": 2,
+      "hasLevel3": true,
+      "text": ["Level1Level2Level3", "Level2Level3", "Level3"],
+      "exceptions": 0
+    }
+  },
+  "smoke": {
+    "total": 343,
+    "failed": 0,
+    "checks": ["word nested table depth 3 {deepText:'Level3'}"]
+  },
+  "builds": {
+    "ui": "main.js 872.41 kB",
+    "mobile": "complete",
+    "i18n": "web 3259 keys; all locales 100%",
+    "checkDocs": "32 markdown files / 367 links / 0 errors"
+  },
+  "remaining": [
+    "A wrap float cannot be placed above its anchor block (margin-top only pushes downward)",
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

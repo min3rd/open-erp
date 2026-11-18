@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-16",
+  "scope": "Word remaining Office tabs/groups/commands: Mailings tab, Shapes/Icons/Chart, Themes/Style Sets, Sort/Shading/¶, Array arrange, Table of Figures, Thesaurus, Restrict Editing, Macros, disabled states",
+  "smoke": { "passed": 315, "failed": 0 },
+  "ribbon": {
+    "tabs": 10,
+    "tabLabels": ["Trang chủ", "Chèn", "Vẽ", "Thiết kế", "Bố cục", "Tham chiếu", "Thư tín", "Xem lại", "Xem", "Trợ giúp"],
+    "groups": 41,
+    "commands": 134,
+    "disabledWithReason": 22
+  },
+  "browser": {
+    "mailings": {
+      "groups": ["mailCreate", "mailStart", "mailFields", "mailPreview", "mailFinish"],
+      "disabledButtons": 14,
+      "hint": "Trộn thư cần nguồn dữ liệu — chưa hỗ trợ trên web"
+    },
+    "shapes": { "inserted": "roundRect", "shapeNodes": 1 },
+    "icons": { "inserted": "star", "imagesAfterInsert": 1 },
+    "chart": { "type": "pie", "imagesAfterInsert": 2 },
+    "theme": { "preset": "berlin", "cssAccent": "#C00000", "cssFont": "Arial" },
+    "styleSet": { "preset": "modern", "pageClass": "op-style-modern" },
+    "tableOfFigures": ["Danh mục hình", "Hình 1: Kiến trúc hệ thống  .....  1"],
+    "thesaurus": ["tường trình", "bản báo cáo", "tài liệu tổng hợp"],
+    "restrictEditing": { "banner": true, "contenteditable": "false", "turnedOff": true },
+    "showMarks": true,
+    "shading": "rgb(255, 242, 204)"
+  },
+  "savedFile": {
+    "path": "saved/sample-word-parity.docx",
+    "bytes": 13743,
+    "paragraphs": [
+      "Báo cáo Sprint 12",
+      "Office WebApp đọc trực tiếp .docx trên trình duyệt, không upload nội dung lên máy chủ.",
+      "Tiếng Việt: ă â ê ô ơ ư đ — 0123456789",
+      "Kết luận: nền tảng OOXML thuần TypeScript đã chạy.",
+      "Hình 1: Kiến trúc hệ thống",
+      "Danh mục hình",
+      "Hình 1: Kiến trúc hệ thống  .....  1"
+    ],
+    "shape": { "text": "", "width": 220, "height": 120, "shape": "roundRect", "fill": "#EAF1FB" },
+    "media": [
+      { "name": "word/media/image1.svg", "bytes": 178 },
+      { "name": "word/media/image1.png", "bytes": 10955 }
+    ],
+    "theme": { "accent": "#C00000", "font": "Arial" },
+    "styleSet": "modern",
+    "shading": "#FFF2CC",
+    "docVars": [["OpenErpTheme", "berlin"], ["OpenErpStyleSet", "modern"]],
+    "images": 2
+  },
+  "screenshots": {
+    "comparison": "word-ribbon-compare.png",
+    "homeSingle": "headless Edge 1440x900",
+    "insert": "headless Edge 1440x900",
+    "mailings": "headless Edge 1440x900"
+  }
+}

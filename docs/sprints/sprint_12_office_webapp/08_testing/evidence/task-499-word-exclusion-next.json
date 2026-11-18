@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-16",
+  "scope": "Page-level float exclusion plan, multiple wrap floats at independent y, and mail-merge NEXT gate",
+  "layout": {
+    "wrap": "square/tight/through floats render at page start with per-float margin-top = y; two floats at y=100/300 measured at 197/397 (independent, not stacked)",
+    "topAndBottom": "blockFloatPlan inserts the block at min(y boundary, anchor item index), computes margin from current flow, and lets following text start below; y above anchor supported at an earlier block boundary",
+    "qa": {
+      "stacking": { "blockTop": 389, "blockBottom": 469, "afterTop": 499, "belowBlock": true },
+      "aboveAnchor": { "wrapTop": 147, "beforeTop": 280, "wrapAboveAnchor": true, "blockTop": 121, "anchorTop": 361, "blockAboveAnchor": true, "afterTop": 409, "blockBottom": 201, "belowBlock": true },
+      "multiFloat": [{ "text": "LeftFloat", "top": 197 }, { "text": "RightFloat", "top": 397 }],
+      "wrap": { "top": 197, "wrappedLines": 7 },
+      "exceptions": 0
+    }
+  },
+  "mailMergeNext": {
+    "behavior": "Gate: inserting Next Record shows ruleNextUnsupported and does not add the field; checkMergeErrors emits NEXT_RECORD_UNSUPPORTED for existing NEXT fields",
+    "smoke": "word mail merge NEXT gated [NEXT_RECORD_UNSUPPORTED]"
+  },
+  "smoke": "344 passed, 0 failed",
+  "builds": {
+    "ui": "main.js 876.37 kB",
+    "mobile": "complete",
+    "i18n": "web 3261 keys; all locales 100%",
+    "checkDocs": "32 markdown files / 373 links / 0 errors"
+  },
+  "remaining": [
+    "A paragraph crossing a topAndBottom y is moved as a whole to the nearest block boundary; it is not split mid-paragraph",
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

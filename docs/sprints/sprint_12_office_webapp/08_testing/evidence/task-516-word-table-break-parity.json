@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-17",
+  "scope": "Word table fidelity: forced line breaks inside table cells (w:br) rendered as real lines, plus a Word-COM probe of per-row heights that explains the rowFlowScale fudge",
+  "reference": {
+    "sample": "plugins/office-webapp/web/samples/sample-real-proposal.docx (1.2MB bid document, 546 pages in Word)",
+    "wordPage72": "Word export of page 72 via Word COM ExportAsFixedFormat (web/.tmp/word-page72.pdf, screenshot web/.tmp/word-page72b.png): 6 equal columns, body starts with the tail of a row split from page 71, and the w:tblHeader row is repeated at the top of every page",
+    "breaks": "document.xml: 738 w:br, 733 of them plain line breaks inside 579 table cells (mostly '+' bullet lists in the 'Nội dung' column); body/hyperlink text uses the same marker",
+    "rowCounts": "big table = 839 rows / 5034 cells / 4186 w:noWrap / 680 plain w:br / all rows w:trHeight 227 atLeast / tblLayout fixed",
+    "rowPositions": "Word COM Cell(i,1).Range start -> Information(6) page-Y and Information(3) page for all 839 rows (web/.tmp/word-row-positions.json); table spans Word pages 71-496, 424 pages"
+  },
+  "changes": {
+    "tableCellBreaks": "`.op-word-table p { white-space: pre-wrap }` in web/src/styles.css. parseRun already turned w:br into '\\n', but table cell paragraphs were the only Word text surface without pre-wrap, so 733 breaks collapsed into spaces and each bullet list inside a cell rendered as one joined line. Body paragraphs (.op-word-p) already had pre-wrap.",
+    "rowFlowScale": "default rowFlowScale 1.417 -> 1.4125 after the break change, keeping 546 pages (web/src/app/office-webapp.component.ts)"
+  },
+  "probes": {
+    "rowsHeightApi": "Word Rows.Height returns the w:trHeight minimum (11.35pt) for all 839 rows, not the laid-out height; Cell.Range.ComputeStatistics(wdStatisticLines) returns 0 for table cell ranges, so Word's per-cell line counts cannot be read directly (recorded unknown unk_8c68b89f715850f5 is still open).",
+    "rowHeightsFromY": "Consecutive row starts on the same page give an exact row height. 415 of 838 pairs are same-page: total-word/our-DOM ratio 0.95, i.e. our natural row heights are within 5% of Word for rows that fit on one page. Page-crossing pairs carry the repeated header row, so their deltas overstate Word's row height (this inflated an earlier estimate to 1.37x).",
+    "repeatedHeader": "Rendering the repeated w:tblHeader row (tested in build 630): 664 pages at rowFlowScale 1.417; rescaling to 543/547 pages gave mean Dice 0.536/0.521 against 0.579 baseline, so the repeat was reverted. The QA page-text reference is extracted from Word's body range and does not contain the repeated header row, so adding it lowers Dice even though Word displays it.",
+    "noWrap": "4186/5034 cells carry w:noWrap but the table is tblLayout fixed; Word's page-72 export wraps those cells normally (multi-line descriptions inside 110px columns), so noWrap is not applied to rendering."
+  },
+  "verification": {
+    "pages": "546 pages deterministic (Word: 546)",
+    "dice": "qa-page-map mean Dice 0.582, 98/546 pages >= 0.8, best-offset 0.691, 194 pages >= 0.8 at the best of -2..2 (baseline 1.417 + collapsed breaks: 0.579 / 100 / 0.691 / 194)",
+    "scaleSweep": "1.38 -> 536 pages / 0.601; 1.39 -> 540 / 0.605; 1.40 -> 543 / 0.601; 1.405 -> 544 / 0.591; 1.4125 -> 546 / 0.582; 1.415 -> 547 / 0.572",
+    "screenshot": "web/.tmp/our-page38-final.png shows the retry bullet list inside the table cell on separate lines; web/.tmp/our-page72-final.png shows the same page as Word's export",
+    "smoke": "370 passed, 0 failed (npm run office:test)",
+    "uiBuild": "main.js 961.63 kB, styles.css 146.28 kB"
+  },
+  "remaining": [
+    "Per-page table-body layout is still approximate: rows that straddle a page boundary start at a different row than in Word, so most of the 424 table pages stay below Dice 0.8. Closing it needs Word's row page-fit (including the repeated header space) and identical line breaking.",
+    "Table cells still ignore w:tcPr visuals: header-row fill (w:shd D9D9D9), cell vertical alignment and per-edge borders are not modelled, so the repeated header/header cells look white and top-aligned versus Word's grey centred cells."
+  ]
+}

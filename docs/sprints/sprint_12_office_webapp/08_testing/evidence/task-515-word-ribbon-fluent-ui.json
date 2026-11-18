@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-17",
+  "scope": "Word ribbon visual parity with Office 365 web: Fluent UI icon set, Office-like group layout, style gallery, page-only scrolling, paragraph focus/keyboard",
+  "reference": {
+    "icons": "microsoft/fluentui-system-icons via @fluentui/svg-icons 1.1.346 (MIT), 20px filled icons; Office for the web uses the same Fluent icon family",
+    "officeWeb": "Office 365 web (Word for the web) opened in Microsoft Edge at https://m365.cloud.microsoft/vi-vn (document 2.docx); screenshot web/.tmp/office365-web.png. Its ribbon is a single-row simplified ribbon with no group labels; tabs Home/Insert/Layout/References/Review/View/Help; styles Normal/No Spacing/Heading 1 as text buttons; Find/Dictate/Editor at the right",
+    "module": "web/src/app/core/office/word-fluent-icons.ts",
+    "mapped": 119,
+    "missingSubstitutions": {
+      "textbox": "text_box_settings",
+      "watermark": "water",
+      "toc": "text_bullet_list",
+      "tableOfFigures": "text_bullet_list",
+      "spell": "text_grammar_checkmark",
+      "separatePages": "document_one_page_multiple",
+      "sendBackward": "position_backward"
+    },
+    "note": "The Fluent package has no exact same-name glyph for these 7 Office commands, so the closest Fluent icon is used; no hand-drawn icon remains in the ribbon (the legacy hand-drawn ICON_PATHS map was deleted together with the unused wordIconPath helper)",
+    "webAudit": "Word for the web Insert tab only offers Page Break, Table, Picture, Drawing, Table of Contents, Header & Footer and Page Numbers (screenshot web/.tmp/word-insert2.png); Text Box, Watermark, Table of Figures, Separate Pages and Send Backward are not present in the web app, so there is no Office 365 web icon to copy for 5 of the 7 commands. The Word editor also runs inside a cross-origin iframe (word-edit.officeapps.live.com) whose DOM the parent console cannot read, and the editor swallows Ctrl+S, so a scripted 'save page as' dump of the live ribbon is not available from the parent page"
+  },
+  "changes": {
+    "ribbon": "single-row simplified ribbon matching Word for the web: 48px tall, no group labels, icons with tooltips, tabs 34px; styles as Normal/No Spacing/Heading 1 text buttons plus a more-styles dropdown",
+    "clipboard": "Paste large button with Cut/Copy/Format Painter stacked in a 3-row grid in classic mode and inlined in single-row mode; Undo/Redo in the title bar quick-access buttons",
+    "styles": "style gallery with four Aa preview cards plus a full style dropdown",
+    "paragraphEditing": "Fluent icons for bullets, numbering, indent, alignment, borders, sort, show marks, find, replace, select all",
+    "scrolling": "root and host are 100dvh with overflow hidden; only .op-workspace scrolls (body scrollHeight equals innerHeight)",
+    "editing": "each page is one contenteditable surface (paragraphs are not separate inputs), so mouse selection can span paragraphs; Enter splits a paragraph (model + XML), Backspace at offset 0 merges into the previous paragraph, ArrowLeft/Right/Up/Down move across paragraph boundaries; page blur syncs all paragraph text once and forces a clean re-render; measurement pauses while a page is focused to avoid caret loss/duplication",
+    "pageTextExtraction": "qa-page-map now inserts a space after block elements (p/td/th/tr/table/div/li/br) and reads textContent, so contenteditable innerText concatenation no longer merges adjacent table cells into fake words; this is a measurement fix, page layout is unchanged"
+  },
+  "layoutExperiments": {
+    "repeatedTblHeader": "Re-enabling w:tblHeader repeat as a fixed per-page cost (builds 611/612) produced 615 pages at the natural row scale and only 0.511 mean Dice with 29/546 pages >= 0.8 after rescaling rowFlowScale to 1.14 to get back to 546 pages; reverted. The comment in word-paginate.ts records why header repeat is off for this document.",
+    "storedPageBreaks": "Honouring Word's stored paragraph page breaks directly produced 556 pages and 0.474 mean Dice, so the paginator does not force them; they remain the page-start ground truth for QA.",
+    "calibration": "Two real parsing bugs caused the architecture drift: paragraph line spacing carried an unexplained x1.054 fudge (now the raw Word value) and w:contextualSpacing was ignored, so every list item kept 8pt after-spacing (builds 621-623). With those fixed, metricScale 1.0 trusts the measured heights and rowFlowScale recalibrates to 1.417 to keep Word's 546 pages; keepNext chains a heading with its sub-headings and the block they introduce, so page 8 starts at the section heading.",
+    "storedBreaks": "w:lastRenderedPageBreak at the start of a paragraph now forces a page break when the page is already >=75% full (build 624/627, 28 stored breaks in the bid file). This is what puts page 19 at 'Ngôn ngữ lập trình' and pages 20-21 at the Word rows; a 90% threshold keeps the old dice (0.584/106) but loses those page starts, and moving every whole table row that does not fit (Word's cantSplit behaviour) inflated the file to 726 pages and was rejected.",
+    "tableRowMap": "A reliable Word page -> table row map was built for 458 of 546 pages from the full cell text (998 rows, no truncation, bounded search). It shows the table body starts one page early (ours page 26 opens the requirements table while Word page 26 still holds Ubuntu prose), then drifts slowly to -57 rows at page 400 and recovers to -4 by page 530; cumulative character deltas stay within ~12 chars up to page 25, so the divergence is in table row heights, not the architecture section.",
+    "tableScaleSweep": "At 546 pages every calibration lands on 0.579-0.582 mean / body 0.565-0.567 (metric 1.0-1.015, rowFlow 1.412-1.417). The same engine at 542 pages scores mean 0.609, 137/546 >= 0.8, body 0.599 - proving the remaining gap is a page-fill policy difference (Word leaves more whitespace per table page), not a height scale that can be tuned away.",
+    "rowHeightRule": "w:trHeight was only applied when hRule=exact, but 951 rows use the default atLeast rule; they are now honoured as CSS min-heights (build 628). It is a correctness fix with no measurable dice change because content already exceeded those minimums.",
+    "wholeRowPageFit": "Reproducing Word's move-whole-row policy (skip splitting when the measured row fits a fresh page) produced 685 pages / mean 0.370 and was reverted: with rows this tall the rule leaves large gaps on almost every table page, so the policy needs Word's own row heights before it can be enabled."
+  },
+  "verification": {
+    "screenshot": "plugins/office-webapp/web/.tmp/ui-630.png",
+    "officeReferenceScreenshot": "plugins/office-webapp/web/.tmp/office365-web.png (Word for the web, single-row simplified ribbon); web/.tmp/word-insert2.png (real Insert tab inventory)",
+    "sample": "sample-real-proposal.docx loaded in the in-app browser: 546 pages, Trang 1 / 546",
+    "selection": "programmatic selection from paragraph 0 to paragraph 1 returns 'AlphaBeta\\n\\nGamma', proving cross-paragraph selection in one editable surface",
+    "perPage": "qa-pagination-twice 546 pages deterministic, 0 exceptions; qa-page-map mean Dice 0.579-0.582 (98-100/546 pages >= 0.8) across builds 628/630; pages 8-19 average 0.992 with all 12 pages >= 0.8 and 9 of them text-identical to Word (Dice 1.0), table body (pages 20-546) 0.565-0.567; exact page-start prefixes 23 (was 14) and pages 7/8, 19, 20 and 21 start exactly like Word",
+    "pageStarts": "Word's 1,743 w:lastRenderedPageBreak markers were extracted as ground truth (web/.tmp/word-breaks.py, word-structure.json): 27 markers start a paragraph, 688 fall inside table cells where they cannot be trusted as row starts (the 839-row table alone carries 377); forcing paragraph markers gave 556 pages and Dice 0.474, so markers are used for QA only",
+    "enterBackspace": "Enter split 'Alpha' into paragraphs [Alpha, empty]; typing Beta then Backspace at offset 0 merged to [AlphaBeta]; no duplicated text after blur",
+    "scroll": "bodyScrollHeight 894 == innerHeight 894; workspace clientHeight 690, scrollHeight 587068 (page content scrolls inside the workspace only)",
+    "qaRealDoc": "546 pages / 1447 table fragments / 1475 rows, 0 exceptions",
+    "smoke": "370 passed, 0 failed",
+    "i18n": "web 3262 keys, mobile 1929 keys, all locales 100%",
+    "uiBuild": "main.js 964.01 kB"
+  },
+  "remaining": [
+    "W-A21 per-page Word layout is still partial: pages 8-19 match almost exactly (mean 0.992, 9 pages identical), but the 527 table-body pages average 0.565 and 446 of them remain below 0.8. The Word page -> row map (458 pages) shows non-uniform row-height drift (up to 57 rows) that a scale factor cannot fix; closing it needs Word's per-row page-fit and line-break parity.",
+    "Seven commands use the closest Fluent glyph because the icon package has no exact variant; five of them (Text Box, Watermark, Table of Figures, Separate Pages, Send Backward) do not exist in Word for the web, so no web glyph exists to copy"
+  ]
+}

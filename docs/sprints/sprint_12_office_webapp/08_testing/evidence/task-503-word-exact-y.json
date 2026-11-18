@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-16",
+  "scope": "Exact-y placement for topAndBottom floats between/inside blocks, with following flow adjusted",
+  "implementation": {
+    "boundary": "blockFloatPlan inserts the float before the first item whose flow extent contains y (y < flowTop + height); no anchor-index clamp and no midpoint rounding",
+    "exactY": "Top offset is rendered as an explicit spacer div (height = y - flowTop) followed by the float block with margin 0, so CSS margin collapsing cannot shift the float",
+    "flow": "The float block participates in flow, so the paragraph at the insertion point starts after the float bottom; content above y keeps its position",
+    "betweenBlocks": "A float whose y falls between paragraphs lands exactly at y and the following paragraph is pushed below the float bottom"
+  },
+  "runtimeQA": {
+    "boundarySample": {
+      "y": 93,
+      "blockTop": 190,
+      "expectedTop": 189,
+      "delta": 1,
+      "crossingTop": 270,
+      "crossingBelowFloat": true,
+      "beforeAboveFloat": true
+    },
+    "aboveAnchor": {
+      "y": 30,
+      "blockTop": 127,
+      "blockExpected": 126,
+      "delta": 1,
+      "blockAboveAnchor": true
+    },
+    "stacking": {
+      "y": 300,
+      "blockTop": 397,
+      "blockExpected": 396,
+      "exactY": true
+    },
+    "wrap": { "top": 197, "expectedTop": 196, "wrappedLines": 7 },
+    "multi": [197, 397],
+    "crossing": { "inlineCount": 1, "beforeLines": 9, "afterLines": 9 },
+    "richCrossing": { "inlineCount": 1, "textPreserved": true },
+    "exceptions": 0
+  },
+  "smoke": "347 passed, 0 failed",
+  "builds": {
+    "ui": "main.js 881.54 kB",
+    "mobile": "complete",
+    "i18n": "web 3261 keys; all locales 100% (missing=0, extra=0)",
+    "checkDocs": "32 markdown files / 381 links / 0 errors"
+  },
+  "realDoc": {
+    "runs": [
+      { "pages": 147, "tableFragments": 134, "rows": 999, "exceptions": 0 },
+      { "pages": 145, "tableFragments": 132, "rows": 999, "exceptions": 0 }
+    ],
+    "note": "Page count varies 145-147 between loads because heights are measured asynchronously; the real document has no floating objects, so exact-y placement is not involved"
+  },
+  "remaining": [
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

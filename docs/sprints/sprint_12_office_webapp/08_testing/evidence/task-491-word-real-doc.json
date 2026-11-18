@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-16",
+  "scope": "Real-world Word proposal (SOpen technical proposal v1.0) used as stress sample: parse, render, edit, save round-trip",
+  "source": "C:/Users/Minh/Documents/btc/Hồ sơ thầu/SOpen_ Đề xuất giải pháp kĩ thuật_v1.0.docx (not committed)",
+  "file": {
+    "bytes": 1202637,
+    "parts": 30,
+    "media": 5,
+    "xmlTables": 14,
+    "nestedTables": 1,
+    "drawings": 4,
+    "hyperlinks": 50,
+    "sdt": 1,
+    "sections": 5,
+    "paragraphElements": 6474,
+    "numbering": 266,
+    "pageBreaks": 5
+  },
+  "parserFixes": [
+    "Body-level w:sdt/sdtContent expanded (TOC visible)",
+    "Inline w:sdt + smartTag/customXml runs collected",
+    "Internal hyperlinks w:anchor resolved to #anchor and clicks jump to bookmarks",
+    "Nested tables inside cells flattened into cell paragraphs for display (XML preserved)",
+    "Header images (logo) parsed from header rels and rendered above page content"
+  ],
+  "render": {
+    "loadMs": 4490,
+    "paragraphs": 530,
+    "tables": 13,
+    "tableRows": 998,
+    "images": 4,
+    "domNodes": 37545,
+    "estimatedPages": 165,
+    "words": 82025,
+    "exceptions": 0,
+    "error": null
+  },
+  "save": {
+    "edited": "A Giới thiệu về nhà thầu\\t5 [edited]",
+    "savedBytes": 1158351,
+    "partsBefore": 30,
+    "partsAfter": 30,
+    "mediaAfter": 5,
+    "xmlTablesAfter": 14,
+    "hyperlinksAfter": 50,
+    "sdtAfter": 1,
+    "textPreserved": true,
+    "state": "Đã lưu"
+  },
+  "screenshots": {
+    "page1": "plugins/office-webapp/web/.tmp/real-doc-final.png (local QA, contains client document)"
+  },
+  "limitations": [
+    "One continuous page instead of 165 paginated pages (estimated page count only)",
+    "Nested table rendered flattened inside parent cell",
+    "Header logo rendered once above the page (not repeated per page)"
+  ]
+}

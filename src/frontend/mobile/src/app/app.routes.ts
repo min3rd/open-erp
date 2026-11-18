@@ -128,6 +128,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/settings/plugin-screen/plugin-screen.page').then(m => m.PluginScreenPage)
   },
   {
+    path: 'office/viewer',
+    loadComponent: () => import('./pages/office-viewer/office-viewer.page').then(m => m.OfficeViewerPage)
+  },
+  {
     path: 'platform/change-password',
     canActivate: [authGuard, platformRoleGuard],
     loadComponent: () =>

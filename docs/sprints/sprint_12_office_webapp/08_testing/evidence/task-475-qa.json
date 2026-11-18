@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-16",
+  "scope": "Office WebApp dual-mode QA + native tableParts + formula catalogue 410",
+  "formulaCatalogue": 410,
+  "nativeTable": {
+    "part": "xl/tables/table1.xml",
+    "name": "Sales",
+    "ref": "A1:D3",
+    "columns": 4,
+    "sheetTableParts": "<tableParts count=\"1\">",
+    "relationship": "rIdTable1 -> ../tables/table1.xml",
+    "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml",
+    "savedFile": "saved/sample-native-table.xlsx"
+  },
+  "desktop": {
+    "viewport": { "width": 1496, "height": 894 },
+    "word": { "scrollWidth": 1481, "overflowX": -15, "error": null },
+    "excel": { "scrollWidth": 1496, "overflowX": 0, "error": null },
+    "ppt": { "scrollWidth": 1496, "overflowX": 0, "error": null },
+    "pdf": { "scrollWidth": 1481, "overflowX": -15, "error": null },
+    "screenshots": [
+      "desktop-word-1280.jpeg",
+      "desktop-excel-1280.jpeg",
+      "desktop-ppt-1280.jpeg",
+      "desktop-pdf-1280.jpeg"
+    ]
+  },
+  "mobilePortrait": {
+    "viewport": { "width": 390, "height": 844 },
+    "word": { "scrollWidth": 390, "overflowX": 0, "buttons": 6, "smallTargets": [] },
+    "excel": { "scrollWidth": 390, "overflowX": 0, "buttons": 9, "smallTargets": [] },
+    "ppt": { "scrollWidth": 390, "overflowX": 0, "buttons": 8, "smallTargets": [] },
+    "pdf": { "scrollWidth": 390, "overflowX": 0, "buttons": 15, "smallTargets": [] },
+    "touchTargetMinPx": 40,
+    "screenshots": [
+      "qa-mobile-word-390x844.jpeg",
+      "qa-mobile-excel-390x844.jpeg",
+      "qa-mobile-ppt-390x844.jpeg",
+      "qa-mobile-pdf-390x844.jpeg"
+    ]
+  },
+  "mobileLandscape": {
+    "viewport": { "width": 844, "height": 390 },
+    "word": { "scrollWidth": 829, "overflowX": -15, "smallTargets": [] },
+    "excel": { "scrollWidth": 829, "overflowX": -15, "smallTargets": [] },
+    "ppt": { "scrollWidth": 829, "overflowX": -15, "smallTargets": [] },
+    "pdf": { "scrollWidth": 829, "overflowX": -15, "smallTargets": [] },
+    "screenshot": "qa-mobile-excel-844x390.jpeg"
+  },
+  "consoleErrors": 0,
+  "wordOnlineVideo": {
+    "file": "sample-online-video.docx",
+    "link": "https://youtu.be/demo-webinar",
+    "paragraphs": ["Video trực tuyến", "Xem bản ghi:Video trực tuyến", "Hết."],
+    "portrait390x844": { "scrollWidth": 390, "innerWidth": 390, "overflowX": 0, "smallTargets": [] },
+    "landscape844x390": { "scrollWidth": 829, "innerWidth": 844, "overflowX": -15, "smallTargets": [] }
+  },
+  "notes": "negative overflow = scrollbar width; no visible button below 40x40 on mobile; PDF thumbnails hidden at mobile breakpoint; word online-video re-check after adding video link render"
+}

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mobile Office viewer harness</title>
+    <style>
+      html, body { margin: 0; background: #e5e7eb; }
+      iframe { width: 390px; height: 844px; border: 0; background: #fff; display: block; }
+    </style>
+  </head>
+  <body>
+    <iframe id="frame" src="/office/viewer" title="Mobile office viewer 390x844"></iframe>
+    <script>
+      window.dropSample = async function (path, name) {
+        const frame = document.getElementById('frame');
+        const win = frame.contentWindow;
+        const doc = frame.contentDocument;
+        const response = await win.fetch(path);
+        const file = new win.File([await response.arrayBuffer()], name);
+        const data = new win.DataTransfer();
+        data.items.add(file);
+        const target = doc.querySelector('.op-mv-start') || doc.querySelector('ion-content');
+        target.dispatchEvent(new win.DragEvent('drop', { dataTransfer: data, bubbles: true, cancelable: true }));
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        return true;
+      };
+
+      window.measure = function () {
+        const frame = document.getElementById('frame');
+        const doc = frame.contentDocument;
+        const win = frame.contentWindow;
+        const buttons = [...doc.querySelectorAll('button')].filter((button) => button.offsetParent !== null);
+        const small = buttons.map((button) => {
+          const rect = button.getBoundingClientRect();
+          return { text: (button.textContent || '').trim().slice(0, 24), width: Math.round(rect.width), height: Math.round(rect.height) };
+        }).filter((item) => item.width < 40 || item.height < 40);
+        return {
+          path: win.location.pathname,
+          innerWidth: win.innerWidth,
+          innerHeight: win.innerHeight,
+          scrollWidth: doc.documentElement.scrollWidth,
+          overflowX: doc.documentElement.scrollWidth - win.innerWidth,
+          buttons: buttons.length,
+          smallTargets: small,
+          title: doc.querySelector('.op-mv-title')?.textContent?.trim() ?? null,
+          toolbar: doc.querySelector('.op-mv-toolbar2')?.innerText.replace(/\s+/g, ' ').trim() ?? null,
+        };
+      };
+    </script>
+  </body>
+</html>

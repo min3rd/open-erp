@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-17",
+  "scope": "Word table cell visuals taken from w:tcPr the way Office 365 draws them: header shading, vertical alignment, per-edge borders and cell margins",
+  "reference": {
+    "sample": "plugins/office-webapp/web/samples/sample-real-proposal.docx (1.2MB bid document, 546 pages in Word)",
+    "wordPage72": "Office 365 Word export of page 72 (web/.tmp/word-page72.pdf, screenshot web/.tmp/word-page72b.png): grey D9D9D9 header row, header labels centred vertically, thin black rules, and the w:tblHeader row repeated at the top of the page",
+    "tcPrScan": "word/document.xml, big table (839 rows / 5034 cells): 5034 w:tcBorders (w:val=single, w:sz=4, w:color=auto = 0.5pt black), edges set to nil where the neighbour already draws the line (left 4195, top 48), 0 boundaries with nil on both sides; 6 cells carry w:shd w:fill=D9D9D9 (the whole header row) and w:vAlign center; 2633 cells are vAlign center; w:tblPr has no w:tblCellMar, so Word's default 108-twip (7.2px) side margin applies",
+    "smallTables": "The document's table 1 (3 rows) uses composite borders (thinThickSmallGap / thickThinSmallGap, w:sz=24) and w:jc center with w:tblW 4822 pct"
+  },
+  "changes": {
+    "model": "types.ts: WordCellStyle (fill, valign, per-edge border flags, border width/colour, cell margins) carried as optional cellStyles[row][cell] on table blocks and nested tables so existing row/paragraph consumers are untouched",
+    "parser": "docx.ts: readCellStyle/readCellMargins read w:tcPr -> w:shd fill, w:vAlign, w:tcBorders (nil = no line, w:sz eighths of a point -> px), w:tcMar and table-level w:tblCellMar (twips -> px)",
+    "renderer": "office-webapp.component.html: each cell gets [style]=\"wordCellStyle(cellStyles[row][cell])\"; office-webapp.component.ts builds it (background-color, vertical-align, border-*-style/width/color, padding). word-paginate.ts copies the row's cell styles into split-row fragments so a row broken across pages keeps its look",
+    "defaults": "styles.css: .op-word-table td border colour #9ca3af -> #000, matching Word's auto (black) rule; width stays 1px so collapsed row heights do not move"
+  },
+  "verification": {
+    "pages": "546 pages deterministic (Word: 546) after the change",
+    "screenshot": "web/.tmp/our-page72-tcpr3.png: header row D9D9D9 with centred labels and thin black rules on page 72, matching web/.tmp/word-page72b.png",
+    "cellProbe": "web/.tmp/qa-rows-probe.mjs on page 71: header cell background rgb(217,217,217), border 1px, padding 6px/0px",
+    "smoke": "371 passed, 0 failed (npm run office:test), including the new 'word cell style from tcPr' case",
+    "uiBuild": "main.js 964.09 kB, styles.css 146.31 kB"
+  },
+  "probes": {
+    "cellMargins": "Applying Word's 108-twip (7.2px) default side margin took pagination to 558 pages, so cells keep the calibrated 6px; cell text therefore wraps a touch wider than Word. Explicit w:tcMar/w:tblCellMar in a file are still honoured exactly.",
+    "repeatedHeader": "Still off: repeating the w:tblHeader row moves the document to 664 pages while the page-text reference is Word's body range without the repeated rows; recorded as the open unknown unk_38237fd3a8a5b520."
+  },
+  "remaining": [
+    "Word repeats the header row on every table page and we do not; the 546-page baseline and the visual repeat still conflict (unk_38237fd3a8a5b520).",
+    "Rows that straddle a page boundary still start at a different row than Word, so most of the 424 table pages stay below Dice 0.8.",
+    "Composite border styles (thinThickSmallGap, thickThinSmallGap, double) render as one thin line; table-level w:jc/w:tblW alignment is not applied."
+  ]
+}

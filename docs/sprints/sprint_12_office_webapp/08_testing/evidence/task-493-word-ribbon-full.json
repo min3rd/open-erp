@@ -1,0 +1,86 @@
+{
+  "date": "2026-11-16",
+  "scope": "Group-by-group Word ribbon comparison with the Office 365 web ribbon table",
+  "ribbon": {
+    "tabs": 10,
+    "groups": 41,
+    "commands": 158,
+    "itemsPerTab": {
+      "home": 36,
+      "insert": 22,
+      "draw": 4,
+      "design": 5,
+      "layout": 21,
+      "references": 14,
+      "mailings": 14,
+      "review": 21,
+      "view": 18,
+      "help": 3
+    },
+    "disabled": ["macros"],
+    "macrosReason": "Word for the web does not execute VBA macros; the button stays disabled with a reason instead of simulating behavior"
+  },
+  "gapClose": [
+    "Insert > Links: added Table of Contents (Insert tab, matching Word web)",
+    "Layout > Page Background: added Page Color and Page Borders (matching Word web Layout tab)",
+    "Review > Comments: added Show Comments and Filter (All/Unresolved/Resolved)",
+    "Review > Tracking: added Accept/Reject and Move to Previous/Next",
+    "View > Page Movement: added Separate Pages and Switch Background",
+    "View > Zoom: added Zoom to 100%"
+  ],
+  "implemented": [
+    "Mailings: client-side mail merge from CSV/XLSX; recipient selection/find/select-all; MERGEFIELD insert; address block; greeting line; NEXT and IF rules; preview; finish merge with page break per record; labels grid; envelopes target",
+    "References > Index: XE mark entry; index generation with page numbers from real pagination; update and clear; IndexHeading/Index1 styles round-trip",
+    "References > TOC: remove/rebuild with TOCHeading/TOC1..3 styles and real page numbers from pagination",
+    "Layout > Arrange: wp:anchor floating objects; position presets and offsets; wrap square/tight/through/topAndBottom/behind/front; align; rotate via a:xfrm rot; bring forward/send backward; selection pane with visibility; group/ungroup persisted in customXml/arrange.xml",
+    "Home: checklist toggle, paragraph borders (w:pBdr), paragraph options panel (line spacing + indent)",
+    "Insert: named emoji picker (emoji inserted as document text, UI labels are text-only)",
+    "Review: Mark All as Read with per-thread read indicator; comment filter",
+    "View: Header & Footer, Footnotes, Endnotes, Separate Pages, Switch Background, Zoom 100%",
+    "Nested tables: w:tbl is kept as WordNestedTable inside the parent cell; word count, pagination, mail merge and rendering recurse into it",
+    "Arrange grouping: real wpg:wgp group with child shapes; ungroup splits back into individual wp:anchor runs",
+    "Page-level exclusion plan places topAndBottom at its exact y (spacer + flow block) and multiple wrap floats at independent y; mail merge NEXT advances at run level"
+  ],
+  "gating": [
+    "Wrap panel states that square/tight/through wraps reflow body text while behind/front remain overlays and topAndBottom occupies flow at its exact y",
+    "TOC page numbers now use real pagination instead of the previous sequential placeholder"
+  ],
+  "verification": {
+    "smoke": "347 passed, 0 failed",
+    "newChecks": [
+      "word mail merge parse rows",
+      "word MERGEFIELD parsed",
+      "word mail merge check errors",
+      "word mail merge finish",
+      "word mail merge save round-trip",
+      "word insert merge field",
+      "word index mark entry",
+      "word index insert",
+      "word index save round-trip",
+      "word index clear",
+      "word floating anchor parse",
+      "word inline to floating",
+      "word float save round-trip",
+      "word paragraph borders",
+      "word paragraph borders round-trip",
+      "word toc page map",
+      "word toc remove",
+      "word sdt + anchor link + nested table",
+      "word sdt round-trip",
+      "word wpg grouping",
+      "word wpg group round-trip",
+      "word wpg ungroup",
+      "word nested table depth 3",
+      "word mail merge NEXT inside paragraph",
+      "word NEXT inside paragraph save round-trip",
+      "word NEXT field parsed"
+    ],
+    "uiBuild": "main.js 881.54 kB",
+    "mobileBuild": "complete",
+    "i18n": "web 3261 keys; all locales 100% (missing=0, extra=0)",
+    "checkDocs": "32 markdown files / 381 links / 0 errors"
+  },
+  "limitations": [
+    "VBA macros cannot run in the browser (same as Word for the web)"
+  ]
+}

@@ -16,6 +16,7 @@
     "paths": {
       "@shared": ["../shared/index.ts"],
       "@shared/*": ["../shared/*"],
+      "@plugins/office-webapp/*": ["../../../plugins/office-webapp/web/src/app/core/*"],
       "@angular/*": ["./node_modules/@angular/*"],
       "@ionic/*": ["./node_modules/@ionic/*"],
       "ionicons": ["./node_modules/ionicons"],

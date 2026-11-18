@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-16",
+  "scope": "Word Office-only commands: cover page, text box, watermark, caption, new window, ribbon icons, visual comparison",
+  "smoke": { "passed": 305, "failed": 0 },
+  "ribbon": {
+    "tabs": 9,
+    "groups": 30,
+    "commands": 101,
+    "icons": "large buttons render inline SVG paths; compact Home buttons use icon-only form",
+    "newCommands": ["coverPage", "textBox", "watermark", "insertCaption", "newWindow"]
+  },
+  "browser": {
+    "coverPage": { "firstParagraph": "Báo cáo Sprint 12", "style": "Title", "pageBreak": 1 },
+    "textBox": { "rendered": "Ghi chú quan trọng", "width": 320, "height": 120 },
+    "watermark": { "overlay": "CONFIDENTIAL" },
+    "caption": { "text": "Hình 1: Sơ đồ kiến trúc", "field": " SEQ Hình \\* ARABIC " },
+    "newWindow": { "popup": "blocked in automation", "toast": "Trình duyệt chặn cửa sổ mới — hãy cho phép popup" },
+    "iconsHome": 10,
+    "saveState": "Đã lưu"
+  },
+  "savedFile": {
+    "path": "saved/sample-word-office.docx",
+    "bytes": 2526,
+    "paragraphs": [
+      "Báo cáo Sprint 12",
+      "Nhóm Office",
+      "16/11/2026",
+      "(page break)",
+      "Báo cáo Sprint 12",
+      "Office WebApp đọc trực tiếp .docx trên trình duyệt, không upload nội dung lên máy chủ.",
+      "Tiếng Việt: ă â ê ô ơ ư đ — 0123456789",
+      "Kết luận: nền tảng OOXML thuần TypeScript đã chạy.",
+      "Ghi chú quan trọng",
+      "Hình 1: Sơ đồ kiến trúc"
+    ],
+    "coverTitleStyle": "Title",
+    "textBox": { "text": "Ghi chú quan trọng", "width": 320, "height": 120 },
+    "textBoxParts": 1,
+    "captions": [" SEQ Hình \\* ARABIC "],
+    "watermark": "CONFIDENTIAL",
+    "headerWatermark": true,
+    "headerPath": "word/header1.xml"
+  },
+  "screenshots": {
+    "comparison": "word-ribbon-compare.png",
+    "homeSingle": "headless Edge 1440x900",
+    "insert": "headless Edge 1440x900"
+  }
+}
