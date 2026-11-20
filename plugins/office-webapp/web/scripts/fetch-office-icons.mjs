@@ -129,9 +129,9 @@ for (const [command, name] of mapping) {
 // Chrome glyphs and layered accent paths used by the shell and Word 365 Web ribbon.
 const UI_ICONS = [
   'dismiss', 'search', 'chevron_down', 'chevron_left', 'chevron_right', 'more_horizontal', 'add', 'subtract',
-  'cloud_checkmark', 'cloud_sync', 'cloud', 'folder_open', 'share', 'arrow_export_ltr', 'arrow_download', 'save', 'rename', 'info',
+  'cloud_checkmark', 'cloud_sync', 'cloud', 'folder_open', 'share', 'arrow_export_ltr', 'arrow_download', 'arrow_upload', 'arrow_reply', 'save', 'rename', 'info', 'warning',
   'panel_left', 'panel_left_text', 'weather_sunny', 'weather_moon', 'dark_theme', 'zoom_fit', 'zoom_in',
-  'document', 'document_pdf', 'document_add', 'document_copy', 'document_page_break', 'document_edit', 'document_text',
+  'document', 'document_pdf', 'document_add', 'document_copy', 'document_page_break', 'document_edit', 'document_text', 'document_checkmark',
   'document_table', 'document_landscape', 'document_margins', 'document_width', 'document_page_number', 'document_one_page',
   'document_link', 'document_endnote', 'document_header_footer', 'document_split_hint', 'slide_content', 'code_text',
   'edit', 'eye', 'table', 'orientation', 'orientation_portrait', 'column_single_compare', 'column_double_compare', 'column_triple',
@@ -142,7 +142,7 @@ const UI_ICONS = [
   'text_line_spacing', 'text_align_left', 'text_align_center', 'text_align_right', 'text_align_justify',
   'font_increase', 'font_decrease', 'text_subscript', 'text_superscript', 'text_change_case', 'text_grammar_checkmark',
   'comment_add', 'comment_multiple', 'comment_multiple_checkmark', 'comment_dismiss', 'comment_arrow_left', 'comment_arrow_right',
-  'checkmark', 'print', 'copy', 'link', 'file',
+  'checkmark', 'checkmark_circle', 'delete', 'send', 'question_circle', 'print', 'copy', 'link', 'file',
 ];
 for (const name of UI_ICONS) {
   if (icons[name]) continue;

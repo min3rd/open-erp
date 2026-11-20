@@ -23,9 +23,13 @@
           <button type="button" class="op-word-title-btn op-file-name op-rb-pop-trigger"
                   (click)="openPopover('fileStatus', $event, false, 260)"
                   (dblclick)="startRenameTitle()"
-                  [title]="'office.menu.rename' | translate">{{ doc()!.fileName }}</button>
+                  [title]="'office.menu.rename' | translate">
+            <span>{{ doc()!.fileName }}</span>
+            <span class="op-icon-svg op-title-caret" [innerHTML]="uiIcon('chevron_down')"></span>
+          </button>
         }
         <button type="button" class="op-word-save-pill op-rb-pop-trigger"
+                [class.op-save-ok]="!dirty()"
                 (click)="openPopover('fileStatus', $event, false, 260)"
                 [title]="(dirty() ? 'office.status.unsaved' : erpDocId() ? 'office.word.savedErp' : 'office.word.savedLocal') | translate"
                 [attr.aria-label]="(dirty() ? 'office.status.unsaved' : 'office.status.saved') | translate">
@@ -46,6 +50,7 @@
                 <button type="button" role="option" class="op-command-item" [class.op-command-active]="i === commandSearchIndex()"
                         [attr.aria-selected]="i === commandSearchIndex()"
                         (click)="runCommandEntry(entry)" (mouseenter)="commandSearchIndex.set(i)">
+                  <span class="op-icon-svg op-command-icon" [innerHTML]="commandEntryIcon(entry)"></span>
                   <span class="op-command-label">{{ entry.labelKey | translate }}</span>
                   @if (entry.groupKey) { <span class="op-command-group">{{ entry.groupKey | translate }}</span> }
                 </button>
@@ -64,6 +69,14 @@
                 [attr.aria-label]="'office.word.dark' | translate">
           <span class="op-icon-svg" [innerHTML]="uiIcon(wordChromeDark() ? 'weather_sunny' : 'weather_moon')"></span>
         </button>
+        <button type="button" class="op-icon-btn op-word-help-btn"
+                [class.op-tab-action-active]="helpOpen()"
+                (click)="toggleHelp()"
+                [title]="'office.rb.help' | translate"
+                [attr.aria-label]="'office.rb.help' | translate">
+          <span class="op-icon-svg" [innerHTML]="uiIcon('help')"></span>
+        </button>
+        <span class="op-user-avatar" [title]="authorName()">{{ authorInitials() }}</span>
       </div>
     } @else {
       <div class="op-title-left">
@@ -110,7 +123,7 @@
         <button type="button" class="op-file-tab" [class.op-file-tab-open]="fileMenuOpen()" (click)="toggleFileMenu()">{{ 'office.menu.file' | translate }}</button>
         @for (tab of tabs(); track tab) {
           <button type="button" role="tab" class="op-tab" [class.op-tab-contextual]="tab === 'table' || tab === 'tableLayout' || tab === 'picture' || tab === 'shape'"
-                  [class.op-tab-active]="activeTab() === tab" (click)="setTab(tab)">
+                  [class.op-tab-active]="activeTab() === tab" (click)="setTab(tab, true)">
             {{ tabLabelKey(tab) | translate }}
           </button>
         }
@@ -118,11 +131,12 @@
       <div class="op-tabstrip-right">
         @if (app() === 'word') {
           <button type="button" class="op-tab-action-btn" [class.op-tab-action-active]="commentsOpen()" (click)="toggleComments()" [title]="'office.comments.title' | translate">
-            <span class="op-icon-svg" [innerHTML]="iconHtml('newComment')"></span>
+            <span class="op-icon-svg" [innerHTML]="uiIcon('comment_multiple')"></span>
             <span class="op-tab-btn-text">{{ 'office.comments.title' | translate }}</span>
             @if (comments().length) { <span class="op-comment-badge">{{ comments().length }}</span> }
           </button>
           <button type="button" class="op-mode-trigger op-rb-pop-trigger"
+                  [attr.data-mode]="activeWordMode()"
                   (click)="openPopover('modeMenu', $event, true, 240)"
                   [title]="'office.rb.mode' | translate" [attr.aria-label]="'office.rb.mode' | translate">
             <span class="op-icon-svg" [innerHTML]="uiIcon(activeWordMode() === 'viewing' ? 'eye' : activeWordMode() === 'suggesting' ? 'document_edit' : 'edit')"></span>
@@ -350,8 +364,10 @@
 
     @if (app() === 'word') {
       <div class="op-ribbon op-ribbon-word" [attr.data-tab]="activeTab()" [class.op-ribbon-single]="ribbonMode() === 'single'"
-           [class.op-ribbon-tabs-only]="ribbonMode() === 'tabs'" role="toolbar">
-        @if (ribbonMode() !== 'tabs') {
+           [class.op-ribbon-tabs-only]="ribbonMode() === 'tabs' && !ribbonOverlayOpen()"
+           [class.op-ribbon-overlay]="ribbonMode() === 'tabs' && ribbonOverlayOpen()"
+           (mousedown)="onChromeMouseDown($event)" role="toolbar">
+        @if (ribbonMode() !== 'tabs' || ribbonOverlayOpen()) {
           @for (group of wordRibbonGroups(); track group.id) {
             <div class="op-rb-group" [attr.data-group]="group.id" [style.--thumb-accent]="word()?.theme?.accent ?? null">
               <div class="op-rb-group-body">
@@ -360,16 +376,30 @@
                 @for (item of row; track item.id) {
                   @switch (item.control ?? item.id) {
                     @case ('fontName') {
-                      <select class="op-rb-select op-rb-fontname" [value]="currentWordFont()" (change)="setWordFont($any($event.target).value)"
-                              [title]="'office.rb.fontName' | translate" [attr.aria-label]="'office.rb.fontName' | translate">
-                        @for (font of wordFontOptions(); track font) { <option [value]="font" [selected]="font === currentWordFont()">{{ font }}</option> }
-                      </select>
+                      <div class="op-rb-combo op-rb-combo-font">
+                        <input type="text" class="op-rb-select op-rb-fontname op-rb-pop-trigger" [value]="currentWordFont()" readonly
+                               [style.font-family]="currentWordFont()"
+                               (click)="openPopover('fontPicker', $event, false, 236)"
+                               [title]="'office.rb.fontName' | translate" [attr.aria-label]="'office.rb.fontName' | translate" />
+                        <button type="button" class="op-rb-combo-btn op-rb-pop-trigger"
+                                (click)="openPopover('fontPicker', $event, false, 236)"
+                                [title]="'office.rb.fontName' | translate" [attr.aria-label]="'office.rb.fontName' | translate">
+                          <span class="op-rb-caret-tri"></span>
+                        </button>
+                      </div>
                     }
                     @case ('fontSize') {
-                      <select class="op-rb-select op-rb-size" [value]="currentWordFontSize()" (change)="setWordFontSize(+$any($event.target).value)"
-                              [title]="'office.rb.fontSize' | translate" [attr.aria-label]="'office.rb.fontSize' | translate">
-                        @for (size of wordFontSizeOptions(); track size) { <option [value]="size" [selected]="size === currentWordFontSize()">{{ size }}</option> }
-                      </select>
+                      <div class="op-rb-combo op-rb-combo-size">
+                        <input type="text" inputmode="numeric" class="op-rb-select op-rb-size" [value]="currentWordFontSize()"
+                               (keydown.enter)="commitFontSizeInput($any($event.target).value)"
+                               (blur)="commitFontSizeInput($any($event.target).value)"
+                               [title]="'office.rb.fontSize' | translate" [attr.aria-label]="'office.rb.fontSize' | translate" />
+                        <button type="button" class="op-rb-combo-btn op-rb-pop-trigger"
+                                (click)="openPopover('fontSizePicker', $event, false, 84)"
+                                [title]="'office.rb.fontSize' | translate" [attr.aria-label]="'office.rb.fontSize' | translate">
+                          <span class="op-rb-caret-tri"></span>
+                        </button>
+                      </div>
                     }
                     @case ('fontColor') {
                       <button type="button" class="op-rb op-rb-swatch-btn op-rb-pop-trigger" [attr.data-id]="'fontColor'"
@@ -456,8 +486,9 @@
                     @case ('stylePicker') {
                       <button type="button" class="op-rb-style-pill op-rb-pop-trigger" [attr.data-id]="'styles'"
                               [class.op-rb-active]="activePopover()?.kind === 'styles'"
-                              (click)="openPopover('styles', $event, false, 260)"
+                              (click)="openPopover('styles', $event, false, 296)"
                               [title]="'office.word.style' | translate">
+                        <span class="op-style-pill-aa" [attr.data-style]="currentWordStyle()">Aa</span>
                         <span class="op-rb-style-pill-text">{{ currentStyleLabelKey() | translate }}</span>
                         <span class="op-rb-caret-tri"></span>
                       </button>
@@ -465,7 +496,8 @@
                     @case ('style') {
                       @if (ribbonMode() === 'single') {
                         <button type="button" class="op-rb-style-pill op-rb-pop-trigger" [attr.data-id]="'styles'"
-                                (click)="openPopover('styles', $event, false, 260)" [title]="'office.word.style' | translate">
+                                (click)="openPopover('styles', $event, false, 296)" [title]="'office.word.style' | translate">
+                          <span class="op-style-pill-aa" [attr.data-style]="currentWordStyle()">Aa</span>
                           <span class="op-rb-style-pill-text">{{ currentStyleLabelKey() | translate }}</span>
                           <span class="op-rb-caret-tri"></span>
                         </button>
@@ -480,13 +512,12 @@
                               <span class="op-rb-style-name">{{ option.labelKey | translate }}</span>
                             </button>
                           }
-                          <select class="op-rb-select op-rb-style-more" [value]="currentWordStyle()"
-                                  (change)="setWordStyle($any($event.target).value)"
+                          <button type="button" class="op-rb-style-more-btn op-rb-pop-trigger" [attr.data-id]="'styles'"
+                                  [class.op-rb-active]="activePopover()?.kind === 'styles'"
+                                  (click)="openPopover('styles', $event, false, 296)"
                                   [title]="'office.word.style' | translate" [attr.aria-label]="'office.word.style' | translate">
-                            @for (option of wordStyleOptions; track option.value) {
-                              <option [value]="option.value">{{ option.labelKey | translate }}</option>
-                            }
-                          </select>
+                            <span class="op-rb-caret-tri"></span>
+                          </button>
                         </div>
                       }
                     }
@@ -680,7 +711,7 @@
       </div>
       <input #wordImageInput type="file" accept="image/*" class="op-hidden-input" (change)="onWordImagePicked($event)" />
       @if (caretMenu(); as menu) {
-        <div class="op-rb-menu" role="menu" [style.left.px]="menu.x" [style.top.px]="menu.y">
+        <div class="op-rb-menu" role="menu" [style.left.px]="menu.x" [style.top.px]="menu.y" (mousedown)="onChromeMouseDown($event)">
           @for (entry of caretEntries(menu.id); track entry.command) {
             <button type="button" role="menuitem" (click)="runCaretEntry(entry.command)">
               @if (entry.uiIcon) { <span class="op-icon-svg" [innerHTML]="uiIcon(entry.uiIcon)"></span> }
@@ -735,13 +766,8 @@
   }
 
   <main class="op-workspace" [class.op-workspace-nav]="navPaneOpen() && app() === 'word'"
-        [class.op-workspace-comments]="commentsOpen() && app() === 'word'">
-    @if (doc() && app() === 'word' && !navPaneOpen()) {
-      <button type="button" class="op-nav-float-btn" (click)="openNavTab('headings')"
-              [title]="'office.word.navigation' | translate" [attr.aria-label]="'office.word.navigation' | translate">
-        <span class="op-icon-svg" [innerHTML]="uiIcon('panel_left_text')"></span>
-      </button>
-    }
+        [class.op-workspace-comments]="commentsOpen() && app() === 'word'"
+        [class.op-workspace-panel-right]="hasRightWordPanel() && app() === 'word'">
     @if (error()) {
       <div class="op-error" role="alert">
         <span>{{ errorMessageKey(error()!) | translate }}</span>
@@ -753,33 +779,89 @@
     @if (!doc()) {
       <section class="op-start">
         <div class="op-start-head">
-          <h1>{{ 'office.workspace.title' | translate }}</h1>
-          <p>{{ 'office.workspace.hint' | translate }}</p>
-          <button type="button" class="op-primary" (click)="pickFile()">{{ 'office.action.openLocal' | translate }}</button>
+          <div class="op-start-brand">
+            <span class="op-start-emblem" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="32" height="32">
+                <rect x="6" y="2" width="16" height="5" rx="1.2" fill="#41a5ee"/>
+                <rect x="6" y="7" width="16" height="5" fill="#2b7cd3"/>
+                <rect x="6" y="12" width="16" height="5" fill="#185abd"/>
+                <path d="M6 17h16v3.5A1.5 1.5 0 0 1 20.5 22H7.5A1.5 1.5 0 0 1 6 20.5V17z" fill="#103f91"/>
+                <rect x="1.5" y="5.5" width="12.5" height="12.5" rx="2" fill="#185abd"/>
+                <path d="M4.2 8.4h1.45l1.1 4.65 1.15-4.65h1.25l1.12 4.65 1.12-4.65h1.42l-1.85 6.8h-1.35l-1.08-4.38-1.1 4.38H6.05L4.2 8.4z" fill="#fff"/>
+              </svg>
+            </span>
+            <div>
+              <h1>{{ 'office.workspace.title' | translate }}</h1>
+              <p>{{ 'office.workspace.hint' | translate }}</p>
+            </div>
+          </div>
+          <div class="op-start-actions">
+            <button type="button" class="op-primary op-start-cta" (click)="pickFile()">
+              <span class="op-icon-svg" [innerHTML]="uiIcon('arrow_upload')"></span>
+              <span>{{ 'office.action.openLocal' | translate }}</span>
+            </button>
+            <button type="button" class="op-text-btn op-start-secondary" (click)="openErpPanel()">
+              <span class="op-icon-svg" [innerHTML]="uiIcon('cloud')"></span>
+              <span>{{ 'office.menu.openErp' | translate }}</span>
+            </button>
+          </div>
         </div>
         <div class="op-app-grid">
           <button type="button" class="op-app-card" (click)="newDocument('word')">
-            <span class="op-app-letter" data-app="word">W</span>
+            <span class="op-app-svg" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="32" height="32">
+                <rect x="6" y="2" width="16" height="5" rx="1.2" fill="#41a5ee"/>
+                <rect x="6" y="7" width="16" height="5" fill="#2b7cd3"/>
+                <rect x="6" y="12" width="16" height="5" fill="#185abd"/>
+                <path d="M6 17h16v3.5A1.5 1.5 0 0 1 20.5 22H7.5A1.5 1.5 0 0 1 6 20.5V17z" fill="#103f91"/>
+                <rect x="1.5" y="5.5" width="12.5" height="12.5" rx="2" fill="#185abd"/>
+                <path d="M4.2 8.4h1.45l1.1 4.65 1.15-4.65h1.25l1.12 4.65 1.12-4.65h1.42l-1.85 6.8h-1.35l-1.08-4.38-1.1 4.38H6.05L4.2 8.4z" fill="#fff"/>
+              </svg>
+            </span>
             <span class="op-app-name">{{ 'office.app.word' | translate }}</span>
             <span class="op-app-desc">.docx .doc .dotx .rtf .odt</span>
           </button>
           <button type="button" class="op-app-card" (click)="newDocument('excel')">
-            <span class="op-app-letter" data-app="excel">X</span>
+            <span class="op-app-svg" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="32" height="32">
+                <rect x="6" y="2" width="16" height="6" rx="1.2" fill="#33c481"/>
+                <rect x="6" y="8" width="16" height="7" fill="#21a366"/>
+                <path d="M6 15h16v5.5A1.5 1.5 0 0 1 20.5 22H7.5A1.5 1.5 0 0 1 6 20.5V15z" fill="#107c41"/>
+                <rect x="1.5" y="5.5" width="12.5" height="12.5" rx="2" fill="#185c37"/>
+                <path d="M4.8 8.6h1.55l1.45 2.45 1.45-2.45h1.52l-2.18 3.35 2.28 3.45H9.3l-1.52-2.55-1.55 2.55H4.7l2.28-3.45-2.18-3.35z" fill="#fff"/>
+              </svg>
+            </span>
             <span class="op-app-name">{{ 'office.app.excel' | translate }}</span>
             <span class="op-app-desc">.xlsx .csv</span>
           </button>
           <button type="button" class="op-app-card" (click)="newDocument('ppt')">
-            <span class="op-app-letter" data-app="ppt">P</span>
+            <span class="op-app-svg" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="32" height="32">
+                <circle cx="13" cy="12" r="9.5" fill="#d24726"/>
+                <path d="M13 2.5A9.5 9.5 0 0 1 22.5 12H13V2.5z" fill="#f37059"/>
+                <rect x="1.5" y="5.5" width="12.5" height="12.5" rx="2" fill="#c43e1c"/>
+                <path d="M5.2 8.5h2.9c1.55 0 2.45.82 2.45 2.18 0 1.4-.9 2.22-2.5 2.22H6.7v2.3H5.2V8.5zm1.5 1.25v1.9h1.2c.72 0 1.15-.35 1.15-.95s-.43-.95-1.15-.95H6.7z" fill="#fff"/>
+              </svg>
+            </span>
             <span class="op-app-name">{{ 'office.app.ppt' | translate }}</span>
             <span class="op-app-desc">.pptx</span>
           </button>
           <button type="button" class="op-app-card" (click)="pickFile()">
-            <span class="op-app-letter" data-app="pdf">D</span>
+            <span class="op-app-svg" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="32" height="32">
+                <rect x="5" y="2" width="14" height="20" rx="2" fill="#ef4444"/>
+                <rect x="1.5" y="5.5" width="12.5" height="12.5" rx="2" fill="#b91c1c"/>
+                <path d="M4.8 8.5h2.4c2.1 0 3.3 1.25 3.3 3.35s-1.2 3.35-3.3 3.35H4.8V8.5zm1.5 1.3v4.1h.85c1.15 0 1.8-.75 1.8-2.05s-.65-2.05-1.8-2.05H6.3z" fill="#fff"/>
+              </svg>
+            </span>
             <span class="op-app-name">{{ 'office.app.pdf' | translate }}</span>
             <span class="op-app-desc">.pdf</span>
           </button>
         </div>
-        <div class="op-drop-hint">{{ 'office.workspace.drop' | translate }}</div>
+        <div class="op-drop-hint">
+          <span class="op-icon-svg" [innerHTML]="uiIcon('arrow_upload')"></span>
+          <span>{{ 'office.workspace.drop' | translate }}</span>
+        </div>
       </section>
     }
 
@@ -793,8 +875,9 @@
       @if (wordProtected()) {
         <div class="op-protected-banner">{{ 'office.rb.protectedBanner' | translate }}</div>
       }
-      @if (doc()?.warnings?.length || wordReadOnlyLegacy()) {
+      @if (!warningsDismissed() && (doc()?.warnings?.length || wordReadOnlyLegacy())) {
         <div class="op-warning-banner" role="status">
+          <span class="op-icon-svg op-warning-icon" [innerHTML]="uiIcon('info')"></span>
           <div class="op-warning-messages">
             @for (code of doc()?.warnings ?? []; track $index) {
               <span>{{ warningMessageKey(code) | translate }}</span>
@@ -806,6 +889,10 @@
               <button type="button" class="op-text-btn" (click)="convertLegacyToEditable()" [disabled]="saving()">{{ 'office.action.convertToEditable' | translate }}</button>
             </div>
           }
+          <button type="button" class="op-icon-btn op-warning-close" (click)="warningsDismissed.set(true)"
+                  [title]="'office.action.dismiss' | translate" [attr.aria-label]="'office.action.dismiss' | translate">
+            <span class="op-icon-svg" [innerHTML]="uiIcon('dismiss')"></span>
+          </button>
         </div>
       }
       @if (headerFooterEdit()) {
@@ -814,6 +901,37 @@
           <button type="button" class="op-text-btn" (click)="finishHeaderFooterEdit()">{{ 'office.word.closeHeaderFooter' | translate }}</button>
         </div>
       }
+      <div class="op-word-shell-body">
+        @if (!navPaneOpen()) {
+          <button type="button" class="op-nav-float-btn" (click)="openNavTab('headings')"
+                  [title]="'office.word.navigation' | translate" [attr.aria-label]="'office.word.navigation' | translate">
+            <span class="op-icon-svg" [innerHTML]="uiIcon('panel_left_text')"></span>
+          </button>
+        }
+        <div class="op-word-canvas-col">
+          @if (rulerOpen()) {
+            <div class="op-word-ruler-bar" aria-hidden="true">
+              <div [class]="rulerLeftPx() !== null ? 'op-word-ruler-anchor' : 'op-word-ruler-anchor-centered'"
+                   [style.left.px]="rulerLeftPx()">
+                <div class="op-word-ruler"
+                     [style.width.px]="wordRulerWidthPx()"
+                     [style.zoom]="zoom() / 100">
+                  <span class="op-word-ruler-shade-left" [style.width.px]="wordPageMargin('left')"></span>
+                  <span class="op-word-ruler-shade-right" [style.width.px]="wordPageMargin('right')"></span>
+                  @for (inch of wordRulerInches(); track inch) {
+                    <span class="op-word-ruler-num" [style.left.px]="wordPageMargin('left') + inch * 96">{{ inch }}</span>
+                  }
+                  <span class="op-word-ruler-margin op-ruler-drag" [style.left.px]="wordPageMargin('left') + 1"
+                        (pointerdown)="onRulerDragStart('marginLeft', $event)"></span>
+                  <span class="op-word-ruler-margin op-ruler-drag" [style.left]="'calc(100% - ' + (wordPageMargin('right') - 1) + 'px)'"
+                        (pointerdown)="onRulerDragStart('marginRight', $event)"></span>
+                  <span class="op-word-ruler-indent op-ruler-drag" [style.left.px]="wordCurrentIndentPx()"
+                        (pointerdown)="onRulerDragStart('indent', $event)"></span>
+                </div>
+              </div>
+            </div>
+          }
+          <div class="op-word-scroll" (scroll)="onWordScroll($event)" (wheel)="onWordWheel($event)">
       <section class="op-word-stage" [class.op-word-dark]="wordDark()" [class.op-word-immersive]="immersive()" [class.op-word-continuous]="!separatePages()" [class.op-word-web]="webLayout()" [class.op-word-hyphenate]="hyphenationMode() === 'automatic'" [attr.lang]="documentLang()" [style.zoom]="zoom() / 100"
                (contextmenu)="openWordContextMenu($event)" (click)="onWordStageClick($event)"
                [attr.data-measured]="measuredParagraphs()" [attr.data-settled]="wordSettled() ? 'true' : 'false'" [attr.data-measure-attempts]="wordMeasureAttempts()">
@@ -1005,22 +1123,13 @@
             </tbody>
           </table>
         </ng-template>
-        @if (rulerOpen()) {
-          <div class="op-word-ruler" aria-hidden="true">
-            @for (inch of [1,2,3,4,5,6,7,8]; track inch) {
-              <span class="op-word-ruler-num" [style.left.px]="inch * 96 - 48">{{ inch }}</span>
-            }
-            <span class="op-word-ruler-margin" [style.left.px]="wordPageMargin('left') + 1"></span>
-            <span class="op-word-ruler-margin" [style.left]="'calc(100% - ' + (wordPageMargin('right') - 1) + 'px)'"></span>
-            <span class="op-word-ruler-indent" [style.left.px]="wordPageMargin('left')"></span>
-          </div>
-        }
         @for (page of wordPages(); track page.index + ':' + wordDomVersion()) {
         <article class="op-word-page"
                  [attr.data-page]="page.index"
                  [attr.contenteditable]="wordEditEnabled && !wordLocked() ? 'true' : 'false'"
                  (click)="focusWordPage(page, $event); captureWordTable($event)"
                  (keyup)="captureWordTable($event)"
+                 (input)="onWordPageInput($event)"
                  (mousedown)="beginWordCellDrag($event)"
                  (mousemove)="extendWordCellDrag($event)"
                  (keydown)="onWordPageKeydown($event)"
@@ -1341,6 +1450,9 @@
         </article>
         }
       </section>
+          </div>
+        </div>
+      </div>
     }
 
     @if (doc() && app() === 'excel') {
@@ -2059,12 +2171,19 @@
       <aside class="op-info-drawer">
         <div class="op-info-head">
           <strong>{{ 'office.menu.info' | translate }}</strong>
-          <button type="button" class="op-text-btn" (click)="toggleInfo()">{{ 'office.action.close' | translate }}</button>
+          <button type="button" class="op-icon-btn" (click)="toggleInfo()" [title]="'office.action.close' | translate" [attr.aria-label]="'office.action.close' | translate">
+            <span class="op-icon-svg" [innerHTML]="uiIcon('dismiss')"></span>
+          </button>
         </div>
         <dl>
           <dt>{{ 'office.info.file' | translate }}</dt><dd>{{ doc()!.fileName }}</dd>
           <dt>{{ 'office.info.app' | translate }}</dt><dd>{{ app() }}</dd>
           <dt>{{ 'office.info.warnings' | translate }}</dt><dd>{{ doc()!.warnings.length }}</dd>
+          @if (app() === 'word') {
+            <dt>{{ 'office.rb.count.pages' | translate }}</dt><dd>{{ wordStats().pages }}</dd>
+            <dt>{{ 'office.rb.count.words' | translate }}</dt><dd>{{ wordStats().words }}</dd>
+            <dt>{{ 'office.rb.count.characters' | translate }}</dt><dd>{{ wordStats().characters }}</dd>
+          }
         </dl>
         @if (hasNestedTables()) {
           <p class="op-hf-hint">{{ 'office.info.nestedTables' | translate }}</p>
@@ -2119,12 +2238,26 @@
           </article>
         }
         @for (thread of filteredCommentThreads(); track thread.root.id) {
-          <article class="op-comment-card op-comment-card-floating" [class.op-comment-resolved]="thread.root.resolved">
+          <article class="op-comment-card op-comment-card-floating" [class.op-comment-resolved]="thread.root.resolved"
+                   [class.op-comment-unread-card]="!isCommentRead(thread.root.id)">
             <header class="op-comment-head" (click)="jumpToParagraph(thread.root.paragraphIndex)">
-              <span class="op-comment-unread" [class.op-read]="isCommentRead(thread.root.id)" aria-hidden="true"></span>
               <span class="op-comment-avatar">{{ thread.root.initials }}</span>
-              <span class="op-comment-author">{{ thread.root.author }}</span>
-              <span class="op-comment-date">{{ thread.root.date.slice(0, 16).replace('T', ' ') }}</span>
+              <div class="op-comment-meta">
+                <span class="op-comment-author">{{ thread.root.author }}</span>
+                <span class="op-comment-date">{{ thread.root.date.slice(0, 16).replace('T', ' ') }}</span>
+              </div>
+              <div class="op-comment-head-actions" (click)="$event.stopPropagation()">
+                <button type="button" class="op-icon-btn" (click)="toggleResolved(thread.root)"
+                        [title]="(thread.root.resolved ? 'office.comments.unresolve' : 'office.comments.resolve') | translate"
+                        [attr.aria-label]="(thread.root.resolved ? 'office.comments.unresolve' : 'office.comments.resolve') | translate">
+                  <span class="op-icon-svg" [innerHTML]="uiIcon(thread.root.resolved ? 'checkmark_circle' : 'checkmark')"></span>
+                </button>
+                <button type="button" class="op-icon-btn" (click)="removeThread(thread.root)"
+                        [title]="'office.comments.delete' | translate"
+                        [attr.aria-label]="'office.comments.delete' | translate">
+                  <span class="op-icon-svg" [innerHTML]="uiIcon('delete')"></span>
+                </button>
+              </div>
             </header>
             <p class="op-comment-text">{{ thread.root.text }}</p>
             @for (reply of thread.replies; track reply.id) {
@@ -2136,11 +2269,6 @@
                 <p class="op-comment-text">{{ reply.text }}</p>
               </div>
             }
-            <footer class="op-comment-actions">
-              <button type="button" class="op-text-btn" (click)="replyTarget.set(replyTarget() === thread.root.id ? null : thread.root.id)">{{ 'office.comments.reply' | translate }}</button>
-              <button type="button" class="op-text-btn" (click)="toggleResolved(thread.root)">{{ (thread.root.resolved ? 'office.comments.unresolve' : 'office.comments.resolve') | translate }}</button>
-              <button type="button" class="op-text-btn" (click)="removeThread(thread.root)">{{ 'office.comments.delete' | translate }}</button>
-            </footer>
             @if (replyTarget() === thread.root.id) {
               <div class="op-comment-compose">
                 <textarea class="op-comment-input" rows="2" [value]="replyDraft()"
@@ -2148,9 +2276,17 @@
                           [placeholder]="'office.comments.replyPlaceholder' | translate"></textarea>
                 <div class="op-comment-compose-actions">
                   <button type="button" class="op-text-btn" (click)="replyTarget.set(null)">{{ 'office.action.cancel' | translate }}</button>
-                  <button type="button" class="op-primary op-comment-submit-btn" (click)="submitReply(thread.root)" [disabled]="!replyDraft().trim()">{{ 'office.comments.send' | translate }}</button>
+                  <button type="button" class="op-primary op-comment-submit-btn" (click)="submitReply(thread.root)" [disabled]="!replyDraft().trim()">
+                    <span class="op-icon-svg" [innerHTML]="uiIcon('send')"></span>
+                    <span>{{ 'office.comments.send' | translate }}</span>
+                  </button>
                 </div>
               </div>
+            } @else {
+              <button type="button" class="op-comment-reply-bar" (click)="replyTarget.set(thread.root.id)">
+                <span class="op-icon-svg" [innerHTML]="uiIcon('arrow_reply')"></span>
+                <span>{{ 'office.comments.reply' | translate }}</span>
+              </button>
             }
           </article>
         } @empty {
@@ -2163,7 +2299,9 @@
       <aside class="op-comments-panel">
         <div class="op-info-head">
           <strong>{{ 'office.track.title' | translate }}</strong>
-          <button type="button" class="op-text-btn" (click)="toggleRevisions()">{{ 'office.action.close' | translate }}</button>
+          <button type="button" class="op-icon-btn" (click)="toggleRevisions()" [title]="'office.action.close' | translate" [attr.aria-label]="'office.action.close' | translate">
+            <span class="op-icon-svg" [innerHTML]="uiIcon('dismiss')"></span>
+          </button>
         </div>
         <div class="op-track-actions">
           <button type="button" class="op-text-btn" (click)="acceptEveryRevision()" [disabled]="!revisions().length">{{ 'office.track.acceptAll' | translate }}</button>
@@ -2622,7 +2760,9 @@
       <aside class="op-comments-panel">
         <div class="op-info-head">
           <strong>{{ 'office.word.paragraphOptions' | translate }}</strong>
-          <button type="button" class="op-text-btn" (click)="paragraphOptionsOpen.set(false)">{{ 'office.action.close' | translate }}</button>
+          <button type="button" class="op-icon-btn" (click)="paragraphOptionsOpen.set(false)" [title]="'office.action.close' | translate" [attr.aria-label]="'office.action.close' | translate">
+            <span class="op-icon-svg" [innerHTML]="uiIcon('dismiss')"></span>
+          </button>
         </div>
         <label class="op-hf-field">
           <span>{{ 'office.word.lineSpacingLabel' | translate }}</span>
@@ -2929,7 +3069,9 @@
       <aside class="op-comments-panel">
         <div class="op-info-head">
           <strong>{{ 'office.word.layout' | translate }}</strong>
-          <button type="button" class="op-text-btn" (click)="toggleLayout()">{{ 'office.action.close' | translate }}</button>
+          <button type="button" class="op-icon-btn" (click)="toggleLayout()" [title]="'office.action.close' | translate" [attr.aria-label]="'office.action.close' | translate">
+            <span class="op-icon-svg" [innerHTML]="uiIcon('dismiss')"></span>
+          </button>
         </div>
         <p class="op-hf-hint">{{ 'office.word.sections' | translate }}: {{ sectionCount() }}</p>
         <label class="op-hf-field">
@@ -3004,7 +3146,9 @@
       <aside class="op-comments-panel">
         <div class="op-info-head">
           <strong>{{ 'office.word.accessibility' | translate }}</strong>
-          <button type="button" class="op-text-btn" (click)="toggleAccessibility()">{{ 'office.action.close' | translate }}</button>
+          <button type="button" class="op-icon-btn" (click)="toggleAccessibility()" [title]="'office.action.close' | translate" [attr.aria-label]="'office.action.close' | translate">
+            <span class="op-icon-svg" [innerHTML]="uiIcon('dismiss')"></span>
+          </button>
         </div>
         <div class="op-track-summary">
           <span>Alt: {{ accessSummary().IMAGE_ALT_MISSING }}</span>
@@ -3110,22 +3254,29 @@
     @if (navPaneOpen() && app() === 'word') {
       <aside class="op-comments-panel op-word-nav">
         <div class="op-info-head op-nav-header">
-          <div class="op-nav-title-row">
-            <button type="button" class="op-icon-btn" (click)="toggleNavPane()" [title]="'office.action.close' | translate" [attr.aria-label]="'office.action.close' | translate">
-              <span class="op-icon-svg" [innerHTML]="uiIcon('chevron_left')"></span>
-            </button>
-            <strong>{{ 'office.word.navigation' | translate }}</strong>
-          </div>
+          <strong>{{ 'office.word.navigation' | translate }}</strong>
           <button type="button" class="op-icon-btn" (click)="toggleNavPane()" [title]="'office.action.close' | translate" [attr.aria-label]="'office.action.close' | translate">
             <span class="op-icon-svg" [innerHTML]="uiIcon('dismiss')"></span>
           </button>
         </div>
         <div class="op-nav-tabs" role="tablist">
-          <button type="button" role="tab" class="op-nav-tab" [class.op-nav-tab-active]="navTab() === 'headings' || navTab() === 'pages'" (click)="navTab.set('headings')">{{ 'office.word.navHeadings' | translate }}</button>
+          <button type="button" role="tab" class="op-nav-tab" [class.op-nav-tab-active]="navTab() === 'headings'" (click)="navTab.set('headings')">{{ 'office.word.navHeadings' | translate }}</button>
+          <button type="button" role="tab" class="op-nav-tab" [class.op-nav-tab-active]="navTab() === 'pages'" (click)="navTab.set('pages')">{{ 'office.rb.count.pages' | translate }}</button>
           <button type="button" role="tab" class="op-nav-tab" [class.op-nav-tab-active]="navTab() === 'find' || navTab() === 'results'" (click)="navTab.set('find')">{{ 'office.word.navFind' | translate }}</button>
           <button type="button" role="tab" class="op-nav-tab" [class.op-nav-tab-active]="navTab() === 'replace'" (click)="navTab.set('replace')">{{ 'office.word.navReplace' | translate }}</button>
         </div>
         @switch (navTab()) {
+          @case ('pages') {
+            <div class="op-note-list">
+              @for (page of wordPages(); track page.index) {
+                <button type="button" class="op-nav-page-card" [class.op-nav-page-active]="currentWordPage() === page.index + 1"
+                        (click)="jumpToWordPage(page.index + 1)">
+                  <span class="op-nav-page-num">{{ 'office.status.page' | translate }} {{ page.index + 1 }} / {{ wordPageCount() }}</span>
+                  <span class="op-nav-page-snippet">{{ wordPageSnippet(page) || '—' }}</span>
+                </button>
+              }
+            </div>
+          }
           @case ('find') {
             <div class="op-nav-search">
               <span class="op-nav-search-icon op-icon-svg" [innerHTML]="uiIcon('search')"></span>
@@ -3330,7 +3481,9 @@
       <aside class="op-comments-panel">
         <div class="op-info-head">
           <strong>{{ 'office.rb.wordCount' | translate }}</strong>
-          <button type="button" class="op-text-btn" (click)="toggleWordCount()">{{ 'office.action.close' | translate }}</button>
+          <button type="button" class="op-icon-btn" (click)="toggleWordCount()" [title]="'office.action.close' | translate" [attr.aria-label]="'office.action.close' | translate">
+            <span class="op-icon-svg" [innerHTML]="uiIcon('dismiss')"></span>
+          </button>
         </div>
         <dl class="op-word-count-list">
           <div><dt>{{ 'office.rb.count.pages' | translate }}</dt><dd>{{ wordStats().pages }}</dd></div>
@@ -3347,7 +3500,9 @@
       <aside class="op-comments-panel">
         <div class="op-info-head">
           <strong>{{ 'office.rb.help' | translate }}</strong>
-          <button type="button" class="op-text-btn" (click)="toggleHelp()">{{ 'office.action.close' | translate }}</button>
+          <button type="button" class="op-icon-btn" (click)="toggleHelp()" [title]="'office.action.close' | translate" [attr.aria-label]="'office.action.close' | translate">
+            <span class="op-icon-svg" [innerHTML]="uiIcon('dismiss')"></span>
+          </button>
         </div>
         <p class="op-hf-hint">{{ 'office.rb.helpHint' | translate }}</p>
         <div class="op-shortcut-list">
@@ -3561,7 +3716,9 @@
       <aside class="op-comments-panel">
         <div class="op-info-head">
           <strong>{{ 'office.word.pageSetup' | translate }}</strong>
-          <button type="button" class="op-text-btn" (click)="togglePageSetup()">{{ 'office.action.close' | translate }}</button>
+          <button type="button" class="op-icon-btn" (click)="togglePageSetup()" [title]="'office.action.close' | translate" [attr.aria-label]="'office.action.close' | translate">
+            <span class="op-icon-svg" [innerHTML]="uiIcon('dismiss')"></span>
+          </button>
         </div>
         <label class="op-hf-field">
           <span>{{ 'office.word.pageBorderStyle' | translate }}</span>
@@ -3712,7 +3869,9 @@
       <aside class="op-comments-panel">
         <div class="op-info-head">
           <strong>{{ 'office.word.format' | translate }}</strong>
-          <button type="button" class="op-text-btn" (click)="toggleFormat()">{{ 'office.action.close' | translate }}</button>
+          <button type="button" class="op-icon-btn" (click)="toggleFormat()" [title]="'office.action.close' | translate" [attr.aria-label]="'office.action.close' | translate">
+            <span class="op-icon-svg" [innerHTML]="uiIcon('dismiss')"></span>
+          </button>
         </div>
         @if (selectedWordParagraph(); as paragraph) {
           <label class="op-hf-field">
@@ -3826,7 +3985,9 @@
       <aside class="op-erp-drawer">
         <div class="op-info-head">
           <strong>{{ 'office.erp.title' | translate }}</strong>
-          <button type="button" class="op-text-btn" (click)="erpOpen.set(false)">{{ 'office.action.close' | translate }}</button>
+          <button type="button" class="op-icon-btn" (click)="erpOpen.set(false)" [title]="'office.action.close' | translate" [attr.aria-label]="'office.action.close' | translate">
+            <span class="op-icon-svg" [innerHTML]="uiIcon('dismiss')"></span>
+          </button>
         </div>
         @if (erpError()) {
           <div class="op-erp-error">{{ 'office.erp.error' | translate }} <code>{{ erpError() }}</code></div>
@@ -3854,7 +4015,9 @@
       <aside class="op-erp-drawer">
         <div class="op-info-head">
           <strong>{{ 'office.share.title' | translate }}</strong>
-          <button type="button" class="op-text-btn" (click)="shareOpen.set(false)">{{ 'office.action.close' | translate }}</button>
+          <button type="button" class="op-icon-btn" (click)="shareOpen.set(false)" [title]="'office.action.close' | translate" [attr.aria-label]="'office.action.close' | translate">
+            <span class="op-icon-svg" [innerHTML]="uiIcon('dismiss')"></span>
+          </button>
         </div>
         @if (shareError()) {
           <div class="op-erp-error">{{ shareError() }}</div>
@@ -3896,7 +4059,7 @@
   @if (activePopover(); as pop) {
     <div class="op-popover" role="dialog" [attr.data-kind]="pop.kind"
          [style.left.px]="pop.x" [style.top.px]="pop.y"
-         (mousedown)="$event.stopPropagation()">
+         (mousedown)="onChromeMouseDown($event); $event.stopPropagation()">
       @switch (pop.kind) {
         @case ('tableGrid') {
           <div class="op-popover-head">
@@ -4009,9 +4172,41 @@
             <span>{{ 'office.word.highlight.none' | translate }}</span>
           </button>
         }
+        @case ('fontPicker') {
+          <div class="op-font-search-wrap">
+            <span class="op-icon-svg" [innerHTML]="uiIcon('search')"></span>
+            <input type="search" class="op-share-input op-font-search-input" [value]="fontSearchQuery()"
+                   (input)="fontSearchQuery.set($any($event.target).value)"
+                   [placeholder]="'office.word.fontFamily' | translate" [attr.aria-label]="'office.word.fontFamily' | translate" />
+          </div>
+          <div class="op-font-list" role="listbox">
+            @for (font of filteredWordFonts(); track font) {
+              <button type="button" role="option" class="op-popover-item op-font-option"
+                      [class.op-popover-active]="font === currentWordFont()"
+                      [style.font-family]="font"
+                      (click)="setWordFont(font); closePopover()">
+                <span class="op-font-check op-icon-svg" [innerHTML]="font === currentWordFont() ? uiIcon('checkmark') : ''"></span>
+                <span>{{ font }}</span>
+              </button>
+            } @empty {
+              <div class="op-command-empty">{{ 'office.search.noResults' | translate }}</div>
+            }
+          </div>
+        }
+        @case ('fontSizePicker') {
+          <div class="op-size-list" role="listbox">
+            @for (size of wordFontSizeOptions(); track size) {
+              <button type="button" role="option" class="op-popover-item op-size-option"
+                      [class.op-popover-active]="size === currentWordFontSize()"
+                      (click)="setWordFontSize(size); closePopover()">
+                <span>{{ size }}</span>
+              </button>
+            }
+          </div>
+        }
         @case ('styles') {
           <div class="op-popover-head"><span>{{ 'office.word.style' | translate }}</span></div>
-          <div class="op-style-gallery-pop">
+          <div class="op-style-gallery-pop op-style-gallery-grid">
             @for (option of wordStyleOptions; track option.value) {
               <button type="button" class="op-style-row" [class.op-style-row-active]="currentWordStyle() === option.value"
                       [attr.data-style]="option.value" (click)="setWordStyle(option.value); closePopover()">
@@ -4022,6 +4217,7 @@
           </div>
           <div class="op-menu-sep"></div>
           <button type="button" class="op-popover-item" (click)="closePopover(); runRibbonLauncher('styles')">
+            <span class="op-icon-svg" [innerHTML]="iconHtml('stylePicker')"></span>
             <span>{{ 'office.rb.group.styles' | translate }}</span>
           </button>
         }
@@ -4086,9 +4282,12 @@
         }
         @case ('margins') {
           @for (m of ['normal', 'narrow', 'wide']; track m) {
-            <button type="button" class="op-popover-item" [class.op-popover-active]="pageMargin() === m" (click)="applyWordMargins(m); closePopover()">
+            <button type="button" class="op-popover-item op-popover-desc-item" [class.op-popover-active]="pageMargin() === m" (click)="applyWordMargins(m); closePopover()">
               <span class="op-icon-svg" [innerHTML]="uiIcon('document_margins')"></span>
-              <span>{{ ('office.rb.margin.' + m) | translate }}</span>
+              <span class="op-popover-col">
+                <strong>{{ ('office.rb.margin.' + m) | translate }}</strong>
+                <small>{{ m === 'normal' ? '2.54 cm' : m === 'narrow' ? '1.27 cm' : '2.54 × 5.08 cm' }}</small>
+              </span>
             </button>
           }
           <div class="op-menu-sep"></div>
@@ -4108,13 +4307,13 @@
           </button>
         }
         @case ('pageSize') {
-          <button type="button" class="op-popover-item" [class.op-popover-active]="pageSize() === 'A4'" (click)="applyWordPageSize('A4'); closePopover()">
+          <button type="button" class="op-popover-item op-popover-desc-item" [class.op-popover-active]="pageSize() === 'A4'" (click)="applyWordPageSize('A4'); closePopover()">
             <span class="op-icon-svg" [innerHTML]="uiIcon('document_one_page')"></span>
-            <span>A4</span>
+            <span class="op-popover-col"><strong>A4</strong><small>21 × 29.7 cm</small></span>
           </button>
-          <button type="button" class="op-popover-item" [class.op-popover-active]="pageSize() === 'Letter'" (click)="applyWordPageSize('Letter'); closePopover()">
+          <button type="button" class="op-popover-item op-popover-desc-item" [class.op-popover-active]="pageSize() === 'Letter'" (click)="applyWordPageSize('Letter'); closePopover()">
             <span class="op-icon-svg" [innerHTML]="uiIcon('document_one_page')"></span>
-            <span>Letter</span>
+            <span class="op-popover-col"><strong>Letter</strong><small>21.6 × 27.9 cm</small></span>
           </button>
         }
         @case ('columns') {
@@ -4258,7 +4457,7 @@
   }
 
   @if (wordContextMenu(); as menu) {
-    <div class="op-context-menu" role="menu" [style.left.px]="menu.x" [style.top.px]="menu.y" (contextmenu)="$event.preventDefault()">
+    <div class="op-context-menu" role="menu" [style.left.px]="menu.x" [style.top.px]="menu.y" (mousedown)="onChromeMouseDown($event)" (contextmenu)="$event.preventDefault()">
       @for (item of wordContextItems(); track item.id) {
         @if (item.sep) { <div class="op-menu-sep"></div> }
         <button type="button" role="menuitem" (click)="runWordContextCommand(item.id)">
@@ -4326,7 +4525,15 @@
       }
     }
     @if (app() === 'word') {
+      <button type="button" class="op-status-btn op-status-proofing" [class.op-status-active]="spellOpen()"
+              (click)="runWordCommand('spelling')" [title]="'office.word.spellcheck' | translate" [attr.aria-label]="'office.word.spellcheck' | translate">
+        <span class="op-icon-svg" [innerHTML]="iconHtml('spelling')"></span>
+      </button>
       <span class="op-status-lang" [title]="'office.status.language' | translate">{{ currentLanguageLabel() }}</span>
+      <button type="button" class="op-status-btn op-status-a11y" [class.op-status-active]="accessOpen()"
+              (click)="runWordCommand('accessibility')" [title]="'office.word.accessibility' | translate" [attr.aria-label]="'office.word.accessibility' | translate">
+        <span class="op-icon-svg" [innerHTML]="iconHtml('accessibility')"></span>
+      </button>
     }
     @if (app() === 'ppt') { <span>{{ 'office.status.slide' | translate }} {{ selectedSlide() + 1 }} / {{ ppt()?.slides?.length ?? 0 }}</span> }
     <span class="op-status-spacer"></span>
@@ -4337,6 +4544,7 @@
       <button type="button" class="op-status-btn op-status-view" [class.op-status-active]="readingView()" (click)="toggleReadingView()" [title]="'office.word.reading' | translate" [attr.aria-label]="'office.word.reading' | translate">
         <span class="op-icon-svg" [innerHTML]="iconHtml('readMode')"></span>
       </button>
+      <span class="op-status-sep" aria-hidden="true"></span>
       <button type="button" class="op-status-btn op-status-zoom-btn" (click)="zoomBy(-10)" [title]="'office.rb.zoomOut' | translate" [attr.aria-label]="'office.rb.zoomOut' | translate">
         <span class="op-icon-svg" [innerHTML]="uiIcon('subtract')"></span>
       </button>

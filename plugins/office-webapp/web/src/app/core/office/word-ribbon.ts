@@ -125,7 +125,7 @@ export const WORD_RIBBON: WordRibbonTab[] = [
         launcher: 'find',
         items: [
           { id: 'find', labelKey: 'office.rb.find', labeled: true, caret: true },
-          { id: 'replace', labelKey: 'office.rb.replace', labeled: true, caret: true },
+          { id: 'replace', labelKey: 'office.rb.replace', labeled: true },
           { id: 'selectAll', labelKey: 'office.rb.selectAll', labeled: true, caret: true },
         ],
       },

@@ -151,10 +151,23 @@ const waitFile = async (ext) => {
 
 await send('Page.enable');
 await send('Runtime.enable');
+await send('Emulation.setFocusEmulationEnabled', { enabled: true });
 await send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath, eventsEnabled: true });
 await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
 await send('Page.navigate', { url });
 await sleep(1500);
+
+// 0. Start Screen Check
+const startCheck = await evalExpr(`(() => {
+  const cards = [...document.querySelectorAll('.op-app-card')];
+  return {
+    hasStart: Boolean(document.querySelector('.op-start')),
+    cards: cards.length,
+    cardSvgs: document.querySelectorAll('.op-app-card svg').length,
+    actionSvgs: document.querySelectorAll('.op-start-actions button svg').length,
+  };
+})()`);
+await snap('word-web-365-start.png');
 
 // Load sample.docx into Word editor
 const loaded = await evalExpr(`(async () => {
@@ -184,6 +197,13 @@ const loaded = await evalExpr(`(async () => {
     const caretMenuSvgCount = document.querySelectorAll('.op-rb-menu button svg').length;
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     await wait(100);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'q', altKey: true, bubbles: true, cancelable: true }));
+    await wait(200);
+    const tellMeSvgCount = document.querySelectorAll('#op-command-results .op-command-item svg').length;
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await wait(100);
+    (document.activeElement)?.blur?.();
+    await wait(100);
     return {
       titleH: Math.round(titlebar?.height ?? 0),
       tabH: Math.round(tabstrip?.height ?? 0),
@@ -191,10 +211,15 @@ const loaded = await evalExpr(`(async () => {
       statusH: Math.round(statusbar?.height ?? 0),
       hasAutosave: Boolean(document.querySelector('.op-autosave')),
       hasAppIcon: Boolean(document.querySelector('.op-word-app-icon svg')),
+      hasUserAvatar: Boolean(document.querySelector('.op-user-avatar')),
+      hasSavePill: Boolean(document.querySelector('.op-save-ok')),
+      hasProofingSvg: Boolean(document.querySelector('.op-status-proofing svg')),
+      hasA11ySvg: Boolean(document.querySelector('.op-status-a11y svg')),
       noFakeSwatchText: !document.querySelector('.op-rb-swatch-glyph, .op-rb-highlight-chip'),
       hasFitSvg: Boolean(document.querySelector('.op-status-fit svg')),
       statusZoomSvgCount: document.querySelectorAll('.op-status-zoom-btn svg').length,
       caretMenuSvgCount,
+      tellMeSvgCount,
       iconChecks: {
         growDiffShrink: document.querySelector('[data-id="growFont"] svg')?.innerHTML !== document.querySelector('[data-id="shrinkFont"] svg')?.innerHTML,
         fontColorAccent: Boolean(document.querySelector('[data-id="fontColor"] .op-icon-accent')),
@@ -234,6 +259,17 @@ const darkCheck = await evalExpr(`(async () => {
   return { chromeDark, pageDark, panelBg, countRows, pageCountDom, pageCountStat };
 })()`);
 await snap('word-web-365-home-dark.png');
+
+// Dismissible Warning MessageBar check
+const bannerDismissCheck = await evalExpr(`(async () => {
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const hadBanner = Boolean(document.querySelector('.op-warning-banner'));
+  if (hadBanner) {
+    document.querySelector('.op-warning-close')?.click();
+    await wait(150);
+  }
+  return { hadBanner, dismissed: !document.querySelector('.op-warning-banner') };
+})()`);
 
 const autoSelectAndFormatCheck = await evalExpr(`(async () => {
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -375,17 +411,33 @@ const styleCount = await evalExpr(`(async () => {
   document.querySelector('[data-id="styles"]')?.click();
   await wait(220);
   const count = document.querySelectorAll('.op-style-gallery-pop .op-style-row').length;
+  const styleGridCols = getComputedStyle(document.querySelector('.op-style-gallery-grid') || document.body).gridTemplateColumns;
   document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
   await wait(150);
-  return count;
+  return { count, styleGridCols };
 })()`);
-colorStyleCheck.styleItems = styleCount;
+colorStyleCheck.styleItems = styleCount.count;
+colorStyleCheck.styleGridCols = styleCount.styleGridCols;
+
+// 5b. Live Font Picker Popover
+const fontPickerCheck = await evalExpr(`(async () => {
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  document.querySelector('.op-rb-fontname')?.click();
+  await wait(220);
+  const opts = [...document.querySelectorAll('.op-popover[data-kind="fontPicker"] .op-font-option')];
+  const distinctFonts = new Set(opts.map((o) => o.style.fontFamily || getComputedStyle(o).fontFamily)).size;
+  return { options: opts.length, distinctFonts };
+})()`);
+await snap('word-web-365-font-picker.png');
+await evalExpr(`document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`);
+await sleep(150);
 
 // 6. Ctrl+F / Ctrl+H Navigation Find & Replace
 const findReplaceCheck = await evalExpr(`(async () => {
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   const firstP = document.querySelector('.op-word-p')?.textContent?.trim() ?? '';
   const wordToken = (firstP.match(/[A-Za-zÀ-ỹ]{4,}/)?.[0]) || 'Word';
+  (document.activeElement)?.blur?.();
   document.dispatchEvent(new KeyboardEvent('keydown', { key: 'f', ctrlKey: true, bubbles: true, cancelable: true }));
   await wait(300);
   const navW = Math.round(document.querySelector('.op-word-nav')?.getBoundingClientRect().width ?? 0);
@@ -454,14 +506,15 @@ const classicCheck = await evalExpr(`(async () => {
   const fontRect = fontGroup?.getBoundingClientRect();
   const paraRect = paraGroup?.getBoundingClientRect();
   const fontNoOverlap = Boolean(fontRect && paraRect && fontRect.right <= paraRect.left + 2);
-  const fontChildrenInside = Boolean(fontRect && [...fontGroup.querySelectorAll('button, select')]
+  const fontChildrenInside = Boolean(fontRect && [...fontGroup.querySelectorAll('button, select, input')]
     .every((el) => el.getBoundingClientRect().right <= fontRect.right + 2));
+  const classicRadius = parseFloat(getComputedStyle(document.querySelector('.op-ribbon-word')).borderRadius || '0');
   const showMarksSvg = paraGroup?.querySelector('[data-id="showMarks"] svg')?.innerHTML ?? '';
   const optionsSvg = paraGroup?.querySelector('[data-id="paragraphOptions"] svg')?.innerHTML ?? '';
   const showMarksDiffOptions = Boolean(showMarksSvg && optionsSvg && showMarksSvg !== optionsSvg);
   const classicSpacingEl = paraGroup?.querySelector('[data-id="spacing"]');
   const classicSpacingIsBtn = Boolean(classicSpacingEl?.tagName === 'BUTTON' && classicSpacingEl.querySelector('svg'));
-  return { classicH, groupLabels, fontNoOverlap, fontChildrenInside, showMarksDiffOptions, classicSpacingIsBtn };
+  return { classicH, classicRadius, groupLabels, fontNoOverlap, fontChildrenInside, showMarksDiffOptions, classicSpacingIsBtn };
 })()`);
 await snap('word-web-365-classic-ribbon.png');
 await evalExpr(`(async () => {
@@ -471,6 +524,25 @@ await evalExpr(`(async () => {
   const singleBtn = [...document.querySelectorAll('.op-popover-item')].find((b) => /một dòng|Single-line/i.test(b.textContent || ''));
   singleBtn?.click();
   await wait(250);
+})()`);
+
+// 8b. View -> Ruler ON screenshot
+const rulerCheck = await evalExpr(`(async () => {
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const viewTab = [...document.querySelectorAll('.op-tab')].find((b) => /^Xem$|^View$/i.test((b.textContent || '').trim()));
+  viewTab?.click();
+  await wait(200);
+  document.querySelector('[data-id="ruler"]')?.click();
+  await wait(250);
+  const rulerRect = document.querySelector('.op-word-ruler')?.getBoundingClientRect();
+  return { hasRuler: Boolean(rulerRect && rulerRect.height > 10), rulerH: Math.round(rulerRect?.height ?? 0) };
+})()`);
+await snap('word-web-365-ruler.png');
+await evalExpr(`(async () => {
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const homeTab = [...document.querySelectorAll('.op-tab')].find((b) => /Trang chủ|Trang đầu|Home/i.test(b.textContent || ''));
+  homeTab?.click();
+  await wait(200);
 })()`);
 
 // 9. Enriched Mini Toolbar + Context Menu + Fit Zoom
@@ -559,6 +631,186 @@ const editKeyCheck = await evalExpr(`(async () => {
   return { splitNoDuplicate, deleteMergedBack, tabMovedNextCell };
 })()`);
 
+// 9c. Scroll Pinning & Live Page Counter Proof
+const scrollPinCheck = await evalExpr(`(async () => {
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const viewTab = [...document.querySelectorAll('.op-tab')].find((b) => /^Xem$|^View$/i.test((b.textContent || '').trim()));
+  viewTab?.click();
+  await wait(150);
+  document.querySelector('[data-id="zoom100"]')?.click();
+  await wait(150);
+  const insTab = [...document.querySelectorAll('.op-tab')].find((b) => /^Chèn$|^Insert$/i.test((b.textContent || '').trim()));
+  insTab?.click();
+  await wait(150);
+  document.querySelector('[data-id="blankPage"]')?.click();
+  await wait(250);
+  document.querySelector('[data-id="blankPage"]')?.click();
+  await wait(500);
+
+  // Open Navigation pane (headings + pages tab check) and Word Count panel (right)
+  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'f', ctrlKey: true, bubbles: true, cancelable: true }));
+  await wait(200);
+  const pagesTab = [...document.querySelectorAll('.op-word-nav .op-nav-tab')].find((b) => /Trang|Pages/i.test((b.textContent || '').trim()));
+  pagesTab?.click();
+  await wait(200);
+  const navPageCards = document.querySelectorAll('.op-nav-page-card').length;
+  document.querySelectorAll('.op-statusbar .op-status-btn')[1]?.click();
+  await wait(250);
+
+  const scroller = document.querySelector('.op-word-scroll');
+  const rulerEl = document.querySelector('.op-word-ruler');
+  const navEl = document.querySelector('.op-word-nav');
+  const rightEl = [...document.querySelectorAll('main aside:not(.op-word-nav)')].find((el) => el.getBoundingClientRect().width > 0);
+  const rulerTopBefore = Math.round(rulerEl?.getBoundingClientRect().top ?? -1);
+  const navTopBefore = Math.round(navEl?.getBoundingClientRect().top ?? -1);
+  const rightTopBefore = Math.round(rightEl?.getBoundingClientRect().top ?? -1);
+
+  if (scroller) scroller.scrollTop = 1400;
+  await wait(350);
+
+  const rulerTopAfter = Math.round(rulerEl?.getBoundingClientRect().top ?? -2);
+  const navTopAfter = Math.round(navEl?.getBoundingClientRect().top ?? -2);
+  const rightTopAfter = Math.round(rightEl?.getBoundingClientRect().top ?? -2);
+  const pageText = document.querySelectorAll('.op-statusbar .op-status-btn')[0]?.textContent?.trim() ?? '';
+  const scrolledPageMatch = /(\\d+)\\s*\\/\\s*(\\d+)/.exec(pageText);
+  const scrolledPageNum = scrolledPageMatch ? Number(scrolledPageMatch[1]) : 1;
+  const scrolledTotalPages = scrolledPageMatch ? Number(scrolledPageMatch[2]) : 1;
+  return {
+    pagesDom: document.querySelectorAll('.op-word-page').length,
+    navPageCards,
+    scrollTop: Math.round(scroller?.scrollTop ?? 0),
+    rulerTopDelta: Math.abs(rulerTopAfter - rulerTopBefore),
+    navTopDelta: Math.abs(navTopAfter - navTopBefore),
+    rightTopDelta: Math.abs(rightTopAfter - rightTopBefore),
+    pageText,
+    scrolledPageNum,
+    scrolledTotalPages,
+  };
+})()`);
+await snap('word-web-365-scrolled-pinned.png');
+
+await evalExpr(`(async () => {
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  document.querySelector('.op-word-nav .op-info-head button:last-child')?.click();
+  await wait(150);
+  const floatBtn = document.querySelector('.op-nav-float-btn');
+  const floatBefore = Math.round(floatBtn?.getBoundingClientRect().top ?? -1);
+  const scroller = document.querySelector('.op-word-scroll');
+  if (scroller) scroller.scrollTop = 0;
+  await wait(250);
+  const floatAfter = Math.round(floatBtn?.getBoundingClientRect().top ?? -2);
+  window.__floatPinDelta = Math.abs(floatAfter - floatBefore);
+})()`);
+scrollPinCheck.floatBtnDelta = await evalExpr(`window.__floatPinDelta ?? 999`);
+
+// 9d. Mutually Exclusive Right Panels Check
+const exclusivePanelCheck = await evalExpr(`(async () => {
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const visibleRightCount = () => [...document.querySelectorAll('main aside:not(.op-word-nav)')]
+    .filter((el) => el.getBoundingClientRect().width > 0).length;
+  const counts = [];
+  counts.push(visibleRightCount()); // Word Count still open -> 1
+  document.querySelector('.op-status-proofing')?.click();
+  await wait(150);
+  counts.push(visibleRightCount()); // Spellcheck -> 1
+  document.querySelector('.op-status-a11y')?.click();
+  await wait(150);
+  counts.push(visibleRightCount()); // Accessibility -> 1
+  document.querySelector('.op-tabstrip-right .op-tab-action-btn')?.click();
+  await wait(150);
+  counts.push(visibleRightCount()); // Comments -> 1
+  document.querySelector('.op-tabstrip-right .op-tab-action-btn')?.click();
+  await wait(150);
+  counts.push(visibleRightCount()); // Closed -> 0
+  return { counts, strictlyOne: counts.slice(0, 4).every((c) => c === 1) && counts[4] === 0 };
+})()`);
+
+// 9e. Word-Like Formatting Preservation, Ctrl+Z While Focused Inside Page, Mixed-Run Edit, & Ctrl+A Format
+const wordBehaviorCheck = await evalExpr(`(async () => {
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const homeTab = [...document.querySelectorAll('.op-tab')].find((b) => /^Trang chủ$|^Trang đầu$|^Home$/i.test((b.textContent || '').trim()));
+  homeTab?.click();
+  await wait(150);
+  const p0 = document.querySelector('.op-word-p[data-paragraph="0"]');
+  p0?.closest('.op-word-page')?.focus();
+  const fullText = p0?.textContent ?? '';
+  const targetIdx = fullText.indexOf('Sprint');
+  if (p0 && targetIdx >= 0) {
+    const w = document.createTreeWalker(p0, NodeFilter.SHOW_TEXT);
+    let off = 0; let n = w.nextNode();
+    const r = document.createRange();
+    let sDone = false;
+    while (n) {
+      const len = n.textContent?.length ?? 0;
+      if (!sDone && off + len >= targetIdx) { r.setStart(n, targetIdx - off); sDone = true; }
+      if (sDone && off + len >= targetIdx + 6) { r.setEnd(n, targetIdx + 6 - off); break; }
+      off += len;
+      n = w.nextNode();
+    }
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    sel?.addRange(r);
+    document.dispatchEvent(new Event('selectionchange'));
+    await wait(150);
+  }
+  const italBtn = document.querySelector('[data-id="italic"]');
+  italBtn?.click();
+  await wait(200);
+  const redBtn = document.querySelector('[data-id="fontColor"]');
+  redBtn?.click();
+  await wait(150);
+  document.querySelectorAll('.op-color-swatch')[2]?.click();
+  await wait(200);
+
+  const p0AfterFmt = document.querySelector('.op-word-p[data-paragraph="0"]');
+  const spansAfterFmt = [...(p0AfterFmt?.querySelectorAll('span[data-run-index]') ?? [])];
+  const sprintSpan = spansAfterFmt.find((s) => (s.textContent || '').includes('Sprint'));
+  const leadSpan = spansAfterFmt.find((s) => (s.textContent || '').includes('Báo cáo'));
+  const subRangeFormatted = Boolean(
+    sprintSpan && (getComputedStyle(sprintSpan).fontStyle === 'italic' || sprintSpan.style.fontStyle === 'italic')
+    && leadSpan && getComputedStyle(leadSpan).fontStyle !== 'italic'
+  );
+
+  // Dispatch Ctrl+Z while STILL focused inside .op-word-page -> should undo last format (fontColor) cleanly
+  const colorAfterFmt = sprintSpan ? getComputedStyle(sprintSpan).color : '';
+  p0AfterFmt?.closest('.op-word-page')?.focus();
+  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true, cancelable: true }));
+  await wait(200);
+  const p0AfterUndo = document.querySelector('.op-word-p[data-paragraph="0"]');
+  const sprintAfterUndo = [...(p0AfterUndo?.querySelectorAll('span[data-run-index]') ?? [])]
+    .find((s) => (s.textContent || '').includes('Sprint'));
+  const colorAfterUndo = sprintAfterUndo ? getComputedStyle(sprintAfterUndo).color : '';
+  const ctrlZUndidInEditor = Boolean(sprintAfterUndo && getComputedStyle(sprintAfterUndo).fontStyle === 'italic' && colorAfterUndo !== colorAfterFmt);
+
+  // Edit leading text node in place and trigger focusout -> ensure Sprint span keeps italic!
+  const leadAfter = [...(p0AfterUndo?.querySelectorAll('span[data-run-index]') ?? [])]
+    .find((s) => (s.textContent || '').includes('Báo cáo'));
+  if (leadAfter?.firstChild && leadAfter.firstChild.nodeType === 3) {
+    leadAfter.firstChild.textContent = leadAfter.firstChild.textContent + 'X ';
+  }
+  p0AfterUndo?.closest('.op-word-page')?.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+  await wait(250);
+  const sprintAfterEdit = [...(document.querySelector('.op-word-p[data-paragraph="0"]')?.querySelectorAll('span[data-run-index]') ?? [])]
+    .find((s) => (s.textContent || '').includes('Sprint'));
+  const mixedRunsPreserved = Boolean(sprintAfterEdit && getComputedStyle(sprintAfterEdit).fontStyle === 'italic');
+
+  // Ctrl+A / selectAll + Center align applies to all selected paragraphs
+  document.querySelector('.op-ribbon-word [data-id="moreHome"]')?.click();
+  await wait(150);
+  const selAllBtn = [...document.querySelectorAll('.op-popover[data-kind="moreHome"] button')].find((b) => /Chọn tất cả|Select All/i.test(b.textContent || ''));
+  selAllBtn?.click();
+  await wait(150);
+  document.querySelector('.op-ribbon-word [data-id="alignMenu"]')?.click();
+  await wait(150);
+  const centerBtn = [...document.querySelectorAll('.op-popover[data-kind="align"] button')][1];
+  centerBtn?.click();
+  await wait(200);
+  const centeredCount = [...document.querySelectorAll('.op-word-p[data-paragraph]')].filter((p) => p.style.textAlign === 'center').length;
+
+  window.getSelection()?.removeAllRanges();
+  return { subRangeFormatted, ctrlZUndidInEditor, mixedRunsPreserved, centeredCount };
+})()`);
+
 // 10. Mobile 390x844 Dual-Mode Verification
 await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
 await sleep(700);
@@ -582,8 +834,10 @@ const mobileCheck = await evalExpr(`(() => {
 await snap('word-web-365-mobile-390x844.png');
 
 const report = {
+  startCheck,
   loaded,
   darkCheck,
+  bannerDismissCheck,
   autoSelectAndFormatCheck,
   bgToggleCheck,
   fileCheck,
@@ -591,12 +845,17 @@ const report = {
   tableGridCheck,
   tableInsertedCheck,
   colorStyleCheck,
+  fontPickerCheck,
   findReplaceCheck,
   commentCheck,
   pdfMagicOk,
   classicCheck,
+  rulerCheck,
   miniCtxCheck,
   editKeyCheck,
+  scrollPinCheck,
+  exclusivePanelCheck,
+  wordBehaviorCheck,
   mobileCheck,
   pageErrors,
   consoleErrors,
@@ -611,7 +870,15 @@ server.close();
 const failed =
   pageErrors.length > 0 ||
   consoleErrors.length > 0 ||
+  !startCheck.hasStart ||
+  startCheck.cards < 4 ||
+  startCheck.cardSvgs < 4 ||
+  startCheck.actionSvgs < 2 ||
   !loaded.hasAppIcon ||
+  !loaded.hasUserAvatar ||
+  !loaded.hasProofingSvg ||
+  !loaded.hasA11ySvg ||
+  loaded.tellMeSvgCount < 3 ||
   !loaded.noFakeSwatchText ||
   !loaded.hasFitSvg ||
   loaded.statusZoomSvgCount !== 2 ||
@@ -627,18 +894,36 @@ const failed =
   darkCheck.panelBg === 'rgb(255, 255, 255)' ||
   darkCheck.countRows !== 5 ||
   darkCheck.pageCountStat !== darkCheck.pageCountDom ||
+  (bannerDismissCheck.hadBanner && !bannerDismissCheck.dismissed) ||
   !autoSelectAndFormatCheck.boldAppliedOnOpen ||
   !autoSelectAndFormatCheck.bottomBorderOnly ||
   !autoSelectAndFormatCheck.borderCleared ||
   !(parseFloat(autoSelectAndFormatCheck.lh2) > parseFloat(autoSelectAndFormatCheck.lh5)) ||
   Math.abs(parseFloat(autoSelectAndFormatCheck.lh2) / parseFloat(autoSelectAndFormatCheck.lh5) - (2 / 1.5)) >= 0.05 ||
+  fontPickerCheck.options < 10 ||
+  fontPickerCheck.distinctFonts < 5 ||
   !classicCheck.fontNoOverlap ||
   !classicCheck.fontChildrenInside ||
+  classicCheck.classicRadius < 6 ||
   !classicCheck.showMarksDiffOptions ||
   !classicCheck.classicSpacingIsBtn ||
+  !rulerCheck.hasRuler ||
   !editKeyCheck.splitNoDuplicate ||
   !editKeyCheck.deleteMergedBack ||
   !editKeyCheck.tabMovedNextCell ||
+  scrollPinCheck.scrollTop < 800 ||
+  scrollPinCheck.pagesDom < 3 ||
+  scrollPinCheck.navPageCards < 3 ||
+  scrollPinCheck.rulerTopDelta > 2 ||
+  scrollPinCheck.navTopDelta > 2 ||
+  scrollPinCheck.rightTopDelta > 2 ||
+  scrollPinCheck.floatBtnDelta > 2 ||
+  scrollPinCheck.scrolledPageNum < 2 ||
+  !exclusivePanelCheck.strictlyOne ||
+  !wordBehaviorCheck.subRangeFormatted ||
+  !wordBehaviorCheck.ctrlZUndidInEditor ||
+  !wordBehaviorCheck.mixedRunsPreserved ||
+  wordBehaviorCheck.centeredCount < 2 ||
   !miniCtxCheck.ctxInsideViewport ||
   loaded.hasAutosave ||
   loaded.hasDashWord ||

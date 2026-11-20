@@ -112,11 +112,11 @@ import {
 } from './core/office/word-format';
 import {
   applyRunFormat, clearRunFormat, paragraphPlainText, replaceParagraphRange, insertFormattedRuns,
-  type RunFormatInput,
+  rewriteParagraphRuns, type RunFormatInput,
 } from './core/office/word-runs';
 import { OfficeStorageService, type OfficeDocumentMeta, type OfficeDocumentPermission } from './core/persistence/office-storage.service';
 import type { CellStyle, ExcelCell, ExcelDocument, ExcelSheet, OfficeApp, OfficeDocument, PptDocument, PptShape, WordBlock, WordCellSpan, WordCellStyle, WordDocument, WordNestedTable, WordParagraph, WordRun, WordTableBorders } from './core/office/types';
-import { WORD_RIBBON, wordRibbonTab, wordSingleLineGroups, wordIconPaths, wordIconSvg, wordLayeredIconSvg, type WordRibbonGroup, type WordRibbonItem, type WordRibbonTabId } from './core/office/word-ribbon';
+import { WORD_RIBBON, WORD_COMMAND_ICONS, wordRibbonTab, wordSingleLineGroups, wordIconPaths, wordIconSvg, wordLayeredIconSvg, type WordRibbonGroup, type WordRibbonItem, type WordRibbonTabId } from './core/office/word-ribbon';
 import { OFFICE_ICON_SVG } from './core/office/word-office-icons';
 import { saveOdt } from './core/office/odt-save';
 import { paginateBlocks, paginateToTarget, pageOfBlock, sliceParagraph, type WordPageItem, type WordPageModel } from './core/office/word-paginate';
@@ -148,7 +148,7 @@ type RibbonTab = 'home' | 'insert' | 'table' | 'tableLayout' | 'picture' | 'shap
 type RibbonMode = 'classic' | 'single' | 'tabs';
 type WordMode = 'editing' | 'suggesting' | 'viewing';
 type WordPopoverKind =
-  | 'tableGrid' | 'fontColor' | 'highlight' | 'shading' | 'borders' | 'pageColor' | 'styles'
+  | 'tableGrid' | 'fontPicker' | 'fontSizePicker' | 'fontColor' | 'highlight' | 'shading' | 'borders' | 'pageColor' | 'styles'
   | 'align' | 'spacing' | 'margins' | 'orientation' | 'pageSize' | 'columns'
   | 'breaks' | 'markup' | 'commentFilter' | 'zoom' | 'ribbonOptions' | 'moreHome' | 'modeMenu'
   | 'shareMenu' | 'fileStatus' | 'goToPage';
@@ -513,8 +513,8 @@ export class OfficeWebappComponent {
                 ? renderedParagraph.getBoundingClientRect().width
                 : td
                   ? td.clientWidth
-                    - (Number.parseFloat(getComputedStyle(td).paddingLeft || '0') || 0)
-                    - (Number.parseFloat(getComputedStyle(td).paddingRight || '0') || 0)
+                  - (Number.parseFloat(getComputedStyle(td).paddingLeft || '0') || 0)
+                  - (Number.parseFloat(getComputedStyle(td).paddingRight || '0') || 0)
                   : (block.colWidthsPx?.[cellIndex] ?? 0) - 14.4);
             columnWidths.set(cellIndex, columnWidth);
             const cellStyle = (paragraphIndex: number): CSSStyleDeclaration | undefined => {
@@ -689,6 +689,8 @@ export class OfficeWebappComponent {
   readonly tableGridCols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   readonly commentComposeOpen = signal(false);
   readonly wordChromeDark = signal(false);
+  readonly warningsDismissed = signal(false);
+  readonly fontSearchQuery = signal('');
   readonly linkToast = signal<string | null>(null);
   readonly helpOpen = signal(false);
   readonly commandSearchOpen = signal(false);
@@ -1192,6 +1194,11 @@ export class OfficeWebappComponent {
     const current = this.currentWordFont();
     return this.wordFonts.includes(current) ? this.wordFonts : [current, ...this.wordFonts];
   });
+  readonly filteredWordFonts = computed(() => {
+    const query = this.fontSearchQuery().trim().toLowerCase();
+    const all = this.wordFontOptions();
+    return query ? all.filter((font) => font.toLowerCase().includes(query)) : all;
+  });
   readonly wordFontSizeOptions = computed(() => {
     const current = this.currentWordFontSize();
     return this.wordFontSizes.includes(current)
@@ -1220,6 +1227,77 @@ export class OfficeWebappComponent {
   ];
   readonly wordZoomPresets = [50, 75, 100, 125, 150, 200];
   readonly wordSelection = signal<{ paragraphIndex: number; start: number; end: number; text: string } | null>(null);
+  readonly wordCaretOffset = signal<{ paragraphIndex: number; offset: number } | null>(null);
+  readonly wordMultiSelection = signal<{ startParagraph: number; startOffset: number; endParagraph: number; endOffset: number } | null>(null);
+  readonly wordScrollLeft = signal(0);
+  readonly scrolledWordPage = signal<number | null>(null);
+  readonly rulerLeftPx = signal<number | null>(null);
+  readonly ribbonOverlayOpen = signal(false);
+  private rulerDrag: { kind: 'indent' | 'marginLeft' | 'marginRight'; startX: number; initialPx: number } | null = null;
+  private typingSyncTimer: ReturnType<typeof setTimeout> | null = null;
+  private typingUndoTimer: ReturnType<typeof setTimeout> | null = null;
+  private wordTypingUndoPushed = false;
+  readonly hasRightWordPanel = computed(() => (
+    this.infoOpen() || this.commentsOpen() || this.revisionsOpen() || this.findOpen()
+    || this.insertTableOpen() || this.formatOpen() || this.layoutOpen() || this.pageSetupOpen()
+    || this.headerFooterOpen() || this.notesPanelOpen() || this.citationsOpen() || this.tocOpen()
+    || this.mailMergeOpen() || this.accessOpen() || this.linkOpen() || this.symbolOpen()
+    || this.videoOpen() || this.spellOpen() || this.clipboardPaneOpen() || this.stylesPaneOpen()
+    || this.coverOpen() || this.textBoxOpen() || this.watermarkOpen() || this.captionOpen()
+    || this.shapesOpen() || this.iconsOpen() || this.wordChartOpen() || this.themesOpen()
+    || this.styleSetsOpen() || this.thesaurusOpen() || this.indexOpen() || this.arrangePanel() !== null
+    || this.altTextOpen() || this.objectSizeOpen() || this.shapeFillOpen() || this.shapeOutlineOpen()
+    || this.wordSmartArtOpen() || this.paragraphOptionsOpen() || this.emojiOpen() || this.helpOpen()
+    || this.wordCountOpen() || this.splitCellsOpen() || this.erpOpen() || this.shareOpen()
+  ));
+
+  closeRightWordPanels(except?: string): void {
+    if (except !== 'info') this.infoOpen.set(false);
+    if (except !== 'comments') { this.commentsOpen.set(false); this.commentComposeOpen.set(false); }
+    if (except !== 'revisions') this.revisionsOpen.set(false);
+    if (except !== 'find') this.findOpen.set(false);
+    if (except !== 'insertTable') this.insertTableOpen.set(false);
+    if (except !== 'format') this.formatOpen.set(false);
+    if (except !== 'layout') this.layoutOpen.set(false);
+    if (except !== 'pageSetup') this.pageSetupOpen.set(false);
+    if (except !== 'headerFooter') this.headerFooterOpen.set(false);
+    if (except !== 'notes') this.notesPanelOpen.set(false);
+    if (except !== 'citations') this.citationsOpen.set(false);
+    if (except !== 'toc') this.tocOpen.set(false);
+    if (except !== 'mailMerge') this.mailMergeOpen.set(false);
+    if (except !== 'access') this.accessOpen.set(false);
+    if (except !== 'link') this.linkOpen.set(false);
+    if (except !== 'symbol') this.symbolOpen.set(false);
+    if (except !== 'video') this.videoOpen.set(false);
+    if (except !== 'spell') this.spellOpen.set(false);
+    if (except !== 'clipboardPane') this.clipboardPaneOpen.set(false);
+    if (except !== 'stylesPane') this.stylesPaneOpen.set(false);
+    if (except !== 'cover') this.coverOpen.set(false);
+    if (except !== 'textBox') this.textBoxOpen.set(false);
+    if (except !== 'watermark') this.watermarkOpen.set(false);
+    if (except !== 'caption') this.captionOpen.set(false);
+    if (except !== 'shapes') this.shapesOpen.set(false);
+    if (except !== 'icons') this.iconsOpen.set(false);
+    if (except !== 'wordChart') this.wordChartOpen.set(false);
+    if (except !== 'themes') this.themesOpen.set(false);
+    if (except !== 'styleSets') this.styleSetsOpen.set(false);
+    if (except !== 'thesaurus') this.thesaurusOpen.set(false);
+    if (except !== 'index') this.indexOpen.set(false);
+    if (except !== 'arrange') this.arrangePanel.set(null);
+    if (except !== 'altText') this.altTextOpen.set(false);
+    if (except !== 'objectSize') this.objectSizeOpen.set(false);
+    if (except !== 'shapeFill') this.shapeFillOpen.set(false);
+    if (except !== 'shapeOutline') this.shapeOutlineOpen.set(false);
+    if (except !== 'wordSmartArt') this.wordSmartArtOpen.set(false);
+    if (except !== 'paragraphOptions') this.paragraphOptionsOpen.set(false);
+    if (except !== 'emoji') this.emojiOpen.set(false);
+    if (except !== 'help') this.helpOpen.set(false);
+    if (except !== 'wordCount') this.wordCountOpen.set(false);
+    if (except !== 'splitCells') this.splitCellsOpen.set(false);
+    if (except !== 'erp') this.erpOpen.set(false);
+    if (except !== 'share') this.shareOpen.set(false);
+    this.scheduleRulerAlign();
+  }
   readonly miniToolbar = signal<{ x: number; y: number } | null>(null);
   readonly wordContextMenu = signal<{ x: number; y: number; table: boolean; object?: boolean } | null>(null);
   readonly wordContextItems = computed<Array<{ id: string; labelKey: string; sep?: boolean; icon?: string; shortcut?: string }>>(() => {
@@ -1295,11 +1373,12 @@ export class OfficeWebappComponent {
   readonly selectedWordRun = computed(() => {
     this.wordRenderKey();
     const selection = this.wordSelection();
+    const caret = this.wordCaretOffset();
     const index = selection?.paragraphIndex ?? this.selectedParagraph();
     if (index === null) return null;
     const block = this.word()?.blocks[index];
     if (block?.kind !== 'paragraph') return null;
-    const start = selection?.start ?? 0;
+    const start = selection?.start ?? (caret?.paragraphIndex === index ? caret.offset : 0);
     let offset = 0;
     for (const run of block.paragraph.runs) {
       if (run.imagePath || run.videoUrl || run.pageBreak || !run.text) continue;
@@ -1584,9 +1663,9 @@ export class OfficeWebappComponent {
       const group = entry.groupKey ? this.i18n.t(entry.groupKey).toLowerCase() : '';
       const score = label === query ? 0
         : label.startsWith(query) ? 1
-        : label.includes(query) ? 2
-        : entry.id.toLowerCase().includes(query) ? 3
-        : group.includes(query) ? 4 : -1;
+          : label.includes(query) ? 2
+            : entry.id.toLowerCase().includes(query) ? 3
+              : group.includes(query) ? 4 : -1;
       if (score >= 0) scored.push({ entry, score });
     }
     // Word ranks label hits above matches that only come from the ribbon group.
@@ -1602,13 +1681,17 @@ export class OfficeWebappComponent {
   toggleCommandSearch(force?: boolean): void {
     const open = force ?? !this.commandSearchOpen();
     this.commandSearchOpen.set(open);
-    if (!open) return;
+    if (!open) {
+      this.commandSearchInput?.nativeElement.blur();
+      return;
+    }
     this.commandSearchQuery.set('');
     this.commandSearchIndex.set(0);
     setTimeout(() => this.commandSearchInput?.nativeElement.focus(), 0);
   }
 
   onCommandSearchInput(event: Event): void {
+    if (!this.commandSearchOpen()) this.commandSearchOpen.set(true);
     this.commandSearchQuery.set((event.target as HTMLInputElement).value);
     this.commandSearchIndex.set(0);
   }
@@ -1656,6 +1739,25 @@ export class OfficeWebappComponent {
     this.runWordCommand(entry.id);
   }
 
+  commandEntryIcon(entry: OfficeCommandEntry): SafeHtml {
+    if (WORD_COMMAND_ICONS[entry.id]) return this.iconHtml(entry.id);
+    switch (entry.id) {
+      case 'file.new': return this.uiIcon('document_add');
+      case 'file.open': return this.uiIcon('folder_open');
+      case 'file.save': return this.uiIcon('save');
+      case 'file.export': return this.uiIcon('arrow_export_ltr');
+      case 'file.exportPdf': return this.uiIcon('document_pdf');
+      case 'file.exportPdfComments': return this.uiIcon('comment_multiple');
+      case 'file.exportOdt': return this.uiIcon('document_text');
+      case 'file.exportMarkdown': return this.uiIcon('code_text');
+      case 'file.print': return this.uiIcon('print');
+      case 'file.rename': return this.uiIcon('rename');
+      case 'file.share': return this.uiIcon('share');
+      case 'file.info': return this.uiIcon('info');
+      default: return this.uiIcon('search');
+    }
+  }
+
   readonly activeWordMode = computed<WordMode>(() =>
     this.readingView() ? 'viewing' : this.tracking() ? 'suggesting' : 'editing');
 
@@ -1669,8 +1771,10 @@ export class OfficeWebappComponent {
     return names[lang] ?? lang;
   });
 
+  private readonly wordStatsTick = signal(0);
   readonly wordStats = computed(() => {
     this.wordRenderKey();
+    this.wordStatsTick();
     const word = this.word();
     const paragraphs = (word?.blocks ?? []).filter((block) => block.kind === 'paragraph');
     const characters = paragraphs.reduce((sum, block) =>
@@ -1708,7 +1812,7 @@ export class OfficeWebappComponent {
   readonly wordPageContentHeight = signal<Map<number, number> | null>(null);
   readonly wordParagraphStarts = signal<Set<number> | null>(null);
   private readonly paragraphSpacingCache = new Map<number, number>();
-  private wordHintFloor = 0.2;  private wordHintSlack = 44;
+  private wordHintFloor = 0.2; private wordHintSlack = 44;
   private wordStoredBreakFloor = 0.6;
   private wordPageStartGate = 0.75;
   /** Below 640 px the page card fills the viewport instead of keeping Word's page width. */
@@ -1836,12 +1940,145 @@ export class OfficeWebappComponent {
 
   readonly wordPageCount = computed(() => this.wordPages().length);
 
-  /** Word's status bar shows the page containing the caret, not always page 1. */
+  /** Word's status bar shows the scrolled or caret page, not always page 1. */
   readonly currentWordPage = computed(() => {
+    const scrolled = this.scrolledWordPage();
+    if (scrolled !== null) return Math.max(1, Math.min(scrolled, this.wordPageCount()));
     const block = this.selectedParagraph() ?? this.currentFindBlock();
     if (block === null || block < 0) return 1;
     return Math.max(1, Math.min(pageOfBlock(this.wordPages(), block) + 1, this.wordPageCount()));
   });
+
+  wordRulerWidthPx(): number {
+    const pages = this.wordPages();
+    const page = pages[Math.max(0, Math.min(this.currentWordPage() - 1, pages.length - 1))];
+    if (page) return this.wordPageWidth(page);
+    const sec = this.word()?.sections?.[0];
+    return sec ? Math.round(sec.pageWidth / 15) : (this.word()?.pageSize.width ?? 816);
+  }
+
+  wordRulerInches(): number[] {
+    const textPx = Math.max(96, this.wordRulerWidthPx() - this.wordPageMargin('left') - this.wordPageMargin('right'));
+    const count = Math.max(1, Math.floor(textPx / 96));
+    return Array.from({ length: count }, (_, idx) => idx + 1);
+  }
+
+  wordCurrentIndentPx(): number {
+    return this.wordPageMargin('left') + this.wordIndentPx(this.selectedWordParagraph()?.indent);
+  }
+
+  wordPageSnippet(page: WordPageModel): string {
+    for (const item of page.items) {
+      if (item.block.kind === 'paragraph') {
+        const text = acceptedText(item.block.paragraph).replace(/\s+/g, ' ').trim();
+        if (text) return text.slice(0, 72);
+      } else {
+        const firstCell = item.block.rows[item.rowStart ?? 0]?.[0]?.[0];
+        const text = firstCell ? acceptedText(firstCell).replace(/\s+/g, ' ').trim() : '';
+        if (text) return text.slice(0, 72);
+      }
+    }
+    return '';
+  }
+
+  scheduleRulerAlign(): void {
+    requestAnimationFrame(() => {
+      this.syncWordRulerAlign();
+      requestAnimationFrame(() => this.syncWordRulerAlign());
+    });
+  }
+
+  private syncWordRulerAlign(): void {
+    if (!this.rulerOpen() || this.app() !== 'word') {
+      this.rulerLeftPx.set(null);
+      return;
+    }
+    const bar = this.hostRef.nativeElement.querySelector<HTMLElement>('.op-word-ruler-bar');
+    const pages = this.hostRef.nativeElement.querySelectorAll<HTMLElement>('.op-word-page');
+    const page = pages[Math.max(0, Math.min(this.currentWordPage() - 1, pages.length - 1))] ?? pages[0];
+    if (!bar || !page) return;
+    this.rulerLeftPx.set(Math.round(page.getBoundingClientRect().left - bar.getBoundingClientRect().left));
+  }
+
+  onRulerDragStart(kind: 'indent' | 'marginLeft' | 'marginRight', event: PointerEvent): void {
+    if (this.wordLocked() || !this.word()) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const initialPx = kind === 'indent'
+      ? this.wordIndentPx(this.selectedWordParagraph()?.indent)
+      : this.wordPageMargin(kind === 'marginLeft' ? 'left' : 'right');
+    this.pushWordHistory();
+    this.rulerDrag = { kind, startX: event.clientX, initialPx };
+  }
+
+  @HostListener('window:pointermove', ['$event'])
+  onWindowPointerMove(event: PointerEvent): void {
+    const drag = this.rulerDrag;
+    const word = this.word();
+    if (!drag || !word) return;
+    const scale = Math.max(0.5, this.zoom() / 100);
+    const deltaPx = (event.clientX - drag.startX) / scale;
+    if (drag.kind === 'indent') {
+      const idx = this.selectedParagraph();
+      if (idx === null) return;
+      const snappedPx = Math.max(0, Math.min(288, Math.round((drag.initialPx + deltaPx) / 12) * 12));
+      if (applyParagraphFormat(word, idx, { indent: snappedPx * 15 })) {
+        this.afterWordFormatChange();
+      }
+      return;
+    }
+    const side = drag.kind === 'marginLeft' ? 'left' : 'right';
+    const nextPx = drag.kind === 'marginLeft'
+      ? Math.max(24, Math.min(240, Math.round(drag.initialPx + deltaPx)))
+      : Math.max(24, Math.min(240, Math.round(drag.initialPx - deltaPx)));
+    const section = sectionAt(word, 0);
+    const twips = (nextPx + 1) * 15;
+    if (section) {
+      setPageSetup(section, { margins: { ...section.margins, [side]: twips } });
+      this.loadLayout();
+    } else if (word.pageMargins) {
+      word.pageMargins[side] = nextPx + 1;
+    }
+    this.refreshWordDocument();
+    this.dirty.set(true);
+  }
+
+  @HostListener('window:pointerup')
+  onWindowPointerUp(): void {
+    if (!this.rulerDrag) return;
+    const wasMargin = this.rulerDrag.kind !== 'indent';
+    this.rulerDrag = null;
+    if (wasMargin) {
+      this.resetWordHeights();
+      this.scheduleWordMeasure(80);
+    }
+    this.scheduleRulerAlign();
+  }
+
+  onWordScroll(event: Event): void {
+    const scroller = event.target as HTMLElement | null;
+    if (!scroller) return;
+    this.wordScrollLeft.set(scroller.scrollLeft);
+    this.scheduleRulerAlign();
+    const pages = scroller.querySelectorAll<HTMLElement>('.op-word-page');
+    if (!pages.length) return;
+    const probeY = scroller.getBoundingClientRect().top + scroller.clientHeight * 0.3;
+    let activePage = 1;
+    for (let i = 0; i < pages.length; i++) {
+      const rect = pages[i].getBoundingClientRect();
+      if (rect.top <= probeY) activePage = i + 1;
+      if (rect.bottom >= probeY) break;
+    }
+    if (this.scrolledWordPage() !== activePage) {
+      this.scrolledWordPage.set(activePage);
+    }
+  }
+
+  onWordWheel(event: WheelEvent): void {
+    if (!event.ctrlKey && !event.metaKey) return;
+    event.preventDefault();
+    this.zoomBy(event.deltaY < 0 ? 10 : -10);
+  }
 
   readonly word = computed<WordDocument | null>(() => this.doc()?.word ?? null);
   /**
@@ -1901,6 +2138,7 @@ export class OfficeWebappComponent {
   });
 
   readonly statusCount = computed(() => {
+    this.wordStatsTick();
     const app = this.app();
     if (app === 'word') return this.word()?.wordCount ?? 0;
     if (app === 'excel') return this.excel()?.sheets.length ?? 0;
@@ -2033,6 +2271,7 @@ export class OfficeWebappComponent {
     this.revokePdf();
     this.buffers.set(null);
     this.dirty.set(false);
+    this.warningsDismissed.set(false);
     if (app === 'word') {
       this.doc.set({
         app, fileName: 'Untitled.docx', warnings: [],
@@ -2105,8 +2344,11 @@ export class OfficeWebappComponent {
   }
 
   toggleInfo(): void {
-    this.infoOpen.update((open) => !open);
+    const open = !this.infoOpen();
+    if (open) this.closeRightWordPanels('info');
+    this.infoOpen.set(open);
     this.fileMenuOpen.set(false);
+    this.scheduleRulerAlign();
   }
 
   print(): void {
@@ -2423,6 +2665,7 @@ export class OfficeWebappComponent {
   }
 
   async save(): Promise<void> {
+    this.flushPendingWordDomSync(true);
     const active = document.activeElement as HTMLElement | null;
     if (active?.isContentEditable) active.blur();
     const doc = this.doc();
@@ -2526,6 +2769,7 @@ export class OfficeWebappComponent {
   }
 
   async openErpPanel(): Promise<void> {
+    this.closeRightWordPanels('erp');
     this.erpOpen.set(true);
     this.erpBusy.set(true);
     this.erpError.set(null);
@@ -2558,6 +2802,7 @@ export class OfficeWebappComponent {
   async openSharePanel(): Promise<void> {
     const id = this.erpDocId();
     if (!id) return;
+    this.closeRightWordPanels('share');
     this.shareOpen.set(true);
     this.shareError.set(null);
     await this.loadShareList(id);
@@ -2823,6 +3068,13 @@ export class OfficeWebappComponent {
     return savePptx(doc.ppt!, buffer);
   }
 
+  onChromeMouseDown(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (!target?.closest('input, textarea, select, [contenteditable="true"]')) {
+      event.preventDefault();
+    }
+  }
+
   @HostListener('document:selectionchange')
   onSelectionChange(): void {
     if (this.app() !== 'word' || this.inkOpen() || this.wordLocked()) {
@@ -2830,7 +3082,7 @@ export class OfficeWebappComponent {
       return;
     }
     const selection = window.getSelection();
-    if (!selection || selection.isCollapsed || !selection.rangeCount) {
+    if (!selection || !selection.rangeCount) {
       this.miniToolbar.set(null);
       return;
     }
@@ -2838,6 +3090,11 @@ export class OfficeWebappComponent {
     const anchor = range.commonAncestorContainer;
     const element = anchor.nodeType === Node.ELEMENT_NODE ? anchor as Element : anchor.parentElement;
     if (!element?.closest('.op-word-stage')) {
+      this.miniToolbar.set(null);
+      return;
+    }
+    this.captureWordSelection();
+    if (selection.isCollapsed) {
       this.miniToolbar.set(null);
       return;
     }
@@ -2872,12 +3129,20 @@ export class OfficeWebappComponent {
     if (this.caretMenu() && !target?.closest('.op-rb-menu, .op-rb-caret')) {
       this.caretMenu.set(null);
     }
+    if (this.ribbonOverlayOpen() && !target?.closest('.op-tabstrip, .op-ribbon-word, .op-popover, .op-rb-menu')) {
+      this.ribbonOverlayOpen.set(false);
+    }
     if (this.fileMenuOpen() && !target?.closest('.op-word-file-dropdown, .op-file-tab, .op-backstage')) {
       this.fileMenuOpen.set(false);
     }
     if (this.commandSearchOpen() && !target?.closest('.op-command-wrap')) {
       this.commandSearchOpen.set(false);
     }
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.scheduleRulerAlign();
   }
 
   @HostListener('window:popstate')
@@ -2891,7 +3156,12 @@ export class OfficeWebappComponent {
   @HostListener('document:keydown', ['$event'])
   onKeydown(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
-      if (this.activePopover()) { this.activePopover.set(null); return; }
+      if (this.activePopover()) {
+        const el = document.activeElement as HTMLElement | null;
+        if (el?.closest('.op-popover')) el.blur();
+        this.activePopover.set(null);
+        return;
+      }
       if (this.caretMenu()) { this.caretMenu.set(null); return; }
       if (this.fileMenuOpen()) { this.fileMenuOpen.set(false); return; }
       if (this.wordContextMenu()) { this.wordContextMenu.set(null); return; }
@@ -2976,6 +3246,7 @@ export class OfficeWebappComponent {
         if (event.key === '[') { event.preventDefault(); this.growWordFont(-1, true); return; }
         if (event.key === '=' && !event.shiftKey) { event.preventDefault(); this.toggleWordVertAlign('subscript'); return; }
         if (event.code === 'Space' || event.key === ' ') { event.preventDefault(); this.clearWordFormatting(); return; }
+        if (key === 'a' && !event.shiftKey) { event.preventDefault(); this.selectAllWord(); return; }
         if (key === 'm' && !event.shiftKey) { event.preventDefault(); this.indentWordParagraph(720); return; }
         if (key === 'p') { event.preventDefault(); this.print(); return; }
         if (key === 'k') { event.preventDefault(); this.toggleLink(); return; }
@@ -2991,15 +3262,23 @@ export class OfficeWebappComponent {
           this.runWordCommand(key === 'b' ? 'bold' : key === 'i' ? 'italic' : 'underline');
           return;
         }
-        if (!editing && key === 'z') {
-          event.preventDefault();
-          if (event.shiftKey) this.redoWord(); else this.undoWord();
-          return;
+        if (key === 'z' && (!editing || active?.closest('.op-word-page'))) {
+          if (active?.closest('.op-word-page')) this.flushPendingWordDomSync(false);
+          if (event.shiftKey ? this.canRedoWord() : this.canUndoWord()) {
+            event.preventDefault();
+            this.wordTypingUndoPushed = false;
+            if (event.shiftKey) this.redoWord(); else this.undoWord();
+            return;
+          }
         }
-        if (!editing && key === 'y') {
-          event.preventDefault();
-          this.redoWord();
-          return;
+        if (key === 'y' && (!editing || active?.closest('.op-word-page'))) {
+          if (active?.closest('.op-word-page')) this.flushPendingWordDomSync(false);
+          if (this.canRedoWord()) {
+            event.preventDefault();
+            this.wordTypingUndoPushed = false;
+            this.redoWord();
+            return;
+          }
         }
       }
     }
@@ -3262,6 +3541,7 @@ export class OfficeWebappComponent {
         break;
       }
       case 'tableSplitCells':
+        this.closeRightWordPanels('splitCells');
         this.splitCellRows.set(1);
         this.splitCellColumns.set(1);
         this.splitCellsOpen.set(true);
@@ -3437,34 +3717,84 @@ export class OfficeWebappComponent {
     selection.addRange(range);
   }
 
+  onWordPageInput(event: Event): void {
+    this.dirty.set(true);
+    const article = event.currentTarget as HTMLElement | null;
+    if (this.typingSyncTimer) clearTimeout(this.typingSyncTimer);
+    this.typingSyncTimer = setTimeout(() => {
+      this.typingSyncTimer = null;
+      if (article) this.syncWordPageFromDom(article, false);
+    }, 250);
+  }
+
+  flushPendingWordDomSync(cleanupDom = false): void {
+    if (this.typingSyncTimer) {
+      clearTimeout(this.typingSyncTimer);
+      this.typingSyncTimer = null;
+    }
+    for (const article of this.hostRef.nativeElement.querySelectorAll<HTMLElement>('.op-word-page')) {
+      this.syncWordPageFromDom(article, cleanupDom);
+    }
+  }
+
   onWordPageFocusOut(event: FocusEvent): void {
     if (this.wordStructureEdit) return;
     const article = event.currentTarget as HTMLElement | null;
     const next = event.relatedTarget as Node | null;
     if (!article || (next && article.contains(next))) return;
-    this.syncWordPageFromDom(article);
+    if (this.typingSyncTimer) {
+      clearTimeout(this.typingSyncTimer);
+      this.typingSyncTimer = null;
+    }
+    this.wordTypingUndoPushed = false;
+    this.syncWordPageFromDom(article, true);
   }
 
-  private syncWordPageFromDom(article: HTMLElement): void {
+  private syncWordPageFromDom(article: HTMLElement, cleanupDom = true): void {
     const word = this.word();
     if (!word) return;
-    const changes: Array<{ block: Extract<WordBlock, { kind: 'paragraph' }>; text: string }> = [];
-    // A paragraph can be rendered as one element per page, so the block text is
-    // the concatenation of its fragments in document order.
-    const paragraphFragments = new Map<number, string[]>();
+    const fragmentsMap = new Map<number, Array<{ element: HTMLElement; text: string }>>();
     for (const element of article.querySelectorAll<HTMLElement>('.op-word-p[data-paragraph]')) {
       const index = Number(element.getAttribute('data-paragraph'));
       if (!Number.isFinite(index)) continue;
-      const list = paragraphFragments.get(index) ?? [];
-      list.push(element.innerText.replace(/\u00a0/g, ' '));
-      paragraphFragments.set(index, list);
+      const list = fragmentsMap.get(index) ?? [];
+      list.push({ element, text: element.innerText.replace(/\u00a0/g, ' ').replace(/\r?\n$/, '') });
+      fragmentsMap.set(index, list);
     }
-    for (const [index, fragments] of paragraphFragments) {
+    let anyChanged = false;
+    let pushedHistory = this.wordTypingUndoPushed;
+    const ensureHistory = (): void => {
+      if (!pushedHistory) {
+        this.pushWordHistory();
+        pushedHistory = true;
+      }
+    };
+    for (const [index, fragments] of fragmentsMap) {
       const block = word.blocks[index];
       if (block?.kind !== 'paragraph') continue;
-      const text = fragments.join('');
-      const current = block.paragraph.runs.filter((run) => !run.imagePath).map((run) => run.text).join('');
-      if (text !== current) changes.push({ block, text });
+      const paragraph = block.paragraph;
+      const totalFragments = this.hostRef.nativeElement.querySelectorAll(`.op-word-p[data-paragraph="${index}"]`).length;
+      if (totalFragments === 1 && fragments.length === 1 && !paragraphHasPageBreak(paragraph) && !this.isTocParagraph(paragraph)) {
+        const text = fragments[0].text;
+        const current = paragraph.runs.filter((run) => !run.imagePath && !run.videoUrl && !run.textBox && !run.pageBreak).map((run) => run.text).join('');
+        if (text !== current) {
+          ensureHistory();
+          if (this.syncParagraphRunsFromDom(fragments[0].element, paragraph, word)) {
+            anyChanged = true;
+          }
+        }
+        continue;
+      }
+      const text = fragments.map((f) => f.text).join('');
+      const current = paragraph.runs.filter((run) => !run.imagePath).map((run) => run.text).join('');
+      if (text !== current) {
+        ensureHistory();
+        const firstRun = paragraph.runs.find((run) => !run.imagePath) ?? { text: '' };
+        const images = paragraph.runs.filter((run) => run.imagePath);
+        paragraph.runs = [{ ...firstRun, text }, ...images];
+        if (paragraph.xmlNode) this.patchParagraphText(paragraph.xmlNode, text);
+        anyChanged = true;
+      }
     }
     const cellChanges: Array<{ paragraph: WordParagraph; text: string }> = [];
     for (const element of article.querySelectorAll<HTMLElement>('p[data-cell-block]')) {
@@ -3476,33 +3806,90 @@ export class OfficeWebappComponent {
       if (block?.kind !== 'table') continue;
       const paragraph = block.rows[row]?.[cell]?.[index];
       if (!paragraph) continue;
-      const text = element.innerText.replace(/\u00a0/g, ' ');
+      const text = element.innerText.replace(/\u00a0/g, ' ').replace(/\r?\n$/, '');
       const current = paragraph.runs.filter((run) => !run.imagePath).map((run) => run.text).join('');
       if (text !== current) cellChanges.push({ paragraph, text });
     }
-    if (!changes.length && !cellChanges.length) return;
-    this.pushWordHistory();
-    for (const change of changes) {
-      const paragraph = change.block.paragraph;
-      const firstRun = paragraph.runs.find((run) => !run.imagePath) ?? { text: '' };
-      const images = paragraph.runs.filter((run) => run.imagePath);
-      paragraph.runs = [{ ...firstRun, text: change.text }, ...images];
-      if (paragraph.xmlNode) this.patchParagraphText(paragraph.xmlNode, change.text);
+    if (cellChanges.length) {
+      ensureHistory();
+      for (const change of cellChanges) {
+        const paragraph = change.paragraph;
+        const firstRun = paragraph.runs.find((run) => !run.imagePath) ?? { text: '' };
+        const images = paragraph.runs.filter((run) => run.imagePath);
+        paragraph.runs = [{ ...firstRun, text: change.text }, ...images];
+        if (paragraph.xmlNode) this.patchParagraphText(paragraph.xmlNode, change.text);
+      }
+      anyChanged = true;
     }
-    for (const change of cellChanges) {
-      const paragraph = change.paragraph;
-      const firstRun = paragraph.runs.find((run) => !run.imagePath) ?? { text: '' };
-      const images = paragraph.runs.filter((run) => run.imagePath);
-      paragraph.runs = [{ ...firstRun, text: change.text }, ...images];
-      if (paragraph.xmlNode) this.patchParagraphText(paragraph.xmlNode, change.text);
-    }
-    this.cleanupWordPageTextNodes();
-    this.refreshWordSignal();
-    this.wordDomVersion.update((value) => value + 1);
-    this.wordRenderKey.update((value) => value + 1);
+    if (!anyChanged) return;
     this.recomputeWordCount();
-    this.scheduleWordMeasure(100);
     this.dirty.set(true);
+    if (cleanupDom) {
+      this.cleanupWordPageTextNodes();
+      this.refreshWordSignal();
+      this.wordDomVersion.update((value) => value + 1);
+      this.wordRenderKey.update((value) => value + 1);
+      this.scheduleWordMeasure(100);
+    }
+  }
+
+  private syncParagraphRunsFromDom(element: HTMLElement, paragraph: WordParagraph, word: WordDocument): boolean {
+    const existing = paragraph.runs;
+    const isNonText = (r: WordRun): boolean => Boolean(r.imagePath || r.videoUrl || r.textBox || r.pageBreak || r.equation || r.chart || r.smartArt || r.noteRef);
+    const preservedNonText = existing.filter(isNonText);
+    const rebuilt: WordRun[] = [];
+    let lastTemplate: WordRun | null = existing.find((r) => !isNonText(r)) ?? null;
+    const collect = (node: Node): void => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const txt = (node.textContent ?? '').replace(/\u00a0/g, ' ');
+        if (txt) rebuilt.push({ ...(lastTemplate ?? {}), text: txt });
+        return;
+      }
+      if (node.nodeType !== Node.ELEMENT_NODE) return;
+      const el = node as HTMLElement;
+      if (el.tagName === 'BR') return;
+      const rawIdx = el.getAttribute('data-run-index');
+      if (rawIdx !== null && (el.tagName === 'SPAN' || el.tagName === 'A')
+        && !el.classList.contains('op-word-pagebreak') && !el.classList.contains('op-equation')) {
+        const idx = Number(rawIdx);
+        const orig = Number.isFinite(idx) ? existing[idx] : undefined;
+        if (orig && !isNonText(orig)) {
+          lastTemplate = orig;
+          const txt = (el.textContent ?? '').replace(/\u00a0/g, ' ');
+          if (txt) rebuilt.push({ ...orig, text: txt });
+          return;
+        }
+      }
+      if (el.hasAttribute('data-run-index') || el.classList.contains('op-word-float-inline')) {
+        const idx = Number(el.getAttribute('data-run-index'));
+        const orig = Number.isFinite(idx) ? existing[idx] : undefined;
+        if (orig) rebuilt.push(orig);
+        return;
+      }
+      for (const child of el.childNodes) collect(child);
+    };
+    for (const child of element.childNodes) collect(child);
+    const merged: WordRun[] = [];
+    for (const run of rebuilt) {
+      if (preservedNonText.includes(run)) {
+        merged.push(run);
+        continue;
+      }
+      const prev = merged[merged.length - 1];
+      if (prev && !preservedNonText.includes(prev) && prev.bold === run.bold && prev.italic === run.italic
+        && prev.underline === run.underline && prev.strike === run.strike && prev.color === run.color
+        && prev.sizePt === run.sizePt && prev.font === run.font && prev.highlight === run.highlight && prev.link === run.link) {
+        prev.text += run.text;
+      } else {
+        merged.push({ ...run });
+      }
+    }
+    for (const extra of preservedNonText) {
+      if (!merged.includes(extra)) merged.push(extra);
+    }
+    paragraph.runs = merged.length ? merged : [{ ...(lastTemplate ?? {}), text: '' }];
+    rewriteParagraphRuns(paragraph, word);
+    return true;
   }
 
   private cleanupWordPageTextNodes(): void {
@@ -3515,6 +3902,19 @@ export class OfficeWebappComponent {
 
   private handleWordParagraphKey(index: number, paragraph: HTMLElement | null, event: KeyboardEvent): void {
     if (!paragraph?.isContentEditable) return;
+    if (!event.ctrlKey && !event.metaKey && !event.altKey
+      && (event.key.length === 1 || event.key === 'Backspace' || event.key === 'Delete')) {
+      if (!this.wordTypingUndoPushed) {
+        this.flushPendingWordDomSync(false);
+        this.pushWordHistory();
+        this.wordTypingUndoPushed = true;
+      }
+      if (this.typingUndoTimer) clearTimeout(this.typingUndoTimer);
+      this.typingUndoTimer = setTimeout(() => {
+        this.typingUndoTimer = null;
+        this.wordTypingUndoPushed = false;
+      }, 800);
+    }
     const block = this.word()?.blocks[index];
     const base = Number(paragraph.getAttribute('data-char-start') ?? 0) || 0;
     const domText = paragraph.innerText.replace(/\u00a0/g, ' ');
@@ -3761,8 +4161,10 @@ export class OfficeWebappComponent {
   toggleHeaderFooter(): void {
     if (this.headerFooterOpen()) {
       this.headerFooterOpen.set(false);
+      this.scheduleRulerAlign();
       return;
     }
+    this.closeRightWordPanels('headerFooter');
     this.loadHeaderFooter();
     this.headerFooterOpen.set(true);
   }
@@ -3867,8 +4269,10 @@ export class OfficeWebappComponent {
   toggleNotes(): void {
     if (this.notesPanelOpen()) {
       this.notesPanelOpen.set(false);
+      this.scheduleRulerAlign();
       return;
     }
+    this.closeRightWordPanels('notes');
     const word = this.word();
     this.wordNotes.set(word?.notes ?? null);
     this.notesTick.update((value) => value + 1);
@@ -3933,12 +4337,13 @@ export class OfficeWebappComponent {
   toggleCitations(): void {
     if (this.citationsOpen()) {
       this.citationsOpen.set(false);
+      this.scheduleRulerAlign();
       return;
     }
+    this.closeRightWordPanels('citations');
     const word = this.word();
     this.sources.set([...(word?.sources ?? [])]);
     this.citationsOpen.set(true);
-    this.tocOpen.set(false);
   }
 
   addCitation(): void {
@@ -4247,14 +4652,13 @@ export class OfficeWebappComponent {
   toggleIndex(): void {
     if (this.indexOpen()) {
       this.indexOpen.set(false);
+      this.scheduleRulerAlign();
       return;
     }
+    this.closeRightWordPanels('index');
     const selection = this.wordSelection();
     if (selection?.text.trim()) this.indexTerm.set(selection.text.trim());
     this.indexOpen.set(true);
-    this.citationsOpen.set(false);
-    this.tocOpen.set(false);
-    this.mailMergeOpen.set(false);
   }
 
   markIndexEntryNow(): void {
@@ -4319,24 +4723,45 @@ export class OfficeWebappComponent {
   }
 
   applyParagraphBorders(mode: ParagraphBorderMode): void {
+    this.flushPendingWordDomSync(false);
     const word = this.word();
+    if (!word) return;
+    const multi = this.wordMultiSelection();
+    if (multi) {
+      this.pushWordHistory();
+      let changed = false;
+      for (let i = multi.startParagraph; i <= multi.endParagraph; i++) {
+        if (setParagraphBorders(word, i, mode)) changed = true;
+      }
+      if (!changed) return;
+      this.afterWordFormatChange();
+      this.restoreWordMultiDomSelection(multi);
+      this.scheduleWordMeasure(150);
+      return;
+    }
+    const prevSel = this.wordSelection();
     const index = this.selectedParagraph();
-    if (!word || index === null) return;
+    if (index === null) return;
     this.pushWordHistory();
     if (!setParagraphBorders(word, index, mode)) return;
     this.wordRenderKey.update((value) => value + 1);
+    if (prevSel) this.restoreWordDomSelection(prevSel);
     this.scheduleWordMeasure(150);
     this.dirty.set(true);
   }
 
   toggleParagraphOptions(): void {
-    this.paragraphOptionsOpen.update((value) => !value);
-    this.emojiOpen.set(false);
+    const open = !this.paragraphOptionsOpen();
+    if (open) this.closeRightWordPanels('paragraphOptions');
+    this.paragraphOptionsOpen.set(open);
+    this.scheduleRulerAlign();
   }
 
   toggleEmoji(): void {
-    this.emojiOpen.update((value) => !value);
-    this.paragraphOptionsOpen.set(false);
+    const open = !this.emojiOpen();
+    if (open) this.closeRightWordPanels('emoji');
+    this.emojiOpen.set(open);
+    this.scheduleRulerAlign();
   }
 
   insertEmoji(char: string): void {
@@ -4368,11 +4793,13 @@ export class OfficeWebappComponent {
   }
 
   openViewHeaderFooter(): void {
+    this.closeRightWordPanels('headerFooter');
     this.headerFooterOpen.set(true);
     this.loadHeaderFooter();
   }
 
   openViewNotes(kind: 'footnote' | 'endnote'): void {
+    this.closeRightWordPanels('notes');
     this.noteKind.set(kind);
     this.wordNotes.set(this.word()?.notes ?? null);
     this.notesTick.update((value) => value + 1);
@@ -4380,7 +4807,10 @@ export class OfficeWebappComponent {
   }
 
   toggleArrangePanel(panel: 'position' | 'wrap' | 'align' | 'rotate' | 'selection'): void {
-    this.arrangePanel.set(this.arrangePanel() === panel ? null : panel);
+    const next = this.arrangePanel() === panel ? null : panel;
+    if (next) this.closeRightWordPanels('arrange');
+    this.arrangePanel.set(next);
+    this.scheduleRulerAlign();
   }
 
   wordPageFloats(page: WordPageModel): Array<{ key: string; run: WordRun; blockIndex: number }> {
@@ -4723,11 +5153,9 @@ export class OfficeWebappComponent {
   openAltText(): void {
     const run = this.selectedWordObject();
     if (!run) return;
+    this.closeRightWordPanels('altText');
     this.altTextDraft.set(run.alt ?? '');
     this.altTextOpen.set(true);
-    this.objectSizeOpen.set(false);
-    this.shapeFillOpen.set(false);
-    this.shapeOutlineOpen.set(false);
   }
 
   applyAltText(): void {
@@ -4743,12 +5171,10 @@ export class OfficeWebappComponent {
   openObjectSize(): void {
     const run = this.selectedWordObject();
     if (!run) return;
+    this.closeRightWordPanels('objectSize');
     this.objectWidthDraft.set(Math.round(run.textBox?.width ?? run.imageWidth ?? 0));
     this.objectHeightDraft.set(Math.round(run.textBox?.height ?? run.imageHeight ?? 0));
     this.objectSizeOpen.set(true);
-    this.altTextOpen.set(false);
-    this.shapeFillOpen.set(false);
-    this.shapeOutlineOpen.set(false);
   }
 
   applyObjectSize(): void {
@@ -4830,11 +5256,9 @@ export class OfficeWebappComponent {
   openShapeFill(): void {
     const run = this.selectedWordObject();
     if (!run?.textBox) return;
+    this.closeRightWordPanels('shapeFill');
     this.shapeFillDraft.set(run.textBox.fill ?? '#EAF1FB');
     this.shapeFillOpen.set(true);
-    this.shapeOutlineOpen.set(false);
-    this.altTextOpen.set(false);
-    this.objectSizeOpen.set(false);
   }
 
   applyShapeFill(color: string): void {
@@ -4849,11 +5273,9 @@ export class OfficeWebappComponent {
   openShapeOutline(): void {
     const run = this.selectedWordObject();
     if (!run?.textBox) return;
+    this.closeRightWordPanels('shapeOutline');
     this.shapeOutlineDraft.set(run.textBox.outline ?? '#8EAADB');
     this.shapeOutlineOpen.set(true);
-    this.shapeFillOpen.set(false);
-    this.altTextOpen.set(false);
-    this.objectSizeOpen.set(false);
   }
 
   applyShapeOutline(color: string): void {
@@ -5030,13 +5452,14 @@ export class OfficeWebappComponent {
   toggleToc(): void {
     if (this.tocOpen()) {
       this.tocOpen.set(false);
+      this.scheduleRulerAlign();
       return;
     }
+    this.closeRightWordPanels('toc');
     const word = this.word();
     this.bookmarks.set(word ? parseBookmarks(word) : []);
     this.tocList.set(word ? tocEntries(word) : []);
     this.tocOpen.set(true);
-    this.citationsOpen.set(false);
   }
 
   addNewBookmark(): void {
@@ -5394,16 +5817,12 @@ export class OfficeWebappComponent {
   toggleLayout(): void {
     if (this.layoutOpen()) {
       this.layoutOpen.set(false);
+      this.scheduleRulerAlign();
       return;
     }
+    this.closeRightWordPanels('layout');
     this.loadLayout();
     this.layoutOpen.set(true);
-    this.accessOpen.set(false);
-    this.formatOpen.set(false);
-    this.headerFooterOpen.set(false);
-    this.notesPanelOpen.set(false);
-    this.citationsOpen.set(false);
-    this.tocOpen.set(false);
   }
 
   applyColumns(): void {
@@ -5438,20 +5857,18 @@ export class OfficeWebappComponent {
     });
     this.refreshWordDocument();
     this.dirty.set(true);
+    this.scheduleRulerAlign();
   }
 
   togglePageSetup(): void {
     if (this.pageSetupOpen()) {
       this.pageSetupOpen.set(false);
+      this.scheduleRulerAlign();
       return;
     }
+    this.closeRightWordPanels('pageSetup');
     this.loadLayout();
     this.pageSetupOpen.set(true);
-    this.layoutOpen.set(false);
-    this.accessOpen.set(false);
-    this.findOpen.set(false);
-    this.insertTableOpen.set(false);
-    this.formatOpen.set(false);
   }
 
   applyPageBorder(): void {
@@ -5523,6 +5940,7 @@ export class OfficeWebappComponent {
 
   toggleRuler(): void {
     this.rulerOpen.update((value) => !value);
+    this.scheduleRulerAlign();
   }
 
   pageBorderPx(): number {
@@ -5552,41 +5970,28 @@ export class OfficeWebappComponent {
   toggleAccessibility(): void {
     if (this.accessOpen()) {
       this.accessOpen.set(false);
+      this.scheduleRulerAlign();
       return;
     }
+    this.closeRightWordPanels('access');
     this.refreshAccessibility();
     this.accessOpen.set(true);
-    this.layoutOpen.set(false);
-    this.formatOpen.set(false);
-    this.headerFooterOpen.set(false);
-    this.notesPanelOpen.set(false);
-    this.citationsOpen.set(false);
-    this.tocOpen.set(false);
-    this.findOpen.set(false);
-    this.insertTableOpen.set(false);
   }
 
   toggleFind(): void {
     if (this.navPaneOpen() && this.navTab() === 'find') {
       this.navPaneOpen.set(false);
       this.findOpen.set(false);
+      this.scheduleRulerAlign();
       return;
     }
     this.openNavTab('find');
   }
 
-  openNavTab(tab: 'headings' | 'find' | 'replace'): void {
+  openNavTab(tab: 'headings' | 'find' | 'replace' | 'pages'): void {
     this.navPaneOpen.set(true);
     this.navTab.set(tab);
-    this.findOpen.set(false);
-    this.insertTableOpen.set(false);
-    this.formatOpen.set(false);
-    this.layoutOpen.set(false);
-    this.accessOpen.set(false);
-    this.headerFooterOpen.set(false);
-    this.notesPanelOpen.set(false);
-    this.citationsOpen.set(false);
-    this.tocOpen.set(false);
+    this.scheduleRulerAlign();
     if (tab === 'find' || tab === 'replace') {
       setTimeout(() => {
         const input = this.hostRef.nativeElement.querySelector<HTMLInputElement>('.op-nav-search-input');
@@ -5599,54 +6004,42 @@ export class OfficeWebappComponent {
   toggleInsertTable(): void {
     if (this.insertTableOpen()) {
       this.insertTableOpen.set(false);
+      this.scheduleRulerAlign();
       return;
     }
+    this.closeRightWordPanels('insertTable');
     this.insertTableOpen.set(true);
-    this.findOpen.set(false);
-    this.layoutOpen.set(false);
-    this.accessOpen.set(false);
-    this.headerFooterOpen.set(false);
-    this.notesPanelOpen.set(false);
-    this.citationsOpen.set(false);
-    this.tocOpen.set(false);
-    this.formatOpen.set(false);
   }
 
   toggleFormat(): void {
     if (this.formatOpen()) {
       this.formatOpen.set(false);
+      this.scheduleRulerAlign();
       return;
     }
+    this.closeRightWordPanels('format');
     this.formatOpen.set(true);
-    this.findOpen.set(false);
-    this.insertTableOpen.set(false);
-    this.layoutOpen.set(false);
-    this.accessOpen.set(false);
-    this.headerFooterOpen.set(false);
-    this.notesPanelOpen.set(false);
-    this.citationsOpen.set(false);
-    this.tocOpen.set(false);
   }
 
   toggleNavPane(): void {
     this.navPaneOpen.update((value) => !value);
     if (this.navPaneOpen() && this.findQuery() && this.navTab() === 'headings') this.navTab.set('find');
-    this.findOpen.set(false);
-    this.linkOpen.set(false);
-    this.symbolOpen.set(false);
-    this.videoOpen.set(false);
-    this.spellOpen.set(false);
+    this.scheduleRulerAlign();
   }
 
   jumpToParagraph(index: number): void {
     this.selectParagraph(index);
+    this.scrolledWordPage.set(null);
     const element = this.hostRef.nativeElement.querySelector(`[data-paragraph="${index}"]`) as HTMLElement | null;
     element?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    this.scheduleRulerAlign();
   }
 
   jumpToWordPage(page: number): void {
+    this.scrolledWordPage.set(page);
     const element = this.hostRef.nativeElement.querySelectorAll<HTMLElement>('.op-word-page')[Math.max(0, page - 1)];
     element?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    this.scheduleRulerAlign();
   }
 
   jumpToFindMatch(index: number): void {
@@ -5657,11 +6050,10 @@ export class OfficeWebappComponent {
   }
 
   toggleLink(): void {
-    this.linkOpen.update((value) => !value);
-    this.navPaneOpen.set(false);
-    this.symbolOpen.set(false);
-    this.videoOpen.set(false);
-    this.spellOpen.set(false);
+    const open = !this.linkOpen();
+    if (open) this.closeRightWordPanels('link');
+    this.linkOpen.set(open);
+    this.scheduleRulerAlign();
   }
 
   applyHyperlink(): void {
@@ -5677,11 +6069,10 @@ export class OfficeWebappComponent {
   }
 
   toggleSymbol(): void {
-    this.symbolOpen.update((value) => !value);
-    this.navPaneOpen.set(false);
-    this.linkOpen.set(false);
-    this.videoOpen.set(false);
-    this.spellOpen.set(false);
+    const open = !this.symbolOpen();
+    if (open) this.closeRightWordPanels('symbol');
+    this.symbolOpen.set(open);
+    this.scheduleRulerAlign();
   }
 
   insertWordSymbol(symbol: string): void {
@@ -5696,11 +6087,10 @@ export class OfficeWebappComponent {
   }
 
   toggleVideo(): void {
-    this.videoOpen.update((value) => !value);
-    this.navPaneOpen.set(false);
-    this.linkOpen.set(false);
-    this.symbolOpen.set(false);
-    this.spellOpen.set(false);
+    const open = !this.videoOpen();
+    if (open) this.closeRightWordPanels('video');
+    this.videoOpen.set(open);
+    this.scheduleRulerAlign();
   }
 
   applyVideo(): void {
@@ -5714,12 +6104,11 @@ export class OfficeWebappComponent {
   }
 
   toggleSpell(): void {
-    this.spellOpen.update((value) => !value);
-    this.navPaneOpen.set(false);
-    this.linkOpen.set(false);
-    this.symbolOpen.set(false);
-    this.videoOpen.set(false);
+    const open = !this.spellOpen();
+    if (open) this.closeRightWordPanels('spell');
+    this.spellOpen.set(open);
     this.spellIssueTick.update((value) => value + 1);
+    this.scheduleRulerAlign();
   }
 
   fixSpell(issue: SpellIssue): void {
@@ -5978,21 +6367,45 @@ export class OfficeWebappComponent {
     const paragraph = paragraphs?.[paragraphs.length - 1];
     if (!paragraph) return;
     article.focus();
+    const index = Number(paragraph.getAttribute('data-paragraph'));
+    if (Number.isFinite(index)) this.selectedParagraph.set(index);
     const range = document.createRange();
     range.selectNodeContents(paragraph);
     range.collapse(false);
     const selection = window.getSelection();
     selection?.removeAllRanges();
     selection?.addRange(range);
+    if (Number.isFinite(index)) {
+      const base = Number(paragraph.getAttribute('data-char-start') ?? 0) || 0;
+      this.wordCaretOffset.set({ paragraphIndex: index, offset: base + (paragraph.textContent?.length ?? 0) });
+      this.wordSelection.set(null);
+      this.wordMultiSelection.set(null);
+    }
   }
 
   private applyWordParagraphFormat(input: ParagraphFormatInput): void {
+    this.flushPendingWordDomSync(false);
     const word = this.word();
+    const multi = this.wordMultiSelection();
+    const prevSel = this.wordSelection();
+    if (!word) return;
+    if (multi) {
+      let changed = false;
+      this.pushWordHistory();
+      for (let i = multi.startParagraph; i <= multi.endParagraph; i++) {
+        if (applyParagraphFormat(word, i, input)) changed = true;
+      }
+      if (!changed) return;
+      this.afterWordFormatChange();
+      this.restoreWordMultiDomSelection(multi);
+      return;
+    }
     const index = this.selectedParagraph();
-    if (!word || index === null) return;
+    if (index === null) return;
     this.pushWordHistory();
     if (!applyParagraphFormat(word, index, input)) return;
     this.afterWordFormatChange();
+    if (prevSel) this.restoreWordDomSelection(prevSel);
   }
 
   private afterWordFormatChange(): void {
@@ -6003,33 +6416,189 @@ export class OfficeWebappComponent {
 
   captureWordSelection(): void {
     const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
-      this.wordSelection.set(null);
-      return;
-    }
+    if (!selection || selection.rangeCount === 0) return;
     const range = selection.getRangeAt(0);
-    const node = range.commonAncestorContainer;
-    const element = (node.nodeType === 1 ? node as HTMLElement : node.parentElement)
+    const startEl = (range.startContainer.nodeType === 1 ? range.startContainer as HTMLElement : range.startContainer.parentElement)
       ?.closest('.op-word-p[data-paragraph]') as HTMLElement | null;
-    if (!element) {
-      this.wordSelection.set(null);
+    const endEl = (range.endContainer.nodeType === 1 ? range.endContainer as HTMLElement : range.endContainer.parentElement)
+      ?.closest('.op-word-p[data-paragraph]') as HTMLElement | null;
+    if (!startEl || !endEl) {
+      if (!selection.isCollapsed) {
+        const common = range.commonAncestorContainer;
+        const anchorEl = (common.nodeType === 1 ? common as HTMLElement : common.parentElement);
+        if (!anchorEl?.closest('.op-word-stage')) return;
+        const paragraphs = [...this.hostRef.nativeElement.querySelectorAll<HTMLElement>('.op-word-stage .op-word-p[data-paragraph]')]
+          .filter((el) => {
+            try { return range.intersectsNode(el); } catch { return false; }
+          });
+        const indices = paragraphs
+          .map((el) => Number(el.getAttribute('data-paragraph')))
+          .filter((n) => Number.isFinite(n));
+        if (!paragraphs.length || !indices.length) {
+          this.wordSelection.set(null);
+          this.wordMultiSelection.set(null);
+          return;
+        }
+        const firstEl = paragraphs[0];
+        const lastEl = paragraphs[paragraphs.length - 1];
+        const lo = indices[0];
+        const hi = indices[indices.length - 1];
+        const firstBase = Number(firstEl.getAttribute('data-char-start') ?? 0) || 0;
+        const firstLen = firstEl.textContent?.length ?? 0;
+        let startOffset = firstBase;
+        if (startEl) {
+          const sBase = Number(startEl.getAttribute('data-char-start') ?? 0) || 0;
+          const prefixStart = range.cloneRange();
+          prefixStart.selectNodeContents(startEl);
+          prefixStart.setEnd(range.startContainer, range.startOffset);
+          startOffset = sBase + prefixStart.toString().length;
+        }
+        const lastBase = Number(lastEl.getAttribute('data-char-start') ?? 0) || 0;
+        const lastLen = lastEl.textContent?.length ?? 0;
+        let endOffset = lastBase + lastLen;
+        if (endEl) {
+          const eBase = Number(endEl.getAttribute('data-char-start') ?? 0) || 0;
+          const prefixEnd = range.cloneRange();
+          prefixEnd.selectNodeContents(endEl);
+          prefixEnd.setEnd(range.endContainer, range.endOffset);
+          endOffset = eBase + prefixEnd.toString().length;
+        }
+        if (hi > lo) {
+          this.selectedParagraph.set(lo);
+          this.wordCaretOffset.set({ paragraphIndex: lo, offset: startOffset });
+          this.wordSelection.set(null);
+          this.wordMultiSelection.set({ startParagraph: lo, startOffset, endParagraph: hi, endOffset });
+          return;
+        }
+        const clampedStart = Math.max(firstBase, Math.min(firstBase + firstLen, startOffset));
+        const clampedEnd = Math.max(clampedStart, Math.min(firstBase + firstLen, endOffset));
+        this.selectedParagraph.set(lo);
+        this.wordCaretOffset.set({ paragraphIndex: lo, offset: clampedStart });
+        this.wordMultiSelection.set(null);
+        if (clampedEnd > clampedStart) {
+          this.wordSelection.set({
+            paragraphIndex: lo,
+            start: clampedStart,
+            end: clampedEnd,
+            text: range.toString(),
+          });
+        } else {
+          this.wordSelection.set(null);
+        }
+      }
       return;
     }
-    const index = Number(element.getAttribute('data-paragraph'));
-    if (!Number.isFinite(index)) return;
-    const prefix = range.cloneRange();
-    prefix.selectNodeContents(element);
-    prefix.setEnd(range.startContainer, range.startOffset);
+    const startIndex = Number(startEl.getAttribute('data-paragraph'));
+    if (!Number.isFinite(startIndex)) return;
+    const startBase = Number(startEl.getAttribute('data-char-start') ?? 0) || 0;
+    const prefixStart = range.cloneRange();
+    prefixStart.selectNodeContents(startEl);
+    prefixStart.setEnd(range.startContainer, range.startOffset);
+    const startOffset = startBase + prefixStart.toString().length;
+
+    if (selection.isCollapsed) {
+      this.selectedParagraph.set(startIndex);
+      this.wordCaretOffset.set({ paragraphIndex: startIndex, offset: startOffset });
+      this.wordSelection.set(null);
+      this.wordMultiSelection.set(null);
+      return;
+    }
+
+    const endP = endEl ?? startEl;
+    const endIndex = Number(endP.getAttribute('data-paragraph'));
+    if (Number.isFinite(endIndex) && endIndex !== startIndex) {
+      const endBase = Number(endP.getAttribute('data-char-start') ?? 0) || 0;
+      const prefixEnd = range.cloneRange();
+      prefixEnd.selectNodeContents(endP);
+      prefixEnd.setEnd(range.endContainer, range.endOffset);
+      const endOffset = endBase + prefixEnd.toString().length;
+      const lo = Math.min(startIndex, endIndex);
+      const hi = Math.max(startIndex, endIndex);
+      this.selectedParagraph.set(lo);
+      this.wordCaretOffset.set({ paragraphIndex: startIndex, offset: startOffset });
+      this.wordSelection.set(null);
+      this.wordMultiSelection.set({
+        startParagraph: lo,
+        startOffset: startIndex <= endIndex ? startOffset : endOffset,
+        endParagraph: hi,
+        endOffset: startIndex <= endIndex ? endOffset : startOffset,
+      });
+      return;
+    }
+
     const full = range.cloneRange();
-    full.selectNodeContents(element);
-    const start = prefix.toString().length;
-    const end = Math.min(full.toString().length, start + range.toString().length);
-    if (end <= start) {
+    full.selectNodeContents(startEl);
+    const localStart = Math.max(0, startOffset - startBase);
+    const localEnd = Math.min(full.toString().length, localStart + range.toString().length);
+    this.wordCaretOffset.set({ paragraphIndex: startIndex, offset: startOffset });
+    this.wordMultiSelection.set(null);
+    if (localEnd <= localStart) {
       this.wordSelection.set(null);
+      this.selectedParagraph.set(startIndex);
       return;
     }
-    this.wordSelection.set({ paragraphIndex: index, start, end, text: range.toString() });
-    this.selectedParagraph.set(index);
+    this.wordSelection.set({
+      paragraphIndex: startIndex,
+      start: startBase + localStart,
+      end: startBase + localEnd,
+      text: range.toString(),
+    });
+    this.selectedParagraph.set(startIndex);
+  }
+
+  private domPointAtOffset(element: HTMLElement, targetOffset: number): { node: Node; offset: number } | null {
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    let remaining = Math.max(0, targetOffset);
+    let node = walker.nextNode();
+    let lastText: Node | null = null;
+    while (node) {
+      lastText = node;
+      const len = node.textContent?.length ?? 0;
+      if (remaining <= len) return { node, offset: remaining };
+      remaining -= len;
+      node = walker.nextNode();
+    }
+    if (lastText) return { node: lastText, offset: lastText.textContent?.length ?? 0 };
+    return { node: element, offset: element.childNodes.length };
+  }
+
+  private restoreWordDomSelection(sel: { paragraphIndex: number; start: number; end: number; text: string } | null): void {
+    if (!sel) return;
+    setTimeout(() => {
+      const element = this.hostRef.nativeElement.querySelector<HTMLElement>(`.op-word-p[data-paragraph="${sel.paragraphIndex}"]`);
+      const selection = window.getSelection();
+      if (!element || !selection) return;
+      const base = Number(element.getAttribute('data-char-start') ?? 0) || 0;
+      const sPt = this.domPointAtOffset(element, sel.start - base);
+      const ePt = this.domPointAtOffset(element, sel.end - base);
+      if (!sPt || !ePt) return;
+      const range = document.createRange();
+      range.setStart(sPt.node, sPt.offset);
+      range.setEnd(ePt.node, ePt.offset);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      this.wordSelection.set(sel);
+    }, 0);
+  }
+
+  private restoreWordMultiDomSelection(multi: { startParagraph: number; startOffset: number; endParagraph: number; endOffset: number }): void {
+    setTimeout(() => {
+      const startEl = this.hostRef.nativeElement.querySelector<HTMLElement>(`.op-word-p[data-paragraph="${multi.startParagraph}"]`);
+      const endEl = this.hostRef.nativeElement.querySelector<HTMLElement>(`.op-word-p[data-paragraph="${multi.endParagraph}"]`);
+      const selection = window.getSelection();
+      if (!startEl || !endEl || !selection) return;
+      const sBase = Number(startEl.getAttribute('data-char-start') ?? 0) || 0;
+      const eBase = Number(endEl.getAttribute('data-char-start') ?? 0) || 0;
+      const sPt = this.domPointAtOffset(startEl, multi.startOffset - sBase);
+      const ePt = this.domPointAtOffset(endEl, multi.endOffset - eBase);
+      if (!sPt || !ePt) return;
+      const range = document.createRange();
+      range.setStart(sPt.node, sPt.offset);
+      range.setEnd(ePt.node, ePt.offset);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      this.wordMultiSelection.set(multi);
+    }, 0);
   }
 
   isRunActive(key: 'bold' | 'italic' | 'underline' | 'strike'): boolean {
@@ -6086,15 +6655,34 @@ export class OfficeWebappComponent {
   }
 
   clearWordFormatting(): void {
+    this.flushPendingWordDomSync(false);
     const word = this.word();
-    const index = this.selectedParagraph();
-    if (!word || index === null) return;
+    if (!word) return;
+    const multi = this.wordMultiSelection();
+    if (multi) {
+      this.pushWordHistory();
+      for (let idx = multi.startParagraph; idx <= multi.endParagraph; idx++) {
+        const block = word.blocks[idx];
+        if (block?.kind !== 'paragraph') continue;
+        const len = paragraphPlainText(block.paragraph).length;
+        const from = idx === multi.startParagraph ? Math.min(len, multi.startOffset) : 0;
+        const to = idx === multi.endParagraph ? Math.min(len, multi.endOffset) : len;
+        if (to > from) clearRunFormat(word, idx, from, to);
+        applyParagraphFormat(word, idx, { style: 'Normal' });
+      }
+      this.afterWordFormatChange();
+      this.restoreWordMultiDomSelection(multi);
+      return;
+    }
+    const prevSel = this.wordSelection();
+    const index = prevSel?.paragraphIndex ?? this.selectedParagraph();
+    if (index === null) return;
     const range = this.wordRangeFor(index);
     this.pushWordHistory();
     clearRunFormat(word, index, range.start, range.end);
     applyParagraphFormat(word, index, { style: 'Normal' });
-    this.wordSelection.set(null);
     this.afterWordFormatChange();
+    if (prevSel) this.restoreWordDomSelection(prevSel);
   }
 
   /** Word's superscript/subscript buttons are toggles on the selected runs. */
@@ -6186,9 +6774,32 @@ export class OfficeWebappComponent {
 
   /** Word's Change Case rewrites the characters (not a display-only transform). */
   changeWordCase(mode: 'upper' | 'lower' | 'sentence' | 'capitalize'): void {
+    this.flushPendingWordDomSync(false);
     const word = this.word();
-    const index = this.selectedParagraph();
-    if (!word || index === null) return;
+    if (!word) return;
+    const multi = this.wordMultiSelection();
+    if (multi) {
+      let changed = false;
+      this.pushWordHistory();
+      for (let idx = multi.startParagraph; idx <= multi.endParagraph; idx++) {
+        const block = word.blocks[idx];
+        if (block?.kind !== 'paragraph') continue;
+        const plain = paragraphPlainText(block.paragraph);
+        const from = idx === multi.startParagraph ? Math.min(plain.length, multi.startOffset) : 0;
+        const to = idx === multi.endParagraph ? Math.min(plain.length, multi.endOffset) : plain.length;
+        const source = plain.slice(from, to);
+        const next = source ? this.applyCase(source, mode) : '';
+        if (next && next !== source && replaceParagraphRange(word, idx, from, to, next)) changed = true;
+      }
+      if (!changed) return;
+      this.lastCaseMode.set(mode);
+      this.afterWordFormatChange();
+      this.restoreWordMultiDomSelection(multi);
+      return;
+    }
+    const prevSel = this.wordSelection();
+    const index = prevSel?.paragraphIndex ?? this.selectedParagraph();
+    if (index === null) return;
     const block = word.blocks[index];
     if (block?.kind !== 'paragraph') return;
     const range = this.wordRangeFor(index);
@@ -6199,8 +6810,8 @@ export class OfficeWebappComponent {
     this.lastCaseMode.set(mode);
     this.pushWordHistory();
     replaceParagraphRange(word, index, range.start, range.end, next);
-    this.wordSelection.set(null);
     this.afterWordFormatChange();
+    if (prevSel) this.restoreWordDomSelection({ ...prevSel, text: next });
   }
 
   private applyCase(text: string, mode: 'upper' | 'lower' | 'sentence' | 'capitalize'): string {
@@ -6353,14 +6964,35 @@ export class OfficeWebappComponent {
   }
 
   private applyWordRunFormat(input: RunFormatInput): void {
+    this.flushPendingWordDomSync(false);
     const word = this.word();
-    const index = this.wordSelection()?.paragraphIndex ?? this.selectedParagraph();
-    if (!word || index === null) return;
+    if (!word) return;
+    const multi = this.wordMultiSelection();
+    if (multi) {
+      let changed = false;
+      this.pushWordHistory();
+      for (let idx = multi.startParagraph; idx <= multi.endParagraph; idx++) {
+        const block = word.blocks[idx];
+        if (block?.kind !== 'paragraph') continue;
+        const len = paragraphPlainText(block.paragraph).length;
+        const from = idx === multi.startParagraph ? Math.min(len, multi.startOffset) : 0;
+        const to = idx === multi.endParagraph ? Math.min(len, multi.endOffset) : len;
+        if (to > from && applyRunFormat(word, idx, from, to, input)) changed = true;
+      }
+      if (!changed) return;
+      this.afterWordFormatChange();
+      this.restoreWordMultiDomSelection(multi);
+      return;
+    }
+    const prevSel = this.wordSelection();
+    const index = prevSel?.paragraphIndex ?? this.selectedParagraph();
+    if (index === null) return;
     const range = this.wordRangeFor(index);
     if (range.start === range.end) return;
     this.pushWordHistory();
     if (!applyRunFormat(word, index, range.start, range.end, input)) return;
     this.afterWordFormatChange();
+    if (prevSel) this.restoreWordDomSelection(prevSel);
   }
 
   private wordRangeFor(index: number): { start: number; end: number } {
@@ -6629,11 +7261,15 @@ export class OfficeWebappComponent {
     if (kind === 'format') this.toggleFormat();
     else if (kind === 'paragraph') this.toggleParagraphOptions();
     else if (kind === 'clipboard') {
-      this.stylesPaneOpen.set(false);
-      this.clipboardPaneOpen.update((open) => !open);
+      const open = !this.clipboardPaneOpen();
+      if (open) this.closeRightWordPanels('clipboardPane');
+      this.clipboardPaneOpen.set(open);
+      this.scheduleRulerAlign();
     } else if (kind === 'styles') {
-      this.clipboardPaneOpen.set(false);
-      this.stylesPaneOpen.update((open) => !open);
+      const open = !this.stylesPaneOpen();
+      if (open) this.closeRightWordPanels('stylesPane');
+      this.stylesPaneOpen.set(open);
+      this.scheduleRulerAlign();
     } else this.toggleFind();
   }
 
@@ -6778,13 +7414,16 @@ export class OfficeWebappComponent {
 
   /** Re-rendering every page resets the workspace scroll; put the reader back. */
   private keepWordScroll(): void {
-    const workspace = this.hostRef.nativeElement.querySelector<HTMLElement>('.op-workspace');
-    if (!workspace) return;
-    const top = workspace.scrollTop;
+    const getScroller = (): HTMLElement | null =>
+      this.hostRef.nativeElement.querySelector<HTMLElement>('.op-word-scroll')
+      ?? this.hostRef.nativeElement.querySelector<HTMLElement>('.op-workspace');
+    const scroller = getScroller();
+    if (!scroller) return;
+    const top = scroller.scrollTop;
     if (top < 1) return;
     for (const delay of [0, 120, 320, 700]) {
       setTimeout(() => {
-        const current = this.hostRef.nativeElement.querySelector<HTMLElement>('.op-workspace');
+        const current = getScroller();
         if (current && Math.abs(current.scrollTop - top) > 4) current.scrollTop = top;
       }, delay);
     }
@@ -6805,9 +7444,11 @@ export class OfficeWebappComponent {
     if (!word) return;
     this.resetWordHeights();
     this.wordMediaUrls.clear();
+    this.recomputeWordCount();
     this.doc.set({ ...(this.doc() as OfficeDocument) });
     this.refreshRevisions();
     this.revisionTick.update((value) => value + 1);
+    this.wordDomVersion.update((value) => value + 1);
     this.wordRenderKey.update((value) => value + 1);
     this.wordHistoryTick.update((value) => value + 1);
     this.scheduleWordMeasure();
@@ -6899,21 +7540,29 @@ export class OfficeWebappComponent {
       this.applyWordPainter(index);
       return;
     }
+    this.scrolledWordPage.set(null);
     this.selectedParagraph.set(index);
     const selection = this.wordSelection();
     if (selection && selection.paragraphIndex !== index) this.wordSelection.set(null);
+    const multi = this.wordMultiSelection();
+    if (multi && (index < multi.startParagraph || index > multi.endParagraph)) {
+      this.wordMultiSelection.set(null);
+    }
   }
 
   toggleComments(): void {
-    this.commentsOpen.update((open) => !open);
-    this.revisionsOpen.set(false);
-    if (!this.commentsOpen()) this.commentComposeOpen.set(false);
+    const open = !this.commentsOpen();
+    if (open) this.closeRightWordPanels('comments');
+    this.commentsOpen.set(open);
+    if (!open) this.commentComposeOpen.set(false);
+    this.scheduleRulerAlign();
   }
 
   openCommentCompose(): void {
+    this.closeRightWordPanels('comments');
     this.commentsOpen.set(true);
-    this.revisionsOpen.set(false);
     this.commentComposeOpen.set(true);
+    this.scheduleRulerAlign();
     if (this.selectedParagraph() === null && this.word()?.blocks.length) {
       this.selectedParagraph.set(0);
     }
@@ -6929,11 +7578,14 @@ export class OfficeWebappComponent {
   }
 
   toggleRevisions(): void {
-    this.revisionsOpen.update((open) => !open);
-    this.commentsOpen.set(false);
+    const open = !this.revisionsOpen();
+    if (open) this.closeRightWordPanels('revisions');
+    this.revisionsOpen.set(open);
+    this.scheduleRulerAlign();
   }
 
   addComment(): void {
+    this.flushPendingWordDomSync(false);
     const word = this.word();
     let index = this.selectedParagraph();
     if (index === null && word?.blocks.length) {
@@ -7826,14 +8478,21 @@ export class OfficeWebappComponent {
 
   zoomBy(delta: number): void {
     this.zoom.update((value) => Math.min(200, Math.max(50, value + delta)));
+    this.scheduleRulerAlign();
   }
 
-  setTab(tab: RibbonTab): void {
+  setTab(tab: RibbonTab, fromUser = false): void {
+    const same = this.activeTab() === tab;
     this.activeTab.set(tab);
     this.fileMenuOpen.set(false);
     this.fileSubmenu.set(null);
     this.caretMenu.set(null);
     this.activePopover.set(null);
+    if (fromUser && this.ribbonMode() === 'tabs') {
+      this.ribbonOverlayOpen.update((open) => same ? !open : true);
+    } else {
+      this.ribbonOverlayOpen.set(false);
+    }
     this.syncTabUrl(tab);
   }
 
@@ -7850,13 +8509,27 @@ export class OfficeWebappComponent {
     if (kind === 'tableGrid') {
       this.tableGridHover.set({ rows: 0, cols: 0 });
     }
+    if (kind === 'fontPicker') {
+      this.fontSearchQuery.set('');
+    }
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const rawX = alignRight ? rect.right - width : rect.left;
     const x = Math.round(Math.min(Math.max(8, rawX), Math.max(8, window.innerWidth - width - 8)));
+    const maxBottom = kind === 'fontPicker' ? 370 : 340;
     const preferTop = kind === 'zoom' || kind === 'goToPage'
       ? Math.max(8, Math.round(rect.top - 220))
-      : Math.min(Math.max(8, Math.round(rect.bottom + 4)), Math.max(8, window.innerHeight - 340));
+      : Math.min(Math.max(8, Math.round(rect.bottom + 4)), Math.max(8, window.innerHeight - maxBottom));
     this.activePopover.set({ kind, x, y: preferTop });
+  }
+
+  commitFontSizeInput(raw: string): void {
+    const parsed = Math.round(Number(raw.trim()));
+    if (Number.isFinite(parsed) && parsed >= 8 && parsed <= 72) {
+      this.setWordFontSize(parsed);
+    }
+    if (this.activePopover()?.kind === 'fontSizePicker') {
+      this.activePopover.set(null);
+    }
   }
 
   closePopover(): void {
@@ -7903,10 +8576,11 @@ export class OfficeWebappComponent {
   }
 
   fitWordPageToViewport(): void {
-    const ws = this.hostRef.nativeElement.querySelector<HTMLElement>('.op-workspace');
+    const scroller = this.hostRef.nativeElement.querySelector<HTMLElement>('.op-word-scroll');
+    const ws = scroller ?? this.hostRef.nativeElement.querySelector<HTMLElement>('.op-workspace');
     if (!ws) return;
-    const navOffset = this.navPaneOpen() && window.innerWidth > 640 ? 280 : 0;
-    const commentOffset = this.commentsOpen() && window.innerWidth >= 1180 ? 320 : 0;
+    const navOffset = !scroller && this.navPaneOpen() && window.innerWidth > 640 ? 280 : 0;
+    const commentOffset = !scroller && this.hasRightWordPanel() && window.innerWidth >= 1180 ? 320 : 0;
     const available = Math.max(260, ws.clientWidth - navOffset - commentOffset - 48);
     const firstPage = this.wordPages()[0];
     const pageW = firstPage ? this.wordPageWidth(firstPage) : 816;
@@ -7915,10 +8589,11 @@ export class OfficeWebappComponent {
   }
 
   fitWholeWordPageToViewport(): void {
-    const ws = this.hostRef.nativeElement.querySelector<HTMLElement>('.op-workspace');
+    const scroller = this.hostRef.nativeElement.querySelector<HTMLElement>('.op-word-scroll');
+    const ws = scroller ?? this.hostRef.nativeElement.querySelector<HTMLElement>('.op-workspace');
     if (!ws) return;
-    const navOffset = this.navPaneOpen() && window.innerWidth > 640 ? 280 : 0;
-    const commentOffset = this.commentsOpen() && window.innerWidth >= 1180 ? 320 : 0;
+    const navOffset = !scroller && this.navPaneOpen() && window.innerWidth > 640 ? 280 : 0;
+    const commentOffset = !scroller && this.hasRightWordPanel() && window.innerWidth >= 1180 ? 320 : 0;
     const availW = Math.max(260, ws.clientWidth - navOffset - commentOffset - 48);
     const availH = Math.max(240, ws.clientHeight - 48);
     const firstPage = this.wordPages()[0];
@@ -7990,6 +8665,7 @@ export class OfficeWebappComponent {
 
   setWordZoom(value: number): void {
     this.zoom.set(Math.min(200, Math.max(50, Math.round(value))));
+    this.scheduleRulerAlign();
   }
 
   pickWordImage(): void {
@@ -7998,15 +8674,47 @@ export class OfficeWebappComponent {
 
   selectAllWord(): void {
     const stage = this.hostRef.nativeElement.querySelector('.op-word-stage') as HTMLElement | null;
+    const paragraphs = stage?.querySelectorAll<HTMLElement>('.op-word-p[data-paragraph]');
     const pages = stage?.querySelectorAll<HTMLElement>('.op-word-page');
-    if (!pages?.length) return;
-    const range = document.createRange();
-    range.setStart(pages[0], 0);
-    const last = pages[pages.length - 1];
-    range.setEnd(last, last.childNodes.length);
-    const selection = window.getSelection();
-    selection?.removeAllRanges();
-    selection?.addRange(range);
+    if (paragraphs?.length) {
+      const first = paragraphs[0];
+      const last = paragraphs[paragraphs.length - 1];
+      const range = document.createRange();
+      range.setStart(first, 0);
+      range.setEnd(last, last.childNodes.length);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+    } else if (pages?.length) {
+      const range = document.createRange();
+      range.setStart(pages[0], 0);
+      const last = pages[pages.length - 1];
+      range.setEnd(last, last.childNodes.length);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+    } else {
+      return;
+    }
+    const blocks = this.word()?.blocks ?? [];
+    const firstP = blocks.findIndex((b) => b.kind === 'paragraph');
+    let lastP = -1;
+    for (let i = blocks.length - 1; i >= 0; i--) {
+      if (blocks[i]?.kind === 'paragraph') { lastP = i; break; }
+    }
+    if (firstP >= 0 && lastP > firstP) {
+      const lastBlock = blocks[lastP];
+      const endLen = lastBlock?.kind === 'paragraph' ? paragraphPlainText(lastBlock.paragraph).length : 0;
+      this.selectedParagraph.set(firstP);
+      this.wordSelection.set(null);
+      this.wordMultiSelection.set({ startParagraph: firstP, startOffset: 0, endParagraph: lastP, endOffset: endLen });
+    } else if (firstP >= 0) {
+      const onlyBlock = blocks[firstP];
+      const text = onlyBlock?.kind === 'paragraph' ? paragraphPlainText(onlyBlock.paragraph) : '';
+      this.selectedParagraph.set(firstP);
+      this.wordMultiSelection.set(null);
+      if (text.length) this.wordSelection.set({ paragraphIndex: firstP, start: 0, end: text.length, text });
+    }
   }
 
   addBlankPage(): void {
@@ -8054,13 +8762,12 @@ export class OfficeWebappComponent {
 
   toggleCover(): void {
     const open = !this.coverOpen();
+    if (open) this.closeRightWordPanels('cover');
     this.coverOpen.set(open);
+    this.scheduleRulerAlign();
     if (!open) return;
     this.coverTitle.set((this.doc()?.fileName ?? '').replace(/\.[^.]+$/, ''));
     this.coverSubtitle.set(this.authorName());
-    this.textBoxOpen.set(false);
-    this.captionOpen.set(false);
-    this.watermarkOpen.set(false);
   }
 
   applyCoverPage(): void {
@@ -8077,11 +8784,9 @@ export class OfficeWebappComponent {
 
   toggleTextBox(): void {
     const open = !this.textBoxOpen();
+    if (open) this.closeRightWordPanels('textBox');
     this.textBoxOpen.set(open);
-    if (!open) return;
-    this.coverOpen.set(false);
-    this.captionOpen.set(false);
-    this.watermarkOpen.set(false);
+    this.scheduleRulerAlign();
   }
 
   applyTextBox(): void {
@@ -8096,11 +8801,9 @@ export class OfficeWebappComponent {
 
   toggleCaption(): void {
     const open = !this.captionOpen();
+    if (open) this.closeRightWordPanels('caption');
     this.captionOpen.set(open);
-    if (!open) return;
-    this.coverOpen.set(false);
-    this.textBoxOpen.set(false);
-    this.watermarkOpen.set(false);
+    this.scheduleRulerAlign();
   }
 
   applyCaption(): void {
@@ -8116,12 +8819,11 @@ export class OfficeWebappComponent {
 
   toggleWatermark(): void {
     const open = !this.watermarkOpen();
+    if (open) this.closeRightWordPanels('watermark');
     this.watermarkOpen.set(open);
+    this.scheduleRulerAlign();
     if (!open) return;
     this.watermarkDraft.set(this.word()?.watermark ?? 'DRAFT');
-    this.coverOpen.set(false);
-    this.textBoxOpen.set(false);
-    this.captionOpen.set(false);
   }
 
   applyWatermark(): void {
@@ -8169,12 +8871,7 @@ export class OfficeWebappComponent {
   }
 
   applyParagraphShading(color: string): void {
-    const word = this.word();
-    const index = this.selectedParagraph();
-    if (!word || index === null) return;
-    this.pushWordHistory();
-    applyParagraphFormat(word, index, { shading: color });
-    this.afterWordFormatChange();
+    this.applyWordParagraphFormat({ shading: color });
   }
 
   currentParagraphShading(): string {
@@ -8183,13 +8880,9 @@ export class OfficeWebappComponent {
 
   toggleShapes(): void {
     const open = !this.shapesOpen();
+    if (open) this.closeRightWordPanels('shapes');
     this.shapesOpen.set(open);
-    if (open) {
-      this.iconsOpen.set(false);
-      this.wordChartOpen.set(false);
-      this.themesOpen.set(false);
-      this.styleSetsOpen.set(false);
-    }
+    this.scheduleRulerAlign();
   }
 
   insertShapeNow(shape: 'rect' | 'roundRect' | 'ellipse' | 'line'): void {
@@ -8204,15 +8897,12 @@ export class OfficeWebappComponent {
 
   toggleSmartArtPanel(): void {
     const open = !this.wordSmartArtOpen();
+    if (open) this.closeRightWordPanels('wordSmartArt');
     this.wordSmartArtOpen.set(open);
+    this.scheduleRulerAlign();
     if (!open) return;
     const selected = this.selectedWordObject();
     this.wordSmartArtDraft.set(selected?.smartArt?.nodes.map((node) => node.text).join('\n') ?? 'Ý tưởng\nTriển khai\nKết quả');
-    this.shapesOpen.set(false);
-    this.iconsOpen.set(false);
-    this.wordChartOpen.set(false);
-    this.themesOpen.set(false);
-    this.styleSetsOpen.set(false);
   }
 
   applyWordSmartArt(): void {
@@ -8238,20 +8928,17 @@ export class OfficeWebappComponent {
 
   toggleIcons(): void {
     const open = !this.iconsOpen();
+    if (open) this.closeRightWordPanels('icons');
     this.iconsOpen.set(open);
-    if (open) {
-      this.shapesOpen.set(false);
-      this.wordChartOpen.set(false);
-      this.themesOpen.set(false);
-      this.styleSetsOpen.set(false);
-    }
+    this.scheduleRulerAlign();
   }
 
   iconDataUrl(svg: string): string {
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
   }
 
-  insertIconNow(icon: { id: string; svg: string }): void {    const word = this.word();
+  insertIconNow(icon: { id: string; svg: string }): void {
+    const word = this.word();
     if (!word) return;
     const bytes = new TextEncoder().encode(icon.svg);
     this.pushWordHistory();
@@ -8265,13 +8952,9 @@ export class OfficeWebappComponent {
 
   toggleWordChart(): void {
     const open = !this.wordChartOpen();
+    if (open) this.closeRightWordPanels('wordChart');
     this.wordChartOpen.set(open);
-    if (open) {
-      this.shapesOpen.set(false);
-      this.iconsOpen.set(false);
-      this.themesOpen.set(false);
-      this.styleSetsOpen.set(false);
-    }
+    this.scheduleRulerAlign();
   }
 
   async insertWordChart(): Promise<void> {
@@ -8354,13 +9037,9 @@ export class OfficeWebappComponent {
 
   toggleThemes(): void {
     const open = !this.themesOpen();
+    if (open) this.closeRightWordPanels('themes');
     this.themesOpen.set(open);
-    if (open) {
-      this.styleSetsOpen.set(false);
-      this.shapesOpen.set(false);
-      this.iconsOpen.set(false);
-      this.wordChartOpen.set(false);
-    }
+    this.scheduleRulerAlign();
   }
 
   applyThemePreset(id: string): void {
@@ -8376,13 +9055,9 @@ export class OfficeWebappComponent {
 
   toggleStyleSets(): void {
     const open = !this.styleSetsOpen();
+    if (open) this.closeRightWordPanels('styleSets');
     this.styleSetsOpen.set(open);
-    if (open) {
-      this.themesOpen.set(false);
-      this.shapesOpen.set(false);
-      this.iconsOpen.set(false);
-      this.wordChartOpen.set(false);
-    }
+    this.scheduleRulerAlign();
   }
 
   applyStyleSetPreset(id: string): void {
@@ -8397,15 +9072,15 @@ export class OfficeWebappComponent {
 
   toggleThesaurus(): void {
     const open = !this.thesaurusOpen();
+    if (open) this.closeRightWordPanels('thesaurus');
     this.thesaurusOpen.set(open);
+    this.scheduleRulerAlign();
     if (!open) return;
     const selection = this.wordSelection()?.text;
     const paragraph = this.selectedWordParagraph();
     const text = selection || (paragraph ? paragraph.runs.map((run) => run.text).join(' ') : '');
     const word = text.split(/[^\p{L}]+/u).filter(Boolean).sort((a, b) => b.length - a.length)[0] ?? '';
     this.thesaurusQuery.set(word);
-    this.themesOpen.set(false);
-    this.styleSetsOpen.set(false);
   }
 
   toggleRestrictEditing(): void {
@@ -8429,24 +9104,23 @@ export class OfficeWebappComponent {
   toggleHelp(): void {
     if (this.helpOpen()) {
       this.helpOpen.set(false);
+      this.scheduleRulerAlign();
       return;
     }
+    this.closeRightWordPanels('help');
     this.helpOpen.set(true);
-    this.wordCountOpen.set(false);
-    this.pageSetupOpen.set(false);
-    this.findOpen.set(false);
-    this.accessOpen.set(false);
+    this.scheduleRulerAlign();
   }
 
   toggleWordCount(): void {
     if (this.wordCountOpen()) {
       this.wordCountOpen.set(false);
+      this.scheduleRulerAlign();
       return;
     }
+    this.closeRightWordPanels('wordCount');
     this.wordCountOpen.set(true);
-    this.helpOpen.set(false);
-    this.pageSetupOpen.set(false);
-    this.findOpen.set(false);
+    this.scheduleRulerAlign();
   }
 
   insertWordNote(kind: NoteKind): void {
@@ -8693,6 +9367,7 @@ export class OfficeWebappComponent {
   }
 
   runWordCommand(id: string): void {
+    this.flushPendingWordDomSync(false);
     // Word's imported table styles: one command per style (family + accent).
     const accentStyle = /^tableStyleWord([A-Za-z0-9]+Accent[1-6])$/.exec(id);
     if (accentStyle) {
@@ -8706,7 +9381,13 @@ export class OfficeWebappComponent {
       case 'paste': void this.pasteWordText('default'); break;
       case 'pasteKeep': void this.pasteWordText('keep'); break;
       case 'pastePlain': void this.pasteWordText('plain'); break;
-      case 'pasteSpecial': this.clipboardPaneOpen.update((open) => !open); break;
+      case 'pasteSpecial': {
+        const next = !this.clipboardPaneOpen();
+        if (next) this.closeRightWordPanels('clipboardPane');
+        this.clipboardPaneOpen.set(next);
+        this.scheduleRulerAlign();
+        break;
+      }
       case 'superscript': this.toggleWordVertAlign('superscript'); break;
       case 'subscript': this.toggleWordVertAlign('subscript'); break;
       case 'changeCase': this.changeWordCase(this.lastCaseMode()); break;
@@ -8750,10 +9431,10 @@ export class OfficeWebappComponent {
       case 'alignJustify': this.applyWordAlignment('justify'); break;
       case 'find': this.openNavTab('find'); break;
       case 'replace': this.openNavTab('replace'); break;
-      case 'fontColor': case 'highlight': case 'shading': this.formatOpen.set(true); break;
-      case 'style': this.stylesPaneOpen.set(true); break;
-      case 'spacing': this.paragraphOptionsOpen.set(true); break;
-      case 'margins': case 'orientation': case 'pageSize': case 'columns': this.layoutOpen.set(true); break;
+      case 'fontColor': case 'highlight': case 'shading': this.closeRightWordPanels('format'); this.formatOpen.set(true); break;
+      case 'style': this.closeRightWordPanels('stylesPane'); this.stylesPaneOpen.set(true); break;
+      case 'spacing': this.closeRightWordPanels('paragraphOptions'); this.paragraphOptionsOpen.set(true); break;
+      case 'margins': case 'orientation': case 'pageSize': case 'columns': this.closeRightWordPanels('layout'); this.loadLayout(); this.layoutOpen.set(true); break;
       case 'zoom': this.setWordZoom(100); break;
       case 'selectAll': this.selectAllWord(); break;
       case 'blankPage': this.addBlankPage(); break;
@@ -8851,7 +9532,7 @@ export class OfficeWebappComponent {
       case 'tableOfFigures': this.insertTableOfFiguresNow(); break;
       case 'thesaurus': this.toggleThesaurus(); break;
       case 'markEntry': this.toggleIndex(); break;
-      case 'insertIndex': this.indexOpen.set(true); this.insertIndexNow(); break;
+      case 'insertIndex': this.closeRightWordPanels('index'); this.indexOpen.set(true); this.insertIndexNow(); break;
       case 'updateIndex': this.updateIndexNow(); break;
       case 'restrictEditing': this.toggleRestrictEditing(); break;
       case 'position': this.toggleArrangePanel('position'); break;
@@ -8877,16 +9558,16 @@ export class OfficeWebappComponent {
       case 'viewHeaderFooter': this.openViewHeaderFooter(); break;
       case 'viewFootnotes': this.openViewNotes('footnote'); break;
       case 'viewEndnotes': this.openViewNotes('endnote'); break;
-      case 'startMailMerge': this.mailMergeOpen.set(true); this.mergePanelMode.set('start'); break;
-      case 'selectRecipients': this.mailMergeOpen.set(true); this.pickMergeData(); break;
-      case 'editRecipients': this.mailMergeOpen.set(true); this.mergePanelMode.set('main'); break;
-      case 'highlightMergeFields': this.mailMergeOpen.set(true); this.toggleMergeHighlight(); break;
-      case 'addressBlock': this.mailMergeOpen.set(true); this.insertAddressBlockNow(); break;
-      case 'greetingLine': this.mailMergeOpen.set(true); this.insertGreetingLineNow(); break;
-      case 'insertMergeField': this.mailMergeOpen.set(true); break;
-      case 'mergeRules': this.mailMergeOpen.set(true); this.mergePanelMode.set('rules'); break;
-      case 'previewResults': this.mailMergeOpen.set(true); this.toggleMergePreview(); break;
-      case 'findRecipient': this.mailMergeOpen.set(true); break;
+      case 'startMailMerge': this.closeRightWordPanels('mailMerge'); this.mailMergeOpen.set(true); this.mergePanelMode.set('start'); break;
+      case 'selectRecipients': this.closeRightWordPanels('mailMerge'); this.mailMergeOpen.set(true); this.pickMergeData(); break;
+      case 'editRecipients': this.closeRightWordPanels('mailMerge'); this.mailMergeOpen.set(true); this.mergePanelMode.set('main'); break;
+      case 'highlightMergeFields': this.closeRightWordPanels('mailMerge'); this.mailMergeOpen.set(true); this.toggleMergeHighlight(); break;
+      case 'addressBlock': this.closeRightWordPanels('mailMerge'); this.mailMergeOpen.set(true); this.insertAddressBlockNow(); break;
+      case 'greetingLine': this.closeRightWordPanels('mailMerge'); this.mailMergeOpen.set(true); this.insertGreetingLineNow(); break;
+      case 'insertMergeField': this.closeRightWordPanels('mailMerge'); this.mailMergeOpen.set(true); break;
+      case 'mergeRules': this.closeRightWordPanels('mailMerge'); this.mailMergeOpen.set(true); this.mergePanelMode.set('rules'); break;
+      case 'previewResults': this.closeRightWordPanels('mailMerge'); this.mailMergeOpen.set(true); this.toggleMergePreview(); break;
+      case 'findRecipient': this.closeRightWordPanels('mailMerge'); this.mailMergeOpen.set(true); break;
       case 'checkErrors': this.checkMergeErrorsNow(); break;
       case 'finishMerge': this.finishMergeNow(); break;
       case 'envelopes': this.mailMergeOpen.set(true); this.setMergeTarget('envelopes'); break;
@@ -9442,6 +10123,7 @@ export class OfficeWebappComponent {
         return cellSum + (text ? text.split(/\s+/).length : 0);
       }, 0);
     }, 0);
+    this.wordStatsTick.update((value) => value + 1);
   }
 
   private updateCellNode(sheet: ExcelSheet, cell: ExcelCell): void {
@@ -9476,6 +10158,7 @@ export class OfficeWebappComponent {
     this.doc.set(doc);
     this.buffers.set(buffer);
     this.dirty.set(false);
+    this.warningsDismissed.set(false);
     if (doc.word) doc.word.comments = doc.word.comments ?? [];
     this.hyphenationMode.set(doc.word?.autoHyphenation ? 'automatic' : 'none');
     this.comments.set(doc.word?.comments ?? []);
@@ -9565,6 +10248,15 @@ export class OfficeWebappComponent {
 
   private resetView(): void {
     this.resetWordHeights();
+    this.closeRightWordPanels();
+    this.scrolledWordPage.set(null);
+    this.wordScrollLeft.set(0);
+    this.wordCaretOffset.set(null);
+    this.wordSelection.set(null);
+    this.wordMultiSelection.set(null);
+    this.rulerLeftPx.set(null);
+    this.ribbonOverlayOpen.set(false);
+    this.wordTypingUndoPushed = false;
     this.selectedSheet.set(0);
     this.selectedSlide.set(0);
     this.selectedCell.set('A1');
@@ -9774,7 +10466,7 @@ function formatNumberingLabel(
     }
     if (format === 'upperRoman' || format === 'lowerRoman') {
       const table: Array<[number, string]> = [[1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'],
-        [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']];
+      [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']];
       let remainder = Math.max(1, value);
       let label = '';
       for (const [amount, symbol] of table) {

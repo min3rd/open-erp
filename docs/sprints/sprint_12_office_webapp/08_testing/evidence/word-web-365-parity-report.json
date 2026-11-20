@@ -1,4 +1,10 @@
 {
+  "startCheck": {
+    "hasStart": true,
+    "cards": 4,
+    "cardSvgs": 4,
+    "actionSvgs": 2
+  },
   "loaded": {
     "titleH": 48,
     "tabH": 31,
@@ -6,10 +12,15 @@
     "statusH": 25,
     "hasAutosave": false,
     "hasAppIcon": true,
+    "hasUserAvatar": true,
+    "hasSavePill": true,
+    "hasProofingSvg": true,
+    "hasA11ySvg": true,
     "noFakeSwatchText": true,
     "hasFitSvg": true,
     "statusZoomSvgCount": 2,
     "caretMenuSvgCount": 3,
+    "tellMeSvgCount": 8,
     "iconChecks": {
       "growDiffShrink": true,
       "fontColorAccent": true,
@@ -45,6 +56,10 @@
     "countRows": 5,
     "pageCountDom": 1,
     "pageCountStat": 1
+  },
+  "bannerDismissCheck": {
+    "hadBanner": true,
+    "dismissed": true
   },
   "autoSelectAndFormatCheck": {
     "boldAppliedOnOpen": true,
@@ -87,7 +102,12 @@
   },
   "colorStyleCheck": {
     "swatches": 70,
-    "styleItems": 11
+    "styleItems": 11,
+    "styleGridCols": "134px 134px"
+  },
+  "fontPickerCheck": {
+    "options": 10,
+    "distinctFonts": 10
   },
   "findReplaceCheck": {
     "navW": 280,
@@ -101,11 +121,16 @@
   "pdfMagicOk": true,
   "classicCheck": {
     "classicH": 104,
+    "classicRadius": 8,
     "groupLabels": 5,
     "fontNoOverlap": true,
     "fontChildrenInside": true,
     "showMarksDiffOptions": true,
     "classicSpacingIsBtn": true
+  },
+  "rulerCheck": {
+    "hasRuler": true,
+    "rulerH": 18
   },
   "miniCtxCheck": {
     "fitZoom": "1.71",
@@ -119,6 +144,34 @@
     "splitNoDuplicate": true,
     "deleteMergedBack": true,
     "tabMovedNextCell": true
+  },
+  "scrollPinCheck": {
+    "pagesDom": 4,
+    "navPageCards": 4,
+    "scrollTop": 1400,
+    "rulerTopDelta": 0,
+    "navTopDelta": 0,
+    "rightTopDelta": 0,
+    "pageText": "Trang 2 / 4",
+    "scrolledPageNum": 2,
+    "scrolledTotalPages": 4,
+    "floatBtnDelta": 0
+  },
+  "exclusivePanelCheck": {
+    "counts": [
+      1,
+      1,
+      1,
+      1,
+      0
+    ],
+    "strictlyOne": true
+  },
+  "wordBehaviorCheck": {
+    "subRangeFormatted": true,
+    "ctrlZUndidInEditor": true,
+    "mixedRunsPreserved": true,
+    "centeredCount": 6
   },
   "mobileCheck": {
     "innerWidth": 390,

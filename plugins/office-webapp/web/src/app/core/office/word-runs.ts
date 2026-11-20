@@ -212,7 +212,7 @@ function sameFormat(left: WordRun, right: WordRun): boolean {
     && left.link === right.link;
 }
 
-function rewriteParagraphRuns(paragraph: WordParagraph, document: WordDocument): void {
+export function rewriteParagraphRuns(paragraph: WordParagraph, document: WordDocument): void {
   const node = paragraph.xmlNode;
   if (!node) return;
   const pPr = findChild(node, 'w:pPr');
