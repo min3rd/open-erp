@@ -1,0 +1,13 @@
+{
+  "sample": "sample.docx",
+  "settled": "true",
+  "pages": 1,
+  "errors": [],
+  "consoleErrors": [],
+  "mobile": {
+    "scrollWidth": 390,
+    "innerWidth": 390,
+    "overflow": 0,
+    "pageWidth": 376
+  }
+}

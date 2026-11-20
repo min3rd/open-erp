@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-11-18T11:57:40.260Z",
+  "passed": true,
+  "result": {
+    "marginsFound": true,
+    "panelOpen": true,
+    "inputCount": 4,
+    "presetAfterEdit": true,
+    "pads": {
+      "top": "57px",
+      "bottom": "94px",
+      "left": "113px",
+      "right": "132px"
+    },
+    "padsOk": true,
+    "hyphenFound": true,
+    "hyphenClass": true,
+    "hyphenStyle": "auto",
+    "hyphenOff": true,
+    "lang": "vi",
+    "error": null
+  },
+  "errors": []
+}

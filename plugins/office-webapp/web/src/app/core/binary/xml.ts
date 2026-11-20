@@ -10,6 +10,7 @@ export interface XmlNode {
 const encoder = new TextEncoder();
 
 export function parseXml(source: string): XmlNode {
+  if (source.charCodeAt(0) === 0xfeff) source = source.slice(1);
   if (/<!DOCTYPE/i.test(source) || /<!ENTITY/i.test(source)) {
     throw new OfficeBinaryError('OFFICE_XML_UNSAFE');
   }

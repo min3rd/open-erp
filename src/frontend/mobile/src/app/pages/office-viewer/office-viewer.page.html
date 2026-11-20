@@ -14,11 +14,11 @@
 </ion-header>
 
 <ion-content class="op-mv-content">
-  <input #fileInput type="file" class="op-mv-hidden" accept=".docx,.xlsx,.csv,.pptx,.pdf" (change)="onFileInput($event)" />
+  <input #fileInput type="file" class="op-mv-hidden" accept=".docx,.doc,.dotx,.docm,.rtf,.odt,.xml,.xlsx,.csv,.pptx,.pdf" (change)="onFileInput($event)" />
 
   @if (error()) {
     <div class="op-mv-error" role="alert">
-      <span>{{ 'office.viewer.openFailed' | translate }}</span>
+      <span>{{ errorMessageKey(error()!) | translate }}</span>
       <code>{{ error() }}</code>
       <button type="button" class="op-mv-btn" (click)="error.set(null)">{{ 'office.viewer.dismiss' | translate }}</button>
     </div>
@@ -63,39 +63,96 @@
     </div>
 
     @if (document.app === 'word') {
-      <article class="op-mv-word" [style.zoom]="zoom() / 100">
-        @for (block of document.word?.blocks ?? []; track $index) {
-          @if (block.kind === 'paragraph') {
-            <p [class]="blockClass(block)" [style.text-align]="block.paragraph.align">
-              @for (run of block.paragraph.runs; track $index) {
-                <span [style.font-weight]="run.bold ? '700' : '400'"
-                      [style.font-style]="run.italic ? 'italic' : 'normal'"
-                      [style.text-decoration]="run.underline ? 'underline' : 'none'"
-                      [style.color]="run.color ?? '#111827'"
-                      [style.font-size]="run.sizePt ? run.sizePt + 'pt' : null">{{ run.text }}</span>
+      @if (document.warnings?.length) {
+        <div class="op-mv-warning" role="status">
+          @for (w of document.warnings; track $index) {
+            <span>{{ warningMessageKey(w) | translate }}</span>
+          }
+        </div>
+      }
+      <ng-template #mobileRunTpl let-run="run">
+        @if (run.noteRef) {
+          <sup class="op-mv-note-ref">{{ run.noteRef.label }}</sup>
+        } @else if (run.equation) {
+          <span class="op-mv-equation" [innerHTML]="mathMlHtml(run.equation.mathMl)"></span>
+        } @else if (run.chart; as chart) {
+          <div class="op-mv-chart">
+            @if (chart.title) { <div class="op-mv-chart-title">{{ chart.title }}</div> }
+            <svg class="op-mv-chart-svg" [attr.viewBox]="'0 0 ' + chart.width + ' ' + chart.height" role="img">
+              @for (bar of chart.layout.bars; track $index) {
+                <rect [attr.x]="bar.x" [attr.y]="bar.y" [attr.width]="bar.width" [attr.height]="bar.height" [attr.fill]="bar.color" />
               }
-            </p>
-          } @else {
-            <table class="op-mv-table">
-              <tbody>
-                @for (row of block.rows; track $index) {
-                  <tr>
-                    @for (cell of row; track $index) {
-                      <td>
+              @for (line of chart.layout.lines; track $index) {
+                <polyline [attr.points]="polyline(line)" fill="none" [attr.stroke]="line[0]?.color ?? '#4472c4'" stroke-width="2" />
+              }
+              @for (slice of chart.layout.slices; track $index) {
+                <path [attr.d]="slice.path" [attr.fill]="slice.color" stroke="#fff" stroke-width="1" />
+              }
+            </svg>
+          </div>
+        } @else if (run.unsupportedImageFormat) {
+          <span class="op-mv-unsupported-img">{{ 'office.word.unsupportedImage' | translate }} ({{ run.unsupportedImageFormat }})</span>
+        } @else if (run.link) {
+          <a class="op-mv-link" [href]="run.link" target="_blank" rel="noopener noreferrer">{{ run.text }}</a>
+        } @else if (run.imagePath && wordImageUrl(run.imagePath); as url) {
+          <img class="op-mv-word-img" [src]="url" [attr.alt]="run.alt ?? ''" />
+        } @else if (run.textBox) {
+          <span class="op-mv-textbox">{{ run.textBox.text }}</span>
+        } @else {
+          <span [style]="runStyle(run)">{{ run.text }}</span>
+        }
+      </ng-template>
+      <ng-template #mobileTableTpl let-rows="rows" let-cellSpans="cellSpans" let-cellStyles="cellStyles" let-nested="nested" let-depth="depth">
+        <div class="op-mv-table-wrap">
+          <table class="op-mv-table" [class.op-mv-nested-table]="depth > 0">
+            <tbody>
+              @for (row of rows; track $index; let rowIndex = $index) {
+                <tr>
+                  @for (cell of row; track $index; let cellIndex = $index) {
+                    @if (!cellCovered(cellSpans, rowIndex, cellIndex)) {
+                      <td [style]="cellStyle(cellStyles?.[rowIndex]?.[cellIndex])"
+                          [attr.colspan]="cellColSpan(cellSpans, rowIndex, cellIndex)"
+                          [attr.rowspan]="cellRowSpan(cellSpans, rowIndex, cellIndex)">
                         @for (paragraph of cell; track $index) {
-                          <p>
+                          <p [style]="paragraphStyle(paragraph)" [attr.data-list]="paragraph.listType ?? null">
                             @for (run of paragraph.runs; track $index) {
-                              <span [style.font-weight]="run.bold ? '700' : '400'">{{ run.text }}</span>
+                              <ng-container *ngTemplateOutlet="mobileRunTpl; context: { run }"></ng-container>
                             }
                           </p>
                         }
+                        @for (child of nestedIn(nested, rowIndex, cellIndex); track $index) {
+                          <ng-container *ngTemplateOutlet="mobileTableTpl; context: { rows: child.rows, cellSpans: child.cellSpans, cellStyles: child.cellStyles, nested: child.nested, depth: depth + 1 }"></ng-container>
+                        }
                       </td>
                     }
-                  </tr>
-                }
-              </tbody>
-            </table>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </ng-template>
+      <article class="op-mv-word" [style.zoom]="zoom() / 100">
+        @for (block of document.word?.blocks ?? []; track $index) {
+          @if (block.kind === 'paragraph') {
+            <p [class]="blockClass(block)" [style]="paragraphStyle(block.paragraph)" [attr.data-list]="block.paragraph.listType ?? null">
+              @for (run of block.paragraph.runs; track $index) {
+                <ng-container *ngTemplateOutlet="mobileRunTpl; context: { run }"></ng-container>
+              }
+            </p>
+          } @else {
+            <ng-container *ngTemplateOutlet="mobileTableTpl; context: { rows: block.rows, cellSpans: block.cellSpans, cellStyles: block.cellStyles, nested: block.nested, depth: 0 }"></ng-container>
           }
+        }
+        @if (footnotes().length || endnotes().length) {
+          <div class="op-mv-notes">
+            @for (note of footnotes(); track 'f' + note.id) {
+              <p><sup>{{ note.numbering }}</sup> {{ note.text }}</p>
+            }
+            @for (note of endnotes(); track 'e' + note.id) {
+              <p><sup>{{ note.numbering }}</sup> {{ note.text }}</p>
+            }
+          </div>
         }
       </article>
     }

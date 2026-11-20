@@ -1,0 +1,109 @@
+{
+  "source": ".tmp\\parity-trail3.json",
+  "wordPages": 7,
+  "ourPages": 7,
+  "startDice": {
+    "mean": 0.8519,
+    "median": 0.8519,
+    "ge_0_90": 0,
+    "ge_0_80": 7,
+    "ge_0_50": 7,
+    "lt_0_50": 0
+  },
+  "bodyDice": {
+    "mean": 1,
+    "median": 1,
+    "ge_0_90": 7,
+    "ge_0_80": 7,
+    "ge_0_50": 7,
+    "lt_0_50": 0
+  },
+  "worstPages": [
+    {
+      "page": 1,
+      "startDice": 0.852,
+      "bodyDice": 1,
+      "word": "Chuong 1 - Noi dung tong quat Muc 1 cua chuong 1. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kie",
+      "ours": "Chuong 1 - Noi dung tong quat Muc 1 cua chuong 1. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kie"
+    },
+    {
+      "page": 2,
+      "startDice": 0.852,
+      "bodyDice": 1,
+      "word": "Chuong 2 - Noi dung tong quat Muc 1 cua chuong 2. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kie",
+      "ours": "Chuong 2 - Noi dung tong quat Muc 1 cua chuong 2. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kie"
+    },
+    {
+      "page": 3,
+      "startDice": 0.852,
+      "bodyDice": 1,
+      "word": "Chuong 3 - Noi dung tong quat Muc 1 cua chuong 3. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kie",
+      "ours": "Chuong 3 - Noi dung tong quat Muc 1 cua chuong 3. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kie"
+    },
+    {
+      "page": 4,
+      "startDice": 0.852,
+      "bodyDice": 1,
+      "word": "Chuong 4 - Noi dung tong quat Muc 1 cua chuong 4. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kie",
+      "ours": "Chuong 4 - Noi dung tong quat Muc 1 cua chuong 4. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kie"
+    },
+    {
+      "page": 5,
+      "startDice": 0.852,
+      "bodyDice": 1,
+      "word": "Chuong 5 - Noi dung tong quat Muc 1 cua chuong 5. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kie",
+      "ours": "Chuong 5 - Noi dung tong quat Muc 1 cua chuong 5. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kie"
+    },
+    {
+      "page": 6,
+      "startDice": 0.852,
+      "bodyDice": 1,
+      "word": "Chuong 6 - Noi dung tong quat Muc 1 cua chuong 6. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kie",
+      "ours": "Chuong 6 - Noi dung tong quat Muc 1 cua chuong 6. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kie"
+    },
+    {
+      "page": 7,
+      "startDice": 0.852,
+      "bodyDice": 1,
+      "word": "Chuong 7 - Noi dung tong quat Muc 1 cua chuong 7. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kie",
+      "ours": "Chuong 7 - Noi dung tong quat Muc 1 cua chuong 7. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kie"
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "startDice": 0.8518518518518519,
+      "bodyDice": 1
+    },
+    {
+      "page": 2,
+      "startDice": 0.8518518518518519,
+      "bodyDice": 1
+    },
+    {
+      "page": 3,
+      "startDice": 0.8518518518518519,
+      "bodyDice": 1
+    },
+    {
+      "page": 4,
+      "startDice": 0.8518518518518519,
+      "bodyDice": 1
+    },
+    {
+      "page": 5,
+      "startDice": 0.8518518518518519,
+      "bodyDice": 1
+    },
+    {
+      "page": 6,
+      "startDice": 0.8518518518518519,
+      "bodyDice": 1
+    },
+    {
+      "page": 7,
+      "startDice": 0.8518518518518519,
+      "bodyDice": 1
+    }
+  ]
+}

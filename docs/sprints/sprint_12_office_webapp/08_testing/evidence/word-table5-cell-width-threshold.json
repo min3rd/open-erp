@@ -1,0 +1,64 @@
+{
+  "source": "CDP probe in the app, sample-real-proposal.docx, bảng 6 cột",
+  "cell": {
+    "block": 392,
+    "row": 9,
+    "cell": 5,
+    "textLength": 257,
+    "fontSizePx": 18.67,
+    "lineHeightPx": 23.17
+  },
+  "appTextWidth": 97.02,
+  "wordTextWidth": 98,
+  "linesByTextWidth": [
+    {
+      "width": 92,
+      "lines": 25
+    },
+    {
+      "width": 93,
+      "lines": 25
+    },
+    {
+      "width": 94,
+      "lines": 25
+    },
+    {
+      "width": 95,
+      "lines": 25
+    },
+    {
+      "width": 96,
+      "lines": 25
+    },
+    {
+      "width": 97,
+      "lines": 25
+    },
+    {
+      "width": 98,
+      "lines": 24
+    },
+    {
+      "width": 99,
+      "lines": 22
+    },
+    {
+      "width": 100,
+      "lines": 22
+    },
+    {
+      "width": 101,
+      "lines": 22
+    },
+    {
+      "width": 103,
+      "lines": 22
+    },
+    {
+      "width": 106,
+      "lines": 21
+    }
+  ],
+  "conclusion": "Word dat 24 dong o o nay (row 9 cao 567,3 px), app dat 25 dong (591 px) tai be rong 97,02 px; chi can 98,0 px la ra 24 dong — dung bang be rong chu Word (cell 84,3 pt - 2 x 5,4 pt)."
+}

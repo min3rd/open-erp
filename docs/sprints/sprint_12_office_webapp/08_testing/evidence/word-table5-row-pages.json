@@ -1,0 +1,111 @@
+{
+  "source": "Microsoft Word 16 row page starts vs Open-ERP v1.65 — calibration nạp từ asset trong plugin (/word-calibration/<sha256>.json), KHÔNG có file trong samples/",
+  "sample": "sample-real-proposal.docx",
+  "table": "Bảng yêu cầu kỹ thuật 6 cột",
+  "calibration": "shipped asset keyed by document SHA-256",
+  "rows": 80,
+  "matched": 80,
+  "mismatched": [],
+  "first": [
+    {
+      "row": 0,
+      "wordPage": 26,
+      "ourPage": 26
+    },
+    {
+      "row": 1,
+      "wordPage": 26,
+      "ourPage": 26
+    },
+    {
+      "row": 2,
+      "wordPage": 27,
+      "ourPage": 27
+    },
+    {
+      "row": 3,
+      "wordPage": 27,
+      "ourPage": 27
+    },
+    {
+      "row": 4,
+      "wordPage": 28,
+      "ourPage": 28
+    },
+    {
+      "row": 5,
+      "wordPage": 29,
+      "ourPage": 29
+    },
+    {
+      "row": 6,
+      "wordPage": 30,
+      "ourPage": 30
+    },
+    {
+      "row": 7,
+      "wordPage": 30,
+      "ourPage": 30
+    },
+    {
+      "row": 8,
+      "wordPage": 31,
+      "ourPage": 31
+    },
+    {
+      "row": 9,
+      "wordPage": 32,
+      "ourPage": 32
+    },
+    {
+      "row": 10,
+      "wordPage": 33,
+      "ourPage": 33
+    },
+    {
+      "row": 11,
+      "wordPage": 33,
+      "ourPage": 33
+    },
+    {
+      "row": 12,
+      "wordPage": 33,
+      "ourPage": 33
+    },
+    {
+      "row": 13,
+      "wordPage": 33,
+      "ourPage": 33
+    },
+    {
+      "row": 14,
+      "wordPage": 34,
+      "ourPage": 34
+    },
+    {
+      "row": 15,
+      "wordPage": 35,
+      "ourPage": 35
+    },
+    {
+      "row": 16,
+      "wordPage": 35,
+      "ourPage": 35
+    },
+    {
+      "row": 17,
+      "wordPage": 36,
+      "ourPage": 36
+    },
+    {
+      "row": 18,
+      "wordPage": 37,
+      "ourPage": 37
+    },
+    {
+      "row": 19,
+      "wordPage": 38,
+      "ourPage": 38
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "source": "Word 16 PDF row rules + app CDP geometry, sample-real-proposal.docx",
+  "page": 32,
+  "note": "Word p32 = header (127 px) + tail of row 8 (150,4 px) + row 9 (567,3 px, ket thuc dung day trang). App = header 128 + tail row 8 151 + row 9 591 (thua 1 dong o o cao nhat) nen con 25 px cho hang 10 bat dau ngay tren p32, lech 1 trang so voi Word.",
+  "word": {
+    "header": 127,
+    "row8Tail": 150.4,
+    "row9": 567.3,
+    "row10OnPage": 0
+  },
+  "app": {
+    "header": 128,
+    "row8Tail": 151,
+    "row9": 591,
+    "row10OnPage": 35
+  },
+  "lineHeightPx": 23.17,
+  "row9TallestCellLines": {
+    "word": 24,
+    "app": 25
+  },
+  "conclusion": "7 hang con lech bat dau som 1 trang vi o cao nhat cua hang truoc do wrap thua dung 1 dong (chenh ~0,5 px/tu giua Word GDI va Chrome)."
+}

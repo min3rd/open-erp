@@ -1,0 +1,35 @@
+{
+  "source": "Two further Word-authored documents, NO calibration file (after the trailing-empty-paragraph fix)",
+  "unseen3": {
+    "font": "Georgia 11pt",
+    "marginsCm": 2.5,
+    "chapters": 7,
+    "word": 7,
+    "pages": "7/7",
+    "body": 1,
+    "start": 0.8519,
+    "startBelowHalf": []
+  },
+  "unseen3compact": {
+    "pages": "7/7",
+    "body": 1,
+    "start": 0.8462,
+    "startBelowHalf": []
+  },
+  "unseen4": {
+    "font": "Times New Roman 14pt",
+    "marginsCm": 1.5,
+    "chapters": 3,
+    "word": 3,
+    "pages": "3/3",
+    "body": 0.9975,
+    "start": 0.8173,
+    "startBelowHalf": []
+  },
+  "unseen4compact": {
+    "pages": "3/3",
+    "body": 0.9975,
+    "start": 0.835,
+    "startBelowHalf": []
+  }
+}

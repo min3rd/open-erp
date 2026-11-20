@@ -1,5 +1,5 @@
 import type { WordBlock, WordNestedTable, WordParagraph } from './types';
-import { flowRow, newCellState, type CellContent } from './word-table-flow';
+import { flowRow, newCellState, type CellContent, type CellPageState } from './word-table-flow';
 
 export interface WordPageItem {
   block: WordBlock;
@@ -7,6 +7,9 @@ export interface WordPageItem {
   /** Inclusive row range when a table is split across pages. */
   rowStart?: number;
   rowEnd?: number;
+  /** Inclusive character offset of a paragraph fragment on this page. */
+  charStart?: number;
+  charEnd?: number;
 }
 
 export interface WordPageModel {
@@ -19,7 +22,7 @@ export const WORD_PAGE_HEIGHT = 1056;
 export const WORD_PAGE_PADDING = 96;
 const CONTENT_HEIGHT = WORD_PAGE_HEIGHT - WORD_PAGE_PADDING * 2;
 
-function sliceParagraph(paragraph: WordParagraph, start: number, end: number): WordParagraph {
+export function sliceParagraph(paragraph: WordParagraph, start: number, end: number): WordParagraph {
   const runs = [];
   let position = 0;
   for (const run of paragraph.runs) {
@@ -83,8 +86,7 @@ function paragraphHeight(paragraph: WordParagraph): number {
   return lines * lineHeight + margins;
 }
 
-function rowHeight(row: WordParagraph[][], nested: WordNestedTable[] = []): number {
-  const text = row.flatMap((cell) => cell.map(paragraphText).join(' ')).join(' ');
+function rowHeight(row: WordParagraph[][], nested: WordNestedTable[] = []): number {  const text = row.flatMap((cell) => cell.map(paragraphText).join(' ')).join(' ');
   const lines = Math.max(1, Math.ceil(text.length / 90));
   const nestedHeight = nested.reduce((sum, item) => sum + item.rows.length * 24 + 12 + rowHeight([], item.nested ?? []), 0);
   return Math.max(22, lines * 18 + 6) + nestedHeight;
@@ -120,6 +122,28 @@ function mergeTableFragments(base: WordBlock, extra: WordBlock): WordBlock {
   };
 }
 
+/**
+ * Height of the next page slice Word stored for this row: for every cell the
+ * difference between its current and next stored page break. Word writes one
+ * break per cell that crosses the boundary, so the smallest delta is where the
+ * page ended. `counts` tracks how many breaks of each cell are already used.
+ */
+function wordHintDelta(cells: CellContent[], counts: number[]): number | null {
+  let budget: number | null = null;
+  cells.forEach((cell, index) => {
+    const breakLines = cell.breakLines ?? [];
+    const next = breakLines[counts[index] ?? 0];
+    if (next === undefined) return;
+    const from = counts[index] > 0 ? breakLines[counts[index] - 1] : 0;
+    let height = 0;
+    for (let position = from; position < next && position < cell.lines.length; position++) {
+      height += cell.lines[position].height;
+    }
+    if (height > 0 && (budget === null || height < budget)) budget = height;
+  });
+  return budget;
+}
+
 export function paginateBlocks(
   blocks: WordBlock[],
   measured?: {
@@ -127,14 +151,42 @@ export function paginateBlocks(
     tableRows?: Map<number, number[]>;
     cellLines?: Map<string, { lineHeight: number; offsets: number[]; paragraphStarts?: number[] }>;
     rowFlow?: Map<number, CellContent[][]>;
+    paragraphLines?: Map<number, { offsets: number[]; lineHeight: number; marginTop: number; marginBottom: number }>;
     sectionHeights?: number[];
     contentHeight?: number;
+    breakGate?: number;
+    /** Minimum share of the page a stored Word page break must fill to be used. */
+    hintFloor?: number;
+    /** How many pixels past the remaining space a stored break may push the page. */
+    hintSlack?: number;
+    /** Minimum fill of the page before a paragraph's stored break ends the page. */
+    storedBreakFloor?: number;
+    /** Per-block minimum row heights (px) from Word's own layout. */
+    rowFloors?: Map<number, number[]>;
+    /** Rows where Word's layout starts a page (calibrated per document). */
+    rowPageStarts?: Map<number, Set<number>>;
+    /** How full the page must be before a hinted row start ends it. */
+    pageStartGate?: number;
+    /** Paragraphs whose page ends at a calibrated character offset (block → offset). */
+    paragraphBreaks?: Map<number, number>;
+    /** Calibrated usable height per page (1-based page number → px). */
+    pageContentHeight?: Map<number, number>;
+    /** Paragraphs that begin a page in Word (calibrated per document). */
+    paragraphStarts?: Set<number>;
   },
 ): WordPageModel[] {
   const currentSectionIndex = (block: WordBlock): number => block.sectionIndex ?? 0;
   const defaultContentHeight = measured?.contentHeight ?? CONTENT_HEIGHT;
+  const breakGate = measured?.breakGate ?? 0.85;
+  const storedBreakFloor = measured?.storedBreakFloor ?? 0.75;
+  const pageStartGate = measured?.pageStartGate ?? 0.85;
   let currentSection = blocks[0] ? currentSectionIndex(blocks[0]) : 0;
   let contentHeight = measured?.sectionHeights?.[currentSection] ?? defaultContentHeight;
+  // Word leaves different amounts of room on some pages (a paragraph that does
+  // not fit, a table row that moves): the calibration file can state the usable
+  // height per page so the same number of lines lands on it.
+  const pageHeight = (pageNumber: number): number =>
+    measured?.pageContentHeight?.get(pageNumber) ?? contentHeight;
   const pages: WordPageModel[] = [{ index: 0, items: [], sectionIndex: currentSection }];
   let used = 0;
   const pushPage = (): WordPageModel => {
@@ -166,8 +218,28 @@ export function paginateBlocks(
         if (pages[pages.length - 1].items.length) pushPage();
         return;
       }
+      if (block.paragraph.pageBreakBefore && pages[pages.length - 1].items.length) {
+        pushPage();
+      }
+      // Word ends a section with an empty paragraph that carries the sectPr.
+      // It has no visible content, so it must not claim a page of its own: the
+      // section change on the next block already starts a new page.
+      const emptySectionTail = Boolean(block.paragraph.sectionBreakAfter)
+        && !block.paragraph.runs.some((run) => (run.text ?? '').trim() || run.imagePath || run.textBox || run.group);
+      if (emptySectionTail) {
+        if (pages[pages.length - 1].items.length) pushPage();
+        return;
+      }
       if (block.paragraph.storedPageBreak && pages[pages.length - 1].items.length
-        && used > contentHeight * 0.75) pushPage();
+        && used > contentHeight * storedBreakFloor) pushPage();
+      // A trailing empty paragraph (the one Word leaves after the last table)
+      // must not claim a page of its own: Word ends the document without it.
+      const trailingEmpty = blockIndex === blocks.length - 1
+        && !block.paragraph.runs.some((run) => (run.text ?? '').trim() || run.imagePath || run.textBox || run.group);
+      if (trailingEmpty) return;
+      // Calibrated page start: Word begins a page at this paragraph.
+      if (measured?.paragraphStarts?.has(blockIndex) && pages[pages.length - 1].items.length
+        && used > contentHeight * 0.5) pushPage();
       if (block.paragraph.keepNext && pages[pages.length - 1].items.length) {
         // A heading keeps with its sub-headings and the block they introduce;
         // other keepNext paragraphs only guard the block that follows them.
@@ -178,7 +250,13 @@ export function paginateBlocks(
           for (let nextIndex = blockIndex + 1; nextIndex < blocks.length && nextIndex < blockIndex + 24; nextIndex++) {
             const next = blocks[nextIndex];
             if (next.kind === 'paragraph') {
-              nextHeight += measured?.paragraphs?.get(nextIndex) ?? paragraphHeight(next.paragraph);
+              // Only the first line of the block that ends the chain has to fit:
+              // Word keeps a heading with the first line of what follows, not the
+              // whole paragraph.
+              const nextLines = measured?.paragraphLines?.get(nextIndex);
+              nextHeight += next.paragraph.keepNext
+                ? measured?.paragraphs?.get(nextIndex) ?? paragraphHeight(next.paragraph)
+                : nextLines?.lineHeight ?? measured?.paragraphs?.get(nextIndex) ?? paragraphHeight(next.paragraph);
               if (!next.paragraph.keepNext) break;
             } else {
               nextHeight += measured?.tableRows?.get(nextIndex)?.[0]
@@ -189,7 +267,13 @@ export function paginateBlocks(
         } else {
           const next = blocks[blockIndex + 1];
           if (next?.kind === 'paragraph') {
-            nextHeight = measured?.paragraphs?.get(blockIndex + 1) ?? paragraphHeight(next.paragraph);
+            // Word keeps a paragraph with the *first line* of the next one, not
+            // with the whole paragraph (a 3-line paragraph would otherwise push
+            // the heading to the next page).
+            const nextLines = measured?.paragraphLines?.get(blockIndex + 1);
+            nextHeight = nextLines?.lineHeight
+              ?? measured?.paragraphs?.get(blockIndex + 1)
+              ?? paragraphHeight(next.paragraph);
           } else if (next?.kind === 'table') {
             nextHeight = measured?.tableRows?.get(blockIndex + 1)?.[0]
               ?? rowHeight(next.rows[0], (next.nested ?? []).filter((item) => item.row === 0));
@@ -197,16 +281,59 @@ export function paginateBlocks(
         }
         if (nextHeight > 0 && used + height + nextHeight > contentHeight) pushPage();
       }
-      const page = ensure(height);
-      page.items.push({ block, blockIndex });
-      used += height;
+      const splits = measured?.paragraphLines?.get(blockIndex);
+      const textLength = block.paragraph.runs.reduce((sum, run) => sum + (run.text ?? '').length, 0);
+      // A paragraph flows across the page boundary line by line like Word; only
+      // keepNext blocks (headings) stay whole so they stay with what follows.
+      const canSplit = Boolean(splits && splits.offsets.length > 1 && splits.lineHeight > 0
+        && !block.paragraph.keepNext);
+      if (!canSplit || !splits) {
+        const page = ensure(height);
+        page.items.push({ block, blockIndex });
+        used += height;
+      } else {
+        let line = 0;
+        let firstPart = true;
+        while (line < splits.offsets.length) {
+          const currentPage = pages[pages.length - 1];
+          const marginTop = firstPart ? splits.marginTop : 0;
+          const available = pageHeight(pages.length) - used;
+          const fits = Math.floor((available - marginTop) / splits.lineHeight);
+          const remaining = splits.offsets.length - line;
+          if (fits < 1 && currentPage.items.length) {
+            pushPage();
+            continue;
+          }
+          const take = Math.max(1, Math.min(fits < 1 ? 1 : fits, remaining));
+          // Calibrated page boundary inside a paragraph: Word ended the page at
+          // this character offset, so the fragment stops at that line.
+          const calibration = firstPart ? measured?.paragraphBreaks?.get(blockIndex) : undefined;
+          let limit = take;
+          if (calibration !== undefined) {
+            const boundary = splits.offsets.findIndex((value, index) =>
+              value <= calibration && (splits.offsets[index + 1] ?? textLength) > calibration);
+            if (boundary > 0) limit = Math.min(limit, boundary);
+          }
+          const start = splits.offsets[line];
+          const end = line + limit < splits.offsets.length ? splits.offsets[line + limit] : textLength;
+          currentPage.items.push({ block, blockIndex, charStart: start, charEnd: end });
+          used += marginTop + limit * splits.lineHeight;
+          line += limit;
+          firstPart = false;
+          if (line < splits.offsets.length) pushPage();
+        }
+        used += splits.marginBottom;
+      }
       if (block.paragraph.sectionBreakAfter && pages[pages.length - 1].items.length) pushPage();
       return;
     }
     const measuredRows = measured?.tableRows?.get(blockIndex);
+    const floorRows = measured?.rowFloors?.get(blockIndex);
     const flowRows = measured?.rowFlow?.get(blockIndex);
-    const sizeOf = (rowIndex: number): number => measuredRows?.[rowIndex]
-      ?? rowHeight(block.rows[rowIndex], (block.nested ?? []).filter((item) => item.row === rowIndex));
+    const sizeOf = (rowIndex: number): number => Math.max(
+      measuredRows?.[rowIndex] ?? rowHeight(block.rows[rowIndex], (block.nested ?? []).filter((item) => item.row === rowIndex)),
+      floorRows?.[rowIndex] ?? 0,
+    );
     // Word repeats every w:tblHeader row at the top of each page the table
     // continues onto, including pages where a tall row is still being split.
     // The page-text parity reference is Word's body text and excludes those
@@ -218,15 +345,76 @@ export function paginateBlocks(
       : 0;
     if (flowRows) {
       const states = flowRows.map((rowContent) => rowContent.map(() => newCellState()));
+      // How many of each cell's stored Word page breaks are already consumed.
+      const hintCounts = flowRows.map((rowContent) => rowContent.map(() => 0));
+      // A stored break at offset 0 in a cell with no in-cell break means Word
+      // started a page at that row. Long tables also write that marker for rows
+      // that merely begin at the top of a page, so the break is only taken when
+      // the current page is already half full.
+      const pageStartRows = new Set<number>();
+      {
+        const rowHints = new Map<number, { zero: number; inner: number }>();
+        for (const hint of block.breakHints ?? []) {
+          const entry = rowHints.get(hint.row) ?? { zero: 0, inner: 0 };
+          if (hint.offset === 0) entry.zero += 1; else entry.inner += 1;
+          rowHints.set(hint.row, entry);
+        }
+        for (const [row, entry] of rowHints) {
+          if (row >= repeatHeaderRows && entry.zero > 0 && entry.inner === 0) pageStartRows.add(row);
+        }
+      }
       let rowIndex = 0;
       while (rowIndex < flowRows.length) {
-        if (contentHeight - used < 24 && pages[pages.length - 1].items.length) pushPage();
+        if (pageHeight(pages.length) - used < 24 && pages[pages.length - 1].items.length) pushPage();
+        if (pageStartRows.has(rowIndex) && used > contentHeight * pageStartGate
+          && pages[pages.length - 1].items.length) pushPage();
+        // Calibrated page starts: rows where Word's own layout begins a page for
+        // this table (measured from Word, stored with the document).
+        if (measured?.rowPageStarts?.get(blockIndex)?.has(rowIndex)
+          && used > 0 && pages[pages.length - 1].items.length) pushPage();
+        // Word never leaves a one-line sliver of a row at the bottom of a page
+        // (rows 9/10, 29/30 … of the bid table break that way): when more than
+        // two lines of the row are left, at least two lines must fit.
+        let nextLineHeight = 0;
+        let linesLeft = 0;
+        flowRows[rowIndex].forEach((cell, cellIndex) => {
+          const cursor = states[rowIndex][cellIndex]?.cursor ?? 0;
+          const line = cell.lines[cursor];
+          if (!line) return;
+          nextLineHeight = Math.max(nextLineHeight, line.height + (cell.paddingTop ?? 0) + (cell.paddingBottom ?? 0));
+          linesLeft = Math.max(linesLeft, cell.lines.length - cursor);
+        });
+        const needed = linesLeft > 2 ? nextLineHeight * 2 : nextLineHeight;
+        if (needed > 0 && pageHeight(pages.length) - used < needed
+          && pages[pages.length - 1].items.length) pushPage();
+        // Word's measured row height (calibration file): a row that has not
+        // started yet needs that much room, even when our own wrap is shorter.
+        const rowFloor = measured?.rowFloors?.get(blockIndex)?.[rowIndex] ?? 0;
+        if (rowFloor > 0) {
+          const started = (states[rowIndex] ?? []).some((state) => (state?.pagesCount ?? 0) > 0);
+          if (!started && pageHeight(pages.length) - used < rowFloor && pages[pages.length - 1].items.length) pushPage();
+        }
         // Recomputed after a page break: the header only repeats on a page
         // where the table continues, not on the page where it starts.
         const repeatHeader = repeatHeaderRows > 0 && rowIndex >= repeatHeaderRows && used === 0;
         if (repeatHeader) used += headerHeight;
-        const available = contentHeight - used;
-        const fragment = flowRow(flowRows[rowIndex], states[rowIndex], available);
+        let available = pageHeight(pages.length) - used;
+        // Word stores the page break it made inside each cell; the next stored
+        // break of the row is the height at which Word ended this page, so every
+        // cell of the row is cut at the same y instead of each cell filling to
+        // its own bottom.
+        const hintBudget = wordHintDelta(flowRows[rowIndex], hintCounts[rowIndex]);
+        const hintFloor = Number.isFinite(measured?.hintFloor) ? measured!.hintFloor! : 0.25;
+        // Word's stored break wins even when it sits a few pixels below our
+        // remaining space: the page grows by that slack instead of breaking
+        // early, which keeps the content-to-page map locked to Word's.
+        const hintSlack = Number.isFinite(measured?.hintSlack) ? measured!.hintSlack! : 24;
+        if (hintBudget !== null
+          && hintBudget >= available * hintFloor
+          && hintBudget < available + hintSlack) {
+          available = hintBudget;
+        }
+        const fragment = flowRow(flowRows[rowIndex], states[rowIndex], available, breakGate);
         const cells = block.rows[rowIndex].map((cellParagraphs, cellIndex) => {
           const content = flowRows[rowIndex][cellIndex];
           if (!content || !content.lines.length) return [{ runs: [] }];
@@ -260,6 +448,9 @@ export function paginateBlocks(
           rows: fragmentRows,
           nested: fragmentNested,
           grid: block.grid,
+          tableWidthPx: block.tableWidthPx,
+          colWidthsPx: block.colWidthsPx,
+          borderless: block.borderless,
           rowHeights: fragmentHeights,
           cellStyles: repeatHeader
             ? [...(block.cellStyles?.slice(0, repeatHeaderRows) ?? []), block.cellStyles?.[rowIndex] ?? []]
@@ -282,15 +473,26 @@ export function paginateBlocks(
           page.items.push({ block: fragmentBlock, blockIndex, rowStart: 0, rowEnd: fragmentRows.length });
         }
         used += fragment.height;
-        if (fragment.done) rowIndex++;
-        else pushPage();
+        if (fragment.done) {
+          // Keep the row as tall as Word drew it: a short cell that Word wrapped
+          // onto two lines must still hold the same space on the page.
+          const floor = measured?.rowFloors?.get(blockIndex)?.[rowIndex] ?? 0;
+          if (floor > fragment.height) used += floor - fragment.height;
+          rowIndex++;
+        } else {
+          // The stored break this page used is spent; the next page of the row
+          // continues from the following stored break.
+          hintCounts[rowIndex] = hintCounts[rowIndex].map((count, cellIndex) =>
+            (flowRows[rowIndex][cellIndex]?.breakLines?.length ?? 0) > count ? count + 1 : count);
+          pushPage();
+        }
       }
       return;
     }
     let rowStart = 0;
     while (rowStart < block.rows.length) {
       let page = pages[pages.length - 1];
-      let available = contentHeight - used;
+      let available = pageHeight(pages.length) - used;
       if (available < 40 && page.items.length) {
         page = pushPage();
         available = contentHeight;
@@ -298,7 +500,7 @@ export function paginateBlocks(
       const withHeader = repeatHeaderRows > 0 && rowStart > 0 && page.items.length === 0;
       if (withHeader) {
         used += headerHeight;
-        available = contentHeight - used;
+        available = pageHeight(pages.length) - used;
       }
       let height = 0;
       let rowEnd = rowStart;
@@ -323,6 +525,9 @@ export function paginateBlocks(
               ? { ...item, row: item.row - rowStart + repeatHeaderRows }
               : item)),
           grid: block.grid,
+          tableWidthPx: block.tableWidthPx,
+          colWidthsPx: block.colWidthsPx,
+          borderless: block.borderless,
           rowHeights: fragmentHeights,
           cellStyles: [
             ...(block.cellStyles?.slice(0, repeatHeaderRows) ?? []),

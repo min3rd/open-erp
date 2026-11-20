@@ -1,0 +1,61 @@
+{
+  "source": ".tmp\\parity-wauth.json",
+  "wordPages": 3,
+  "ourPages": 3,
+  "startDice": {
+    "mean": 0.8482,
+    "median": 0.8505,
+    "ge_0_90": 0,
+    "ge_0_80": 3,
+    "ge_0_50": 3,
+    "lt_0_50": 0
+  },
+  "bodyDice": {
+    "mean": 1,
+    "median": 1,
+    "ge_0_90": 3,
+    "ge_0_80": 3,
+    "ge_0_50": 3,
+    "lt_0_50": 0
+  },
+  "worstPages": [
+    {
+      "page": 1,
+      "startDice": 0.844,
+      "bodyDice": 1,
+      "word": "Chuong 1 - Noi dung kiem thu Doan 1 cua chuong 1. Day la van ban tieng Viet co dau duoc Word tao ra de kiem tra phan trang giua trinh soan t",
+      "ours": "Chuong 1 - Noi dung kiem thu Doan 1 cua chuong 1. Day la van ban tieng Viet co dau duoc Word tao ra de kiem tra phan trang giua trinh soan t"
+    },
+    {
+      "page": 2,
+      "startDice": 0.85,
+      "bodyDice": 1,
+      "word": "Doan 2 cua chuong 2. Day la van ban tieng Viet co dau duoc Word tao ra de kiem tra phan trang giua trinh soan thao va Microsoft Word tren cu",
+      "ours": "Doan 2 cua chuong 2. Day la van ban tieng Viet co dau duoc Word tao ra de kiem tra phan trang giua trinh soan thao va Microsoft Word tren cu"
+    },
+    {
+      "page": 3,
+      "startDice": 0.85,
+      "bodyDice": 1,
+      "word": "Doan 3 cua chuong 3. Day la van ban tieng Viet co dau duoc Word tao ra de kiem tra phan trang giua trinh soan thao va Microsoft Word tren cu",
+      "ours": "Doan 3 cua chuong 3. Day la van ban tieng Viet co dau duoc Word tao ra de kiem tra phan trang giua trinh soan thao va Microsoft Word tren cu"
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "startDice": 0.8436018957345972,
+      "bodyDice": 1
+    },
+    {
+      "page": 2,
+      "startDice": 0.8504672897196262,
+      "bodyDice": 1
+    },
+    {
+      "page": 3,
+      "startDice": 0.8504672897196262,
+      "bodyDice": 1
+    }
+  ]
+}

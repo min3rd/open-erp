@@ -1,0 +1,2825 @@
+{
+  "source": ".tmp/parity-wordids.json",
+  "wordPages": 546,
+  "ourPages": 546,
+  "startDice": {
+    "mean": 0.7786,
+    "median": 0.7719,
+    "ge_0_90": 1,
+    "ge_0_80": 45,
+    "ge_0_50": 546,
+    "lt_0_50": 0
+  },
+  "bodyDice": {
+    "mean": 0.9766,
+    "median": 0.9826,
+    "ge_0_90": 536,
+    "ge_0_80": 546,
+    "ge_0_50": 546,
+    "lt_0_50": 0
+  },
+  "worstPages": [
+    {
+      "page": 511,
+      "startDice": 0.786,
+      "bodyDice": 0.867,
+      "word": "511 Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật nhận được. Kết",
+      "ours": "Số CTKT STT Nội dung/Định nghĩa/Nhóm chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật đào sâu những kiến "
+    },
+    {
+      "page": 520,
+      "startDice": 0.772,
+      "bodyDice": 0.883,
+      "word": "520 Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật hiện phần mềm ",
+      "ours": "Số CTKT STT Nội dung/Định nghĩa/Nhóm chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật dẫn cần mô tả được "
+    },
+    {
+      "page": 510,
+      "startDice": 0.772,
+      "bodyDice": 0.884,
+      "word": "510 Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật hợp thời gian ",
+      "ours": "Số CTKT STT Nội dung/Định nghĩa/Nhóm chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật các học viên, tránh"
+    },
+    {
+      "page": 513,
+      "startDice": 0.786,
+      "bodyDice": 0.884,
+      "word": "513 Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật thực hành trên",
+      "ours": "Số CTKT STT Nội dung/Định nghĩa/Nhóm chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật các học viên sử dụn"
+    },
+    {
+      "page": 519,
+      "startDice": 0.772,
+      "bodyDice": 0.889,
+      "word": "519 Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật đầy đủ cho học",
+      "ours": "Số CTKT STT Nội dung/Định nghĩa/Nhóm chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật tạo cần được chuẩn "
+    },
+    {
+      "page": 498,
+      "startDice": 0.786,
+      "bodyDice": 0.892,
+      "word": "498 Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật ĐVVH). các nội",
+      "ours": "Số CTKT STT Nội dung/Định nghĩa/Nhóm chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật ĐVVH). ĐVVH, bảo đả"
+    },
+    {
+      "page": 514,
+      "startDice": 0.772,
+      "bodyDice": 0.893,
+      "word": "514 Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật Phản hồi của h",
+      "ours": "Số CTKT STT Nội dung/Định nghĩa/Nhóm chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật pháp, thời gian đạo"
+    },
+    {
+      "page": 517,
+      "startDice": 0.815,
+      "bodyDice": 0.895,
+      "word": "517 Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật chương trình. ",
+      "ours": "Số CTKT STT Nội dung/Định nghĩa/Nhóm chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật trong quá trình hướ"
+    },
+    {
+      "page": 515,
+      "startDice": 0.8,
+      "bodyDice": 0.896,
+      "word": "515 Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật viên điều chỉn",
+      "ours": "Số CTKT STT Nội dung/Định nghĩa/Nhóm chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật và sau mỗi buổi học"
+    },
+    {
+      "page": 516,
+      "startDice": 0.786,
+      "bodyDice": 0.898,
+      "word": "516 Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật liệu.... Nhờ đ",
+      "ours": "Số CTKT STT Nội dung/Định nghĩa/Nhóm chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuật chức lớp học, chất "
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "startDice": 0.8524590163934426,
+      "bodyDice": 0.9090909090909091
+    },
+    {
+      "page": 2,
+      "startDice": 0.6285714285714286,
+      "bodyDice": 1
+    },
+    {
+      "page": 3,
+      "startDice": 0.5555555555555556,
+      "bodyDice": 1
+    },
+    {
+      "page": 4,
+      "startDice": 0.8571428571428571,
+      "bodyDice": 1
+    },
+    {
+      "page": 5,
+      "startDice": 0.8771929824561403,
+      "bodyDice": 1
+    },
+    {
+      "page": 6,
+      "startDice": 0.847457627118644,
+      "bodyDice": 1
+    },
+    {
+      "page": 7,
+      "startDice": 0.8524590163934426,
+      "bodyDice": 1
+    },
+    {
+      "page": 8,
+      "startDice": 0.9090909090909091,
+      "bodyDice": 1
+    },
+    {
+      "page": 9,
+      "startDice": 0.8620689655172413,
+      "bodyDice": 1
+    },
+    {
+      "page": 10,
+      "startDice": 0.8666666666666667,
+      "bodyDice": 0.9978118161925602
+    },
+    {
+      "page": 11,
+      "startDice": 0.8387096774193549,
+      "bodyDice": 0.9987819732034104
+    },
+    {
+      "page": 12,
+      "startDice": 0.8620689655172413,
+      "bodyDice": 0.995475113122172
+    },
+    {
+      "page": 13,
+      "startDice": 0.8571428571428571,
+      "bodyDice": 0.9975550122249389
+    },
+    {
+      "page": 14,
+      "startDice": 0.8928571428571429,
+      "bodyDice": 0.9914529914529915
+    },
+    {
+      "page": 15,
+      "startDice": 0.7272727272727273,
+      "bodyDice": 0.9757412398921833
+    },
+    {
+      "page": 16,
+      "startDice": 0.7169811320754716,
+      "bodyDice": 0.9773299748110831
+    },
+    {
+      "page": 17,
+      "startDice": 0.75,
+      "bodyDice": 0.9941690962099126
+    },
+    {
+      "page": 18,
+      "startDice": 0.8301886792452831,
+      "bodyDice": 0.9990243902439024
+    },
+    {
+      "page": 19,
+      "startDice": 0.8936170212765957,
+      "bodyDice": 0.9988358556461001
+    },
+    {
+      "page": 20,
+      "startDice": 0.8928571428571429,
+      "bodyDice": 0.9987096774193548
+    },
+    {
+      "page": 21,
+      "startDice": 0.8679245283018868,
+      "bodyDice": 0.9988023952095808
+    },
+    {
+      "page": 22,
+      "startDice": 0.8727272727272727,
+      "bodyDice": 0.9978021978021978
+    },
+    {
+      "page": 23,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9978165938864629
+    },
+    {
+      "page": 24,
+      "startDice": 0.8064516129032258,
+      "bodyDice": 0.9987966305655837
+    },
+    {
+      "page": 25,
+      "startDice": 0.8275862068965517,
+      "bodyDice": 0.9965635738831615
+    },
+    {
+      "page": 26,
+      "startDice": 0.78125,
+      "bodyDice": 0.9819376026272578
+    },
+    {
+      "page": 27,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9863013698630136
+    },
+    {
+      "page": 28,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9863760217983651
+    },
+    {
+      "page": 29,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9673202614379085
+    },
+    {
+      "page": 30,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9580838323353293
+    },
+    {
+      "page": 31,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.971830985915493
+    },
+    {
+      "page": 32,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9527272727272728
+    },
+    {
+      "page": 33,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9860724233983287
+    },
+    {
+      "page": 34,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9343629343629344
+    },
+    {
+      "page": 35,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9562289562289562
+    },
+    {
+      "page": 36,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9823321554770318
+    },
+    {
+      "page": 37,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9842271293375394
+    },
+    {
+      "page": 38,
+      "startDice": 0.8,
+      "bodyDice": 0.9679715302491103
+    },
+    {
+      "page": 39,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9809885931558935
+    },
+    {
+      "page": 40,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9517684887459807
+    },
+    {
+      "page": 41,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.933920704845815
+    },
+    {
+      "page": 42,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9735849056603774
+    },
+    {
+      "page": 43,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.920863309352518
+    },
+    {
+      "page": 44,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9368770764119602
+    },
+    {
+      "page": 45,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9496402877697842
+    },
+    {
+      "page": 46,
+      "startDice": 0.8,
+      "bodyDice": 0.9717868338557993
+    },
+    {
+      "page": 47,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9834983498349835
+    },
+    {
+      "page": 48,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9603174603174603
+    },
+    {
+      "page": 49,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9733333333333334
+    },
+    {
+      "page": 50,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9741935483870968
+    },
+    {
+      "page": 51,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9657794676806084
+    },
+    {
+      "page": 52,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9787234042553191
+    },
+    {
+      "page": 53,
+      "startDice": 0.7457627118644068,
+      "bodyDice": 0.9842271293375394
+    },
+    {
+      "page": 54,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9615384615384616
+    },
+    {
+      "page": 55,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9836065573770492
+    },
+    {
+      "page": 56,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.967741935483871
+    },
+    {
+      "page": 57,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9825783972125436
+    },
+    {
+      "page": 58,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9802371541501976
+    },
+    {
+      "page": 59,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9727626459143969
+    },
+    {
+      "page": 60,
+      "startDice": 0.8,
+      "bodyDice": 0.9562043795620438
+    },
+    {
+      "page": 61,
+      "startDice": 0.8,
+      "bodyDice": 0.9230769230769231
+    },
+    {
+      "page": 62,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9020771513353115
+    },
+    {
+      "page": 63,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9795918367346939
+    },
+    {
+      "page": 64,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9831649831649831
+    },
+    {
+      "page": 65,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9830508474576272
+    },
+    {
+      "page": 66,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9790575916230366
+    },
+    {
+      "page": 67,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9829351535836177
+    },
+    {
+      "page": 68,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9852507374631269
+    },
+    {
+      "page": 69,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9816849816849816
+    },
+    {
+      "page": 70,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9826989619377162
+    },
+    {
+      "page": 71,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9726443768996961
+    },
+    {
+      "page": 72,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9673202614379085
+    },
+    {
+      "page": 73,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9822064056939501
+    },
+    {
+      "page": 74,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9878934624697336
+    },
+    {
+      "page": 75,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9536784741144414
+    },
+    {
+      "page": 76,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9636363636363636
+    },
+    {
+      "page": 77,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9590643274853801
+    },
+    {
+      "page": 78,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9856733524355301
+    },
+    {
+      "page": 79,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9739583333333334
+    },
+    {
+      "page": 80,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9681528662420382
+    },
+    {
+      "page": 81,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9874055415617129
+    },
+    {
+      "page": 82,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9875930521091811
+    },
+    {
+      "page": 83,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.984984984984985
+    },
+    {
+      "page": 84,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9866666666666667
+    },
+    {
+      "page": 85,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9858356940509915
+    },
+    {
+      "page": 86,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9430051813471503
+    },
+    {
+      "page": 87,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9592476489028213
+    },
+    {
+      "page": 88,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9819494584837545
+    },
+    {
+      "page": 89,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9771986970684039
+    },
+    {
+      "page": 90,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9675090252707581
+    },
+    {
+      "page": 91,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9640287769784173
+    },
+    {
+      "page": 92,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9743589743589743
+    },
+    {
+      "page": 93,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9819494584837545
+    },
+    {
+      "page": 94,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9841269841269841
+    },
+    {
+      "page": 95,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.981549815498155
+    },
+    {
+      "page": 96,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9829351535836177
+    },
+    {
+      "page": 97,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.982078853046595
+    },
+    {
+      "page": 98,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9816849816849816
+    },
+    {
+      "page": 99,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9843260188087775
+    },
+    {
+      "page": 100,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.982078853046595
+    },
+    {
+      "page": 101,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9842271293375394
+    },
+    {
+      "page": 102,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9726775956284153
+    },
+    {
+      "page": 103,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9868073878627969
+    },
+    {
+      "page": 104,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9852507374631269
+    },
+    {
+      "page": 105,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9855907780979827
+    },
+    {
+      "page": 106,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9837133550488599
+    },
+    {
+      "page": 107,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9865951742627346
+    },
+    {
+      "page": 108,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9820359281437125
+    },
+    {
+      "page": 109,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9770114942528736
+    },
+    {
+      "page": 110,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9839228295819936
+    },
+    {
+      "page": 111,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9840255591054313
+    },
+    {
+      "page": 112,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9839228295819936
+    },
+    {
+      "page": 113,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9845201238390093
+    },
+    {
+      "page": 114,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9754768392370572
+    },
+    {
+      "page": 115,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9680851063829787
+    },
+    {
+      "page": 116,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9790575916230366
+    },
+    {
+      "page": 117,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9842271293375394
+    },
+    {
+      "page": 118,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.959731543624161
+    },
+    {
+      "page": 119,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.96
+    },
+    {
+      "page": 120,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9839228295819936
+    },
+    {
+      "page": 121,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.988009592326139
+    },
+    {
+      "page": 122,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9872773536895675
+    },
+    {
+      "page": 123,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9868073878627969
+    },
+    {
+      "page": 124,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.979381443298969
+    },
+    {
+      "page": 125,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9671052631578947
+    },
+    {
+      "page": 126,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9862258953168044
+    },
+    {
+      "page": 127,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9840255591054313
+    },
+    {
+      "page": 128,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9861495844875346
+    },
+    {
+      "page": 129,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9838187702265372
+    },
+    {
+      "page": 130,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9859943977591037
+    },
+    {
+      "page": 131,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9814126394052045
+    },
+    {
+      "page": 132,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.976878612716763
+    },
+    {
+      "page": 133,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9788359788359788
+    },
+    {
+      "page": 134,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.987146529562982
+    },
+    {
+      "page": 135,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9845201238390093
+    },
+    {
+      "page": 136,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9857549857549858
+    },
+    {
+      "page": 137,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9781420765027322
+    },
+    {
+      "page": 138,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9743589743589743
+    },
+    {
+      "page": 139,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9855072463768116
+    },
+    {
+      "page": 140,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9811320754716981
+    },
+    {
+      "page": 141,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9861495844875346
+    },
+    {
+      "page": 142,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9634146341463414
+    },
+    {
+      "page": 143,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9693877551020408
+    },
+    {
+      "page": 144,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9781021897810219
+    },
+    {
+      "page": 145,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9690140845070423
+    },
+    {
+      "page": 146,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9584664536741214
+    },
+    {
+      "page": 147,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9781420765027322
+    },
+    {
+      "page": 148,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9798994974874372
+    },
+    {
+      "page": 149,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9797979797979798
+    },
+    {
+      "page": 150,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9834983498349835
+    },
+    {
+      "page": 151,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9825783972125436
+    },
+    {
+      "page": 152,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9837133550488599
+    },
+    {
+      "page": 153,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9822064056939501
+    },
+    {
+      "page": 154,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9850746268656716
+    },
+    {
+      "page": 155,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9850746268656716
+    },
+    {
+      "page": 156,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9830508474576272
+    },
+    {
+      "page": 157,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9828178694158075
+    },
+    {
+      "page": 158,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9834983498349835
+    },
+    {
+      "page": 159,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9858356940509915
+    },
+    {
+      "page": 160,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9812734082397003
+    },
+    {
+      "page": 161,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9856733524355301
+    },
+    {
+      "page": 162,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9848942598187311
+    },
+    {
+      "page": 163,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.975
+    },
+    {
+      "page": 164,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9770114942528736
+    },
+    {
+      "page": 165,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9865229110512129
+    },
+    {
+      "page": 166,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9836065573770492
+    },
+    {
+      "page": 167,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9805013927576601
+    },
+    {
+      "page": 168,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9811320754716981
+    },
+    {
+      "page": 169,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9838709677419355
+    },
+    {
+      "page": 170,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9779005524861878
+    },
+    {
+      "page": 171,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.986737400530504
+    },
+    {
+      "page": 172,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9782608695652174
+    },
+    {
+      "page": 173,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9787234042553191
+    },
+    {
+      "page": 174,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9840255591054313
+    },
+    {
+      "page": 175,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9846153846153847
+    },
+    {
+      "page": 176,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9858356940509915
+    },
+    {
+      "page": 177,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9837133550488599
+    },
+    {
+      "page": 178,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9836065573770492
+    },
+    {
+      "page": 179,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9843260188087775
+    },
+    {
+      "page": 180,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9858356940509915
+    },
+    {
+      "page": 181,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9830508474576272
+    },
+    {
+      "page": 182,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9834983498349835
+    },
+    {
+      "page": 183,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9825783972125436
+    },
+    {
+      "page": 184,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9824561403508771
+    },
+    {
+      "page": 185,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9823321554770318
+    },
+    {
+      "page": 186,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9822064056939501
+    },
+    {
+      "page": 187,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9847094801223242
+    },
+    {
+      "page": 188,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9854227405247813
+    },
+    {
+      "page": 189,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9808429118773946
+    },
+    {
+      "page": 190,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.987146529562982
+    },
+    {
+      "page": 191,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.986449864498645
+    },
+    {
+      "page": 192,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.983957219251337
+    },
+    {
+      "page": 193,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9607843137254902
+    },
+    {
+      "page": 194,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9740634005763689
+    },
+    {
+      "page": 195,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9851632047477745
+    },
+    {
+      "page": 196,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9838187702265372
+    },
+    {
+      "page": 197,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.984984984984985
+    },
+    {
+      "page": 198,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9854227405247813
+    },
+    {
+      "page": 199,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9838187702265372
+    },
+    {
+      "page": 200,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9681159420289855
+    },
+    {
+      "page": 201,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9643835616438357
+    },
+    {
+      "page": 202,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9764705882352941
+    },
+    {
+      "page": 203,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9675324675324676
+    },
+    {
+      "page": 204,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9857549857549858
+    },
+    {
+      "page": 205,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9866666666666667
+    },
+    {
+      "page": 206,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9759036144578314
+    },
+    {
+      "page": 207,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9655172413793104
+    },
+    {
+      "page": 208,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.986737400530504
+    },
+    {
+      "page": 209,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9868073878627969
+    },
+    {
+      "page": 210,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9851632047477745
+    },
+    {
+      "page": 211,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9848942598187311
+    },
+    {
+      "page": 212,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9858356940509915
+    },
+    {
+      "page": 213,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9861495844875346
+    },
+    {
+      "page": 214,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9881235154394299
+    },
+    {
+      "page": 215,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9637883008356546
+    },
+    {
+      "page": 216,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9577464788732394
+    },
+    {
+      "page": 217,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9872773536895675
+    },
+    {
+      "page": 218,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9838187702265372
+    },
+    {
+      "page": 219,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9859943977591037
+    },
+    {
+      "page": 220,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.984984984984985
+    },
+    {
+      "page": 221,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9825783972125436
+    },
+    {
+      "page": 222,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9861495844875346
+    },
+    {
+      "page": 223,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9848024316109423
+    },
+    {
+      "page": 224,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9823321554770318
+    },
+    {
+      "page": 225,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9644970414201184
+    },
+    {
+      "page": 226,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9548387096774194
+    },
+    {
+      "page": 227,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9836065573770492
+    },
+    {
+      "page": 228,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9856733524355301
+    },
+    {
+      "page": 229,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9619377162629758
+    },
+    {
+      "page": 230,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9641873278236914
+    },
+    {
+      "page": 231,
+      "startDice": 0.8,
+      "bodyDice": 0.9830508474576272
+    },
+    {
+      "page": 232,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9831460674157303
+    },
+    {
+      "page": 233,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9664804469273743
+    },
+    {
+      "page": 234,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9757412398921833
+    },
+    {
+      "page": 235,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9848942598187311
+    },
+    {
+      "page": 236,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.984984984984985
+    },
+    {
+      "page": 237,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9831649831649831
+    },
+    {
+      "page": 238,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9752066115702479
+    },
+    {
+      "page": 239,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.972972972972973
+    },
+    {
+      "page": 240,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9788519637462235
+    },
+    {
+      "page": 241,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9672727272727273
+    },
+    {
+      "page": 242,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9722222222222222
+    },
+    {
+      "page": 243,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9691358024691358
+    },
+    {
+      "page": 244,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9852507374631269
+    },
+    {
+      "page": 245,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.979757085020243
+    },
+    {
+      "page": 246,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9841269841269841
+    },
+    {
+      "page": 247,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.98
+    },
+    {
+      "page": 248,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9714285714285714
+    },
+    {
+      "page": 249,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.987012987012987
+    },
+    {
+      "page": 250,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9861495844875346
+    },
+    {
+      "page": 251,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9877149877149877
+    },
+    {
+      "page": 252,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9850746268656716
+    },
+    {
+      "page": 253,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9787234042553191
+    },
+    {
+      "page": 254,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9640718562874252
+    },
+    {
+      "page": 255,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9775280898876404
+    },
+    {
+      "page": 256,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.98
+    },
+    {
+      "page": 257,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9743589743589743
+    },
+    {
+      "page": 258,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9802816901408451
+    },
+    {
+      "page": 259,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.967741935483871
+    },
+    {
+      "page": 260,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9853372434017595
+    },
+    {
+      "page": 261,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9826989619377162
+    },
+    {
+      "page": 262,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9841269841269841
+    },
+    {
+      "page": 263,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9865229110512129
+    },
+    {
+      "page": 264,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9766081871345029
+    },
+    {
+      "page": 265,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9800995024875622
+    },
+    {
+      "page": 266,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.975
+    },
+    {
+      "page": 267,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9736842105263158
+    },
+    {
+      "page": 268,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9834983498349835
+    },
+    {
+      "page": 269,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9845201238390093
+    },
+    {
+      "page": 270,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9750692520775623
+    },
+    {
+      "page": 271,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9655172413793104
+    },
+    {
+      "page": 272,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9710982658959537
+    },
+    {
+      "page": 273,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9859154929577465
+    },
+    {
+      "page": 274,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9824561403508771
+    },
+    {
+      "page": 275,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9727891156462585
+    },
+    {
+      "page": 276,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9875311720698254
+    },
+    {
+      "page": 277,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9856733524355301
+    },
+    {
+      "page": 278,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9878934624697336
+    },
+    {
+      "page": 279,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9842271293375394
+    },
+    {
+      "page": 280,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9865951742627346
+    },
+    {
+      "page": 281,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9826989619377162
+    },
+    {
+      "page": 282,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9865951742627346
+    },
+    {
+      "page": 283,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9743589743589743
+    },
+    {
+      "page": 284,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9775561097256857
+    },
+    {
+      "page": 285,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9848942598187311
+    },
+    {
+      "page": 286,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9841269841269841
+    },
+    {
+      "page": 287,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9848024316109423
+    },
+    {
+      "page": 288,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9741935483870968
+    },
+    {
+      "page": 289,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9766081871345029
+    },
+    {
+      "page": 290,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9726775956284153
+    },
+    {
+      "page": 291,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9731182795698925
+    },
+    {
+      "page": 292,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9754385964912281
+    },
+    {
+      "page": 293,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9737609329446064
+    },
+    {
+      "page": 294,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9838187702265372
+    },
+    {
+      "page": 295,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9845201238390093
+    },
+    {
+      "page": 296,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9777777777777777
+    },
+    {
+      "page": 297,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9680589680589681
+    },
+    {
+      "page": 298,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9712643678160919
+    },
+    {
+      "page": 299,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.976878612716763
+    },
+    {
+      "page": 300,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9824561403508771
+    },
+    {
+      "page": 301,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.982078853046595
+    },
+    {
+      "page": 302,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9875930521091811
+    },
+    {
+      "page": 303,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9742120343839542
+    },
+    {
+      "page": 304,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9782082324455206
+    },
+    {
+      "page": 305,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9743589743589743
+    },
+    {
+      "page": 306,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9719101123595506
+    },
+    {
+      "page": 307,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9841269841269841
+    },
+    {
+      "page": 308,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9853372434017595
+    },
+    {
+      "page": 309,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9762532981530343
+    },
+    {
+      "page": 310,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.97
+    },
+    {
+      "page": 311,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9751552795031055
+    },
+    {
+      "page": 312,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9812332439678284
+    },
+    {
+      "page": 313,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9712460063897763
+    },
+    {
+      "page": 314,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9612903225806452
+    },
+    {
+      "page": 315,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.953125
+    },
+    {
+      "page": 316,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9602446483180428
+    },
+    {
+      "page": 317,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9774436090225563
+    },
+    {
+      "page": 318,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9837133550488599
+    },
+    {
+      "page": 319,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9852507374631269
+    },
+    {
+      "page": 320,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9826989619377162
+    },
+    {
+      "page": 321,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9857549857549858
+    },
+    {
+      "page": 322,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9773299748110831
+    },
+    {
+      "page": 323,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9704918032786886
+    },
+    {
+      "page": 324,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9870801033591732
+    },
+    {
+      "page": 325,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9875930521091811
+    },
+    {
+      "page": 326,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9854227405247813
+    },
+    {
+      "page": 327,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9868073878627969
+    },
+    {
+      "page": 328,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9862258953168044
+    },
+    {
+      "page": 329,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9831649831649831
+    },
+    {
+      "page": 330,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9776536312849162
+    },
+    {
+      "page": 331,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9801980198019802
+    },
+    {
+      "page": 332,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9805825242718447
+    },
+    {
+      "page": 333,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.978494623655914
+    },
+    {
+      "page": 334,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9875930521091811
+    },
+    {
+      "page": 335,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9848024316109423
+    },
+    {
+      "page": 336,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9823321554770318
+    },
+    {
+      "page": 337,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9868073878627969
+    },
+    {
+      "page": 338,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9852507374631269
+    },
+    {
+      "page": 339,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9863760217983651
+    },
+    {
+      "page": 340,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9752650176678446
+    },
+    {
+      "page": 341,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.973293768545994
+    },
+    {
+      "page": 342,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9832775919732442
+    },
+    {
+      "page": 343,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.986737400530504
+    },
+    {
+      "page": 344,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9773299748110831
+    },
+    {
+      "page": 345,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9716088328075709
+    },
+    {
+      "page": 346,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9797101449275363
+    },
+    {
+      "page": 347,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9739130434782609
+    },
+    {
+      "page": 348,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9671641791044776
+    },
+    {
+      "page": 349,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9693593314763231
+    },
+    {
+      "page": 350,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9761904761904762
+    },
+    {
+      "page": 351,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9663608562691132
+    },
+    {
+      "page": 352,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9701897018970189
+    },
+    {
+      "page": 353,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9430379746835443
+    },
+    {
+      "page": 354,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9476584022038568
+    },
+    {
+      "page": 355,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.986737400530504
+    },
+    {
+      "page": 356,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9870801033591732
+    },
+    {
+      "page": 357,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9874686716791979
+    },
+    {
+      "page": 358,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9841269841269841
+    },
+    {
+      "page": 359,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9870801033591732
+    },
+    {
+      "page": 360,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9819494584837545
+    },
+    {
+      "page": 361,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9762532981530343
+    },
+    {
+      "page": 362,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9758713136729222
+    },
+    {
+      "page": 363,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9846153846153847
+    },
+    {
+      "page": 364,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9787234042553191
+    },
+    {
+      "page": 365,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9723076923076923
+    },
+    {
+      "page": 366,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9846153846153847
+    },
+    {
+      "page": 367,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9736842105263158
+    },
+    {
+      "page": 368,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.975
+    },
+    {
+      "page": 369,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9765886287625418
+    },
+    {
+      "page": 370,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9742120343839542
+    },
+    {
+      "page": 371,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9836065573770492
+    },
+    {
+      "page": 372,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9870801033591732
+    },
+    {
+      "page": 373,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9872122762148338
+    },
+    {
+      "page": 374,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.984984984984985
+    },
+    {
+      "page": 375,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9856733524355301
+    },
+    {
+      "page": 376,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9848024316109423
+    },
+    {
+      "page": 377,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9828178694158075
+    },
+    {
+      "page": 378,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9782608695652174
+    },
+    {
+      "page": 379,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.973404255319149
+    },
+    {
+      "page": 380,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9845201238390093
+    },
+    {
+      "page": 381,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9860724233983287
+    },
+    {
+      "page": 382,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9822064056939501
+    },
+    {
+      "page": 383,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9795918367346939
+    },
+    {
+      "page": 384,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9779005524861878
+    },
+    {
+      "page": 385,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9865229110512129
+    },
+    {
+      "page": 386,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9846153846153847
+    },
+    {
+      "page": 387,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9832402234636871
+    },
+    {
+      "page": 388,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9731543624161074
+    },
+    {
+      "page": 389,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9853372434017595
+    },
+    {
+      "page": 390,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9783783783783784
+    },
+    {
+      "page": 391,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9743589743589743
+    },
+    {
+      "page": 392,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9797101449275363
+    },
+    {
+      "page": 393,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9717868338557993
+    },
+    {
+      "page": 394,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9847094801223242
+    },
+    {
+      "page": 395,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9782608695652174
+    },
+    {
+      "page": 396,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9792746113989638
+    },
+    {
+      "page": 397,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9776357827476039
+    },
+    {
+      "page": 398,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9746478873239437
+    },
+    {
+      "page": 399,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9743589743589743
+    },
+    {
+      "page": 400,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9763313609467456
+    },
+    {
+      "page": 401,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9771428571428571
+    },
+    {
+      "page": 402,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9761904761904762
+    },
+    {
+      "page": 403,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9819494584837545
+    },
+    {
+      "page": 404,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9846153846153847
+    },
+    {
+      "page": 405,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9862258953168044
+    },
+    {
+      "page": 406,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9841269841269841
+    },
+    {
+      "page": 407,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9836065573770492
+    },
+    {
+      "page": 408,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.986737400530504
+    },
+    {
+      "page": 409,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9854227405247813
+    },
+    {
+      "page": 410,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9859154929577465
+    },
+    {
+      "page": 411,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9868073878627969
+    },
+    {
+      "page": 412,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9836065573770492
+    },
+    {
+      "page": 413,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9844236760124611
+    },
+    {
+      "page": 414,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9821428571428571
+    },
+    {
+      "page": 415,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9798994974874372
+    },
+    {
+      "page": 416,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9855072463768116
+    },
+    {
+      "page": 417,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9872122762148338
+    },
+    {
+      "page": 418,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9644268774703557
+    },
+    {
+      "page": 419,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9769585253456221
+    },
+    {
+      "page": 420,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9819494584837545
+    },
+    {
+      "page": 421,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9868073878627969
+    },
+    {
+      "page": 422,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9765258215962441
+    },
+    {
+      "page": 423,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9789029535864979
+    },
+    {
+      "page": 424,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.976303317535545
+    },
+    {
+      "page": 425,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9794238683127572
+    },
+    {
+      "page": 426,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9846153846153847
+    },
+    {
+      "page": 427,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9837133550488599
+    },
+    {
+      "page": 428,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9854227405247813
+    },
+    {
+      "page": 429,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9842271293375394
+    },
+    {
+      "page": 430,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9576547231270358
+    },
+    {
+      "page": 431,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.954954954954955
+    },
+    {
+      "page": 432,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9834983498349835
+    },
+    {
+      "page": 433,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9850746268656716
+    },
+    {
+      "page": 434,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9842271293375394
+    },
+    {
+      "page": 435,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9845201238390093
+    },
+    {
+      "page": 436,
+      "startDice": 0.8,
+      "bodyDice": 0.9848942598187311
+    },
+    {
+      "page": 437,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9809885931558935
+    },
+    {
+      "page": 438,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.984984984984985
+    },
+    {
+      "page": 439,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9843260188087775
+    },
+    {
+      "page": 440,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9847094801223242
+    },
+    {
+      "page": 441,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9847094801223242
+    },
+    {
+      "page": 442,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.982078853046595
+    },
+    {
+      "page": 443,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9767441860465116
+    },
+    {
+      "page": 444,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.975
+    },
+    {
+      "page": 445,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9843260188087775
+    },
+    {
+      "page": 446,
+      "startDice": 0.8,
+      "bodyDice": 0.96875
+    },
+    {
+      "page": 447,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9487179487179487
+    },
+    {
+      "page": 448,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9618768328445748
+    },
+    {
+      "page": 449,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9816849816849816
+    },
+    {
+      "page": 450,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9840255591054313
+    },
+    {
+      "page": 451,
+      "startDice": 0.8,
+      "bodyDice": 0.9848942598187311
+    },
+    {
+      "page": 452,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9845201238390093
+    },
+    {
+      "page": 453,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9842271293375394
+    },
+    {
+      "page": 454,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9836065573770492
+    },
+    {
+      "page": 455,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9848942598187311
+    },
+    {
+      "page": 456,
+      "startDice": 0.8,
+      "bodyDice": 0.9844236760124611
+    },
+    {
+      "page": 457,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9840255591054313
+    },
+    {
+      "page": 458,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9818181818181818
+    },
+    {
+      "page": 459,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.972972972972973
+    },
+    {
+      "page": 460,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9857549857549858
+    },
+    {
+      "page": 461,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9825783972125436
+    },
+    {
+      "page": 462,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9675090252707581
+    },
+    {
+      "page": 463,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9830508474576272
+    },
+    {
+      "page": 464,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9856733524355301
+    },
+    {
+      "page": 465,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9371069182389937
+    },
+    {
+      "page": 466,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9846153846153847
+    },
+    {
+      "page": 467,
+      "startDice": 0.8,
+      "bodyDice": 0.9850746268656716
+    },
+    {
+      "page": 468,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9854227405247813
+    },
+    {
+      "page": 469,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.986737400530504
+    },
+    {
+      "page": 470,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9860724233983287
+    },
+    {
+      "page": 471,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9860724233983287
+    },
+    {
+      "page": 472,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9859154929577465
+    },
+    {
+      "page": 473,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9856733524355301
+    },
+    {
+      "page": 474,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9855907780979827
+    },
+    {
+      "page": 475,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.986449864498645
+    },
+    {
+      "page": 476,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9854227405247813
+    },
+    {
+      "page": 477,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9853372434017595
+    },
+    {
+      "page": 478,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9858356940509915
+    },
+    {
+      "page": 479,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9861495844875346
+    },
+    {
+      "page": 480,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9859154929577465
+    },
+    {
+      "page": 481,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9854227405247813
+    },
+    {
+      "page": 482,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9851632047477745
+    },
+    {
+      "page": 483,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9873417721518988
+    },
+    {
+      "page": 484,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9878934624697336
+    },
+    {
+      "page": 485,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9873417721518988
+    },
+    {
+      "page": 486,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9861495844875346
+    },
+    {
+      "page": 487,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.987012987012987
+    },
+    {
+      "page": 488,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9863013698630136
+    },
+    {
+      "page": 489,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.987012987012987
+    },
+    {
+      "page": 490,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9850746268656716
+    },
+    {
+      "page": 491,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9868766404199475
+    },
+    {
+      "page": 492,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.984984984984985
+    },
+    {
+      "page": 493,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9873417721518988
+    },
+    {
+      "page": 494,
+      "startDice": 0.8,
+      "bodyDice": 0.9816849816849816
+    },
+    {
+      "page": 495,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9853372434017595
+    },
+    {
+      "page": 496,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.98125
+    },
+    {
+      "page": 497,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9358974358974359
+    },
+    {
+      "page": 498,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.8923076923076924
+    },
+    {
+      "page": 499,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.914572864321608
+    },
+    {
+      "page": 500,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9064039408866995
+    },
+    {
+      "page": 501,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9347826086956522
+    },
+    {
+      "page": 502,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9740932642487047
+    },
+    {
+      "page": 503,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9738219895287958
+    },
+    {
+      "page": 504,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.968503937007874
+    },
+    {
+      "page": 505,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9847094801223242
+    },
+    {
+      "page": 506,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9629629629629629
+    },
+    {
+      "page": 507,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9337175792507204
+    },
+    {
+      "page": 508,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9212827988338192
+    },
+    {
+      "page": 509,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9146005509641874
+    },
+    {
+      "page": 510,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.8837209302325582
+    },
+    {
+      "page": 511,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.8674698795180723
+    },
+    {
+      "page": 512,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9017341040462428
+    },
+    {
+      "page": 513,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.8844221105527639
+    },
+    {
+      "page": 514,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.8930232558139535
+    },
+    {
+      "page": 515,
+      "startDice": 0.8,
+      "bodyDice": 0.8955223880597015
+    },
+    {
+      "page": 516,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.8979591836734694
+    },
+    {
+      "page": 517,
+      "startDice": 0.8148148148148148,
+      "bodyDice": 0.8947368421052632
+    },
+    {
+      "page": 518,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9150943396226415
+    },
+    {
+      "page": 519,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.8888888888888888
+    },
+    {
+      "page": 520,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.883248730964467
+    },
+    {
+      "page": 521,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9
+    },
+    {
+      "page": 522,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.925764192139738
+    },
+    {
+      "page": 523,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9790575916230366
+    },
+    {
+      "page": 524,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9715909090909091
+    },
+    {
+      "page": 525,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9491525423728814
+    },
+    {
+      "page": 526,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9406392694063926
+    },
+    {
+      "page": 527,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9746192893401016
+    },
+    {
+      "page": 528,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9751243781094527
+    },
+    {
+      "page": 529,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9746192893401016
+    },
+    {
+      "page": 530,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.975609756097561
+    },
+    {
+      "page": 531,
+      "startDice": 0.7719298245614035,
+      "bodyDice": 0.9760765550239234
+    },
+    {
+      "page": 532,
+      "startDice": 0.7857142857142857,
+      "bodyDice": 0.9816849816849816
+    },
+    {
+      "page": 533,
+      "startDice": 0.8148148148148148,
+      "bodyDice": 0.9907038512616202
+    },
+    {
+      "page": 534,
+      "startDice": 0.7586206896551724,
+      "bodyDice": 0.9701492537313433
+    },
+    {
+      "page": 535,
+      "startDice": 0.8421052631578947,
+      "bodyDice": 0.9980582524271845
+    },
+    {
+      "page": 536,
+      "startDice": 0.84375,
+      "bodyDice": 0.9985734664764622
+    },
+    {
+      "page": 537,
+      "startDice": 0.8518518518518519,
+      "bodyDice": 0.9985693848354793
+    },
+    {
+      "page": 538,
+      "startDice": 0.8214285714285714,
+      "bodyDice": 0.9983739837398374
+    },
+    {
+      "page": 539,
+      "startDice": 0.8076923076923077,
+      "bodyDice": 0.998003992015968
+    },
+    {
+      "page": 540,
+      "startDice": 0.8571428571428571,
+      "bodyDice": 0.9987063389391979
+    },
+    {
+      "page": 541,
+      "startDice": 0.8852459016393442,
+      "bodyDice": 0.9988518943742825
+    },
+    {
+      "page": 542,
+      "startDice": 0.8518518518518519,
+      "bodyDice": 0.9987163029525032
+    },
+    {
+      "page": 543,
+      "startDice": 0.8363636363636363,
+      "bodyDice": 1
+    },
+    {
+      "page": 544,
+      "startDice": 0.8518518518518519,
+      "bodyDice": 0.9927007299270073
+    },
+    {
+      "page": 545,
+      "startDice": 0.8771929824561403,
+      "bodyDice": 1
+    },
+    {
+      "page": 546,
+      "startDice": 0.8524590163934426,
+      "bodyDice": 0.990990990990991
+    }
+  ]
+}

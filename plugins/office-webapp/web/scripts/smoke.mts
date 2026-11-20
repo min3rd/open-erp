@@ -2,12 +2,15 @@ import { crc32 } from '../src/app/core/binary/crc32.ts';
 import fs from 'node:fs';
 import path from 'node:path';
 import { assertExtensionMatches, detectFileKind, OfficeBinaryError } from '../src/app/core/binary/magic-bytes.ts';
+import { readOle2 } from '../src/app/core/binary/ole2.ts';
 import { readZip, writeZip } from '../src/app/core/binary/zip.ts';
 import { attr, findChild, findChildren, parseXml } from '../src/app/core/binary/xml.ts';
+import { openOfficeFile } from '../src/app/core/office/parser.ts';
 import { parseDocx, parseWordBlocks } from '../src/app/core/office/docx.ts';
 import {
   deleteTableColumn, deleteTableRow, deleteWordTable, distributeTableColumns, insertTableColumn,
   insertTableRow, mergeTableCells, setRowVerticalAlign, setTableAlignment, setTableHeaderRow, splitTableCells,
+  applyTableStyle, applyTableCellBorder,
   tableCellLayout, tableColumnCount,
 } from '../src/app/core/office/word-tables.ts';
 import { parseXlsx } from '../src/app/core/office/xlsx.ts';
@@ -18,6 +21,13 @@ import {
   setSlideNotes, setSlideSize, toggleSlideHidden,
 } from '../src/app/core/office/ppt-edit.ts';
 import { parseCsv } from '../src/app/core/office/csv.ts';
+import { wordToMarkdown } from '../src/app/core/office/word-markdown.ts';
+import { resizeRunObject, setRunAlt, setShapeColor } from '../src/app/core/office/word-object.ts';
+import { imagesToPdf } from '../src/app/core/office/word-pdf.ts';
+import { parsePdfInfo } from '../src/app/core/office/pdf.ts';
+import { parseOdt } from '../src/app/core/office/odt.ts';
+import { saveOdt } from '../src/app/core/office/odt-save.ts';
+import { insertWordSmartArt, smartArtParts, updateWordSmartArt } from '../src/app/core/office/word-smartart.ts';
 import { descendants } from '../src/app/core/binary/xml.ts';
 import { saveDocx } from '../src/app/core/office/docx-save.ts';
 import { saveXlsx } from '../src/app/core/office/xlsx-save.ts';
@@ -55,13 +65,14 @@ import { findWordMatches, replaceWordText } from '../src/app/core/office/word-fi
 import { insertWordImage, insertWordTable, insertWordVideo, insertTextBox, insertWordShape } from '../src/app/core/office/word-insert.ts';
 import { insertHyperlink } from '../src/app/core/office/word-link.ts';
 import { applySpellSuggestion, checkWordSpelling, fixWordSpelling, spellcheckSummary } from '../src/app/core/office/word-spell.ts';
-import { WORD_RIBBON, wordIconPaths } from '../src/app/core/office/word-ribbon.ts';
+import { WORD_RIBBON, WORD_SINGLE_LINE_RIBBON, wordIconPaths, wordIconSvg, wordLayeredIconSvg } from '../src/app/core/office/word-ribbon.ts';
 import { insertCaption, insertCoverPage, insertTableOfFigures, setWatermark } from '../src/app/core/office/word-extra.ts';
 import { setDocumentProtection } from '../src/app/core/office/word-protect.ts';
+import { setAutoHyphenation } from '../src/app/core/office/word-settings.ts';
 import { applyStyleSet, applyWordTheme, WORD_THEMES } from '../src/app/core/office/word-theme.ts';
 import { synonymsFor } from '../src/app/core/office/word-thesaurus.ts';
 import { restoreWord, snapshotWord } from '../src/app/core/office/word-history.ts';
-import { applyParagraphFormat, insertPageBreak, parseNumbering, sortBodyParagraphs, toggleParagraphBorders } from '../src/app/core/office/word-format.ts';
+import { applyParagraphFormat, insertBlankPage, insertPageBreak, parseNumbering, setParagraphBorders, sortBodyParagraphs, toggleParagraphBorders } from '../src/app/core/office/word-format.ts';
 import { applyRunFormat, clearRunFormat, paragraphPlainText, replaceParagraphRange } from '../src/app/core/office/word-runs.ts';
 import { applyCellStyle, cellDisplayValue, clearFreezePane, parseCellStyleMap, setFreezePane, stylesheetSummary } from '../src/app/core/office/excel-format.ts';
 import { findInSheet, sortSheet, sortSheetKeys, visibleRows } from '../src/app/core/office/excel-sort.ts';
@@ -89,6 +100,8 @@ import { deleteEquation, insertEquation, parseEquations } from '../src/app/core/
 import { addInkStroke, clearInk, parseInkStrokes } from '../src/app/core/office/word-ink.ts';
 import { paginateBlocks, sliceCellParagraphs } from '../src/app/core/office/word-paginate.ts';
 import type { CellContent } from '../src/app/core/office/word-table-flow.ts';
+import { buildCellLines, flowRow, newCellState } from '../src/app/core/office/word-table-flow.ts';
+import { wrapTextLines } from '../src/app/core/office/word-text-metrics.ts';
 import {
   checkMergeErrors, emptyMailMergeState, finishMerge, insertMergeField, insertMergeRule, parseMergeRows,
   type MailMergeState,
@@ -403,6 +416,9 @@ async function main(): Promise<void> {
     const first = reopened.blocks[0];
     const savedText = first.kind === 'paragraph' ? first.paragraph.runs.map((run) => run.text).join('') : '';
     check('docx edit + save', savedText.includes('Đã sửa'), savedText);
+    const savedTypes = new TextDecoder().decode((await readZip(saved)).entries.get('[Content_Types].xml'));
+    check('docx save content types', savedTypes.includes('Extension="xml"')
+      && savedTypes.includes('PartName="/word/document.xml"'), savedTypes.slice(0, 160));
   } else {
     check('docx edit + save', false, 'missing paragraph node');
   }
@@ -701,9 +717,12 @@ async function main(): Promise<void> {
       + '<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Times New Roman"/><w:sz w:val="24"/></w:rPr></w:rPrDefault>'
       + '<w:pPrDefault><w:pPr><w:spacing w:after="160" w:line="259" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>'
       + '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:pPr><w:jc w:val="both"/></w:pPr><w:rPr><w:sz w:val="28"/></w:rPr></w:style>'
-      + '<w:style w:type="paragraph" w:styleId="Heading1"><w:basedOn w:val="Normal"/><w:pPr><w:spacing w:before="240" w:after="120" w:line="305" w:lineRule="auto"/></w:pPr><w:rPr><w:sz w:val="32"/></w:rPr></w:style>'
+      + '<w:style w:type="paragraph" w:styleId="Heading1"><w:basedOn w:val="Normal"/><w:pPr><w:numPr><w:numId w:val="7"/></w:numPr><w:spacing w:before="240" w:after="120" w:line="305" w:lineRule="auto"/></w:pPr><w:rPr><w:sz w:val="32"/></w:rPr></w:style>'
       + '<w:style w:type="table" w:styleId="TableGrid"><w:rPr><w:sz w:val="20"/></w:rPr><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr></w:style>'
       + '</w:styles>') },
+    { name: 'word/numbering.xml', data: text('<?xml version="1.0"?><w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+      + '<w:abstractNum w:abstractNumId="3"><w:lvl w:ilvl="0"><w:start w:val="1"/><w:numFmt w:val="upperLetter"/><w:lvlText w:val="%1"/></w:lvl></w:abstractNum>'
+      + '<w:num w:numId="7"><w:abstractNumId w:val="3"/></w:num></w:numbering>') },
     { name: 'word/document.xml', data: text('<?xml version="1.0"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'
       + '<w:p><w:r><w:t>Thân văn bản</w:t></w:r></w:p>'
       + '<w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>Tiêu đề</w:t></w:r></w:p>'
@@ -727,7 +746,17 @@ async function main(): Promise<void> {
     && Math.abs((headingParagraph.spaceBeforePx ?? 0) - 16) < 0.1
     && Math.abs((headingParagraph.spaceAfterPx ?? 0) - 8) < 0.1,
     JSON.stringify(headingParagraph));
-  check('word table style applies compact metrics', cellParagraph?.fontSizePt === 10
+  check('word heading numbering comes from the style', headingParagraph?.numbering?.id === '7'
+    && headingParagraph.numbering.level === 0
+    && bodyParagraph?.numbering === undefined
+    && styledMetricsDoc.numberingFormats?.get('7')?.levels.get(0)?.format === 'upperLetter'
+    && styledMetricsDoc.numberingFormats?.get('7')?.levels.get(0)?.text === '%1',
+    JSON.stringify({
+      heading: headingParagraph?.numbering ?? null,
+      body: bodyParagraph?.numbering ?? null,
+      format: styledMetricsDoc.numberingFormats?.get('7')?.levels.get(0) ?? null,
+    }));
+  check('word table style applies compact metrics but keeps cell font', cellParagraph?.fontSizePt === 14
     && cellParagraph.spaceAfterPx === 0
     && Math.abs((cellParagraph.lineSpacing ?? 0) - 1) < 0.001
     && styledTable?.kind === 'table' && styledTable.grid?.length === 2,
@@ -738,8 +767,14 @@ async function main(): Promise<void> {
     && styledTable.cellStyles?.[0]?.[0]?.borderTop === true
     && styledTable.cellStyles?.[0]?.[0]?.borderLeft === false
     && styledTable.cellStyles?.[0]?.[0]?.borderWidthPx === 1
-    && styledTable.cellStyles?.[0]?.[1] === undefined,
+    // Word's default cell margins (108 twips each side) apply to every cell.
+    && styledTable.cellStyles?.[0]?.[0]?.padLeftPx === 7.2
+    && styledTable.cellStyles?.[0]?.[1]?.padLeftPx === 7.2
+    && styledTable.cellStyles?.[0]?.[1]?.padTopPx === 0,
     JSON.stringify(styledTable?.kind === 'table' ? styledTable.cellStyles : null));
+  check('word table keeps authored grid width', styledTable?.kind === 'table'
+    && styledTable.tableWidthPx === 320 && styledTable.colWidthsPx?.join(',') === '160,160',
+    JSON.stringify(styledTable?.kind === 'table' ? { width: styledTable.tableWidthPx, cols: styledTable.colWidthsPx } : null));
   check('word page margins parsed', styledMetricsDoc.pageMargins?.top === 96
     && Math.abs((styledMetricsDoc.pageMargins?.bottom ?? 0) - 66.2) < 0.1
     && styledMetricsDoc.pageMargins?.left === 96 && styledMetricsDoc.pageMargins?.right === 60,
@@ -986,6 +1021,29 @@ async function main(): Promise<void> {
     && existingSaved.sections?.[0].headers.length === 1,
     JSON.stringify(existingSaved.sections?.[0].headers.map((item) => item.text)));
 
+  const multiSectionDocx = await writeZip([
+    { name: '[Content_Types].xml', data: text('<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"></Types>') },
+    { name: 'word/_rels/document.xml.rels', data: text('<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>') },
+    { name: 'word/document.xml', data: text('<?xml version="1.0"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Section one</w:t></w:r></w:p><w:sectPr><w:pgSz w:w="11906" w:h="16838"/></w:sectPr></w:body></w:document>') },
+  ]);
+  const multiSection = await parseDocx(multiSectionDocx);
+  insertSectionBreak(multiSection);
+  const multiEntries = multiSection.packageEntries ?? new Map();
+  const firstSection = sectionAt(multiSection, 0);
+  const secondSection = sectionAt(multiSection, 1);
+  const firstHeader = firstSection ? ensureHeaderFooter(multiSection, firstSection, 'header', 'default', multiEntries) : null;
+  const secondHeader = secondSection ? ensureHeaderFooter(multiSection, secondSection, 'header', 'default', multiEntries) : null;
+  if (firstHeader) setHeaderFooterText(firstHeader, 'Header one');
+  if (secondHeader) setHeaderFooterText(secondHeader, 'Header two');
+  check('word header parts unique per section', firstHeader?.path !== secondHeader?.path
+    && secondHeader?.path === 'word/header2.xml',
+    JSON.stringify([firstHeader?.path, secondHeader?.path]));
+  const multiSaved = await parseDocx(await saveDocx(multiSection, toBuffer(multiSectionDocx)));
+  check('word per-section headers round-trip', multiSaved.sections?.length === 2
+    && multiSaved.sections?.[0].headers.find((item) => item.type === 'default')?.text === 'Header one'
+    && multiSaved.sections?.[1].headers.find((item) => item.type === 'default')?.text === 'Header two',
+    JSON.stringify(multiSaved.sections?.map((section) => section.headers.map((item) => item.text))));
+
   const pageFieldFooterDocx = await writeZip([
     { name: '[Content_Types].xml', data: text('<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"></Types>') },
     { name: 'word/_rels/document.xml.rels', data: text('<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId9" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/></Relationships>') },
@@ -1066,6 +1124,50 @@ async function main(): Promise<void> {
       flowBodyRows,
     }));
 
+  const hintCell: CellContent = {
+    lines: Array.from({ length: 8 }, (_, index) => ({ start: index, end: index + 1, height: 25 })),
+    paddingTop: 0,
+    paddingBottom: 0,
+    breakLines: [4],
+  };
+  const hintState = [newCellState()];
+  const hintFirst = flowRow([hintCell], hintState, 100);
+  const hintSecond = flowRow([hintCell], hintState, 100);
+  check('word table break hints derive page fragment', hintFirst.slices[0]?.end === 4 && !hintFirst.done
+    && hintSecond.slices[0]?.start === 4 && hintSecond.done,
+    JSON.stringify({ first: hintFirst.slices[0], second: hintSecond.slices[0], cursor: hintState[0].cursor }));
+
+  /* ------------------- Word text flow: line offsets ----------------------- */
+  const fakeAdvance = (value: string): number => value.length * 10;
+  const wrapped = wrapTextLines('aaaa bbbb cccc dddd', 100, fakeAdvance);
+  check('word text lines wrap at word boundaries', wrapped.length === 2
+    && wrapped[0].start === 0 && wrapped[0].end === 10 && wrapped[1].start === 10 && wrapped[1].end === 19,
+    JSON.stringify(wrapped));
+  check('word text lines keep long words whole', wrapTextLines('aaaaaaaaaaaa bb', 50, fakeAdvance).length === 2,
+    JSON.stringify(wrapTextLines('aaaaaaaaaaaa bb', 50, fakeAdvance)));
+  // Word breaks after a hyphen, so "in-memory" may end a line at "in-".
+  const hyphenLines = wrapTextLines('dung in-memory', 110, fakeAdvance);
+  check('word text lines break after hyphens', hyphenLines.length === 2
+    && hyphenLines[0].end === 8 && hyphenLines[1].start === 8,
+    JSON.stringify(hyphenLines));
+  // Word's w:br is a hard line break: it must not be re-flowed as a space.
+  const hardLines = wrapTextLines('aaaa bbbb\ncccc', 100, fakeAdvance);
+  check('word text lines keep hard breaks', hardLines.length === 2
+    && hardLines[0].end === 9 && hardLines[1].start === 10,
+    JSON.stringify(hardLines));
+
+  const splitParagraphBlock: WordBlock = { kind: 'paragraph', paragraph: { runs: [{ text: 'A'.repeat(100) }] } };
+  const splitParagraphPages = paginateBlocks([splitParagraphBlock], {
+    paragraphs: new Map([[0, 100]]),
+    paragraphLines: new Map([[0, { offsets: [0, 25, 50, 75], lineHeight: 25, marginTop: 0, marginBottom: 0 }]]),
+    contentHeight: 60,
+  });
+  const fragments = splitParagraphPages.map((page) => page.items[0]);
+  check('word paragraph flows across pages at line boundaries', splitParagraphPages.length === 2
+    && fragments[0]?.charStart === 0 && fragments[0]?.charEnd === 50
+    && fragments[1]?.charStart === 50 && fragments[1]?.charEnd === 100,
+    JSON.stringify({ pages: splitParagraphPages.length, fragments: fragments.map((item) => [item?.charStart, item?.charEnd]) }));
+
   const shortCellText = 'y'.repeat(20);
   const longCellText = 'x'.repeat(600);
   const splitFlowBlock: WordBlock = {
@@ -1119,6 +1221,31 @@ async function main(): Promise<void> {
   check('word multi-paragraph cell slices across paragraphs',
     firstSlice === 'Một' && middleSlice === 'Hai' && tailSlice === 'Ba',
     JSON.stringify({ firstSlice, middleSlice, tailSlice }));
+
+  // A cell that starts with an empty paragraph and uses paragraph spacing must
+  // keep one offset per line, or slicing a page fragment returns empty text.
+  const coverCell = buildCellLines(
+    [
+      { runs: [], spaceBeforePx: 0, spaceAfterPx: 12 },
+      { runs: [{ text: 'Gói thầu số 072/ĐTRR' }], spaceBeforePx: 0, spaceAfterPx: 9 },
+      { runs: [{ text: 'Hà Nội, 06/2026' }], spaceBeforePx: 0, spaceAfterPx: 0 },
+    ],
+    (value) => [{ start: 0, end: value.length }],
+    () => 20,
+  );
+  const coverSliced = sliceCellParagraphs(
+    [
+      { runs: [], spaceAfterPx: 12 },
+      { runs: [{ text: 'Gói thầu số 072/ĐTRR' }], spaceAfterPx: 9 },
+      { runs: [{ text: 'Hà Nội, 06/2026' }] },
+    ] as WordParagraph[],
+    { offsets: coverCell.offsets, paragraphStarts: coverCell.paragraphStarts },
+    coverCell.offsets[0],
+    coverCell.offsets[coverCell.lines.length],
+  ).map((paragraph) => paragraph.runs.map((run) => run.text ?? '').join('')).join('|');
+  check('word cell lines keep an offset per spacing line', coverCell.offsets.length === coverCell.lines.length + 1
+    && coverSliced.includes('Gói thầu số 072/ĐTRR') && coverSliced.includes('Hà Nội, 06/2026'),
+    JSON.stringify({ offsets: coverCell.offsets, lines: coverCell.lines.length, coverSliced }));
 
   const breakPages = paginateBlocks(
     [paragraphBlock('Trước'), paragraphBlock('', true), paragraphBlock('Sau')],
@@ -1361,6 +1488,19 @@ async function main(): Promise<void> {
       && layoutSaved.sections?.[0].margins.left === 720
       && layoutSaved.sections?.length === 2,
       JSON.stringify(layoutSaved.sections?.map((section) => ({ c: section.columns, o: section.orientation, w: section.pageWidth }))));
+
+    const customSection = layoutSaved.sections?.[1];
+    if (customSection) {
+      setPageSetup(customSection, {
+        pageWidth: 11906, pageHeight: 16838, orientation: 'portrait',
+        margins: { top: 850, right: 1134, bottom: 1417, left: 1701 },
+      });
+      const customSaved = await parseDocx(await saveDocx(layoutSaved, toBuffer(layoutDocx)));
+      const custom = customSaved.sections?.[1]?.margins;
+      check('word custom margins round-trip', custom?.top === 850 && custom?.right === 1134
+        && custom?.bottom === 1417 && custom?.left === 1701,
+        JSON.stringify(custom));
+    }
 
     const issues = scanAccessibility(layoutSaved);
     const altIssue = issues.find((issue) => issue.code === 'IMAGE_ALT_MISSING');
@@ -1657,8 +1797,8 @@ async function main(): Promise<void> {
 
   /* -------------------- Word ribbon parity structure -------------------- */
   const ribbonTabs = WORD_RIBBON.map((tab) => tab.id);
-  check('word ribbon 11 tabs', ribbonTabs.length === 11
-    && ['home', 'insert', 'table', 'draw', 'design', 'layout', 'references', 'mailings', 'review', 'view', 'help']
+  check('word ribbon 11 base + 3 contextual tabs', ribbonTabs.length === 14
+    && ['home', 'insert', 'table', 'tableLayout', 'picture', 'shape', 'draw', 'design', 'layout', 'references', 'mailings', 'review', 'view', 'help']
       .every((id) => ribbonTabs.includes(id as never)),
     JSON.stringify(ribbonTabs));
   const ribbonGroups = WORD_RIBBON.flatMap((tab) => tab.groups);
@@ -1667,28 +1807,30 @@ async function main(): Promise<void> {
     JSON.stringify(groupIds));
   const ribbonItems = ribbonGroups.flatMap((group) => group.items);
   const itemIds = ribbonItems.map((item) => item.id);
-  check('word ribbon commands unique', new Set(itemIds).size === itemIds.length && itemIds.length >= 60,
-    JSON.stringify({ commands: itemIds.length }));
+  check('word ribbon commands unique per tab', WORD_RIBBON.every((tab) => {
+    const ids = tab.groups.flatMap((group) => group.items.map((item) => item.id));
+    return new Set(ids).size === ids.length;
+  }) && itemIds.length >= 60, JSON.stringify({ commands: itemIds.length }));
   const requiredGroups = [
     'clipboard', 'font', 'paragraph', 'styles', 'editing',
     'pages', 'tables', 'illustrations', 'media', 'links', 'comments', 'headerFooter', 'text',
     'pens', 'documentFormatting', 'pageBackground', 'pageSetup', 'breaks', 'paragraphLayout', 'arrange',
     'toc', 'notes', 'citations', 'captions', 'index',
     'mailCreate', 'mailStart', 'mailFields', 'mailPreview', 'mailFinish',
-    'proofing', 'protect', 'reviewComments', 'tracking', 'views', 'show', 'zoomGroup', 'window', 'helpGroup',
+    'proofing', 'protect', 'reviewComments', 'tracking', 'inkReview', 'views', 'show', 'zoomGroup', 'window', 'helpGroup',
   ];
   check('word ribbon covers Office groups', requiredGroups.every((id) => groupIds.includes(id)),
     JSON.stringify(requiredGroups.filter((id) => !groupIds.includes(id))));
   const customControls = ribbonItems.filter((item) => item.control).map((item) => item.control);
   check('word ribbon dropdowns', ['fontName', 'fontSize', 'fontColor', 'highlight', 'style', 'spacing', 'shading',
-    'margins', 'orientation', 'pageSize', 'columns', 'lineNumbers', 'zoom']
+    'margins', 'orientation', 'pageSize', 'columns', 'lineNumbers', 'zoom', 'hyphenation']
     .every((control) => customControls.includes(control as never)),
     JSON.stringify(customControls));
   const commands = ribbonItems.map((item) => item.id);
   check('word ribbon Office commands present', ['paste', 'painter', 'bold', 'italic',
     'bullets', 'numbering', 'selectAll', 'table', 'picture', 'video', 'link', 'header', 'footer',
     'pageNumber', 'equation', 'symbol', 'insertFootnote', 'bibliography', 'spelling', 'wordCount',
-    'accessibility', 'trackChanges', 'acceptAll', 'rejectAll', 'readMode', 'immersive', 'ruler',
+    'accessibility', 'trackChanges', 'acceptAll', 'rejectAll', 'readMode', 'printLayout', 'webLayout', 'immersive', 'ruler',
     'navigation', 'fullscreen', 'help', 'shapes', 'icons', 'chart', 'themes', 'styleSets', 'sortParagraphs',
     'shading', 'tableOfFigures', 'thesaurus', 'restrictEditing', 'macros', 'insertMergeField',
     'markEntry', 'insertIndex', 'updateIndex', 'startMailMerge', 'selectRecipients', 'finishMerge',
@@ -1901,6 +2043,11 @@ async function main(): Promise<void> {
     .every((id) => ribbonCommands.includes(id)), JSON.stringify(ribbonCommands.slice(-8)));
   check('word ribbon icons for large buttons', ['coverPage', 'textBox', 'watermark', 'insertCaption', 'newWindow', 'table', 'picture']
     .every((id) => wordIconPaths(id).length > 0));
+  check('word draw highlighter/ruler + ink review', ['drawHighlighter', 'drawRuler', 'inkStart', 'inkHide', 'inkDeleteAll',
+    'eraserSmall', 'eraserMedium', 'lassoSelect', 'drawInkMode', 'fingerPainting', 'penFavorite', 'addPenFavorite']
+    .every((id) => commands.includes(id) && wordIconPaths(id).length > 0) && groupIds.includes('inkReview'),
+    JSON.stringify(commands.filter((id) => ['drawHighlighter', 'drawRuler', 'inkStart', 'inkHide', 'inkDeleteAll',
+      'eraserSmall', 'eraserMedium', 'lassoSelect', 'drawInkMode', 'fingerPainting', 'penFavorite', 'addPenFavorite'].includes(id))));
 
   /* ------------- Word shapes / figures / sort / theme / protect ---------- */
   const shapeDoc = await parseDocx(editDocx);
@@ -1915,6 +2062,24 @@ async function main(): Promise<void> {
     && shapeRuns[1].textBox?.shape === 'roundRect'
     && descendants(shapeSaved.xmlRoot!, 'a:prstGeom').some((node) => node.attrs['prst'] === 'ellipse'),
     JSON.stringify(shapeRuns.map((run) => run.textBox)));
+
+  const objectRun = shapeRuns[0];
+  setShapeColor(objectRun, 'fill', '#FF0000');
+  setShapeColor(objectRun, 'outline', '#0000FF');
+  resizeRunObject(objectRun, 320, 160);
+  setRunAlt(objectRun, 'Mô tả hình');
+  const objectSaved = await parseDocx(await saveDocx(shapeSaved, toBuffer(editDocx)));
+  const savedObject = objectSaved.blocks
+    .flatMap((block) => block.kind === 'paragraph' ? block.paragraph.runs : [])
+    .find((run) => run.textBox?.shape === 'ellipse');
+  const shapeFill = descendants(savedObject?.xmlNode ?? objectSaved.xmlRoot!, 'a:solidFill')[0];
+  check('word shape fill/outline/size/alt round-trip', savedObject?.textBox?.fill === '#FF0000'
+    && savedObject.textBox?.outline === '#0000FF'
+    && savedObject.textBox?.width === 320 && savedObject.textBox?.height === 160
+    && savedObject.alt === 'Mô tả hình'
+    && shapeFill?.children.some((node) => node.name === 'a:srgbClr' && node.attrs['val'] === 'FF0000')
+    && descendants(savedObject?.xmlNode ?? objectSaved.xmlRoot!, 'wp:docPr').some((node) => node.attrs['descr'] === 'Mô tả hình'),
+    JSON.stringify({ fill: savedObject?.textBox?.fill, outline: savedObject?.textBox?.outline, width: savedObject?.textBox?.width, alt: savedObject?.alt }));
 
   const figureDoc = await parseDocx(editDocx);
   insertCaption(figureDoc, 'Hình', 'Kiến trúc');
@@ -1949,6 +2114,52 @@ async function main(): Promise<void> {
     && descendants(shadedSaved.xmlRoot!, 'w:shd').some((node) => node.attrs['w:fill'] === 'FFF2CC'),
     JSON.stringify(shadedParagraph));
 
+  applyParagraphFormat(shadedSaved, 0, { shading: '' });
+  const clearedShadeDoc = await parseDocx(await saveDocx(shadedSaved, toBuffer(editDocx)));
+  const clearedPara = clearedShadeDoc.blocks[0];
+  check('word paragraph shading clear round-trip', clearedPara.kind === 'paragraph'
+    && !clearedPara.paragraph.shading
+    && descendants(clearedShadeDoc.xmlRoot!, 'w:shd').length === 0);
+
+  setParagraphBorders(clearedShadeDoc, 0, 'bottom');
+  const bottomBorderDoc = await parseDocx(await saveDocx(clearedShadeDoc, toBuffer(editDocx)));
+  const bPara = bottomBorderDoc.blocks[0];
+  check('word paragraph bottom border round-trip', bPara.kind === 'paragraph'
+    && Boolean(bPara.paragraph.borderSides?.bottom)
+    && !bPara.paragraph.borderSides?.top && !bPara.paragraph.borderSides?.left && !bPara.paragraph.borderSides?.right);
+  setParagraphBorders(bottomBorderDoc, 0, 'none');
+  const noBorderDoc = await parseDocx(await saveDocx(bottomBorderDoc, toBuffer(editDocx)));
+  const nbPara = noBorderDoc.blocks[0];
+  check('word paragraph border clear round-trip', nbPara.kind === 'paragraph'
+    && !nbPara.paragraph.borders && !nbPara.paragraph.borderSides
+    && descendants(noBorderDoc.xmlRoot!, 'w:pBdr').length === 0);
+
+  const twoParaDocx = await writeZip([
+    { name: '[Content_Types].xml', data: text('<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="xml" ContentType="application/xml"/></Types>') },
+    { name: 'word/document.xml', data: text('<?xml version="1.0"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>First</w:t></w:r></w:p><w:p><w:r><w:t>Second</w:t></w:r></w:p><w:sectPr/></w:body></w:document>') },
+  ]);
+  const pbDoc = await parseDocx(twoParaDocx);
+  const pbIdx = insertPageBreak(pbDoc, 0);
+  check('word cursor pageBreak mid-doc', pbIdx === 1 && pbDoc.blocks.length === 3
+    && pbDoc.blocks[1].kind === 'paragraph' && pbDoc.blocks[1].paragraph.runs.some((r) => r.pageBreak));
+
+  const blankDoc = await parseDocx(twoParaDocx);
+  const blankIdx = insertBlankPage(blankDoc, 0);
+  check('word insertBlankPage mid-doc', blankIdx === 2 && blankDoc.blocks.length === 5
+    && blankDoc.blocks[1].kind === 'paragraph' && blankDoc.blocks[1].paragraph.runs.some((r) => r.pageBreak)
+    && blankDoc.blocks[2].kind === 'paragraph' && !blankDoc.blocks[2].paragraph.runs.some((r) => r.pageBreak)
+    && blankDoc.blocks[3].kind === 'paragraph' && blankDoc.blocks[3].paragraph.runs.some((r) => r.pageBreak));
+
+  const slIds = Object.values(WORD_SINGLE_LINE_RIBBON).flat()
+    .flatMap((g) => g.items.filter((it) => !it.control && !it.disabled).map((it) => it.id));
+  check('word single-line icons present', slIds.every((id) => wordIconPaths(id).length > 0),
+    JSON.stringify(slIds.filter((id) => wordIconPaths(id).length === 0)));
+  check('word layered accent & distinct grow/shrink icons',
+    wordLayeredIconSvg('text_color', 'text_color_accent').includes('op-icon-accent')
+    && wordIconSvg('growFont') !== wordIconSvg('shrinkFont')
+    && wordIconSvg('alignLeft') !== wordIconSvg('alignRight')
+    && wordIconSvg('marginsMenu') !== wordIconSvg('columnsMenu'));
+
   const themeDocx = await writeZip([
     { name: '[Content_Types].xml', data: text('<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>') },
     { name: 'word/theme/theme1.xml', data: text('<?xml version="1.0"?><a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:themeElements><a:clrScheme name="Office"><a:accent1><a:srgbClr val="1F4E79"/></a:accent1></a:clrScheme><a:fontScheme name="Office"><a:majorFont><a:latin typeface="Calibri"/></a:majorFont><a:minorFont><a:latin typeface="Calibri"/></a:minorFont></a:fontScheme></a:themeElements></a:theme>') },
@@ -1977,6 +2188,28 @@ async function main(): Promise<void> {
   const unprotected = await parseDocx(await saveDocx(themeSaved, toBuffer(themeDocx)));
   check('word restrict editing off', !unprotected.protected
     && !new TextDecoder().decode(unprotected.packageEntries?.get('word/settings.xml')).includes('documentProtection'));
+
+  setAutoHyphenation(themeSaved, true);
+  const hyphenSaved = await parseDocx(await saveDocx(themeSaved, toBuffer(themeDocx)));
+  const hyphenXml = new TextDecoder().decode(hyphenSaved.packageEntries?.get('word/settings.xml'));
+  const hyphenRels = new TextDecoder().decode(hyphenSaved.packageEntries?.get('word/_rels/document.xml.rels'));
+  check('word auto hyphenation round-trip', hyphenSaved.autoHyphenation === true
+    && hyphenXml.includes('w:autoHyphenation') && hyphenRels.includes('settings.xml'),
+    JSON.stringify({ auto: hyphenSaved.autoHyphenation, part: hyphenXml.includes('autoHyphenation') }));
+  setAutoHyphenation(hyphenSaved, false);
+  const hyphenOff = await parseDocx(await saveDocx(hyphenSaved, toBuffer(themeDocx)));
+  check('word auto hyphenation off', !hyphenOff.autoHyphenation
+    && !new TextDecoder().decode(hyphenOff.packageEntries?.get('word/settings.xml')).includes('autoHyphenation'));
+
+  const orderDocx = await writeZip([
+    { name: 'word/document.xml', data: text('<?xml version="1.0"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Order</w:t></w:r></w:p><w:sectPr/></w:body></w:document>') },
+    { name: 'word/settings.xml', data: text('<?xml version="1.0"?><w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:defaultTabStop w:val="708"/><w:characterSpacingControl w:val="doNotCompress"/></w:settings>') },
+  ]);
+  const orderDoc = await parseDocx(orderDocx);
+  setAutoHyphenation(orderDoc, true);
+  const orderXml = new TextDecoder().decode((await readZip(await saveDocx(orderDoc, toBuffer(orderDocx)))).entries.get('word/settings.xml'));
+  check('word auto hyphenation schema order', orderXml.indexOf('<w:defaultTabStop') < orderXml.indexOf('<w:autoHyphenation')
+    && orderXml.indexOf('<w:autoHyphenation') < orderXml.indexOf('<w:characterSpacingControl'));
 
   check('word thesaurus', synonymsFor('báo cáo').includes('tường trình')
     && synonymsFor('important').includes('critical')
@@ -2138,6 +2371,25 @@ async function main(): Promise<void> {
     && tocSyncSavedBlock.paragraph.runs.map((run) => run.text).join('').endsWith('\t5')
     && descendants(tocSyncSaved.xmlRoot!, 'w:t').some((node) => node.text.endsWith('\t5')),
     JSON.stringify(tocSyncSavedBlock?.kind === 'paragraph' ? tocSyncSavedBlock.paragraph.runs.map((run) => run.text) : null));
+
+  // Duplicate heading titles ("Kết luận" per chapter) must map to the heading in
+  // document order, not to the first heading with that title.
+  const tocDupZip = await writeZip([
+    { name: 'word/document.xml', data: text('<?xml version="1.0"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'
+      + '<w:p><w:pPr><w:pStyle w:val="TOC3"/></w:pPr><w:r><w:t xml:space="preserve">1.6 Kết luận\t10</w:t></w:r></w:p>'
+      + '<w:p><w:pPr><w:pStyle w:val="TOC3"/></w:pPr><w:r><w:t xml:space="preserve">2.6 Kết luận\t11</w:t></w:r></w:p>'
+      + '<w:p><w:pPr><w:pStyle w:val="Heading3"/></w:pPr><w:r><w:t>Kết luận</w:t></w:r></w:p>'
+      + '<w:p><w:pPr><w:pStyle w:val="Heading3"/></w:pPr><w:r><w:t>Kết luận</w:t></w:r></w:p>'
+      + '<w:sectPr/></w:body></w:document>') },
+  ]);
+  const tocDupDoc = await parseDocx(tocDupZip);
+  syncTocPageNumbers(tocDupDoc, new Map([[2, 37], [3, 61]]));
+  const tocDupTexts = tocDupDoc.blocks
+    .filter((block) => block.kind === 'paragraph' && block.paragraph.style === 'TOC3')
+    .map((block) => block.kind === 'paragraph' ? block.paragraph.runs.map((run) => run.text).join('') : '');
+  check('word toc duplicate headings keep document order', tocDupTexts[0]?.endsWith('\t37')
+    && tocDupTexts[1]?.endsWith('\t61'),
+    JSON.stringify(tocDupTexts));
   insertToc(refDoc, 'Mục lục', new Map([[0, 1]]));
   const refSaved = await parseDocx(await saveDocx(refDoc, toBuffer(refDocx)));
   check('word citation round-trip', refSaved.sources?.length === 1 && refSaved.sources?.[0].title === 'Phân tích dữ liệu ERP'
@@ -2198,7 +2450,7 @@ async function main(): Promise<void> {
 
   const inkStrokes = mathDoc.inkStrokes ?? [];
   addInkStroke(mathDoc, inkStrokes, {
-    color: '#dc2626', width: 3,
+    color: '#dc2626', width: 3, style: 'highlighter', lineStyle: 'dashed',
     points: [{ x: 0.1, y: 0.2, pressure: 0.35 }, { x: 0.3, y: 0.4, pressure: 0.8 }, { x: 0.5, y: 0.3, pressure: 0.5 }],
     paragraphIndex: 1,
   });
@@ -2210,7 +2462,9 @@ async function main(): Promise<void> {
     && savedInkPoints.length === 3
     && Math.abs(savedInkPoints[1].x - 0.3) < 0.001
     && Math.abs((savedInkPoints[0].pressure ?? 0) - 0.35) < 0.01
-    && Math.abs((savedInkPoints[1].pressure ?? 0) - 0.8) < 0.01,
+    && Math.abs((savedInkPoints[1].pressure ?? 0) - 0.8) < 0.01
+    && inkSaved.inkStrokes?.[0].style === 'highlighter'
+    && inkSaved.inkStrokes?.[0].lineStyle === 'dashed',
     JSON.stringify(inkSaved.inkStrokes));
   const inkPartBytes = (await readZip(await saveDocx(mathDoc, toBuffer(mathDocx)))).entries.get('word/ink/ink1.xml');
   const inkPartXml = inkPartBytes ? new TextDecoder().decode(inkPartBytes) : '';
@@ -2223,6 +2477,8 @@ async function main(): Promise<void> {
     && inkPartXml.includes('name="X" type="integer" max="32767" units="in"')
     && inkPartXml.includes('name="F" type="integer" max="1000" units="dev"')
     && inkPartXml.includes('name="color" value="#dc2626"')
+    && inkPartXml.includes('name="transparency" value="0.65"')
+    && inkPartXml.includes('name="lineStyle" value="dashed"')
     && inkPartXml.includes('<inkml:traceGroup xml:id="page-0">')
     && inkPartXml.includes('brushRef="#br0"')
     && /\d+ \d+ 350,\d+ \d+ 800,\d+ \d+ 500/.test(inkPartXml),
@@ -2733,6 +2989,67 @@ async function main(): Promise<void> {
       && mergedDoc.blocks[0].cellSpans?.[2]?.every((span) => !span?.colSpan),
       JSON.stringify(mergedDoc.blocks[0].kind === 'table' ? mergedDoc.blocks[0].rows.map((row) => row.length) : null));
 
+    // Table Design: theme-linked presets and a border painter over a cell range.
+    const styleDoc = (() => {
+      const xml = parseXml(
+        '<w:document><w:body><w:tbl><w:tblPr><w:tblW w:w="5000" w:type="pct"/></w:tblPr>'
+        + '<w:tblGrid><w:gridCol w:w="3120"/><w:gridCol w:w="3120"/></w:tblGrid>'
+        + '<w:tr><w:tc><w:p><w:r><w:t>A</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>B</w:t></w:r></w:p></w:tc></w:tr>'
+        + '<w:tr><w:tc><w:p><w:r><w:t>C</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>D</w:t></w:r></w:p></w:tc></w:tr>'
+        + '</w:tbl><w:sectPr/></w:body></w:document>');
+      return { blocks: parseWordBlocks(xml, new Map()), wordCount: 0, pageSize: { width: 816, height: 1056 }, warnings: [], xmlRoot: xml } as WordDocument;
+    })();
+    const themed = applyTableStyle(styleDoc, 0, 'accentHeader', { accent: '#FF0000', font: 'Arial' });
+    const styledBlock = styleDoc.blocks[0];
+    check('word table theme-linked preset', themed && styledBlock.kind === 'table'
+      && styledBlock.cellStyles?.[0]?.[0]?.fill === '#FF0000'
+      && styledBlock.rows[0][0][0].runs[0]?.bold === true
+      && styledBlock.rows[0][0][0].runs[0]?.color === '#FFFFFF'
+      && styledBlock.rows[0][0][0].runs[0]?.font === 'Arial',
+      JSON.stringify(styledBlock.kind === 'table' ? { cell: styledBlock.cellStyles?.[0]?.[0], run: styledBlock.rows[0][0][0].runs[0] } : null));
+
+    const painted = applyTableCellBorder(styleDoc, 0, { row: 0, cell: 0, row2: 1, cell2: 1 }, 'bottom', true)
+      && styledBlock.kind === 'table'
+      && styledBlock.cellStyles?.[0]?.[0]?.borderBottom === true
+      && styledBlock.cellStyles?.[1]?.[1]?.borderBottom === true
+      && styledBlock.cellStyles?.[0]?.[1]?.borderBottom === true;
+    const paintedXml = styledBlock.kind === 'table'
+      ? findChildren(findChildren(styledBlock.xmlNode!, 'w:tr')[1], 'w:tc')
+      : [];
+    const paintedEdge = paintedXml[1] ? findChild(findChild(paintedXml[1], 'w:tcPr'), 'w:tcBorders') : undefined;
+    check('word table border painter range', painted
+      && attr(findChild(paintedEdge, 'w:bottom'), 'w:val') === 'single',
+      JSON.stringify({ painted, edge: attr(findChild(paintedEdge, 'w:bottom'), 'w:val') }));
+    applyTableCellBorder(styleDoc, 0, { row: 0, cell: 0, row2: 1, cell2: 1 }, 'bottom', false);
+    check('word table border painter clears', styledBlock.kind === 'table'
+      && styledBlock.cellStyles?.[1]?.[1]?.borderBottom === false,
+      JSON.stringify(styledBlock.kind === 'table' ? styledBlock.cellStyles?.[1]?.[1] : null));
+
+    // Word keeps a table preset as a real w:style type="table" + w:tblStyle id.
+    const stylesPart = () => {
+      const bytes = styleDoc.packageEntries?.get('word/styles.xml');
+      return bytes ? new TextDecoder('utf-8').decode(bytes) : '';
+    };
+    const tableStyleId = styledBlock.kind === 'table'
+      ? attr(findChild(findChild(styledBlock.xmlNode!, 'w:tblPr'), 'w:tblStyle'), 'w:val') : undefined;
+    const accentStyles = stylesPart();
+    check('word table style part firstRow', tableStyleId === 'OpenErpTableAccentHeader'
+      && accentStyles.includes('w:type="table"')
+      && accentStyles.includes('w:styleId="OpenErpTableAccentHeader"')
+      && accentStyles.includes('w:type="firstRow"')
+      && accentStyles.includes('w:fill="FF0000"'),
+      JSON.stringify({ tableStyleId, part: accentStyles.slice(0, 160) }));
+
+    applyTableStyle(styleDoc, 0, 'accentStriped', { accent: '#00FF00', accents: ['#00FF00', '#0000FF'] });
+    const bandedStyles = stylesPart();
+    const bandedId = styledBlock.kind === 'table'
+      ? attr(findChild(findChild(styledBlock.xmlNode!, 'w:tblPr'), 'w:tblStyle'), 'w:val') : undefined;
+    check('word table style part band1Horz', bandedId === 'OpenErpTableAccentStriped'
+      && bandedStyles.includes('w:type="band1Horz"')
+      && bandedStyles.includes('w:fill="DBDBFF"')
+      && bandedStyles.includes('w:styleId="OpenErpTableAccentStriped"'),
+      JSON.stringify({ bandedId, band1: bandedStyles.slice(bandedStyles.indexOf('band1Horz'), bandedStyles.indexOf('band1Horz') + 120) }));
+
     // A column command on a merged table must keep the grid consistent.
     const beforeColumns = tableColumnCount(mergedDoc.blocks[0].kind === 'table' ? mergedDoc.blocks[0].cellSpans : undefined);
     insertTableColumn(mergedDoc, 0, 0, 0, 'right');
@@ -2776,6 +3093,377 @@ async function main(): Promise<void> {
       && tableCellLayout(afterSpans, 0, 0).rowSpan === 2,
       JSON.stringify(afterSpans));
   }
+
+  const markdown = wordToMarkdown({
+    blocks: [
+      { kind: 'paragraph', paragraph: { headingLevel: 1, runs: [{ text: 'Tiêu đề' }] } },
+      { kind: 'paragraph', paragraph: { runs: [{ text: 'đậm', bold: true }, { text: ' thường' }] } },
+      { kind: 'paragraph', paragraph: { listType: 'bullet', runs: [{ text: 'mục' }] } },
+      {
+        kind: 'table',
+        rows: [
+          [[{ runs: [{ text: 'A' }] }], [{ runs: [{ text: 'B' }] }]],
+          [[{ runs: [{ text: '1' }] }], [{ runs: [{ text: '2' }] }]],
+        ],
+      },
+    ],
+    wordCount: 5, pageSize: { width: 816, height: 1056 }, warnings: [],
+  });
+  check('word markdown export headings/format/list/table',
+    markdown.includes('# Tiêu đề') && markdown.includes('**đậm** thường')
+    && markdown.includes('- mục') && markdown.includes('| A | B |')
+    && markdown.includes('| --- | --- |') && markdown.includes('| 1 | 2 |'),
+    markdown);
+
+  const rasterJpeg = new Uint8Array([0xFF, 0xD8, 0xFF, 0xDB, 0x00, 0x43, 0x00, 0xFF, 0xD9]);
+  const exportedPdf = imagesToPdf([
+    {
+      jpeg: rasterJpeg, width: 1632, height: 2112, pageWidth: 612, pageHeight: 792,
+      textLines: [{ text: 'Xin chào', x: 72, y: 700, size: 12 }],
+    },
+    { jpeg: rasterJpeg, width: 1684, height: 1190, pageWidth: 841.89, pageHeight: 595.28 },
+  ]);
+  const exportedInfo = parsePdfInfo(exportedPdf);
+  const exportedText = new TextDecoder('latin1').decode(exportedPdf);
+  check('word pdf export structure', exportedText.startsWith('%PDF-1.4')
+    && exportedInfo.pageCount === 2 && exportedInfo.width === 816 && exportedInfo.height === 1056
+    && exportedText.includes('/Filter /DCTDecode') && exportedText.includes('/MediaBox [0 0 841.89 595.28]')
+    && exportedText.includes('/ToUnicode') && exportedText.includes('<00580069006e00200063006800e0006f> Tj'),
+    JSON.stringify(exportedInfo));
+
+  const smartArtDocx = await writeZip([
+    { name: '[Content_Types].xml', data: text('<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"></Types>') },
+    { name: 'word/_rels/document.xml.rels', data: text('<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>') },
+    { name: 'word/document.xml', data: text('<?xml version="1.0"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body><w:p><w:r><w:t>Before</w:t></w:r></w:p><w:sectPr/></w:body></w:document>') },
+  ]);
+  const smartArtDoc = await parseDocx(smartArtDocx);
+  const smartArtBlock = insertWordSmartArt(smartArtDoc, ['Ý tưởng', 'Triển khai', 'Kết quả']);
+  const smartArtRun = smartArtBlock?.kind === 'paragraph' ? smartArtBlock.paragraph.runs[0] : null;
+  const smartArtEntries = smartArtDoc.packageEntries ?? new Map();
+  const smartArtRels = new TextDecoder().decode(smartArtEntries.get('word/_rels/document.xml.rels'));
+  const smartArtTypes = new TextDecoder().decode(smartArtEntries.get('[Content_Types].xml'));
+  check('word smartart standard data+layout parts', Boolean(smartArtRun?.smartArt)
+    && smartArtEntries.has('word/diagrams/data1.xml')
+    && smartArtEntries.has('word/diagrams/layout1.xml')
+    && smartArtRels.includes('diagramData') && smartArtRels.includes('diagramLayout')
+    && smartArtTypes.includes('drawingml.diagramData') && smartArtTypes.includes('drawingml.diagramLayout')
+    && new TextDecoder().decode(smartArtEntries.get('word/diagrams/layout1.xml')).includes('urn:microsoft.com/office/officeart/2005/8/layout/default')
+    && new TextDecoder().decode(smartArtEntries.get('word/diagrams/data1.xml')).includes('colorful4'),
+    JSON.stringify([...(smartArtEntries.keys())].filter((name) => name.includes('diagrams'))));
+
+  const smartArtSaved = await parseDocx(await saveDocx(smartArtDoc, toBuffer(smartArtDocx)));
+  const savedSmartArtRun = smartArtSaved.blocks
+    .flatMap((block) => block.kind === 'paragraph' ? block.paragraph.runs : [])
+    .find((run) => run.smartArt);
+  check('word smartart round-trip', savedSmartArtRun?.smartArt?.nodes.map((node) => node.text).join('|') === 'Ý tưởng|Triển khai|Kết quả'
+    && descendants(smartArtSaved.xmlRoot!, 'dgm:relIds').length === 1
+    && smartArtParts(smartArtSaved).length === 2,
+    JSON.stringify(savedSmartArtRun?.smartArt?.nodes.map((node) => node.text)));
+
+  if (savedSmartArtRun) updateWordSmartArt(savedSmartArtRun, ['Một', 'Hai']);
+  const smartArtEdited = await parseDocx(await saveDocx(smartArtSaved, toBuffer(await saveDocx(smartArtDoc, toBuffer(smartArtDocx)))));
+  const editedSmartArtRun = smartArtEdited.blocks
+    .flatMap((block) => block.kind === 'paragraph' ? block.paragraph.runs : [])
+    .find((run) => run.smartArt);
+  check('word smartart edit round-trip', editedSmartArtRun?.smartArt?.nodes.map((node) => node.text).join('|') === 'Một|Hai',
+    JSON.stringify(editedSmartArtRun?.smartArt?.nodes.map((node) => node.text)));
+
+  /* ---------- Multi-format Word + OLE2 + OOXML enhancements ------------ */
+  const samplesRoot = 'D:/Projects/open-erp/plugins/office-webapp/web/samples';
+  const tmpRoot = 'D:/Projects/open-erp/plugins/office-webapp/web/.tmp';
+  const readSampleBuf = (name: string): ArrayBuffer => {
+    const raw = fs.readFileSync(path.join(samplesRoot, name));
+    return raw.buffer.slice(raw.byteOffset, raw.byteOffset + raw.byteLength);
+  };
+  const docTextOf = (doc: WordDocument): string => doc.blocks.map((block) => {
+    if (block.kind === 'paragraph') return block.paragraph.runs.map((r) => r.text ?? '').join('');
+    return block.rows.map((row) => row.map((cell) => cell.map((p) => p.runs.map((r) => r.text ?? '').join('')).join(' ')).join(' | ')).join('\n');
+  }).join('\n');
+
+  // 1. OLE2 CFBF reader on real Word 16 .doc + corrupt guards
+  const realDocBuf = readSampleBuf('qa-formats-real.doc');
+  const ole2 = readOle2(realDocBuf);
+  const streams = ole2.listStreams();
+  check('ole2 streams listed from real doc', streams.includes('WordDocument') && (ole2.readStream('WordDocument')?.length ?? 0) > 512,
+    JSON.stringify(streams));
+  let ole2CorruptCode = '';
+  try {
+    readOle2(new Uint8Array(512).buffer);
+  } catch (err) {
+    ole2CorruptCode = (err as { code?: string }).code ?? '';
+  }
+  check('ole2 invalid header blocked', ole2CorruptCode === 'OFFICE_OLE2_CORRUPT', ole2CorruptCode);
+
+  // Build corrupt FAT cycle test
+  const loopBuf = new Uint8Array(512 * 4);
+  loopBuf.set([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1], 0);
+  const loopView = new DataView(loopBuf.buffer);
+  loopView.setUint16(0x1e, 9, true); // 512B sectors
+  loopView.setUint16(0x20, 6, true);
+  loopView.setUint32(0x2c, 1, true); // 1 FAT sector
+  loopView.setUint32(0x30, 1, true); // dir sector 1
+  loopView.setUint32(0x38, 4096, true);
+  loopView.setInt32(0x4c, 0, true); // FAT in sector 0 (offset 512)
+  loopView.setUint32(512 + 4, 2, true); // dir sector 1 -> 2
+  loopView.setUint32(512 + 8, 1, true); // dir sector 2 -> 1 (cycle!)
+  let ole2CycleCode = '';
+  try {
+    readOle2(loopBuf.buffer);
+  } catch (err) {
+    ole2CycleCode = (err as { code?: string }).code ?? '';
+  }
+  check('ole2 fat cycle blocked', ole2CycleCode === 'OFFICE_OLE2_CORRUPT', ole2CycleCode);
+
+  // 2. Real Word 16 multi-format suite
+  const realDocxOpen = await openOfficeFile('qa-formats-real.docx', readSampleBuf('qa-formats-real.docx'));
+  const realDocxText = docTextOf(realDocxOpen.word!);
+  check('real word16 docx opened', realDocxOpen.app === 'word'
+    && realDocxText.includes('Báo cáo kiểm thử đa định dạng Word')
+    && realDocxText.includes('Đọc tài liệu Word đa định dạng')
+    && realDocxOpen.word!.blocks.some((b) => b.kind === 'table'),
+    JSON.stringify({ blocks: realDocxOpen.word?.blocks.length }));
+
+  const realDocOpen = await openOfficeFile('qa-formats-real.doc', realDocBuf);
+  const realDocText = docTextOf(realDocOpen.word!);
+  const realDocTbl = realDocOpen.word!.blocks.find((b) => b.kind === 'table');
+  const realDocImg = realDocOpen.word!.blocks.flatMap((b) => b.kind === 'paragraph' ? b.paragraph.runs : []).find((r) => r.imagePath);
+  check('real word16 doc opened', realDocOpen.app === 'word'
+    && realDocOpen.word?.sourceFormat === 'doc'
+    && realDocOpen.word?.readOnlyLegacy === true
+    && realDocOpen.warnings.includes('OFFICE_LEGACY_FORMAT_READONLY')
+    && realDocText.includes('Báo cáo kiểm thử đa định dạng Word')
+    && realDocText.includes('Đọc tài liệu Word đa định dạng')
+    && realDocTbl?.kind === 'table'
+    && realDocTbl.rows.length === 3
+    && realDocTbl.cellSpans?.[0]?.[0]?.colSpan === 2
+    && realDocImg?.imageWidth === 96 && realDocImg?.imageHeight === 48,
+    JSON.stringify({ warnings: realDocOpen.warnings, rows: realDocTbl?.kind === 'table' ? realDocTbl.rows.length : 0, span: realDocTbl?.kind === 'table' ? realDocTbl.cellSpans : null, img: realDocImg, snippet: realDocText.slice(0, 260) }));
+
+  // Save .doc as .docx & re-parse
+  const exportedFromDoc = await saveDocx(realDocOpen.word!, realDocBuf);
+  fs.mkdirSync(tmpRoot, { recursive: true });
+  fs.writeFileSync(path.join(tmpRoot, 'export-from-doc.docx'), exportedFromDoc);
+  const reopenedDoc = await openOfficeFile('export-from-doc.docx', toBuffer(exportedFromDoc));
+  check('legacy doc saveAs docx round-trip', reopenedDoc.app === 'word'
+    && !reopenedDoc.word?.readOnlyLegacy
+    && docTextOf(reopenedDoc.word!).includes('Báo cáo kiểm thử đa định dạng Word')
+    && reopenedDoc.word!.blocks.some((b) => b.kind === 'table'),
+    JSON.stringify({ blocks: reopenedDoc.word?.blocks.length }));
+
+  const realRtfBuf = readSampleBuf('qa-formats-real.rtf');
+  const realRtfOpen = await openOfficeFile('qa-formats-real.rtf', realRtfBuf);
+  const realRtfText = docTextOf(realRtfOpen.word!);
+  const realRtfTbl = realRtfOpen.word!.blocks.find((b) => b.kind === 'table');
+  check('real word16 rtf opened', realRtfOpen.app === 'word'
+    && realRtfOpen.word?.sourceFormat === 'rtf'
+    && realRtfOpen.word?.readOnlyLegacy === true
+    && realRtfText.includes('Báo cáo kiểm thử đa định dạng Word')
+    && realRtfText.includes('Đọc tài liệu Word đa định dạng')
+    && realRtfOpen.word?.notes?.footnotes.length === 1
+    && realRtfOpen.word.notes.footnotes[0].text.includes('đa định dạng')
+    && !realRtfOpen.warnings.includes('OFFICE_VECTOR_IMAGE_UNSUPPORTED')
+    && realRtfTbl?.kind === 'table'
+    && realRtfTbl.rows.length === 3
+    && realRtfTbl.cellSpans?.[0]?.[0]?.colSpan === 2,
+    JSON.stringify({ footnotes: realRtfOpen.word?.notes?.footnotes, warnings: realRtfOpen.warnings, span: realRtfTbl?.kind === 'table' ? realRtfTbl.cellSpans : null }));
+  const exportedFromRtf = await saveDocx(realRtfOpen.word!, realRtfBuf);
+  fs.writeFileSync(path.join(tmpRoot, 'export-from-rtf.docx'), exportedFromRtf);
+
+  const realOdtBuf = readSampleBuf('qa-formats-real.odt');
+  const realOdtOpen = await openOfficeFile('qa-formats-real.odt', realOdtBuf);
+  const realOdtText = docTextOf(realOdtOpen.word!);
+  const realOdtTbl = realOdtOpen.word!.blocks.find((b) => b.kind === 'table');
+  check('real word16 odt opened', realOdtOpen.app === 'word'
+    && realOdtOpen.word?.sourceFormat === 'odt'
+    && realOdtOpen.word?.readOnlyLegacy === true
+    && realOdtText.includes('Báo cáo kiểm thử đa định dạng Word')
+    && realOdtText.includes('Đọc tài liệu Word đa định dạng')
+    && realOdtTbl?.kind === 'table'
+    && realOdtTbl.rows.length === 3
+    && realOdtTbl.rows[0].length === 2
+    && realOdtTbl.cellSpans?.[0]?.[0]?.colSpan === 2,
+    JSON.stringify({ rows: realOdtTbl?.kind === 'table' ? realOdtTbl.rows.map((r) => r.length) : 0, span: realOdtTbl?.kind === 'table' ? realOdtTbl.cellSpans : null }));
+  const exportedFromOdt = await saveDocx(realOdtOpen.word!, realOdtBuf);
+  fs.writeFileSync(path.join(tmpRoot, 'export-from-odt.docx'), exportedFromOdt);
+
+  const realDotxOpen = await openOfficeFile('qa-formats-real.dotx', readSampleBuf('qa-formats-real.dotx'));
+  check('real word16 dotx opened', realDotxOpen.app === 'word'
+    && realDotxOpen.word?.sourceFormat === 'dotx'
+    && realDotxOpen.warnings.includes('OFFICE_TEMPLATE_OPENED_AS_DOCX')
+    && docTextOf(realDotxOpen.word!).includes('Báo cáo kiểm thử đa định dạng Word'));
+
+  const realFlatXmlOpen = await openOfficeFile('qa-formats-real.xml', readSampleBuf('qa-formats-real.xml'));
+  check('real word16 flat opc xml opened', realFlatXmlOpen.app === 'word'
+    && docTextOf(realFlatXmlOpen.word!).includes('Báo cáo kiểm thử đa định dạng Word')
+    && realFlatXmlOpen.word!.blocks.some((b) => b.kind === 'table'));
+
+  const realWord2003Open = await openOfficeFile('qa-formats-word2003.xml', readSampleBuf('qa-formats-word2003.xml'));
+  check('real word16 word2003 xml opened', realWord2003Open.app === 'word'
+    && docTextOf(realWord2003Open.word!).includes('Báo cáo kiểm thử đa định dạng Word')
+    && realWord2003Open.word!.blocks.some((b) => b.kind === 'table'));
+
+  let macroDocmCode = '';
+  try {
+    await openOfficeFile('qa-formats-macro.docm', readSampleBuf('qa-formats-macro.docm'));
+  } catch (err) {
+    macroDocmCode = (err as { code?: string }).code ?? '';
+  }
+  check('macro docm rejected', macroDocmCode === 'OFFICE_MACRO_FILE_UNSUPPORTED', macroDocmCode);
+
+  let macroDotmCode = '';
+  try {
+    assertExtensionMatches('dotm', detectFileKind(new Uint8Array([0x50, 0x4b, 0x03, 0x04])));
+  } catch (err) {
+    macroDotmCode = (err as { code?: string }).code ?? '';
+  }
+  check('macro dotm rejected', macroDotmCode === 'OFFICE_MACRO_FILE_UNSUPPORTED', macroDotmCode);
+
+  // 3. Disguised .doc sniffing & encrypted .doc rejection
+  const rtfAsDocBytes = text('{\\rtf1\\ansi{\\*\\generator Word}\\pard Xin chao tu RTF-as-DOC\\par}');
+  const rtfAsDocOpen = await openOfficeFile('legacy-rtf.doc', toBuffer(rtfAsDocBytes));
+  check('rtf disguised as doc opened', rtfAsDocOpen.app === 'word'
+    && rtfAsDocOpen.word?.readOnlyLegacy === true
+    && docTextOf(rtfAsDocOpen.word!).includes('Xin chao tu RTF-as-DOC'));
+
+  const htmlAsDocBytes = text('<!DOCTYPE html><html><body><h1>Báo cáo HTML</h1><table><tr><td>Ô 1</td><td>Ô 2</td></tr></table></body></html>');
+  const htmlAsDocOpen = await openOfficeFile('web-export.doc', toBuffer(htmlAsDocBytes));
+  check('html disguised as doc opened', htmlAsDocOpen.app === 'word'
+    && htmlAsDocOpen.word?.readOnlyLegacy === true
+    && docTextOf(htmlAsDocOpen.word!).includes('Báo cáo HTML')
+    && htmlAsDocOpen.word!.blocks.some((b) => b.kind === 'table'));
+
+  // Encrypted synthetic OLE2 .doc
+  const encDocBuf = new Uint8Array(512 * 4);
+  encDocBuf.set([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1], 0);
+  const encView = new DataView(encDocBuf.buffer);
+  encView.setUint16(0x18, 0x003e, true);
+  encView.setUint16(0x1a, 0x0003, true);
+  encView.setUint16(0x1c, 0xfffe, true);
+  encView.setUint16(0x1e, 9, true); // 512 sector
+  encView.setUint16(0x20, 6, true);
+  encView.setUint32(0x2c, 1, true); // 1 FAT
+  encView.setUint32(0x30, 1, true); // dir sector 1
+  encView.setUint32(0x38, 4096, true);
+  encView.setInt32(0x3c, -2, true); // no minifat
+  encView.setInt32(0x4c, 0, true); // FAT at sector 0
+  // FAT: sector 0=FATSECT (-3), 1=ENDOFCHAIN (-2), 2=ENDOFCHAIN (-2)
+  encView.setInt32(512 + 0, -3, true);
+  encView.setInt32(512 + 4, -2, true);
+  encView.setInt32(512 + 8, -2, true);
+  // Dir entry 0 = Root Entry (offset 1024), entry 1 = WordDocument (offset 1024+128)
+  const writeDirName = (off: number, name: string) => {
+    for (let i = 0; i < name.length; i++) encView.setUint16(off + i * 2, name.charCodeAt(i), true);
+    encView.setUint16(off + name.length * 2, 0, true);
+    encView.setUint16(off + 0x40, (name.length + 1) * 2, true);
+  };
+  writeDirName(1024, 'Root Entry');
+  encDocBuf[1024 + 0x42] = 5; // root
+  encDocBuf[1024 + 0x43] = 1; // black
+  encView.setInt32(1024 + 0x44, -1, true);
+  encView.setInt32(1024 + 0x48, -1, true);
+  encView.setInt32(1024 + 0x4c, 1, true); // child=1
+  writeDirName(1024 + 128, 'WordDocument');
+  encDocBuf[1024 + 128 + 0x42] = 2; // stream
+  encDocBuf[1024 + 128 + 0x43] = 1;
+  encView.setInt32(1024 + 128 + 0x44, -1, true);
+  encView.setInt32(1024 + 128 + 0x48, -1, true);
+  encView.setInt32(1024 + 128 + 0x4c, -1, true);
+  encView.setUint32(1024 + 128 + 0x74, 2, true); // start sector 2
+  encView.setUint32(1024 + 128 + 0x78, 512, true); // 512 bytes (uses regular FAT)
+  // WordDocument FIB at offset 1536 (sector 2): wIdent=0xA5EC, flags bit 8 (0x0100 fEncrypted)
+  encView.setUint16(1536 + 0x00, 0xa5ec, true);
+  encView.setUint16(1536 + 0x0a, 0x0100, true);
+  let encDocCode = '';
+  try {
+    await openOfficeFile('secret.doc', encDocBuf.buffer);
+  } catch (err) {
+    encDocCode = (err as { code?: string }).code ?? '';
+  }
+  check('encrypted doc rejected', encDocCode === 'OFFICE_ENCRYPTED_FILE_UNSUPPORTED', encDocCode);
+
+  // 4. ZIP security guards
+  let slipCode = '';
+  try {
+    const evil = await writeZip([{ name: 'C:/evil.txt', data: text('bad') }]);
+    await readZip(toBuffer(evil));
+  } catch (err) {
+    slipCode = (err as { code?: string }).code ?? '';
+  }
+  check('zip drive-letter zip-slip blocked', slipCode === 'OFFICE_ZIP_UNSAFE_PATH', slipCode);
+
+  // 5. Rich OOXML features (OMML, Chart, 2-col, AlternateContent, VML, titlePg, evenAndOddHeaders, EMF fallback)
+  const richOpen = await openOfficeFile('qa-formats-rich.docx', readSampleBuf('qa-formats-rich.docx'));
+  const richDoc = richOpen.word!;
+  const firstRun = richDoc.blocks[0].kind === 'paragraph' ? richDoc.blocks[0].paragraph.runs[0] : undefined;
+  const secondP = richDoc.blocks[1].kind === 'paragraph' ? richDoc.blocks[1].paragraph : undefined;
+  const eqRun = secondP?.runs.find((r) => r.equation);
+  const chartP = richDoc.blocks[2].kind === 'paragraph' ? richDoc.blocks[2].paragraph : undefined;
+  const chartRun = chartP?.runs.find((r) => r.chart);
+  const vmlP = richDoc.blocks[3].kind === 'paragraph' ? richDoc.blocks[3].paragraph : undefined;
+  const emfRun = vmlP?.runs.find((r) => r.unsupportedImageFormat);
+  const tblBlock = richDoc.blocks.find((b) => b.kind === 'table');
+  const pbBlock = richDoc.blocks.find((b) => b.kind === 'paragraph' && b.paragraph.pageBreakBefore);
+  check('rich docx rStyle/theme/smallCaps/uNone/shd/pBdr',
+    firstRun?.bold === true && firstRun?.smallCaps === true && firstRun?.underline === false
+    && firstRun?.color === '#1F4E79' && firstRun?.shading?.toUpperCase() === '#FEF08A'
+    && (richDoc.blocks[0].kind === 'paragraph' && Boolean(richDoc.blocks[0].paragraph.borderSides?.bottom)));
+  check('rich docx inline MathML equation',
+    Boolean(eqRun?.equation?.mathMl.includes('<math')) && Boolean(eqRun?.equation?.mathMl.includes('<mfrac')));
+  check('rich docx AlternateContent + DrawingML chart',
+    chartRun?.chart?.title === 'Doanh thu theo quý'
+    && chartRun?.chart?.layout.bars.length === 3
+    && !docTextOf(richDoc).includes('Fallback ignored'));
+  check('rich docx VML pict + EMF warning + sym/noBreakHyphen',
+    Boolean(vmlP?.runs.some((r) => r.textBox?.text.includes('Hộp VML cổ điển')))
+    && emfRun?.unsupportedImageFormat === 'EMF'
+    && richOpen.warnings.includes('OFFICE_VECTOR_IMAGE_UNSUPPORTED'));
+  check('rich docx tableBorders + firstRow shading',
+    tblBlock?.kind === 'table' && tblBlock.tableBorders?.top === '2px solid #1F4E79'
+    && tblBlock.cellStyles?.[0]?.[0]?.fill?.toUpperCase() === '#DBEAFE');
+  check('rich docx sections/headers/evenAndOdd/NUMPAGES/pageBreakBefore',
+    richDoc.evenAndOddHeaders === true
+    && (richDoc.sections?.length ?? 0) >= 2
+    && richDoc.sections![0].columns === 2
+    && richDoc.sections![1].titlePg === true
+    && richDoc.sections![1].headers.some((h) => h.type === 'first' && (h.tableRows?.length ?? 0) === 1)
+    && richDoc.sections![1].footers.some((f) => f.hasNumPages === true)
+    && Boolean(pbBlock));
+
+  // 6. ODT export round-trip (Word Web Export > Download as ODT)
+  const odtSampleDoc: WordDocument = {
+    blocks: [
+      { kind: 'paragraph', paragraph: { headingLevel: 1, style: 'Heading1', runs: [{ text: 'Kế hoạch Q4', bold: true, color: '#1F4E79' }] } },
+      { kind: 'paragraph', paragraph: { listType: 'bullet', runs: [{ text: 'Mục tiêu chính', italic: true }] } },
+      { kind: 'paragraph', paragraph: { listType: 'number', runs: [{ text: 'Bước triển khai', underline: true }] } },
+      {
+        kind: 'table',
+        rows: [
+          [[{ runs: [{ text: 'Hạng mục', bold: true }] }], [{ runs: [{ text: 'Giá trị' }] }]],
+          [[{ runs: [{ text: 'A1' }] }], [{ runs: [{ text: '100' }] }]],
+        ],
+        grid: [50, 50],
+        headerRows: 1,
+        cellStyles: [[{ fill: '#DBEAFE' }, undefined], [undefined, undefined]],
+      },
+    ],
+    wordCount: 9,
+    pageSize: { width: 816, height: 1056 },
+    pageMargins: { top: 96, bottom: 96, left: 96, right: 96 },
+    warnings: [],
+  };
+  const odtBytes = await saveOdt(odtSampleDoc);
+  const odtParsed = await parseOdt(odtBytes);
+  const odtP0 = odtParsed.blocks[0]?.kind === 'paragraph' ? odtParsed.blocks[0].paragraph : undefined;
+  const odtP1 = odtParsed.blocks[1]?.kind === 'paragraph' ? odtParsed.blocks[1].paragraph : undefined;
+  const odtP2 = odtParsed.blocks[2]?.kind === 'paragraph' ? odtParsed.blocks[2].paragraph : undefined;
+  const odtT = odtParsed.blocks[3]?.kind === 'table' ? odtParsed.blocks[3] : undefined;
+  check('odt export round-trip heading/lists/table/fill',
+    odtBytes[0] === 0x50 && odtBytes[1] === 0x4b
+    && odtP0?.headingLevel === 1 && odtP0.runs[0]?.bold === true && odtP0.runs[0]?.text === 'Kế hoạch Q4'
+    && odtP1?.listType === 'bullet' && odtP1.runs[0]?.italic === true
+    && odtP2?.listType === 'number' && odtP2.runs[0]?.underline === true
+    && odtT?.rows.length === 2 && odtT.rows[1]?.[1]?.[0]?.runs[0]?.text === '100'
+    && odtT.cellStyles?.[0]?.[0]?.fill?.toUpperCase() === '#DBEAFE');
 
   console.log(`\n${passed} passed, ${failed} failed`);
   if (failed > 0) process.exit(1);

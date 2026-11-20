@@ -9,6 +9,7 @@ export interface ZipEntry {
 export interface ZipArchive {
   entries: Map<string, Uint8Array>;
   order: string[];
+  warnings?: string[];
 }
 
 export interface ZipWriteEntry {
@@ -35,13 +36,17 @@ export async function readZip(buffer: ArrayBuffer | Uint8Array): Promise<ZipArch
   }
   const total = view.getUint16(eocd + 10, true);
   const centralOffset = view.getUint32(eocd + 16, true);
+  if (total === 0xffff || centralOffset === 0xffffffff) {
+    throw new OfficeBinaryError('OFFICE_ZIP_UNSUPPORTED', { reason: 'zip64' });
+  }
   let offset = centralOffset;
   const entries = new Map<string, Uint8Array>();
   const order: string[] = [];
+  const warnings: string[] = [];
   let totalUncompressed = 0;
 
   for (let index = 0; index < total; index++) {
-    if (view.getUint32(offset, true) !== CENTRAL_SIGNATURE) {
+    if (offset + 46 > bytes.byteLength || view.getUint32(offset, true) !== CENTRAL_SIGNATURE) {
       throw new OfficeBinaryError('OFFICE_ZIP_UNSUPPORTED', { reason: 'central-directory' });
     }
     const flags = view.getUint16(offset + 8, true);
@@ -56,13 +61,19 @@ export async function readZip(buffer: ArrayBuffer | Uint8Array): Promise<ZipArch
     offset += 46 + nameLength + extraLength + commentLength;
 
     if (name.endsWith('/')) continue;
-    if (name.includes('..') || name.startsWith('/') || name.includes('\\')) {
+    if ((flags & 0x0001) !== 0) {
+      throw new OfficeBinaryError('OFFICE_ENCRYPTED_FILE_UNSUPPORTED', { name });
+    }
+    if (name.includes('..') || name.startsWith('/') || name.includes('\\') || /^[A-Za-z]:/.test(name)) {
       throw new OfficeBinaryError('OFFICE_ZIP_UNSAFE_PATH', { name });
     }
     if (method !== 0 && method !== 8) {
       throw new OfficeBinaryError('OFFICE_ZIP_UNSUPPORTED', { reason: 'method', method });
     }
-    if (compressedSize === 0 && uncompressedSize > 0) {
+    if (compressedSize === 0xffffffff
+      || uncompressedSize === 0xffffffff
+      || localOffset === 0xffffffff
+      || (compressedSize === 0 && uncompressedSize > 0)) {
       throw new OfficeBinaryError('OFFICE_ZIP_UNSUPPORTED', { reason: 'zip64' });
     }
     totalUncompressed += uncompressedSize;
@@ -73,7 +84,7 @@ export async function readZip(buffer: ArrayBuffer | Uint8Array): Promise<ZipArch
       throw new OfficeBinaryError('OFFICE_ZIP_TOO_LARGE', { reason: 'ratio' });
     }
 
-    if (view.getUint32(localOffset, true) !== LOCAL_SIGNATURE) {
+    if (localOffset + 30 > bytes.byteLength || view.getUint32(localOffset, true) !== LOCAL_SIGNATURE) {
       throw new OfficeBinaryError('OFFICE_ZIP_UNSUPPORTED', { reason: 'local-header', name });
     }
     const localNameLength = view.getUint16(localOffset + 26, true);
@@ -84,10 +95,14 @@ export async function readZip(buffer: ArrayBuffer | Uint8Array): Promise<ZipArch
     if (data.length !== uncompressedSize) {
       throw new OfficeBinaryError('OFFICE_ZIP_UNSUPPORTED', { reason: 'size-mismatch', name });
     }
+    if (entries.has(name)) {
+      if (!warnings.includes('DUPLICATE_ENTRY')) warnings.push('DUPLICATE_ENTRY');
+    } else {
+      order.push(name);
+    }
     entries.set(name, data);
-    order.push(name);
   }
-  return { entries, order };
+  return warnings.length ? { entries, order, warnings } : { entries, order };
 }
 
 export async function writeZip(entries: ZipWriteEntry[]): Promise<Uint8Array> {
@@ -166,6 +181,24 @@ function findEocd(view: DataView): number {
     if (view.getUint32(i, true) === EOCD_SIGNATURE) return i;
   }
   return -1;
+}
+
+export function findZipEntry(
+  entries: Map<string, Uint8Array>,
+  targetPath: string,
+): { path: string; data: Uint8Array } | undefined {
+  const direct = entries.get(targetPath);
+  if (direct) return { path: targetPath, data: direct };
+  const normalized = targetPath.replace(/^\.\//, '').replace(/^\/+/, '');
+  const normHit = entries.get(normalized);
+  if (normHit) return { path: normalized, data: normHit };
+  const lower = normalized.toLowerCase();
+  for (const [key, value] of entries) {
+    if (key.replace(/^\.\//, '').replace(/^\/+/, '').toLowerCase() === lower) {
+      return { path: key, data: value };
+    }
+  }
+  return undefined;
 }
 
 async function deflateRaw(data: Uint8Array): Promise<Uint8Array> {

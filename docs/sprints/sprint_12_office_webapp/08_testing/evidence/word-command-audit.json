@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-11-20T01:15:17.784Z",
+  "ribbon": {
+    "tabs": 14,
+    "base_tabs": 11,
+    "contextual_tabs": [
+      "table",
+      "picture",
+      "shape"
+    ],
+    "groups": 54,
+    "items": 299,
+    "actionable_items": 282,
+    "controls": 16,
+    "disabled": [
+      "macros"
+    ],
+    "dispatched_commands": 218,
+    "missing_dispatch": [
+      "tableStyleWordDarkListAccent1",
+      "tableStyleWordDarkListAccent2",
+      "tableStyleWordDarkListAccent3",
+      "tableStyleWordDarkListAccent4",
+      "tableStyleWordDarkListAccent5",
+      "tableStyleWordDarkListAccent6",
+      "tableStyleWordGridTable1LightAccent1",
+      "tableStyleWordGridTable1LightAccent2",
+      "tableStyleWordGridTable1LightAccent3",
+      "tableStyleWordGridTable1LightAccent4",
+      "tableStyleWordGridTable1LightAccent5",
+      "tableStyleWordGridTable1LightAccent6",
+      "tableStyleWordLightGridAccent1",
+      "tableStyleWordLightGridAccent2",
+      "tableStyleWordLightGridAccent3",
+      "tableStyleWordLightGridAccent4",
+      "tableStyleWordLightGridAccent5",
+      "tableStyleWordLightGridAccent6",
+      "tableStyleWordLightListAccent1",
+      "tableStyleWordLightListAccent2",
+      "tableStyleWordLightListAccent3",
+      "tableStyleWordLightListAccent4",
+      "tableStyleWordLightListAccent5",
+      "tableStyleWordLightListAccent6",
+      "tableStyleWordLightShadingAccent1",
+      "tableStyleWordLightShadingAccent2",
+      "tableStyleWordLightShadingAccent3",
+      "tableStyleWordLightShadingAccent4",
+      "tableStyleWordLightShadingAccent5",
+      "tableStyleWordLightShadingAccent6",
+      "tableStyleWordListTable1LightAccent1",
+      "tableStyleWordListTable1LightAccent2",
+      "tableStyleWordListTable1LightAccent3",
+      "tableStyleWordListTable1LightAccent4",
+      "tableStyleWordListTable1LightAccent5",
+      "tableStyleWordListTable1LightAccent6",
+      "tableStyleWordMediumGrid1Accent1",
+      "tableStyleWordMediumGrid1Accent2",
+      "tableStyleWordMediumGrid1Accent3",
+      "tableStyleWordMediumGrid1Accent4",
+      "tableStyleWordMediumGrid1Accent5",
+      "tableStyleWordMediumGrid1Accent6",
+      "tableStyleWordMediumList1Accent1",
+      "tableStyleWordMediumList1Accent2",
+      "tableStyleWordMediumList1Accent3",
+      "tableStyleWordMediumList1Accent4",
+      "tableStyleWordMediumList1Accent5",
+      "tableStyleWordMediumList1Accent6",
+      "tableStyleWordMediumShading1Accent1",
+      "tableStyleWordMediumShading1Accent2",
+      "tableStyleWordMediumShading1Accent3",
+      "tableStyleWordMediumShading1Accent4",
+      "tableStyleWordMediumShading1Accent5",
+      "tableStyleWordMediumShading1Accent6",
+      "tableStyleWordMediumShading2Accent1",
+      "tableStyleWordMediumShading2Accent2",
+      "tableStyleWordMediumShading2Accent3",
+      "tableStyleWordMediumShading2Accent4",
+      "tableStyleWordMediumShading2Accent5",
+      "tableStyleWordMediumShading2Accent6"
+    ]
+  },
+  "i18n": {
+    "ribbon_keys": 333,
+    "missing_vi": [],
+    "missing_en": []
+  },
+  "service_exclusions": [
+    {
+      "code": "W-A06",
+      "group": "Home: Dictate, Editor, Add-ins",
+      "reason": "Loại trừ"
+    },
+    {
+      "code": "W-A19",
+      "group": "Review: Translate",
+      "reason": "Loại trừ"
+    }
+  ]
+}

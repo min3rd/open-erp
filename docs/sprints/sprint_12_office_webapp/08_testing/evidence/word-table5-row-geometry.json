@@ -1,0 +1,55 @@
+{
+  "source": "Word 16 table 5 row geometry (first cell first character page/top)",
+  "rows": [
+    {
+      "row": 27,
+      "page": 43,
+      "top": 697.5
+    },
+    {
+      "row": 28,
+      "page": 44,
+      "top": 532.5
+    },
+    {
+      "row": 29,
+      "page": 45,
+      "top": 342
+    },
+    {
+      "row": 30,
+      "page": 46,
+      "top": 194.25
+    },
+    {
+      "row": 31,
+      "page": 46,
+      "top": 237.75
+    },
+    {
+      "row": 44,
+      "page": 53,
+      "top": 593.25
+    },
+    {
+      "row": 45,
+      "page": 53,
+      "top": 636.75
+    },
+    {
+      "row": 46,
+      "page": 54,
+      "top": 689.25
+    },
+    {
+      "row": 47,
+      "page": 55,
+      "top": 194.25
+    },
+    {
+      "row": 48,
+      "page": 55,
+      "top": 237.75
+    }
+  ]
+}

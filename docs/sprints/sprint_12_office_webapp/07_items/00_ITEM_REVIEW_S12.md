@@ -87,3 +87,4 @@ Ngoài danh sách này, **không còn chức năng client nào bị cắt**.
 | 0.1 | 2026-11-15 | Tổng hợp 8 Task 0.2, 7 câu hỏi duyệt | BA/Architect |
 | 0.2 | 2026-11-15 | Áp 8 câu trả lời: 280 FR / 111 AC | Chủ dự án |
 | 0.3 | 2026-11-15 | Phủ sóng đầy đủ client: 349 FR / 148 AC; chỉ loại trừ 13 nhóm service; thêm P1–P9 | Chủ dự án; AUDIT-S12-001 |
+| 0.4 | 2026-11-20 | Bổ sung [TASK-523](TASK-523_word_365_web_ui_and_interactions.md) — chuẩn hóa giao diện & tương tác Word Web đạt tương đương Office 365 Web (Single-Line `45px`/Classic `104px`, Light/Dark + Switch Background, File dropdown `268px` + xuất ODT/PDF+comments, Nav Find/Replace `280px`, Floating Comment Cards, popovers, 0 hồi quy 546 trang); giữ nguyên trạng thái `Draft` chờ QA/Chủ dự án nghiệm thu | Developer Agent; TASK-523, TR-S12-003 1.87 |

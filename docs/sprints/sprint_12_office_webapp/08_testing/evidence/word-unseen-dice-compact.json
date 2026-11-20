@@ -1,0 +1,97 @@
+{
+  "source": ".tmp\\parity-unseen.json",
+  "wordPages": 6,
+  "ourPages": 6,
+  "startDice": {
+    "mean": 0.7625,
+    "median": 0.8529,
+    "ge_0_90": 0,
+    "ge_0_80": 4,
+    "ge_0_50": 6,
+    "lt_0_50": 0
+  },
+  "bodyDice": {
+    "mean": 0.9673,
+    "median": 0.9871,
+    "ge_0_90": 6,
+    "ge_0_80": 6,
+    "ge_0_50": 6,
+    "lt_0_50": 0
+  },
+  "worstPages": [
+    {
+      "page": 5,
+      "startDice": 0.833,
+      "bodyDice": 0.9,
+      "word": "Buoc 3 cua phan 6. Tai lieu kiem thu moi chua tung do. Noi dung mo ta quy trinh tiep nhan ho so, phan loai xu ly, theo doi tien do va luu tr",
+      "ours": "Buoc 2 cua phan 6. Tai lieu kiem thu moi chua tung do. Noi dung mo ta quy trinh tiep nhan ho so, phan loai xu ly, theo doi tien do va luu tr"
+    },
+    {
+      "page": 4,
+      "startDice": 0.636,
+      "bodyDice": 0.937,
+      "word": "Phan 5 - Quy trinh nghiep vu so 5 Buoc 1 cua phan 5. Tai lieu kiem thu moi chua tung do. Noi dung mo ta quy trinh tiep nhan ho so, phan loai",
+      "ours": "O 4-1 phan 4 O 4-2 phan 4 O 4-3 phan 4 Phan 5 - Quy trinh nghiep vu so 5 Buoc 1 cua phan 5. Tai lieu kiem thu moi chua tung do. Noi dung mo "
+    },
+    {
+      "page": 3,
+      "startDice": 0.537,
+      "bodyDice": 0.979,
+      "word": "Buoc 6 cua phan 3. Tai lieu kiem thu moi chua tung do. Noi dung mo ta quy trinh tiep nhan ho so, phan loai xu ly, theo doi tien do va luu tr",
+      "ours": "nhieu dong, kem danh sach va bang de kiem tra bo cuc trang. Buoc 6 cua phan 3. Tai lieu kiem thu moi chua tung do. Noi dung mo ta quy trinh "
+    },
+    {
+      "page": 2,
+      "startDice": 0.853,
+      "bodyDice": 0.987,
+      "word": "Buoc 3 cua phan 2. Tai lieu kiem thu moi chua tung do. Noi dung mo ta quy trinh tiep nhan ho so, phan loai xu ly, theo doi tien do va luu tr",
+      "ours": "Buoc 3 cua phan 2. Tai lieu kiem thu moi chua tung do. Noi dung mo ta quy trinh tiep nhan ho so, phan loai xu ly, theo doi tien do va luu tr"
+    },
+    {
+      "page": 1,
+      "startDice": 0.857,
+      "bodyDice": 1,
+      "word": "Phan 1 - Quy trinh nghiep vu so 1 Buoc 1 cua phan 1. Tai lieu kiem thu moi chua tung do. Noi dung mo ta quy trinh tiep nhan ho so, phan loai",
+      "ours": "Phan 1 - Quy trinh nghiep vu so 1 Buoc 1 cua phan 1. Tai lieu kiem thu moi chua tung do. Noi dung mo ta quy trinh tiep nhan ho so, phan loai"
+    },
+    {
+      "page": 6,
+      "startDice": 0.859,
+      "bodyDice": 1,
+      "word": "Bang tong hop cuoi tai lieu Cot 1 dong 1 Cot 2 dong 1 Cot 3 dong 1 Cot 4 dong 1 Cot 5 dong 1 Cot 6 dong 1 Cot 1 dong 2 Cot 2 dong 2 Cot 3 do",
+      "ours": "Bang tong hop cuoi tai lieu Cot 1 dong 1 Cot 2 dong 1 Cot 3 dong 1 Cot 4 dong 1 Cot 5 dong 1 Cot 6 dong 1 Cot 1 dong 2 Cot 2 dong 2 Cot 3 do"
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "startDice": 0.8571428571428571,
+      "bodyDice": 1
+    },
+    {
+      "page": 2,
+      "startDice": 0.8529411764705882,
+      "bodyDice": 0.9870949240034413
+    },
+    {
+      "page": 3,
+      "startDice": 0.5365853658536586,
+      "bodyDice": 0.9790906073680717
+    },
+    {
+      "page": 4,
+      "startDice": 0.6363636363636364,
+      "bodyDice": 0.9374795417348609
+    },
+    {
+      "page": 5,
+      "startDice": 0.8333333333333334,
+      "bodyDice": 0.9003810560696788
+    },
+    {
+      "page": 6,
+      "startDice": 0.8585858585858586,
+      "bodyDice": 1
+    }
+  ]
+}

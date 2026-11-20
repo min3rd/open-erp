@@ -1,0 +1,5 @@
+{
+  "wordSession": "Word 16 instance had been closed by an earlier COM script (Documents.Count = 0); reopened sample-real-proposal.docx (546 pages / 81.368 words) — this was why several COM measurements silently failed",
+  "paragraphLines": "Find could not match \"Firewall/WAF\", \"Single Page Application\", \"Oracle Database 19c\" (wrapping/non-breaking spaces), so Word per-paragraph line counts for blocks 288/339/350 are not available from this session",
+  "conclusion": "Per-paragraph line-count calibration would have to re-wrap text (shrink advances) and would visibly distort it; the 3 remaining pages are a text-metric difference, not a pagination bug"
+}

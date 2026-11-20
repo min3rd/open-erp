@@ -1,0 +1,26 @@
+{
+  "source": "Word 16 authored 12-chapter document; app parity after the paragraph-mark font fix (P-61)",
+  "sample": "word-authored-large.docx",
+  "word": {
+    "pages": 18,
+    "words": 8664
+  },
+  "app": {
+    "pages": 18
+  },
+  "diceWordMode": {
+    "body": 0.9765,
+    "start": 0.4651,
+    "pagesBelowHalfBody": 0
+  },
+  "diceCompact": {
+    "body": 0.9799,
+    "start": 0.6606,
+    "pagesBelowHalfBody": 0
+  },
+  "before": {
+    "pages": 16,
+    "body": 0.7485,
+    "start": 0.3188
+  }
+}

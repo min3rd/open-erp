@@ -201,6 +201,10 @@ export function mediaMimeType(path: string): string {
     gif: 'image/gif',
     bmp: 'image/bmp',
     svg: 'image/svg+xml',
+    webp: 'image/webp',
+    ico: 'image/x-icon',
+    tif: 'image/tiff',
+    tiff: 'image/tiff',
   };
   return map[extension] ?? 'application/octet-stream';
 }

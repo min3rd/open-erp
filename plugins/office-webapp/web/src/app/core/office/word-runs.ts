@@ -7,6 +7,8 @@ export interface RunFormatInput {
   italic?: boolean;
   underline?: boolean;
   strike?: boolean;
+  vertAlign?: 'superscript' | 'subscript' | '';
+  caps?: boolean;
   font?: string;
   sizePt?: number;
   color?: string;
@@ -87,6 +89,69 @@ export function paragraphPlainText(paragraph: WordParagraph): string {
   return textSegments(paragraph).map((segment) => segment.text).join('');
 }
 
+/** Inserts already-formatted runs (rich paste) at a character offset. */
+export function insertFormattedRuns(
+  document: WordDocument, blockIndex: number, at: number, runs: WordRun[],
+): boolean {
+  const paragraph = paragraphAt(document, blockIndex);
+  if (!paragraph || !runs.length) return false;
+  const segments = textSegments(paragraph);
+  const total = segments.length ? segments[segments.length - 1].end : 0;
+  const pos = Math.max(0, Math.min(total, at));
+  const next: WordRun[] = [];
+  let inserted = false;
+  for (const segment of segments) {
+    if (segment.end <= pos) {
+      next.push({ ...segment.run, text: segment.text });
+      continue;
+    }
+    if (segment.start >= pos) {
+      if (!inserted) {
+        next.push(...runs.map((run) => ({ ...run })));
+        inserted = true;
+      }
+      next.push({ ...segment.run, text: segment.text });
+      continue;
+    }
+    next.push({ ...segment.run, text: segment.text.slice(0, pos - segment.start) });
+    next.push(...runs.map((run) => ({ ...run })));
+    inserted = true;
+    next.push({ ...segment.run, text: segment.text.slice(pos - segment.start) });
+  }
+  if (!inserted) next.push(...runs.map((run) => ({ ...run })));
+  paragraph.runs = mergeRuns([...next, ...nonTextRuns(paragraph)]);
+  rewriteParagraphRuns(paragraph, document);
+  return true;
+}
+
+/** Table styles bold the header row: every text run of the cell paragraph. */
+export function setParagraphRunBold(paragraph: WordParagraph, document: WordDocument, bold: boolean): void {
+  setParagraphRunStyle(paragraph, document, { bold });
+}
+
+/** Header typography for table styles: bold and/or a font colour on every run. */
+export function setParagraphRunStyle(
+  paragraph: WordParagraph, document: WordDocument, patch: { bold?: boolean; color?: string; font?: string },
+): void {
+  let changed = false;
+  for (const run of paragraph.runs) {
+    if (run.imagePath || run.videoUrl || run.textBox || run.pageBreak) continue;
+    if (patch.bold !== undefined && run.bold !== patch.bold) {
+      run.bold = patch.bold;
+      changed = true;
+    }
+    if (patch.color !== undefined && run.color !== patch.color) {
+      run.color = patch.color;
+      changed = true;
+    }
+    if (patch.font !== undefined && run.font !== patch.font) {
+      run.font = patch.font;
+      changed = true;
+    }
+  }
+  if (changed) rewriteParagraphRuns(paragraph, document);
+}
+
 function paragraphAt(document: WordDocument, index: number): WordParagraph | null {
   const block = document.blocks[index];
   return block?.kind === 'paragraph' ? block.paragraph : null;
@@ -116,6 +181,8 @@ function formatRun(run: WordRun, input: RunFormatInput): WordRun {
   if (input.italic !== undefined) next.italic = input.italic;
   if (input.underline !== undefined) next.underline = input.underline;
   if (input.strike !== undefined) next.strike = input.strike;
+  if (input.vertAlign !== undefined) next.vertAlign = input.vertAlign === '' ? undefined : input.vertAlign;
+  if (input.caps !== undefined) next.caps = input.caps;
   if (input.font !== undefined) next.font = input.font;
   if (input.sizePt !== undefined) next.sizePt = input.sizePt;
   if (input.color !== undefined) next.color = input.color;
@@ -180,6 +247,8 @@ function runNode(run: WordRun): XmlNode {
   if (run.color) rPr.push({ name: 'w:color', attrs: { 'w:val': run.color.replace('#', '').toUpperCase() }, text: '', children: [] });
   if (run.highlight) rPr.push({ name: 'w:highlight', attrs: { 'w:val': run.highlight }, text: '', children: [] });
   if (run.sizePt) rPr.push({ name: 'w:sz', attrs: { 'w:val': String(Math.round(run.sizePt * 2)) }, text: '', children: [] });
+  if (run.caps) rPr.push({ name: 'w:caps', attrs: {}, text: '', children: [] });
+  if (run.vertAlign) rPr.push({ name: 'w:vertAlign', attrs: { 'w:val': run.vertAlign }, text: '', children: [] });
   const children: XmlNode[] = [];
   if (rPr.length) children.push({ name: 'w:rPr', attrs: {}, text: '', children: rPr });
   children.push({ name: 'w:t', attrs: { 'xml:space': 'preserve' }, text: run.text, children: [] });

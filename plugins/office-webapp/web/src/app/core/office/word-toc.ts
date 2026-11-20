@@ -156,6 +156,25 @@ export function syncTocPageNumbers(document: WordDocument, pages: Map<number, nu
     key: normalizeTocText(entry.text),
   }));
   let changed = 0;
+  // The TOC lists the headings in document order, so when the counts agree the
+  // n-th line belongs to the n-th heading. Matching by text instead loses
+  // duplicate headings such as "Kết luận" under different chapters.
+  const tocBlocks = document.blocks.filter((block) =>
+    block.kind === 'paragraph' && /^TOC[1-9]$/.test(block.paragraph.style ?? ''));
+  if (tocBlocks.length === headings.length) {
+    tocBlocks.forEach((block, position) => {
+      if (block.kind !== 'paragraph') return;
+      const text = block.paragraph.runs.map((run) => run.text).join('');
+      const match = /^(.*?)(\t|\s{2,})(\d+)\s*$/.exec(text);
+      if (!match) return;
+      const page = pages.get(headings[position].index);
+      if (!page || String(page) === match[3]) return;
+      updateTocNumber(block.paragraph, page);
+      changed++;
+    });
+    return changed;
+  }
+  let cursor = 0;
   for (const block of document.blocks) {
     if (block.kind !== 'paragraph') continue;
     const style = block.paragraph.style;
@@ -164,11 +183,19 @@ export function syncTocPageNumbers(document: WordDocument, pages: Map<number, nu
     const match = /^(.*?)(\t|\s{2,})(\d+)\s*$/.exec(text);
     if (!match) continue;
     const entryText = normalizeTocText(match[1]);
-    const heading = headings
-      .filter((item) => entryText === item.key || entryText.endsWith(` ${item.key}`))
-      .sort((left, right) => right.key.length - left.key.length)[0];
-    if (!heading) continue;
-    const page = pages.get(heading.index);
+    // Headings repeat ("Kết luận" under every chapter), so the TOC line is
+    // matched against the next heading in document order, never an earlier one.
+    let found = -1;
+    for (let index = cursor; index < headings.length; index++) {
+      const key = headings[index].key;
+      if (entryText === key || entryText.endsWith(` ${key}`)) {
+        found = index;
+        break;
+      }
+    }
+    if (found < 0) continue;
+    cursor = found + 1;
+    const page = pages.get(headings[found].index);
     if (!page || String(page) === match[3]) continue;
     updateTocNumber(block.paragraph, page);
     changed++;

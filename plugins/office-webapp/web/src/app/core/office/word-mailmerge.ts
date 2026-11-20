@@ -309,6 +309,8 @@ function mergedBlock(block: WordBlock, state: MailMergeState, cursor: MergeCurso
       mergedParagraph(paragraph, state, cursor)))),
     nested: mergedNested(block.nested, state, cursor),
     grid: block.grid,
+    tableWidthPx: block.tableWidthPx,
+    colWidthsPx: block.colWidthsPx,
   };
 }
 

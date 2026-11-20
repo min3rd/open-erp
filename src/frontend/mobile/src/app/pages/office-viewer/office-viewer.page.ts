@@ -1,6 +1,7 @@
-import { Component, ElementRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { DomSanitizer, type SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer, type SafeHtml, type SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -8,8 +9,13 @@ import {
 } from '@ionic/angular/standalone';
 import { API_BASE_URL, TranslatePipe } from '@shared';
 import { openOfficeFile } from '@plugins/office-webapp/office/parser';
+import { mediaMimeType } from '@plugins/office-webapp/office/pptx';
+import { tableCellLayout } from '@plugins/office-webapp/office/word-tables';
 import { numberToColumn } from '@plugins/office-webapp/office/xlsx';
-import type { ExcelSheet, OfficeApp, OfficeDocument, PptShape, WordBlock } from '@plugins/office-webapp/office/types';
+import type {
+  ExcelSheet, OfficeApp, OfficeDocument, PptShape, WordBlock, WordCellSpan, WordCellStyle,
+  WordNestedTable, WordNote, WordParagraph, WordRun,
+} from '@plugins/office-webapp/office/types';
 
 interface Envelope<T> {
   success: boolean;
@@ -27,11 +33,11 @@ interface OfficeDocumentMeta {
 @Component({
   selector: 'app-office-viewer',
   standalone: true,
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonBackButton, TranslatePipe],
+  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonBackButton, TranslatePipe, NgTemplateOutlet],
   templateUrl: './office-viewer.page.html',
   styleUrl: './office-viewer.page.css',
 })
-export class OfficeViewerPage implements OnInit {
+export class OfficeViewerPage implements OnInit, OnDestroy {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
@@ -51,8 +57,11 @@ export class OfficeViewerPage implements OnInit {
   readonly pdfUrl = signal<SafeResourceUrl | null>(null);
   readonly sourceBytes = signal<ArrayBuffer | null>(null);
   private pdfObjectUrl: string | null = null;
+  private readonly wordMediaUrls = new Map<string, string>();
 
   readonly app = computed<OfficeApp | null>(() => this.doc()?.app ?? null);
+  readonly footnotes = computed<WordNote[]>(() => this.doc()?.word?.notes?.footnotes ?? []);
+  readonly endnotes = computed<WordNote[]>(() => this.doc()?.word?.notes?.endnotes ?? []);
   readonly sheet = computed<ExcelSheet | null>(() => {
     const sheets = this.doc()?.excel?.sheets ?? [];
     return sheets[Math.min(this.sheetIndex(), Math.max(sheets.length - 1, 0))] ?? null;
@@ -135,8 +144,14 @@ export class OfficeViewerPage implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this.revokePdf();
+    this.revokeMedia();
+  }
+
   close(): void {
     this.revokePdf();
+    this.revokeMedia();
     this.doc.set(null);
     this.sourceBytes.set(null);
     this.error.set(null);
@@ -221,8 +236,112 @@ export class OfficeViewerPage implements OnInit {
     return block.paragraph.headingLevel ? `op-mv-h${block.paragraph.headingLevel}` : '';
   }
 
+  errorMessageKey(code: string): string {
+    const known = new Set([
+      'OFFICE_UNSUPPORTED_EXTENSION', 'OFFICE_ENCRYPTED_FILE_UNSUPPORTED', 'OFFICE_MACRO_FILE_UNSUPPORTED',
+      'OFFICE_CORRUPT_ARCHIVE', 'OFFICE_ZIP_SLIP', 'OFFICE_ZIP_UNSAFE_PATH', 'OFFICE_ZIP_UNSUPPORTED',
+      'OFFICE_ZIP_TOO_LARGE', 'OFFICE_XML_UNSAFE', 'OFFICE_MAGIC_MISMATCH', 'OFFICE_INVALID_MAGIC_BYTES',
+      'OFFICE_FILE_TOO_LARGE', 'OFFICE_OLE2_CORRUPT', 'OFFICE_OLE2_TOO_LARGE', 'OFFICE_DOC_CORRUPT',
+      'OFFICE_RTF_CORRUPT', 'OFFICE_ODT_CORRUPT', 'OFFICE_WORD_XML_CORRUPT', 'OFFICE_OPEN_FAILED',
+    ]);
+    return known.has(code) ? `office.error.${code}` : 'office.viewer.openFailed';
+  }
+
+  warningMessageKey(code: string): string {
+    const known = new Set([
+      'OFFICE_LEGACY_FORMAT_READONLY', 'OFFICE_TEMPLATE_OPENED_AS_DOCX', 'OFFICE_DOC_TABLE_HEURISTIC',
+      'OFFICE_OLE2_DUPLICATE_ENTRY', 'DUPLICATE_ENTRY', 'OFFICE_VECTOR_IMAGE_UNSUPPORTED',
+      'OFFICE_LEGACY_EXPORT_AS_OOXML', 'OFFICE_DOC_PARTIAL_RECOVERY',
+    ]);
+    return known.has(code) ? `office.warning.${code}` : 'office.warning.generic';
+  }
+
+  wordImageUrl(path: string | undefined): string | null {
+    if (!path) return null;
+    const cached = this.wordMediaUrls.get(path);
+    if (cached) return cached;
+    const bytes = this.doc()?.word?.packageEntries?.get(path);
+    if (!bytes) return null;
+    const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: mediaMimeType(path) }));
+    this.wordMediaUrls.set(path, url);
+    return url;
+  }
+
+  mathMlHtml(mathMl: string): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(mathMl);
+  }
+
+  polyline(points: Array<{ x: number; y: number }>): string {
+    return points.map((pt) => `${pt.x},${pt.y}`).join(' ');
+  }
+
+  runStyle(run: WordRun): Record<string, string> {
+    const highlight: Record<string, string> = {
+      yellow: '#fef08a', green: '#bbf7d0', cyan: '#bae6fd', magenta: '#fbcfe8', red: '#fecaca', blue: '#bfdbfe',
+    };
+    const style: Record<string, string> = {
+      'font-weight': run.bold ? '700' : '400',
+      'font-style': run.italic ? 'italic' : 'normal',
+      'text-decoration': [run.underline ? 'underline' : '', run.strike ? 'line-through' : ''].filter(Boolean).join(' ') || 'none',
+      color: run.color ?? '#111827',
+      'font-size': run.sizePt ? `${Math.round(run.sizePt * 1.333)}px` : run.vertAlign ? '0.65em' : 'inherit',
+      'font-family': run.font ? `'${run.font}', sans-serif` : 'inherit',
+      'text-transform': run.caps ? 'uppercase' : 'none',
+      'font-variant': run.smallCaps ? 'small-caps' : 'normal',
+      'vertical-align': run.vertAlign === 'superscript' ? 'super' : run.vertAlign === 'subscript' ? 'sub' : 'baseline',
+      background: run.highlight ? highlight[run.highlight] ?? run.highlight : (run.shading ?? 'transparent'),
+    };
+    if (run.underline && run.underlineStyle && run.underlineStyle !== 'single') {
+      style['text-decoration-style'] = run.underlineStyle;
+    }
+    return style;
+  }
+
+  paragraphStyle(p: WordParagraph): Record<string, string> {
+    const style: Record<string, string> = {};
+    if (p.align) style['text-align'] = p.align;
+    if (p.indent) style['padding-left'] = `${Math.min(48, Math.round(p.indent / 15))}px`;
+    if (p.indentRight) style['padding-right'] = `${Math.min(32, Math.round(p.indentRight / 15))}px`;
+    if (p.firstLineIndent) style['text-indent'] = `${Math.min(32, Math.round(p.firstLineIndent / 15))}px`;
+    if (p.shading) style['background'] = p.shading;
+    if (p.borderSides?.top) style['border-top'] = p.borderSides.top;
+    if (p.borderSides?.bottom) style['border-bottom'] = p.borderSides.bottom;
+    if (p.borderSides?.left) style['border-left'] = p.borderSides.left;
+    if (p.borderSides?.right) style['border-right'] = p.borderSides.right;
+    if (p.borderSides) style['padding'] = '4px 6px';
+    return style;
+  }
+
+  cellCovered(spans: (WordCellSpan | undefined)[][] | undefined, rowIndex: number, cellIndex: number): boolean {
+    return tableCellLayout(spans, rowIndex, cellIndex).covered;
+  }
+
+  cellColSpan(spans: (WordCellSpan | undefined)[][] | undefined, rowIndex: number, cellIndex: number): number | null {
+    const span = tableCellLayout(spans, rowIndex, cellIndex).colSpan;
+    return span > 1 ? span : null;
+  }
+
+  cellRowSpan(spans: (WordCellSpan | undefined)[][] | undefined, rowIndex: number, cellIndex: number): number | null {
+    const span = tableCellLayout(spans, rowIndex, cellIndex).rowSpan;
+    return span > 1 ? span : null;
+  }
+
+  cellStyle(cell: WordCellStyle | undefined): Record<string, string> | null {
+    if (!cell) return null;
+    const style: Record<string, string> = {};
+    if (cell.fill) style['background-color'] = cell.fill;
+    if (cell.valign) style['vertical-align'] = cell.valign === 'center' ? 'middle' : cell.valign;
+    if (cell.borderColor) style['border-color'] = cell.borderColor;
+    return Object.keys(style).length ? style : null;
+  }
+
+  nestedIn(nested: WordNestedTable[] | undefined, row: number, cell: number): WordNestedTable[] {
+    return (nested ?? []).filter((entry) => entry.row === row && entry.cell === cell);
+  }
+
   private applyBuffer(parsed: OfficeDocument, buffer: ArrayBuffer, fileName: string): void {
     this.revokePdf();
+    this.revokeMedia();
     parsed.fileName = fileName;
     this.doc.set(parsed);
     this.sourceBytes.set(buffer);
@@ -259,6 +378,11 @@ export class OfficeViewerPage implements OnInit {
       this.pdfBase = null;
       this.pdfUrl.set(null);
     }
+  }
+
+  private revokeMedia(): void {
+    this.wordMediaUrls.forEach((url) => URL.revokeObjectURL(url));
+    this.wordMediaUrls.clear();
   }
 }
 

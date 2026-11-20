@@ -1,0 +1,9 @@
+pages 2
+page1-first 'Header section 1\nBáo cáo Sprint 12\nOffice WebApp đọc trực tiếp .docx trên trình duyệt, không upload nội dung lên máy chủ.\nTiếng Việt: ă â ê ô ơ ư đ — 0123456789'
+page2-first 'Header section 2\nSecond section body\nFooter section 2'
+Header section 1 True
+Báo cáo Sprint 12 True
+Hạng mục True
+Word parser True
+Footer section 1 True
+Header section 2 True

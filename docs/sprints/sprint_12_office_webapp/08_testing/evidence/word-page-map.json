@@ -1,0 +1,2191 @@
+{
+  "source": "Microsoft Word 16.0 PDF export",
+  "pdf": "word-real-proposal.pdf",
+  "pages": 546,
+  "map": [
+    {
+      "page": 1,
+      "start": "ĐỀ XUẤT GIẢI PHÁP KỸ THUẬT Gói thầu số 072/ĐTRR/CQĐT/VBSC/2026 “Cung cấp dịch vụ nâng cấp hệ thống thông tin quản lý cán"
+    },
+    {
+      "page": 2,
+      "start": "MỤC LỤC A Giới thiệu về nhà thầu ......................................................................................."
+    },
+    {
+      "page": 3,
+      "start": "7 Dịch vụ Quản trị, vận hành phần mềm .................................................................. 522 8 Kiểm thử."
+    },
+    {
+      "page": 4,
+      "start": "KHÁI NIỆM, THUẬT NGỮ VIẾT TẮT Các khái niệm và thuật ngữ sử dụng trong tài liệu được liệt kê trong bảng sau. Thuật ngữ Đ"
+    },
+    {
+      "page": 5,
+      "start": "A GIỚI THIỆU VỀ NHÀ THẦU Công ty Cổ phần Công nghệ SOPEN Việt Nam là đơn vị hoạt động chuyên nghiệp trong lĩnh vực tư vấ"
+    },
+    {
+      "page": 6,
+      "start": "Với năng lực và kinh nghiệm đã được khẳng định, Công ty Cổ phần Công nghệ SOPEN Việt Nam tin tưởng đáp ứng hiệu quả yêu "
+    },
+    {
+      "page": 7,
+      "start": "STT Danh mục dịch vụ Đơn vị tính Khối lượng Mô tả dịch vụ Địa điểm thực hiện dịch vụ Ngày hoàn thành dịch vụ 3 Dịch vụ Q"
+    },
+    {
+      "page": 8,
+      "start": "C ĐỀ XUẤT GIẢI PHÁP KỸ THUẬT 1 Mô hình kiến trúc của hệ thống Hình ảnh 1: Mô hình kiến trúc hệ thống Mô hình được chia t"
+    },
+    {
+      "page": 9,
+      "start": "Các tầng liên kết với nhau theo luồng từ trên xuống dưới, đảm bảo tách biệt rõ ràng giữa giao diện, xử lý nghiệp vụ và l"
+    },
+    {
+      "page": 10,
+      "start": "− Tích hợp với các hệ thống bên ngoài (ví dụ: cơ sở dữ liệu quốc gia, hệ thống quản lý khác). − Đồng bộ dữ liệu. − Đảm b"
+    },
+    {
+      "page": 11,
+      "start": "Mô hình kiến trúc này tổ chức hệ thống thành các lớp chức năng rõ ràng, bao gồm: lớp giao diện, lớp xử lý nghiệp vụ, lớp"
+    },
+    {
+      "page": 12,
+      "start": "2 Mô hình triển khai ứng dụng Hình ảnh 2: Mô hình triển khai ứng dụng trên nền tảng ảo hóa Mô hình được tổ chức theo kiế"
+    },
+    {
+      "page": 13,
+      "start": "Mục tiêu của mô hình là đảm bảo hệ thống có khả năng mở rộng, cân bằng tải, phân tách an toàn vùng mạng, dễ vận hành, dễ"
+    },
+    {
+      "page": 14,
+      "start": "2.2.1 CSDL nghiệp vụ Trong sơ đồ thể hiện: − CSDL nghiệp vụ − Oracle RAC Đây là nơi lưu trữ dữ liệu nghiệp vụ chính của "
+    },
+    {
+      "page": 15,
+      "start": "− Thu thập log từ các service. − Theo dõi trạng thái ứng dụng. − Theo dõi tài nguyên hệ thống. − Phát hiện lỗi hoặc bất "
+    },
+    {
+      "page": 16,
+      "start": "2.4 Vùng DMZ Phân vùng Vùng DMZ là vùng trung gian giữa Internet và hệ thống nội bộ. Thành phần chính − Firewall / WAF −"
+    },
+    {
+      "page": 17,
+      "start": "1) Người dùng truy cập domain hệ thống. 2) Nginx trả về bộ file HTML, CSS, JavaScript của Angular SPA. 3) Trình duyệt tả"
+    },
+    {
+      "page": 18,
+      "start": "luồng dữ liệu. Các truy cập từ Internet được kiểm soát qua Firewall/WAF và Load Balancer trước khi đến tầng web. Angular"
+    },
+    {
+      "page": 19,
+      "start": "3.2 Ngôn ngữ lập trình 3.2.1 Ngôn ngữ lập trình giao diện web (Typescript, CSS, HTML) • Typescripts: là ngôn ngữ lập trì"
+    },
+    {
+      "page": 20,
+      "start": "a. Lớp; b. Đối tượng; c. Kế thừa; d. Đóng gói; e. Đa hình; f. Trừu tượng hóa. Cách tiếp cận này giúp mã nguồn được tổ ch"
+    },
+    {
+      "page": 21,
+      "start": "• Phù hợp với kiến trúc microservices: Spring Boot đặc biệt phù hợp để xây dựng các dịch vụ nhỏ, độc lập trong kiến trúc"
+    },
+    {
+      "page": 22,
+      "start": "sẽ tạo ra các file tĩnh gồm HTML, JavaScript và CSS, sau đó được triển khai trên máy chủ web như Nginx trong vùng DMZ. •"
+    },
+    {
+      "page": 23,
+      "start": "Guide cho Oracle Database 19c nhằm mô tả các tính năng và thay đổi hành vi trong phiên bản này. Một điểm quan trọng là O"
+    },
+    {
+      "page": 24,
+      "start": "Việc lựa chọn Oracle Database 19c giúp bảo đảm hệ thống có nền tảng cơ sở dữ liệu mạnh, ổn định, an toàn, đáp ứng tốt yê"
+    },
+    {
+      "page": 25,
+      "start": "Tuy nhiên, cần lưu ý rằng CentOS Linux 7 đã kết thúc vòng đời hỗ trợ vào ngày 30/6/2024; sau thời điểm này, hệ điều hành"
+    },
+    {
+      "page": 26,
+      "start": "cụ thể của chủ đầu tư; đồng thời sẽ xem xét lựa chọn phiên bản hoặc nền tảng tương thích còn được hỗ trợ để bảo đảm an t"
+    },
+    {
+      "page": 27,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 28,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 29,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 30,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 31,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 32,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 33,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 34,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 35,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 36,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 37,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 38,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 39,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 40,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 41,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 42,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 43,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 44,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 45,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 46,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 47,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 48,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 49,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 50,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 51,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 52,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 53,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 54,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 55,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 56,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 57,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 58,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 59,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 60,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 61,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 62,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 63,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 64,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 65,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 66,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 67,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 68,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 69,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 70,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 71,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 72,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 73,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 74,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 75,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 76,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 77,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 78,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 79,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 80,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 81,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 82,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 83,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 84,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 85,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 86,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 87,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 88,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 89,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 90,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 91,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 92,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 93,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 94,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 95,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 96,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 97,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 98,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 99,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 100,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 101,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 102,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 103,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 104,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 105,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 106,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 107,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 108,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 109,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 110,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 111,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 112,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 113,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 114,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 115,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 116,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 117,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 118,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 119,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 120,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 121,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 122,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 123,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 124,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 125,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 126,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 127,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 128,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 129,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 130,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 131,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 132,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 133,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 134,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 135,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 136,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 137,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 138,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 139,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 140,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 141,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 142,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 143,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 144,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 145,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 146,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 147,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 148,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 149,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 150,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 151,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 152,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 153,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 154,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 155,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 156,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 157,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 158,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 159,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 160,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 161,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 162,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 163,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 164,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 165,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 166,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 167,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 168,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 169,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 170,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 171,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 172,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 173,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 174,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 175,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 176,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 177,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 178,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 179,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 180,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 181,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 182,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 183,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 184,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 185,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 186,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 187,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 188,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 189,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 190,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 191,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 192,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 193,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 194,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 195,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 196,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 197,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 198,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 199,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 200,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 201,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 202,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 203,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 204,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 205,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 206,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 207,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 208,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 209,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 210,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 211,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 212,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 213,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 214,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 215,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 216,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 217,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 218,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 219,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 220,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 221,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 222,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 223,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 224,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 225,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 226,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 227,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 228,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 229,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 230,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 231,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 232,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 233,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 234,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 235,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 236,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 237,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 238,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 239,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 240,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 241,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 242,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 243,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 244,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 245,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 246,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 247,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 248,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 249,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 250,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 251,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 252,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 253,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 254,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 255,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 256,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 257,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 258,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 259,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 260,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 261,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 262,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 263,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 264,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 265,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 266,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 267,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 268,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 269,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 270,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 271,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 272,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 273,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 274,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 275,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 276,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 277,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 278,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 279,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 280,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 281,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 282,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 283,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 284,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 285,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 286,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 287,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 288,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 289,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 290,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 291,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 292,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 293,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 294,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 295,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 296,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 297,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 298,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 299,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 300,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 301,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 302,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 303,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 304,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 305,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 306,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 307,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 308,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 309,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 310,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 311,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 312,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 313,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 314,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 315,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 316,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 317,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 318,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 319,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 320,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 321,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 322,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 323,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 324,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 325,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 326,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 327,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 328,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 329,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 330,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 331,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 332,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 333,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 334,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 335,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 336,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 337,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 338,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 339,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 340,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 341,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 342,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 343,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 344,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 345,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 346,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 347,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 348,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 349,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 350,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 351,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 352,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 353,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 354,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 355,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 356,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 357,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 358,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 359,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 360,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 361,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 362,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 363,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 364,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 365,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 366,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 367,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 368,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 369,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 370,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 371,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 372,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 373,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 374,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 375,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 376,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 377,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 378,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 379,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 380,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 381,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 382,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 383,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 384,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 385,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 386,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 387,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 388,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 389,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 390,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 391,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 392,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 393,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 394,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 395,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 396,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 397,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 398,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 399,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 400,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 401,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 402,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 403,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 404,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 405,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 406,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 407,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 408,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 409,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 410,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 411,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 412,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 413,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 414,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 415,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 416,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 417,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 418,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 419,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 420,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 421,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 422,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 423,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 424,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 425,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 426,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 427,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 428,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 429,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 430,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 431,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 432,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 433,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 434,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 435,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 436,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 437,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 438,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 439,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 440,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 441,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 442,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 443,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 444,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 445,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 446,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 447,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 448,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 449,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 450,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 451,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 452,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 453,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 454,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 455,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 456,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 457,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 458,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 459,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 460,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 461,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 462,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 463,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 464,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 465,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 466,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 467,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 468,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 469,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 470,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 471,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 472,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 473,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 474,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 475,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 476,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 477,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 478,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 479,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 480,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 481,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 482,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 483,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 484,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 485,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 486,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 487,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 488,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 489,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 490,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 491,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 492,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 493,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 494,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 495,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 496,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 497,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ KN:khuyến nghị) Giải pháp kỹ "
+    },
+    {
+      "page": 498,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 499,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 500,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 501,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 502,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 503,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 504,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 505,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 506,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 507,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 508,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 509,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 510,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 511,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 512,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 513,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 514,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 515,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 516,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 517,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 518,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 519,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 520,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 521,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 522,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 523,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 524,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 525,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 526,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 527,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 528,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 529,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 530,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 531,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 532,
+      "start": "Số CTKT STT Nội dung/Định nghĩa/Nhó m chỉ tiêu Chỉ tiêu kỹ thuật Loại yêu cầu (M:bắt buộc/ O:lựa chọn) Giải pháp kỹ thuậ"
+    },
+    {
+      "page": 533,
+      "start": "Hiệu quả nguồn lực: Quy trình Unit Test được thực hiện song song trong giai đoạn lập trình, không làm phát sinh thêm thờ"
+    },
+    {
+      "page": 534,
+      "start": "TT Nội dung công việc Sản phẩm/ Tài liệu bàn giao Số lượng đúng giải pháp, kịch bản kiểm tra 4 Tài liệu khác - Tài liệu "
+    },
+    {
+      "page": 535,
+      "start": "Kinh nghiệm phát triển, triển khai thực tế Chúng tôi đã và đang thực hiện các hợp đồng liên quan đến hệ thống phần mềm q"
+    },
+    {
+      "page": 536,
+      "start": "Hình ảnh 3: Cấu trúc bộ máy nhân sự thực hiện dự án 1.1 Ban điều hành dự án của nhà thầu Ban điều hành dự án nhà thầu ba"
+    },
+    {
+      "page": 537,
+      "start": "1.4 Nhóm phát triển • Thực hiện công việc phát triển tại nơi chỉ định của Chủ đầu tư • Nhóm phát triển thông thường có t"
+    },
+    {
+      "page": 538,
+      "start": "TT Giai đoạn Công việc Vai trò của cán bộ TCT GP Doanh nghiệp Viettel Nghiệm thu/quyết toán hợp đồng dung hợp đồng. 3 Ph"
+    },
+    {
+      "page": 539,
+      "start": "Hình ảnh 4: Quy trình phát triển phần mềm với Agile Quy trình Agile gồm các bước chính: 1) Xây dựng Product Backlog: Tập"
+    },
+    {
+      "page": 540,
+      "start": "3.4 Kết luận Nhà thầu đề xuất áp dụng Agile làm phương pháp luận chính trong quá trình phát triển phần mềm, kết hợp với "
+    },
+    {
+      "page": 541,
+      "start": "4.1.2 Công cụ quản lý dự án: Redmine Nhà thầu đề xuất sử dụng Redmine làm công cụ quản lý dự án, quản lý công việc và th"
+    },
+    {
+      "page": 542,
+      "start": "• Các chức năng sau khi phát triển phải được kiểm thử theo kịch bản, checklist và tiêu chí nghiệm thu tương ứng. • Các l"
+    },
+    {
+      "page": 543,
+      "start": "TT Nội dung công việc Ngày thứ Ngày 1 - 5 Ngày 6 - 12 Ngày 13 - 30 Ngày 31 - 40 Ngày 41 - 60 Ngày 61 - 150 I Khảo sát, p"
+    },
+    {
+      "page": 544,
+      "start": "TT Nội dung công việc Ngày thứ Ngày 1 - 5 Ngày 6 - 12 Ngày 13 - 30 Ngày 31 - 40 Ngày 41 - 60 Ngày 61 - 150 2 Hướng dẫn s"
+    },
+    {
+      "page": 545,
+      "start": "Diễn giải chi tiết công việc như sau: TT Nội dung công việc Kết quả đầu ra Thời gian I Khảo sát, phân tích Từ ngày 1 đến"
+    },
+    {
+      "page": 546,
+      "start": "TT Nội dung công việc Kết quả đầu ra Thời gian CĐT sắp xếp. V Quản trị, vận hành phần mềm Từ ngày 61 đến ngày 150 1 Quản"
+    }
+  ]
+}

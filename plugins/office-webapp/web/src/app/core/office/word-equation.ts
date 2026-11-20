@@ -1,4 +1,4 @@
-import { descendants, type XmlNode } from '../binary/xml';
+import { attr, descendants, findChild, findChildren, type XmlNode } from '../binary/xml';
 import type { WordDocument } from './types';
 
 export type EquationKind = 'fraction' | 'sqrt' | 'superscript' | 'subscript' | 'linear';
@@ -136,6 +136,121 @@ function mathText(value: string): XmlNode {
       { name: 'm:t', attrs: { 'xml:space': 'preserve' }, text: value, children: [] },
     ],
   };
+}
+
+export function ommlToMathMl(node: XmlNode, display = false): string {
+  const inner = renderOmmlNode(node);
+  const mode = display ? ' display="block"' : '';
+  return `<math xmlns="http://www.w3.org/1998/Math/MathML"${mode}>${inner}</math>`;
+}
+
+function renderOmmlNode(node: XmlNode): string {
+  if (node.name === 'm:oMathPara') {
+    return findChildren(node, 'm:oMath').map(renderOmmlNode).join('') || node.children.map(renderOmmlNode).join('');
+  }
+  if (node.name === 'm:oMath') {
+    return `<mrow>${node.children.map(renderOmmlNode).join('')}</mrow>`;
+  }
+  if (node.name === 'm:r') {
+    const text = findChildren(node, 'm:t').map((item) => item.text).join('')
+      || descendants(node, 'w:t').map((item) => item.text).join('');
+    if (!text) return '';
+    return renderMathRunText(text);
+  }
+  if (node.name === 'm:t') {
+    return node.text ? renderMathRunText(node.text) : '';
+  }
+  if (node.name === 'm:f') {
+    const num = findChild(node, 'm:num');
+    const den = findChild(node, 'm:den');
+    return `<mfrac><mrow>${num ? num.children.map(renderOmmlNode).join('') : ''}</mrow><mrow>${den ? den.children.map(renderOmmlNode).join('') : ''}</mrow></mfrac>`;
+  }
+  if (node.name === 'm:rad') {
+    const degHide = attr(findChild(findChild(node, 'm:radPr'), 'm:degHide'), 'm:val');
+    const deg = findChild(node, 'm:deg');
+    const base = findChild(node, 'm:e');
+    const degXml = deg ? deg.children.map(renderOmmlNode).join('') : '';
+    const baseXml = base ? base.children.map(renderOmmlNode).join('') : '';
+    if (degHide === '1' || !degXml) return `<msqrt>${baseXml}</msqrt>`;
+    return `<mroot><mrow>${baseXml}</mrow><mrow>${degXml}</mrow></mroot>`;
+  }
+  if (node.name === 'm:sSup') {
+    const base = findChild(node, 'm:e');
+    const sup = findChild(node, 'm:sup');
+    return `<msup><mrow>${base ? base.children.map(renderOmmlNode).join('') : ''}</mrow><mrow>${sup ? sup.children.map(renderOmmlNode).join('') : ''}</mrow></msup>`;
+  }
+  if (node.name === 'm:sSub') {
+    const base = findChild(node, 'm:e');
+    const sub = findChild(node, 'm:sub');
+    return `<msub><mrow>${base ? base.children.map(renderOmmlNode).join('') : ''}</mrow><mrow>${sub ? sub.children.map(renderOmmlNode).join('') : ''}</mrow></msub>`;
+  }
+  if (node.name === 'm:sSubSup') {
+    const base = findChild(node, 'm:e');
+    const sub = findChild(node, 'm:sub');
+    const sup = findChild(node, 'm:sup');
+    return `<msubsup><mrow>${base ? base.children.map(renderOmmlNode).join('') : ''}</mrow><mrow>${sub ? sub.children.map(renderOmmlNode).join('') : ''}</mrow><mrow>${sup ? sup.children.map(renderOmmlNode).join('') : ''}</mrow></msubsup>`;
+  }
+  if (node.name === 'm:nary') {
+    const chr = attr(findChild(findChild(node, 'm:naryPr'), 'm:chr'), 'm:val') ?? '∫';
+    const sub = findChild(node, 'm:sub');
+    const sup = findChild(node, 'm:sup');
+    const base = findChild(node, 'm:e');
+    const subXml = sub ? sub.children.map(renderOmmlNode).join('') : '';
+    const supXml = sup ? sup.children.map(renderOmmlNode).join('') : '';
+    const op = subXml && supXml
+      ? `<msubsup><mo>${escapeMathText(chr)}</mo><mrow>${subXml}</mrow><mrow>${supXml}</mrow></msubsup>`
+      : subXml
+        ? `<msub><mo>${escapeMathText(chr)}</mo><mrow>${subXml}</mrow></msub>`
+        : supXml
+          ? `<msup><mo>${escapeMathText(chr)}</mo><mrow>${supXml}</mrow></msup>`
+          : `<mo>${escapeMathText(chr)}</mo>`;
+    return `<mrow>${op}<mrow>${base ? base.children.map(renderOmmlNode).join('') : ''}</mrow></mrow>`;
+  }
+  if (node.name === 'm:d') {
+    const dPr = findChild(node, 'm:dPr');
+    const beg = attr(findChild(dPr, 'm:begChr'), 'm:val') ?? '(';
+    const end = attr(findChild(dPr, 'm:endChr'), 'm:val') ?? ')';
+    const sep = attr(findChild(dPr, 'm:sepChr'), 'm:val') ?? ',';
+    const parts = findChildren(node, 'm:e').map((e) => `<mrow>${e.children.map(renderOmmlNode).join('')}</mrow>`);
+    return `<mrow><mo>${escapeMathText(beg)}</mo>${parts.join(`<mo>${escapeMathText(sep)}</mo>`)}<mo>${escapeMathText(end)}</mo></mrow>`;
+  }
+  if (node.name === 'm:m') {
+    const rows = findChildren(node, 'm:mr').map((row) =>
+      `<mtr>${findChildren(row, 'm:e').map((cell) => `<mtd>${cell.children.map(renderOmmlNode).join('')}</mtd>`).join('')}</mtr>`);
+    return `<mtable>${rows.join('')}</mtable>`;
+  }
+  if (node.name === 'm:acc') {
+    const chr = attr(findChild(findChild(node, 'm:accPr'), 'm:chr'), 'm:val') ?? '^';
+    const base = findChild(node, 'm:e');
+    return `<mover><mrow>${base ? base.children.map(renderOmmlNode).join('') : ''}</mrow><mo>${escapeMathText(chr)}</mo></mover>`;
+  }
+  if (node.name === 'm:bar') {
+    const pos = attr(findChild(findChild(node, 'm:barPr'), 'm:pos'), 'm:val') ?? 'top';
+    const base = findChild(node, 'm:e');
+    const tag = pos === 'bot' ? 'munder' : 'mover';
+    return `<${tag}><mrow>${base ? base.children.map(renderOmmlNode).join('') : ''}</mrow><mo>‾</mo></${tag}>`;
+  }
+  if (node.name === 'm:func') {
+    const name = findChild(node, 'm:fName');
+    const base = findChild(node, 'm:e');
+    return `<mrow><mi>${escapeMathText(name ? descendants(name, 'm:t').map((t) => t.text).join('') : '')}</mi><mrow>${base ? base.children.map(renderOmmlNode).join('') : ''}</mrow></mrow>`;
+  }
+  if (node.name.endsWith('Pr')) return '';
+  return node.children.map(renderOmmlNode).join('');
+}
+
+function renderMathRunText(text: string): string {
+  const parts = text.match(/(\d+(?:\.\d+)?|[+\-−×÷=<>≤≥≠±∑∏∫√()\[\]{},.;:]+|\s+|[^\d+\-−×÷=<>≤≥≠±∑∏∫√()\[\]{},.;:\s]+)/g) ?? [text];
+  return parts.map((part) => {
+    if (/^\s+$/.test(part)) return '<mspace width="0.2em"/>';
+    if (/^\d/.test(part)) return `<mn>${escapeMathText(part)}</mn>`;
+    if (/^[+\-−×÷=<>≤≥≠±∑∏∫√()\[\]{},.;:]+$/.test(part)) return `<mo>${escapeMathText(part)}</mo>`;
+    return `<mi>${escapeMathText(part)}</mi>`;
+  }).join('');
+}
+
+function escapeMathText(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function removeNode(root: XmlNode, target: XmlNode): boolean {

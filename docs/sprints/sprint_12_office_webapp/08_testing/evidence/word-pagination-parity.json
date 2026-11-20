@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-18",
+  "scope": "G1 per-page pagination harness + derived TableBreakHint layer",
+  "document": "plugins/office-webapp/web/samples/sample-real-proposal.docx",
+  "word_page_count": 546,
+  "source_of_page_count": "docProps/app.xml <Pages>546</Pages>",
+  "runs": [
+    { "tag": "base", "web_pages": 546, "settled": true, "runtime_errors": 0 },
+    { "tag": "base2", "web_pages": 546, "settled": true, "runtime_errors": 0, "same_page_starts_as_base": true },
+    { "tag": "hintsflag", "query": "?breakHints=1", "web_pages": 546, "settled": true, "runtime_errors": 0, "page_starts_changed_vs_base": 0 }
+  ],
+  "deterministic": {
+    "same_page_count": true,
+    "same_page_start_text": true
+  },
+  "derived_break_hints": {
+    "source": "w:lastRenderedPageBreak",
+    "markers": 1743,
+    "blocks_with_breaks": 41,
+    "unique_block_row_offset": 1546,
+    "layer": "TableBreakHint { row, cell, offset } -> line index -> flowRow stop when >=85% page filled",
+    "mutates_model": false,
+    "opt_in": "?breakHints=1",
+    "smoke": "PASS word table break hints derive page fragment",
+    "effect_on_real_proposal": "546 pages, settled, 0 errors; page-start text unchanged vs default at 85% fill"
+  },
+  "blocked_on": {
+    "missing_artifact": "Word COM page map (per page start char/paragraph) or a PDF exported by Microsoft Word for sample-real-proposal.docx",
+    "why": "Embedded w:lastRenderedPageBreak markers duplicate per table cell/column and omit repeated header rows, so they cannot prove per-page Dice parity.",
+    "to_unblock": "Provide plugins/office-webapp/web/.tmp/word-page-map.json or the Word-exported PDF; qa-page-map.mjs can then report Dice >= 0.8 counts."
+  },
+  "harness": {
+    "capture": "plugins/office-webapp/web/scripts/qa-parity-capture.mjs",
+    "hints": "plugins/office-webapp/web/scripts/extract-word-hints.mts"
+  }
+}

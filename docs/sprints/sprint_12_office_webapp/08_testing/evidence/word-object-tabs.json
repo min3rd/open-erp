@@ -1,0 +1,53 @@
+{
+  "generated_at": "2026-11-18T09:39:56.245Z",
+  "app": "word",
+  "passed": true,
+  "result": {
+    "imageExists": true,
+    "tabs": [
+      "Trang chủ",
+      "Chèn",
+      "Ảnh",
+      "Vẽ",
+      "Thiết kế",
+      "Bố cục",
+      "Tham chiếu",
+      "Thư tín",
+      "Xem lại",
+      "Xem",
+      "Trợ giúp"
+    ],
+    "activeTab": "Ảnh",
+    "groups": [
+      "pictureAdjust",
+      "pictureStyles",
+      "pictureArrange"
+    ],
+    "selectedOutline": true,
+    "altPanelOpen": true,
+    "altApplied": "Ảnh minh họa kiểm thử",
+    "altPanelClosed": true,
+    "sizePanelOpen": true,
+    "resized": "320px",
+    "pictureTabVisible": true,
+    "markupFound": true,
+    "markupText": null,
+    "markupCount": 0,
+    "markupMode": "all",
+    "shapePanelOpen": true,
+    "shapeCount": 1,
+    "shapeTabVisible": true,
+    "shapeTabActive": "Hình",
+    "shapeGroups": [
+      "shapeStyles",
+      "shapeArrange",
+      "shapeAccessibility"
+    ],
+    "fillPanelOpen": true,
+    "filled": "rgb(255, 0, 0)",
+    "outlinePanelOpen": true,
+    "outlined": "rgb(0, 0, 255)",
+    "error": null
+  },
+  "errors": []
+}

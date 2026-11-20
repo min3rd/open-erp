@@ -17,6 +17,8 @@
       "@shared": ["../shared/index.ts"],
       "@shared/*": ["../shared/*"],
       "@plugins/office-webapp/*": ["../../../plugins/office-webapp/web/src/app/core/*"],
+      "@angular/common/http": ["./src/shims/angular-common-http"],
+      "@angular/core/rxjs-interop": ["./src/shims/angular-core-rxjs-interop"],
       "@angular/*": ["./node_modules/@angular/*"],
       "@ionic/*": ["./node_modules/@ionic/*"],
       "ionicons": ["./node_modules/ionicons"],

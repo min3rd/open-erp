@@ -1,0 +1,1022 @@
+{
+  "source": "https://github.com/OfficeDev/office-fluent-ui-command-identifiers",
+  "channel": "Microsoft 365 Current Channel",
+  "file": "Microsoft 365/Current Channel/wordcontrols.xlsx",
+  "total_controls": 5638,
+  "tabs": {
+    "TabHome": {
+      "controls": 165,
+      "groups": {
+        "(none)": [
+          "GroupClipboard",
+          "GroupFont",
+          "GroupParagraph",
+          "GroupStyles",
+          "GroupEditing",
+          "GroupAIDemo",
+          "GroupVoiceTools",
+          "GroupActivation",
+          "GroupClassifyLabelProtect",
+          "GroupEditor",
+          "GroupResearch",
+          "GroupOfficeExtensionsAddinFlyout",
+          "GroupAIAssistance"
+        ],
+        "GroupClipboard": [
+          "PasteMenu",
+          "Paste",
+          "Cut",
+          "Copy",
+          "PasteGallery",
+          "PasteSpecialDialog",
+          "PasteSetDefault",
+          "ShowClipboard",
+          "Cut",
+          "Copy",
+          "FormatPainter",
+          "ShowClipboard"
+        ],
+        "GroupFont": [
+          "Font",
+          "FontSize",
+          "FontSizeIncreaseWord",
+          "FontSizeDecreaseWord",
+          "ChangeCaseGallery",
+          "ClearFormatting",
+          "AsianLayoutPhoneticGuide",
+          "CharacterBorder",
+          "Bold",
+          "Italic",
+          "UnderlineGallery",
+          "UnderlineMoreUnderlinesDialog",
+          "UnderlineColorPicker",
+          "UnderlineColorMoreColorsDialog",
+          "Strikethrough",
+          "Subscript",
+          "Superscript",
+          "TextEffectsGallery",
+          "TextOutlineColorPickerAlternate",
+          "TextOutlineColorMoreColorsDialog",
+          "TextOutlineWeightGallery",
+          "TextOutlineMoreLinesDialog",
+          "TextOutlineDashesGallery",
+          "TextEffectShadowGallery",
+          "TextEffectsMoreShadowsDialog",
+          "TextReflectionGallery",
+          "TextEffectsReflectionsMoreOptions",
+          "TextEffectGlowGallery",
+          "TextGlowColorPicker",
+          "TextGlowColorMoreColorsDialog",
+          "TextEffectsGlowsMoreOptions",
+          "NumberStyleGalleryWord",
+          "LigatureGalleryWord",
+          "StylisticSetsMenuWord",
+          "TextHighlightColorPicker",
+          "HighlightingStop",
+          "FontColorPicker",
+          "FontColorMoreColorsDialog",
+          "TextFillGradientGallery",
+          "TextFillMoreGradientsDialog",
+          "CharacterShading",
+          "AsianLayoutCharactersEnclose",
+          "FontDialog"
+        ],
+        "GroupParagraph": [
+          "BulletsGalleryWord",
+          "ListLevelGallery",
+          "BulletDefineNew",
+          "NumberingGalleryWord",
+          "ListLevelGallery",
+          "DefineNewNumberFormat",
+          "ListSetNumberingValue",
+          "MultilevelListGallery",
+          "ListLevelGallery",
+          "ListDefineNew",
+          "ListDefineNewStyle",
+          "IndentDecreaseWord",
+          "IndentIncreaseWord",
+          "TextDirectionLeftToRight",
+          "TextDirectionRightToLeft",
+          "AsianLayoutMenu",
+          "AsianLayoutHorizontalInVertical",
+          "AsianLayoutCombineCharacters",
+          "AsianLayoutTwoLinesInOne",
+          "AsianLayoutFitText",
+          "AsianLayoutCharacterScaling",
+          "SortDialogClassic",
+          "ParagraphMarks",
+          "EastAsianEditingMarks",
+          "AlignLeft",
+          "AlignCenter",
+          "AlignRight",
+          "AlignJustify",
+          "AlignJustifyMenu",
+          "AlignJustifyWithMixedLanguages",
+          "AlignJustifyLow",
+          "AlignJustifyMedium",
+          "AlignJustifyHigh",
+          "ParagraphDistributed",
+          "AlignJustifyThai",
+          "AlignTextMenu",
+          "AlignLeft",
+          "AlignCenter",
+          "AlignRight",
+          "AlignJustify",
+          "AlignJustifyMenu",
+          "AlignJustifyWithMixedLanguages",
+          "AlignJustifyLow",
+          "AlignJustifyMedium",
+          "AlignJustifyHigh",
+          "ParagraphDistributed",
+          "AlignJustifyThai",
+          "LineSpacingGallery",
+          "ShadingColorPicker",
+          "ShadingColorsMoreColorsDialog",
+          "BordersSelectionGallery",
+          "HorizontalLineInsert",
+          "TableDrawTable",
+          "TableShowGridlines",
+          "BordersShadingDialogWord",
+          "ParagraphDialog"
+        ],
+        "GroupStyles": [
+          "QuickStylesGallery",
+          "QuickStylesSaveSelectionAsNew",
+          "ClearFormatting",
+          "ApplyStylesPane",
+          "StylesPane"
+        ],
+        "GroupEditing": [
+          "SelectMenuExcel",
+          "NavigationPaneFind",
+          "InsightsInDocSearch",
+          "FindDialog",
+          "GoTo",
+          "ReplaceDialog",
+          "SelectMenu",
+          "SelectAll",
+          "ObjectsSelect",
+          "SelectTextWithSimilarFormatting",
+          "SelectionPane",
+          "FindPopup",
+          "SelectMenuExcel",
+          "NavigationPaneFind",
+          "InsightsInDocSearch",
+          "FindDialog",
+          "GoTo",
+          "ReplaceDialog",
+          "SelectMenu",
+          "SelectAll",
+          "ObjectsSelect",
+          "SelectTextWithSimilarFormatting",
+          "SelectionPane"
+        ],
+        "GroupAIDemo": [
+          "SDXQuickstart"
+        ],
+        "GroupVoiceTools": [
+          "DictationMenu",
+          "Dictate",
+          "DictateInMenu",
+          "TranscribeWord"
+        ],
+        "GroupActivation": [
+          "ActivateOffice"
+        ],
+        "GroupClassifyLabelProtect": [
+          "ClassifyLabelProtect"
+        ],
+        "GroupEditor": [
+          "WritingAssistanceCheckDocument"
+        ],
+        "GroupResearch": [
+          "Insights"
+        ],
+        "GroupOfficeExtensionsAddinFlyout": [
+          "OfficeExtensionsShowAddinFlyout",
+          "OfficeExtensionsShowAddinFlyout"
+        ],
+        "GroupAIAssistance": [
+          "WritingAssistanceCheckDocument",
+          "Copilot"
+        ]
+      }
+    },
+    "TabInsert": {
+      "controls": 160,
+      "groups": {
+        "(none)": [
+          "GroupInsertPages",
+          "GroupInsertTables",
+          "GroupInsertIllustrations",
+          "GroupCollaborate",
+          "GroupOfficeExtension",
+          "GroupMedia",
+          "GroupInsertLinks",
+          "GroupInsertComments",
+          "GroupHeaderFooter",
+          "GroupInsertText",
+          "GroupInsertSymbols",
+          "GroupInsertBarcode"
+        ],
+        "GroupInsertPages": [
+          "CoverPageInsertGallery",
+          "ThemeSearchOfficeOnline",
+          "CoverPageRemove",
+          "SaveSelectionToCoverPageGallery",
+          "BlankPageInsert",
+          "PageBreakInsertWord",
+          "PagesMenuAnchor",
+          "CoverPageInsertGallery",
+          "ThemeSearchOfficeOnline",
+          "CoverPageRemove",
+          "SaveSelectionToCoverPageGallery",
+          "BlankPageInsert",
+          "PageBreakInsertWord"
+        ],
+        "GroupInsertTables": [
+          "TableInsertGallery",
+          "TableInsertDialogWord",
+          "TableDrawTable",
+          "ConvertTextToTable",
+          "TableExcelSpreadsheetInsert",
+          "QuickTablesInsertGallery",
+          "SaveSelectionToQuickTablesGallery"
+        ],
+        "GroupInsertIllustrations": [
+          "FlyoutAnchorInsertPictures",
+          "PictureInsertFromFile",
+          "InsertMobilePicture",
+          "InsertM365Picture",
+          "ClipArtInsertDialog",
+          "InsertPictureFlyoutAnchor",
+          "PictureInsertFromFile",
+          "ClipArtInsertDialog",
+          "MovieFromClipOrganizerInsert",
+          "GalleryAllShapesAndCanvas",
+          "DrawingCanvasInsert",
+          "IconInsertFromFile",
+          "Insert3DModelFallback",
+          "Insert3DModelDropdown",
+          "Insert3DModelDefault",
+          "Insert3DModelFromFile",
+          "Insert3DModelFromFileConsumer",
+          "Insert3DModelFromOnline",
+          "Insert3DModelFromOnlineConsumer",
+          "SmartArtInsert",
+          "ChartInsert",
+          "ScreenshotInsertGallery",
+          "ScreenClipping"
+        ],
+        "GroupCollaborate": [
+          "LoopComponents",
+          "LoopBulletedList",
+          "LoopChecklist",
+          "LoopNumberedList",
+          "LoopParagraph",
+          "LoopTable",
+          "LoopTaskList",
+          "LoopQA"
+        ],
+        "GroupOfficeExtension": [
+          "OfficeExtensionsAppStore",
+          "OfficeExtensionsGallery2",
+          "OfficeExtensionsDialog",
+          "OfficeExtensionsManageOtherAddins",
+          "ExtensibilityExperimentation",
+          "OfficeExtensionsFeaturedApp1",
+          "OfficeExtensionsFeaturedApp2",
+          "OfficeExtensionsFeaturedApp3",
+          "OfficeExtensionsFeaturedApp4",
+          "OfficeExtensionsFeaturedApp5",
+          "OfficeExtensionsFeaturedApp6",
+          "AddInsMenuAnchor",
+          "OfficeExtensionsAppStore",
+          "OfficeExtensionsGallery2",
+          "OfficeExtensionsDialog",
+          "OfficeExtensionsManageOtherAddins",
+          "ExtensibilityExperimentation",
+          "OfficeExtensionsFeaturedApp1",
+          "OfficeExtensionsFeaturedApp2",
+          "OfficeExtensionsFeaturedApp3",
+          "OfficeExtensionsFeaturedApp4",
+          "OfficeExtensionsFeaturedApp5",
+          "OfficeExtensionsFeaturedApp6"
+        ],
+        "GroupMedia": [
+          "MovieFromClipOrganizerInsert"
+        ],
+        "GroupInsertLinks": [
+          "InsertLinkGallery",
+          "ReuseFilesForLink",
+          "HyperlinkInsert",
+          "BookmarkInsert",
+          "CrossReferenceInsert"
+        ],
+        "GroupInsertComments": [
+          "InsertNewComment"
+        ],
+        "GroupHeaderFooter": [
+          "HeaderInsertGallery",
+          "ThemeSearchOfficeOnline",
+          "HeaderFooterEditHeader",
+          "HeaderFooterRemoveHeaderWord",
+          "SaveSelectionToHeaderGallery",
+          "FooterInsertGallery",
+          "ThemeSearchOfficeOnline",
+          "HeaderFooterEditFooter",
+          "HeaderFooterRemoveFooterWord",
+          "SaveSelectionToFooterGallery",
+          "HeaderAndFooterMenuAnchor",
+          "HeaderInsertGallery",
+          "ThemeSearchOfficeOnline",
+          "HeaderFooterEditHeader",
+          "HeaderFooterRemoveHeaderWord",
+          "SaveSelectionToHeaderGallery",
+          "FooterInsertGallery",
+          "ThemeSearchOfficeOnline",
+          "HeaderFooterEditFooter",
+          "HeaderFooterRemoveFooterWord",
+          "SaveSelectionToFooterGallery",
+          "HeaderFooterPageNumberInsert",
+          "PageNumbersInHeaderInsertGallery",
+          "SaveSelectionToPageNumberTop",
+          "PageNambersInFooterInsertGallery",
+          "SaveSelectionToPageNumberBottom",
+          "PageNambersInMarginsInsertGallery",
+          "SaveSelectionToPageNumberMargin",
+          "PageNumberFieldInsertGallery",
+          "SaveSelectionToPageNumberGallery",
+          "PageNumberFormat",
+          "PageNumbersRemove"
+        ],
+        "GroupInsertText": [
+          "JapaneseGreetingsInsertMenu",
+          "MailMergeJapaneseGreetingInsert",
+          "MailMergeJapaneseGreetingJapaneseOpeningSentenceInsert",
+          "MailMergeJapaneseGreetingClosingSentenceInsert",
+          "TextBoxInsertGallery",
+          "TextBoxInsert",
+          "TextBoxInsertVerticalWord",
+          "SaveSelectionToTextBoxGallery",
+          "QuickPartsInsertGallery",
+          "AutoTextGallery",
+          "SaveSelectionToAutoTextGallery",
+          "PropertyInsert",
+          "FieldInsert",
+          "BuildingBlocksOrganizer",
+          "SaveSelectionToQuickPartGallery",
+          "WordArtInsertGallery",
+          "WordArtInsertGalleryClassic",
+          "DropCapInsertGallery",
+          "DropCapOptionsDialog",
+          "SignatureLineInsertMenu",
+          "SignatureLineInsert",
+          "SignatureServicesAdd",
+          "DateAndTimeInsert",
+          "OleObjectInsertMenu",
+          "OleObjectctInsert",
+          "TextFromFileInsert"
+        ],
+        "GroupInsertSymbols": [
+          "InsertBuildingBlocksEquationsGallery",
+          "EquationInsertNew",
+          "InkEquation",
+          "SaveSelectionToEquationGallery",
+          "SymbolInsertGallery",
+          "SymbolsDialog",
+          "InsertNumberAlternate"
+        ],
+        "GroupInsertBarcode": [
+          "BarcodeInsert",
+          "LabelInsert"
+        ]
+      }
+    },
+    "TabDrawInk": {
+      "controls": 52,
+      "groups": {
+        "(none)": [
+          "GroupInputMode",
+          "GroupWrite",
+          "GroupDrawingTools",
+          "GroupPensOneNote",
+          "GroupPens2",
+          "GroupDrawWithTouch",
+          "GroupStencils",
+          "GroupEditingExcel",
+          "GroupInkConvertOneNote",
+          "GroupInsertDrawingCanvas",
+          "InkReplay",
+          "GroupInkClose",
+          "GroupPenAndInkHelp"
+        ],
+        "GroupInputMode": [
+          "InkSelect",
+          "FingerPaintingMode",
+          "DrawInkMode"
+        ],
+        "GroupWrite": [
+          "InkSelect",
+          "FingerPaintingMode",
+          "DrawInkMode",
+          "InkEraser",
+          "InkEraserMenu",
+          "CurrentEraser",
+          "InkEraser",
+          "PointEraserSmall",
+          "PointEraserMedium",
+          "LassoSelect"
+        ],
+        "GroupDrawingTools": [
+          "InkToolboxWithEraserAndLasso"
+        ],
+        "GroupPensOneNote": [
+          "InkToolbox"
+        ],
+        "GroupPens2": [
+          "PensGallery2",
+          "PenAddFavorite",
+          "InkColorPicker2",
+          "InkColorMoreColorsDialog",
+          "LineThickness2",
+          "LineStylesDialog"
+        ],
+        "GroupDrawWithTouch": [
+          "FingerPaintingMode"
+        ],
+        "GroupStencils": [
+          "ShowRulerStencil"
+        ],
+        "GroupEditingExcel": [
+          "FormatBackgroundDropdown",
+          "RuleLinesMenu",
+          "RuleLineFullPage",
+          "PageColorPicker",
+          "PageColorMoreColorsDialog",
+          "PageColorFillEffects"
+        ],
+        "GroupInkConvertOneNote": [
+          "InkEditorSplitButton",
+          "InkEditor",
+          "InkEditorEnable",
+          "InkEditorInkGestureHelp",
+          "DiagrammingOnline",
+          "SelectionToMathConvert"
+        ],
+        "GroupInsertDrawingCanvas": [
+          "InsertInkDrawingCanvas"
+        ],
+        "InkReplay": [
+          "Replay"
+        ],
+        "GroupInkClose": [
+          "InkStopInkingReadingView"
+        ],
+        "GroupPenAndInkHelp": [
+          "PenAndInkHelp"
+        ]
+      }
+    },
+    "TabWordDesign": {
+      "controls": 27,
+      "groups": {
+        "(none)": [
+          "GroupStyleSet",
+          "GroupPageBackground"
+        ],
+        "GroupStyleSet": [
+          "ThemesGallery",
+          "ThemeResetFromTemplate",
+          "ThemeSearchOfficeOnline",
+          "ThemeBrowseForThemes",
+          "ThemeSaveCurrent",
+          "QuickStylesSets",
+          "QuickStylesResetFromTemplate",
+          "QuickStylesSaveQuickStyleSet",
+          "ThemeColorsGallery",
+          "ThemeColorsCreateNew",
+          "ThemeFontsGallery",
+          "ThemeFontsCreateNew",
+          "ParagraphSpacing",
+          "ParagraphSpacingCustom",
+          "ThemeEffectsGallery",
+          "QuickStylesSetAsDefault"
+        ],
+        "GroupPageBackground": [
+          "WatermarkGallery",
+          "ThemeSearchOfficeOnline",
+          "WatermarkCustomDialog",
+          "WatermarkRemove",
+          "SaveSelectionToWaterMarkGallery",
+          "PageColorPicker",
+          "PageColorMoreColorsDialog",
+          "PageColorFillEffects",
+          "PageBorderAndShadingDialog"
+        ]
+      }
+    },
+    "TabPageLayoutWord": {
+      "controls": 98,
+      "groups": {
+        "(none)": [
+          "GroupPageLayoutSetup",
+          "GroupParagraphLayout",
+          "GroupArrange"
+        ],
+        "GroupPageLayoutSetup": [
+          "TextDirectionGalleryWord",
+          "TextDirectionOptionsDialog",
+          "PageMarginsGallery",
+          "MarginsCustomMargins",
+          "PageOrientationGallery",
+          "PageSizeGallery",
+          "PageSizeMorePaperSizesDialog",
+          "TableColumnsGallery",
+          "ColumnsDialog",
+          "BreaksGallery",
+          "LineNumbersMenu",
+          "LineNumbersOff",
+          "LineNumbersContinuous",
+          "LineNumbersResetPage",
+          "LineNumbersResetSection",
+          "LineNumbersSuppress",
+          "LineNumbersOptionsDialog",
+          "HyphenationMenu",
+          "HyphenationNone",
+          "HyphenationAutomatic",
+          "HyphenationManual",
+          "HyphenationOptions",
+          "PageSetupDialog"
+        ],
+        "GroupParagraphLayout": [
+          "IndentLabel",
+          "ParagraphIndentLeft",
+          "ParagraphIndentRight",
+          "SpacingLabel",
+          "ParagraphSpacingBefore",
+          "ParagraphSpacingAfter",
+          "ParagraphDialog"
+        ],
+        "GroupArrange": [
+          "PicturePositionGallery",
+          "LayoutOptionsDialogPosition",
+          "TextWrapGallery",
+          "MoveObjectWithText",
+          "FixObjectPositionOnPage",
+          "LayoutOptionsDialogWrapping",
+          "SetDefaultObjectLayout",
+          "ObjectBringForwardMenu",
+          "ObjectBringForward",
+          "ObjectBringToFront",
+          "ObjectBringInFrontOfText",
+          "ObjectSendBackwardMenu",
+          "ObjectSendBackward",
+          "ObjectSendToBack",
+          "ObjectSendBehindText",
+          "SelectionPane",
+          "ObjectAlignMenu",
+          "ObjectsAlignLeftSmart",
+          "ObjectsAlignCenterHorizontalSmart",
+          "ObjectsAlignRightSmart",
+          "ObjectsAlignTopSmart",
+          "ObjectsAlignMiddleVerticalSmart",
+          "ObjectsAlignBottomSmart",
+          "AlignDistributeHorizontally",
+          "AlignDistributeVertically",
+          "ObjectsAlignRelativeToContainerSmart",
+          "ObjectsAlignRelativeToMargin",
+          "ObjectsAlignSelectedSmart",
+          "AlignmentGuides",
+          "ViewGridlinesWord",
+          "GridSettings",
+          "ObjectsGroupMenu",
+          "ObjectsGroup",
+          "ObjectsRegroup",
+          "ObjectsUngroup",
+          "ObjectRotateGallery",
+          "ChartRotationOptionsDialog",
+          "ObjectsArrangeMenu",
+          "ObjectBringToFront",
+          "ObjectBringForward",
+          "ObjectBringInFrontOfText",
+          "ObjectSendToBack",
+          "ObjectSendBackward",
+          "ObjectSendBehindText",
+          "SelectionPane",
+          "ObjectsGroup",
+          "ObjectsUngroup",
+          "ObjectsRegroup",
+          "ObjectAlignMenu",
+          "ObjectsAlignLeftSmart",
+          "ObjectsAlignCenterHorizontalSmart",
+          "ObjectsAlignRightSmart",
+          "ObjectsAlignTopSmart",
+          "ObjectsAlignMiddleVerticalSmart",
+          "ObjectsAlignBottomSmart",
+          "AlignDistributeHorizontally",
+          "AlignDistributeVertically",
+          "ObjectsAlignRelativeToContainerSmart",
+          "ObjectsAlignRelativeToMargin",
+          "ObjectsAlignSelectedSmart",
+          "AlignmentGuides",
+          "ViewGridlinesWord",
+          "GridSettings",
+          "ObjectRotateGallery",
+          "ChartRotationOptionsDialog"
+        ]
+      }
+    },
+    "TabReferences": {
+      "controls": 44,
+      "groups": {
+        "(none)": [
+          "GroupTableOfContents",
+          "GroupFootnotes",
+          "GroupResearch",
+          "GroupCitationsAndBibliography",
+          "GroupCaptions",
+          "GroupIndex",
+          "GroupTableOfAuthorities",
+          "GroupAcronyms"
+        ],
+        "GroupTableOfContents": [
+          "TableOfContentsGallery",
+          "TableOfContentsDialog",
+          "TableOfContentsRemove",
+          "SaveSelectionToTableOfContentsGallery",
+          "TableOfContentsAddTextGallery",
+          "TableOfContentsUpdate"
+        ],
+        "GroupFootnotes": [
+          "FootnoteInsert",
+          "EndnoteInsertWord",
+          "FootnoteNext",
+          "FootnoteNextWord",
+          "FootnotePreviousWord",
+          "EndnoteNextWord",
+          "EndnotePreviousWord",
+          "FootnotesEndnotesShow",
+          "FootnoteEndnoteDialog"
+        ],
+        "GroupResearch": [
+          "Insights",
+          "Researcher"
+        ],
+        "GroupCitationsAndBibliography": [
+          "CitationInsert",
+          "BibliographyAddNewSource",
+          "BibliographyAddNewPlaceholder",
+          "BibliographyManageSources",
+          "BibliographyStyle",
+          "BibliographyGallery",
+          "BibliographyInsert",
+          "SaveSelectionToBibliographyGallery"
+        ],
+        "GroupCaptions": [
+          "CaptionInsert",
+          "TableOfFiguresInsert",
+          "TableOfFiguresUpdate",
+          "CrossReferenceInsert"
+        ],
+        "GroupIndex": [
+          "IndexMarkEntry",
+          "IndexInsert",
+          "IndexUpdate"
+        ],
+        "GroupTableOfAuthorities": [
+          "CitationMark",
+          "TableOfAuthoritiesInsert",
+          "TableOfAuthoritiesUpdate"
+        ],
+        "GroupAcronyms": [
+          "Acronyms"
+        ]
+      }
+    },
+    "TabMailings": {
+      "controls": 51,
+      "groups": {
+        "(none)": [
+          "GroupEnvelopeLabelCreate",
+          "GroupMailMergeStart",
+          "GroupMailMergeWriteInsertFields",
+          "GroupMailMergePreviewResults",
+          "GroupMailMergeFinish"
+        ],
+        "GroupEnvelopeLabelCreate": [
+          "EnvelopeChineseDialog",
+          "JapaneseGreetingsInsertMenu",
+          "MailMergeJapaneseGreetingInsert",
+          "MailMergeJapaneseGreetingJapaneseOpeningSentenceInsert",
+          "MailMergeJapaneseGreetingClosingSentenceInsert",
+          "JapanesePostcardMenu",
+          "JapanesePostcardCreateAddressSide",
+          "JapanesePostcardCreateLetterSide",
+          "EnvelopesAndLabelsDialog",
+          "LabelsDialog"
+        ],
+        "GroupMailMergeStart": [
+          "MailMergeStartMailMergeMenu",
+          "MailMergeStartLetters",
+          "MailMergeStartEmail",
+          "MailMergeStartEnvelopes",
+          "MailMergeStartLabels",
+          "MailMergeStartDirectory",
+          "MailMergeClearMergeType",
+          "MailMergeWizard",
+          "MailMergeSelectRecipients",
+          "MailMergeCreateList",
+          "MailMergeRecepientsUseExistingList",
+          "MailMergeRecepientsUseOutlookContacts",
+          "MailMergeRecipientsEditList"
+        ],
+        "GroupMailMergeWriteInsertFields": [
+          "MailMergeHighlightMergeFields",
+          "MailMergeInsertBarcodeMenu",
+          "MailMergeInsertBarcode",
+          "MailMergeJapanesePostalBarcode",
+          "MailMergeAddressBlockInsert",
+          "MailMergeGreetingLineInsert",
+          "MailMergeMergeFieldInsertMenu",
+          "MailMergeMergeFieldInsert",
+          "MailMergeRules",
+          "MailMergeMatchFields",
+          "MailMergeUpdateLabels"
+        ],
+        "GroupMailMergePreviewResults": [
+          "MailMergeResultsPreview",
+          "MailMergeGoToFirstRecord",
+          "MailMergeGoToPreviousRecord",
+          "MailMergeGoToRecord",
+          "MailMergeGoToNextRecord",
+          "MailMergeGotToLastRecord",
+          "MailMergeFindRecipient",
+          "MailMergeAutoCheckForErrors"
+        ],
+        "GroupMailMergeFinish": [
+          "MailMergeFinishAndMergeMenu",
+          "MailMergeMergeToDocument",
+          "MailMergeMergeToPrinter",
+          "MailMergeMergeToEMail"
+        ]
+      }
+    },
+    "TabReviewWord": {
+      "controls": 111,
+      "groups": {
+        "(none)": [
+          "GroupProofing",
+          "GroupSpeech",
+          "GroupAccessibility",
+          "GroupLanguage",
+          "GroupChineseTranslation",
+          "GroupComments",
+          "GroupChangesTracking",
+          "GroupChanges",
+          "GroupCompare",
+          "GroupProtect",
+          "GroupInk"
+        ],
+        "GroupProofing": [
+          "SpellingAndGrammar",
+          "WritingAssistanceCheckDocument",
+          "Thesaurus",
+          "WordCount",
+          "SplitButtonQuickCheck",
+          "QuickCheck",
+          "QuickCheckSpelling",
+          "QuickCheckAll"
+        ],
+        "GroupSpeech": [
+          "ReadAloud"
+        ],
+        "GroupAccessibility": [
+          "MenuAccessibility",
+          "AccessibilityChecker",
+          "AltTextPaneRibbon",
+          "ShowNavigationPaneNewInAccCheckerSplitButton",
+          "ViewFocusModeView",
+          "OpenOptionsEaseOfAcess"
+        ],
+        "GroupLanguage": [
+          "TranslateMenu",
+          "TranslatorLookup",
+          "TranslatorDocument",
+          "TranslateDocument",
+          "TranslationPane",
+          "MiniTranslator",
+          "TranslatorPreferences",
+          "TranslationLanguageOptions",
+          "LanguageCommands",
+          "SetLanguage",
+          "LanguagePreferences",
+          "ReviewJapaneseConsistencyChecker",
+          "ImeDictionaryUpdate",
+          "HangulHanjaConversion"
+        ],
+        "GroupChineseTranslation": [
+          "TranslateToSimplifiedChinese",
+          "TranslateToTraditionalChinese",
+          "ChineseTranslationDialog"
+        ],
+        "GroupComments": [
+          "ReviewNewComment",
+          "ReviewDeleteCommentsMenu",
+          "ReviewDeleteComment",
+          "ReviewDeleteAllCommentsShown",
+          "ReviewDeleteAllCommentsInDocument",
+          "DeleteAllResolvedComments",
+          "ReviewPreviousCommentWord",
+          "ReviewNextCommentWord",
+          "ShowCommentGutter",
+          "ShowCommentsMenu",
+          "ShowCommentGutter",
+          "ShowCommentsContextualView",
+          "ShowCommentsPane",
+          "ReviewInkCommentNew",
+          "ReviewInkCommentPen",
+          "ReviewInkCommentEraser"
+        ],
+        "GroupChangesTracking": [
+          "ReviewTrackChangesMenu",
+          "ReviewTrackChanges",
+          "RevisionsLockTracking",
+          "RevisionsTrackEveryone",
+          "RevisionsTrackMine",
+          "ReviewDisplayForReview",
+          "ReviewShowMarkupMenu",
+          "ReviewShowComments",
+          "ReviewShowInsertionsAndDeletions",
+          "ReviewShowFormatting",
+          "ReviewBalloonsMenu",
+          "ReviewShowRevisionsInBalloons",
+          "ReviewShowRevisionsInline",
+          "ReviewShowOnlyCommentsAndFormattingInBaloons",
+          "ReviewShowReviewersMenu",
+          "ReviewHighlightUpdates",
+          "ReviewOtherAuthors",
+          "ReviewReviewingPaneMenu",
+          "ReviewReviewingPane",
+          "ReviewReviewingPaneVertical",
+          "ReviewReviewingPaneHorizontal",
+          "ReviewChangeTrackingOptions"
+        ],
+        "GroupChanges": [
+          "ReviewAcceptChangeMenu",
+          "ReviewAcceptChangeAndMoveToNext",
+          "ReviewAcceptChange",
+          "ReviewAcceptAllChangesShown",
+          "ReviewAcceptAllChangesInDocument",
+          "AcceptAllChangesInDocAndStopTracking",
+          "ReviewRejectChangeMenu",
+          "ReviewRejectChangeAndMoveToNext",
+          "ReviewRejectChange",
+          "ReviewRejectAllChangesShown",
+          "ReviewRejectAllChangesInDocument",
+          "RejectAllChangesInDocAndStopTracking",
+          "ReviewPreviousChange",
+          "ReviewNextChange"
+        ],
+        "GroupCompare": [
+          "ReviewCompareMenu",
+          "ReviewCompareMajorVersion",
+          "ReviewCompareLastVersion",
+          "ReviewCompareSpecificVersion",
+          "ReviewViewChangesInTheSourceDocument",
+          "ReviewCompareTwoVersions",
+          "ReviewCombineRevisions",
+          "ReviewShowSourceDocumentsMenu"
+        ],
+        "GroupProtect": [
+          "BlockAuthorsMenu",
+          "ApplyCoAuthoringLock",
+          "ReleaseAllMyLocks",
+          "ReviewRestrictFormatting"
+        ],
+        "GroupInk": [
+          "InkingStart",
+          "HideInkSplitButton",
+          "HideInk",
+          "InkDeleteAll"
+        ]
+      }
+    },
+    "TabView": {
+      "controls": 43,
+      "groups": {
+        "(none)": [
+          "GroupDocumentViews",
+          "GroupModes",
+          "GroupNightMode",
+          "GroupPageMovement",
+          "GroupViewShowHide",
+          "GroupZoom",
+          "GroupWindow",
+          "GroupMacros",
+          "GroupSharePointProperties"
+        ],
+        "GroupDocumentViews": [
+          "ViewFullScreenReadingView",
+          "ViewPrintLayoutView",
+          "ViewWebLayoutView",
+          "ViewOutlineView",
+          "ViewDraftView"
+        ],
+        "GroupModes": [
+          "ViewFocusModeView",
+          "ColorPickerFocusModeBackground",
+          "ToggleLearningTools"
+        ],
+        "GroupNightMode": [
+          "DarkModeOn"
+        ],
+        "GroupPageMovement": [
+          "VerticalPageMovement",
+          "TwoPageMode"
+        ],
+        "GroupViewShowHide": [
+          "ViewRulerWord",
+          "ViewGridlines",
+          "NavigationPaneShowHide",
+          "ViewDocumentActionsPane"
+        ],
+        "GroupZoom": [
+          "Thumbnails",
+          "ZoomDialog",
+          "ZoomCurrent100",
+          "ZoomOnePage",
+          "ZoomTwoPages",
+          "ZoomPageWidth"
+        ],
+        "GroupWindow": [
+          "WindowNew",
+          "WindowsArrangeAll",
+          "WindowSplit",
+          "WindowSideBySide",
+          "WindowSideBySideSynchronousScrolling",
+          "WindowResetPosition",
+          "WindowSwitchWindowsMenuWord",
+          "WindowMoreWindowsDialog"
+        ],
+        "GroupMacros": [
+          "MenuMacros",
+          "PlayMacro",
+          "MacroRecordOrStop",
+          "MacroRecorderPause"
+        ],
+        "GroupSharePointProperties": [
+          "DocumentInformationShowHide"
+        ]
+      }
+    },
+    "TabHelp": {
+      "controls": 19,
+      "groups": {
+        "(none)": [
+          "GroupBackstageIdentity",
+          "GroupBackstagePrivacy",
+          "Personalization",
+          "Theming",
+          "ManageServices",
+          "GroupBackstageSignInDisabled",
+          "GroupBackstageSignIn",
+          "GroupOfficeBranding",
+          "GroupClickToRunUpdateStatus",
+          "GroupUpdateChannel",
+          "GroupOfficeInsider",
+          "GroupAboutOfficeProducts",
+          "GroupWhatsNewInOfficeProducts"
+        ],
+        "GroupBackstagePrivacy": [
+          "ManagePrivacy"
+        ],
+        "GroupUpdateChannel": [
+          "UpdateChannel"
+        ],
+        "GroupOfficeInsider": [
+          "GroupOfficeInsiderRegistration",
+          "GroupOfficeInsiderChannel",
+          "GroupOfficeInsiderAbout",
+          "GroupOfficeInsiderHelp"
+        ]
+      }
+    },
+    "HelpTab": {
+      "controls": 7,
+      "groups": {
+        "(none)": [
+          "GroupHelpAndSupport"
+        ],
+        "GroupHelpAndSupport": [
+          "Help",
+          "ContactUs",
+          "OfficeFeedbackHelpTab",
+          "OfficeFeedbackIcon",
+          "ShowTraining",
+          "WhatsNewRecentUpdates"
+        ]
+      }
+    }
+  }
+}

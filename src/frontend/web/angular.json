@@ -525,6 +525,11 @@
                 "glob": "**/*.json",
                 "input": "public/i18n",
                 "output": "i18n"
+              },
+              {
+                "glob": "**/*.json",
+                "input": "public/word-calibration",
+                "output": "word-calibration"
               }
             ],
             "styles": [
@@ -540,8 +545,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "900kB",
-                  "maximumError": "1.5MB"
+                  "maximumWarning": "1200kB",
+                  "maximumError": "2000kB"
                 },
                 {
                   "type": "anyComponentStyle",

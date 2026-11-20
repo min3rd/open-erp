@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-11-18T09:13:59.331Z",
+  "app": "word",
+  "screenshots": [
+    "word-context-menu-table.png:52607",
+    "word-command-search.png:53787",
+    "word-navigation-pane.png:37343"
+  ],
+  "command_search_results_for_bang": [
+    "Bảng bên phải",
+    "Bảng bên trái",
+    "Bảng giữa",
+    "Chèn bảng",
+    "Chèn tiêu đề hình/bảng",
+    "Xóa bảng",
+    "Cắt",
+    "Dán",
+    "Sao chép",
+    "Sao chép định dạng"
+  ],
+  "runtime_errors": []
+}

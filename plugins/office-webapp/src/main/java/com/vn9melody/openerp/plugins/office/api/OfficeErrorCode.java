@@ -14,4 +14,5 @@ public final class OfficeErrorCode {
     public static final String OFFICE_FILE_REQUIRED = "OFFICE_FILE_REQUIRED";
     public static final String OFFICE_FILE_TOO_LARGE = "OFFICE_FILE_TOO_LARGE";
     public static final String OFFICE_INVALID_MAGIC_BYTES = "OFFICE_INVALID_MAGIC_BYTES";
+    public static final String OFFICE_MACRO_FILE_UNSUPPORTED = "OFFICE_MACRO_FILE_UNSUPPORTED";
 }

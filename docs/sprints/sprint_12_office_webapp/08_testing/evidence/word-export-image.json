@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-11-18T11:04:58.111Z",
+  "passed": true,
+  "result": {
+    "pagesInView": 1,
+    "exportButton": true,
+    "pdfBytes": 48436,
+    "pdfHeader": "%PDF-1.4",
+    "pageObjects": 1,
+    "mediaBoxes": 1,
+    "hasImages": true,
+    "runtimeErrors": [],
+    "firstPageJpegBytes": 46459
+  }
+}

@@ -1,0 +1,423 @@
+{
+  "date": "2026-11-20T01:33:42.938Z",
+  "desktop": {
+    "qa-formats-real.docx": {
+      "docName": "qa-formats-real.docx",
+      "pages": 1,
+      "tables": 1,
+      "imgs": [
+        {
+          "w": 96,
+          "h": 48,
+          "complete": true
+        }
+      ],
+      "loadedImgs": 1,
+      "warningCount": 0,
+      "warningText": "",
+      "warningButtons": [],
+      "errorText": "",
+      "editableCount": 1,
+      "mathCount": 0,
+      "chartSvgCount": 0,
+      "unsupportedImgCount": 0,
+      "hfTableCount": 0,
+      "columnContainerCount": 0,
+      "noteCount": 1,
+      "overflowX": 0,
+      "rawI18nLeaks": false,
+      "hasExpectedViHeading": true,
+      "hasExpectedViBody": true,
+      "textPreview": "OPEN-ERP QA HEADER - Báo cáo định dạngBáo cáo kiểm thử đa định dạng Word — Tiếng Việt có dấu đầy đủPhần 1: Định dạng chữ, liên kết và chú thíchChữ thường Chữ đậm Chữ nghiêng Gạch chân Gạch ngang. 1 Open-ERP PortalMục gạch đầu dòng số 1Mục gạch đầu dòng số 2Mục"
+    },
+    "root-dnd-switch-rtf": {
+      "docName": "qa-formats-real.rtf",
+      "pages": 1,
+      "tables": 1,
+      "imgs": [
+        {
+          "w": 96,
+          "h": 48,
+          "complete": true
+        }
+      ],
+      "loadedImgs": 1,
+      "warningCount": 1,
+      "warningText": "Đang mở định dạng Word cũ ở chế độ chỉ đọc tương thích.Lưu thành .docxChuyển sang bản chỉnh sửa",
+      "warningButtons": [
+        "Lưu thành .docx",
+        "Chuyển sang bản chỉnh sửa"
+      ],
+      "errorText": "",
+      "editableCount": 0,
+      "mathCount": 0,
+      "chartSvgCount": 0,
+      "unsupportedImgCount": 0,
+      "hfTableCount": 0,
+      "columnContainerCount": 0,
+      "noteCount": 1,
+      "overflowX": 0,
+      "rawI18nLeaks": false,
+      "hasExpectedViHeading": true,
+      "hasExpectedViBody": true,
+      "textPreview": "OPEN-ERP QA HEADER - Báo cáo định dạngBáo cáo kiểm thử đa định dạng Word — Tiếng Việt có dấu đầy đủPhần 1: Định dạng chữ, liên kết và chú thíchChữ thường Chữ đậm Chữ nghiêng Gạch chân Gạch ngang. 1 Open-ERP PortalMục gạch đầu dòng số 1Mục gạch đầu dòng số 2Mục"
+    },
+    "qa-formats-real.doc": {
+      "docName": "qa-formats-real.doc",
+      "pages": 1,
+      "tables": 1,
+      "imgs": [
+        {
+          "w": 96,
+          "h": 48,
+          "complete": true
+        }
+      ],
+      "loadedImgs": 1,
+      "warningCount": 1,
+      "warningText": "Đang mở định dạng Word cũ ở chế độ chỉ đọc tương thích.Lưu thành .docxChuyển sang bản chỉnh sửa",
+      "warningButtons": [
+        "Lưu thành .docx",
+        "Chuyển sang bản chỉnh sửa"
+      ],
+      "errorText": "",
+      "editableCount": 0,
+      "mathCount": 0,
+      "chartSvgCount": 0,
+      "unsupportedImgCount": 0,
+      "hfTableCount": 0,
+      "columnContainerCount": 0,
+      "noteCount": 1,
+      "overflowX": 0,
+      "rawI18nLeaks": false,
+      "hasExpectedViHeading": true,
+      "hasExpectedViBody": true,
+      "textPreview": "OPEN-ERP QA HEADER - Báo cáo định dạngBáo cáo kiểm thử đa định dạng Word — Tiếng Việt có dấu đầy đủPhần 1: Định dạng chữ, liên kết và chú thíchChữ thường Chữ đậm Chữ nghiêng Gạch chân Gạch ngang. Open-ERP PortalMục gạch đầu dòng số 1Mục gạch đầu dòng số 2Mục đ",
+      "afterConvert": {
+        "clicked": true,
+        "docName": "qa-formats-real.docx",
+        "pages": 1,
+        "tables": 1,
+        "warningActionButtons": 0,
+        "editableCount": 1,
+        "hasExpectedViHeading": true
+      }
+    },
+    "qa-formats-real.rtf": {
+      "docName": "qa-formats-real.rtf",
+      "pages": 1,
+      "tables": 1,
+      "imgs": [
+        {
+          "w": 96,
+          "h": 48,
+          "complete": true
+        }
+      ],
+      "loadedImgs": 1,
+      "warningCount": 1,
+      "warningText": "Đang mở định dạng Word cũ ở chế độ chỉ đọc tương thích.Lưu thành .docxChuyển sang bản chỉnh sửa",
+      "warningButtons": [
+        "Lưu thành .docx",
+        "Chuyển sang bản chỉnh sửa"
+      ],
+      "errorText": "",
+      "editableCount": 0,
+      "mathCount": 0,
+      "chartSvgCount": 0,
+      "unsupportedImgCount": 0,
+      "hfTableCount": 0,
+      "columnContainerCount": 0,
+      "noteCount": 1,
+      "overflowX": 0,
+      "rawI18nLeaks": false,
+      "hasExpectedViHeading": true,
+      "hasExpectedViBody": true,
+      "textPreview": "OPEN-ERP QA HEADER - Báo cáo định dạngBáo cáo kiểm thử đa định dạng Word — Tiếng Việt có dấu đầy đủPhần 1: Định dạng chữ, liên kết và chú thíchChữ thường Chữ đậm Chữ nghiêng Gạch chân Gạch ngang. 1 Open-ERP PortalMục gạch đầu dòng số 1Mục gạch đầu dòng số 2Mục"
+    },
+    "qa-formats-real.odt": {
+      "docName": "qa-formats-real.odt",
+      "pages": 1,
+      "tables": 1,
+      "imgs": [
+        {
+          "w": 96,
+          "h": 48,
+          "complete": true
+        }
+      ],
+      "loadedImgs": 1,
+      "warningCount": 1,
+      "warningText": "Đang mở định dạng Word cũ ở chế độ chỉ đọc tương thích.Lưu thành .docxChuyển sang bản chỉnh sửa",
+      "warningButtons": [
+        "Lưu thành .docx",
+        "Chuyển sang bản chỉnh sửa"
+      ],
+      "errorText": "",
+      "editableCount": 0,
+      "mathCount": 0,
+      "chartSvgCount": 0,
+      "unsupportedImgCount": 0,
+      "hfTableCount": 0,
+      "columnContainerCount": 0,
+      "noteCount": 1,
+      "overflowX": 0,
+      "rawI18nLeaks": false,
+      "hasExpectedViHeading": true,
+      "hasExpectedViBody": true,
+      "textPreview": "OPEN-ERP QA HEADER - Báo cáo định dạngBáo cáo kiểm thử đa định dạng Word — Tiếng Việt có dấu đầy đủPhần 1: Định dạng chữ, liên kết và chú thíchChữ thường Chữ đậm Chữ nghiêng Gạch chân Gạch ngang. 1 Open-ERP PortalMục gạch đầu dòng số 1Mục gạch đầu dòng số 2Mục"
+    },
+    "qa-formats-real.dotx": {
+      "docName": "qa-formats-real.dotx",
+      "pages": 1,
+      "tables": 1,
+      "imgs": [
+        {
+          "w": 96,
+          "h": 48,
+          "complete": true
+        }
+      ],
+      "loadedImgs": 1,
+      "warningCount": 1,
+      "warningText": "Đã mở mẫu Word dưới dạng tài liệu .docx.",
+      "warningButtons": [],
+      "errorText": "",
+      "editableCount": 1,
+      "mathCount": 0,
+      "chartSvgCount": 0,
+      "unsupportedImgCount": 0,
+      "hfTableCount": 0,
+      "columnContainerCount": 0,
+      "noteCount": 1,
+      "overflowX": 0,
+      "rawI18nLeaks": false,
+      "hasExpectedViHeading": true,
+      "hasExpectedViBody": true,
+      "textPreview": "OPEN-ERP QA HEADER - Báo cáo định dạngBáo cáo kiểm thử đa định dạng Word — Tiếng Việt có dấu đầy đủPhần 1: Định dạng chữ, liên kết và chú thíchChữ thường Chữ đậm Chữ nghiêng Gạch chân Gạch ngang. 1 Open-ERP PortalMục gạch đầu dòng số 1Mục gạch đầu dòng số 2Mục"
+    },
+    "qa-formats-real.xml": {
+      "docName": "qa-formats-real.xml",
+      "pages": 1,
+      "tables": 1,
+      "imgs": [
+        {
+          "w": 96,
+          "h": 48,
+          "complete": true
+        }
+      ],
+      "loadedImgs": 1,
+      "warningCount": 1,
+      "warningText": "Đang mở định dạng Word cũ ở chế độ chỉ đọc tương thích.Lưu thành .docxChuyển sang bản chỉnh sửa",
+      "warningButtons": [
+        "Lưu thành .docx",
+        "Chuyển sang bản chỉnh sửa"
+      ],
+      "errorText": "",
+      "editableCount": 0,
+      "mathCount": 0,
+      "chartSvgCount": 0,
+      "unsupportedImgCount": 0,
+      "hfTableCount": 0,
+      "columnContainerCount": 0,
+      "noteCount": 1,
+      "overflowX": 0,
+      "rawI18nLeaks": false,
+      "hasExpectedViHeading": true,
+      "hasExpectedViBody": true,
+      "textPreview": "OPEN-ERP QA HEADER - Báo cáo định dạngBáo cáo kiểm thử đa định dạng Word — Tiếng Việt có dấu đầy đủPhần 1: Định dạng chữ, liên kết và chú thíchChữ thường Chữ đậm Chữ nghiêng Gạch chân Gạch ngang. 1 Open-ERP PortalMục gạch đầu dòng số 1Mục gạch đầu dòng số 2Mục"
+    },
+    "qa-formats-word2003.xml": {
+      "docName": "qa-formats-word2003.xml",
+      "pages": 1,
+      "tables": 1,
+      "imgs": [
+        {
+          "w": 96,
+          "h": 48,
+          "complete": true
+        }
+      ],
+      "loadedImgs": 1,
+      "warningCount": 1,
+      "warningText": "Đang mở định dạng Word cũ ở chế độ chỉ đọc tương thích.Lưu thành .docxChuyển sang bản chỉnh sửa",
+      "warningButtons": [
+        "Lưu thành .docx",
+        "Chuyển sang bản chỉnh sửa"
+      ],
+      "errorText": "",
+      "editableCount": 0,
+      "mathCount": 0,
+      "chartSvgCount": 0,
+      "unsupportedImgCount": 0,
+      "hfTableCount": 0,
+      "columnContainerCount": 0,
+      "noteCount": 0,
+      "overflowX": 0,
+      "rawI18nLeaks": false,
+      "hasExpectedViHeading": true,
+      "hasExpectedViBody": true,
+      "textPreview": "Báo cáo kiểm thử đa định dạng Word — Tiếng Việt có dấu đầy đủPhần 1: Định dạng chữ, liên kết và chú thíchChữ thường Chữ đậm Chữ nghiêng Gạch chân Gạch ngang. Open-ERP PortalMục gạch đầu dòng số 1Mục gạch đầu dòng số 2Mục đánh số thứ tự 1Mục đánh số thứ tự 2Ảnh"
+    },
+    "qa-formats-rich.docx": {
+      "docName": "qa-formats-rich.docx",
+      "pages": 2,
+      "tables": 2,
+      "imgs": [],
+      "loadedImgs": 0,
+      "warningCount": 1,
+      "warningText": "Một số ảnh vector WMF/EMF cũ đã được thay bằng khung giữ chỗ.",
+      "warningButtons": [],
+      "errorText": "",
+      "editableCount": 2,
+      "mathCount": 1,
+      "chartSvgCount": 1,
+      "unsupportedImgCount": 1,
+      "hfTableCount": 1,
+      "columnContainerCount": 1,
+      "noteCount": 2,
+      "overflowX": 0,
+      "rawI18nLeaks": false,
+      "hasExpectedViHeading": false,
+      "hasExpectedViBody": false,
+      "textPreview": "Character Style + Theme Color + SmallCaps1Công thức toán: E=a+bcx2Doanh thu theo quý060120180240Q1Q2Q3Hộp VML cổ điểnẢnh vector không hỗ trợ hiển thị (EMF)Mục cấp mộtMục cấp hai AMục cấp hai BCột 1Cột 2Giá trị AGiá trị BĐoạn bố cục 2 cột cột trái và cột phải.1"
+    },
+    "qa-formats-macro.docm": {
+      "docName": "Office WebApp",
+      "pages": 0,
+      "tables": 0,
+      "imgs": [],
+      "loadedImgs": 0,
+      "warningCount": 0,
+      "warningText": "",
+      "warningButtons": [],
+      "errorText": "Tài liệu Word chứa macro (.docm, .dotm) bị chặn vì lý do an toàn.OFFICE_MACRO_FILE_UNSUPPORTEDBỏ qua",
+      "editableCount": 0,
+      "mathCount": 0,
+      "chartSvgCount": 0,
+      "unsupportedImgCount": 0,
+      "hfTableCount": 0,
+      "columnContainerCount": 0,
+      "noteCount": 0,
+      "overflowX": 0,
+      "rawI18nLeaks": false,
+      "hasExpectedViHeading": false,
+      "hasExpectedViBody": false,
+      "textPreview": ""
+    }
+  },
+  "mobile": {
+    "qa-formats-real.docx": {
+      "title": "qa-formats-real.docx",
+      "overflowX": 0,
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "buttonCount": 4,
+      "smallTargets": [],
+      "tables": 1,
+      "imgs": [
+        {
+          "w": 96,
+          "h": 48,
+          "complete": true
+        }
+      ],
+      "loadedImgs": 1,
+      "warningCount": 0,
+      "warningText": "",
+      "errorText": "",
+      "rawI18nLeaks": false,
+      "hasExpectedViHeading": true,
+      "hasExpectedViBody": true
+    },
+    "qa-formats-real.doc": {
+      "title": "qa-formats-real.doc",
+      "overflowX": 0,
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "buttonCount": 4,
+      "smallTargets": [],
+      "tables": 1,
+      "imgs": [
+        {
+          "w": 96,
+          "h": 48,
+          "complete": true
+        }
+      ],
+      "loadedImgs": 1,
+      "warningCount": 1,
+      "warningText": "Đang mở định dạng Word cũ ở chế độ chỉ đọc tương thích.",
+      "errorText": "",
+      "rawI18nLeaks": false,
+      "hasExpectedViHeading": true,
+      "hasExpectedViBody": true
+    },
+    "qa-formats-real.rtf": {
+      "title": "qa-formats-real.rtf",
+      "overflowX": 0,
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "buttonCount": 4,
+      "smallTargets": [],
+      "tables": 1,
+      "imgs": [
+        {
+          "w": 96,
+          "h": 48,
+          "complete": true
+        }
+      ],
+      "loadedImgs": 1,
+      "warningCount": 1,
+      "warningText": "Đang mở định dạng Word cũ ở chế độ chỉ đọc tương thích.",
+      "errorText": "",
+      "rawI18nLeaks": false,
+      "hasExpectedViHeading": true,
+      "hasExpectedViBody": true
+    },
+    "qa-formats-real.odt": {
+      "title": "qa-formats-real.odt",
+      "overflowX": 0,
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "buttonCount": 4,
+      "smallTargets": [],
+      "tables": 1,
+      "imgs": [
+        {
+          "w": 96,
+          "h": 48,
+          "complete": true
+        }
+      ],
+      "loadedImgs": 1,
+      "warningCount": 1,
+      "warningText": "Đang mở định dạng Word cũ ở chế độ chỉ đọc tương thích.",
+      "errorText": "",
+      "rawI18nLeaks": false,
+      "hasExpectedViHeading": true,
+      "hasExpectedViBody": true
+    },
+    "qa-formats-macro.docm": {
+      "title": "Xem tài liệu Office",
+      "overflowX": 0,
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "buttonCount": 3,
+      "smallTargets": [],
+      "tables": 0,
+      "imgs": [],
+      "loadedImgs": 0,
+      "warningCount": 0,
+      "warningText": "",
+      "errorText": "Tài liệu Word chứa macro (.docm, .dotm) bị chặn vì lý do an toàn.OFFICE_MACRO_FILE_UNSUPPORTEDBỏ qua",
+      "rawI18nLeaks": false,
+      "hasExpectedViHeading": false,
+      "hasExpectedViBody": false
+    }
+  },
+  "consoleErrors": [],
+  "status": "PASS"
+}

@@ -1,0 +1,73 @@
+{
+  "generated_at": "2026-11-18T12:18:48.392Z",
+  "word_365": {
+    "source": "https://github.com/OfficeDev/office-fluent-ui-command-identifiers",
+    "channel": "Microsoft 365 Current Channel",
+    "total_controls": 5638,
+    "main_tabs": 11
+  },
+  "app": {
+    "ribbon_items": 213,
+    "tabs": 13,
+    "groups": 52
+  },
+  "control_level": {
+    "client_controls": 578,
+    "mapped": 578,
+    "partial": 0,
+    "gap": 0,
+    "desktop_only": 25,
+    "unmapped": 0,
+    "service": 77,
+    "not_applicable": 7,
+    "coverage_percent": 100,
+    "gaps": [],
+    "partial_groups": []
+  },
+  "tabs": [
+    {
+      "tab": "TabHome",
+      "client_controls": 139
+    },
+    {
+      "tab": "TabInsert",
+      "client_controls": 115
+    },
+    {
+      "tab": "TabDrawInk",
+      "client_controls": 29
+    },
+    {
+      "tab": "TabWordDesign",
+      "client_controls": 25
+    },
+    {
+      "tab": "TabPageLayoutWord",
+      "client_controls": 87
+    },
+    {
+      "tab": "TabReferences",
+      "client_controls": 30
+    },
+    {
+      "tab": "TabMailings",
+      "client_controls": 46
+    },
+    {
+      "tab": "TabReviewWord",
+      "client_controls": 74
+    },
+    {
+      "tab": "TabView",
+      "client_controls": 27
+    },
+    {
+      "tab": "TabHelp",
+      "client_controls": 0
+    },
+    {
+      "tab": "HelpTab",
+      "client_controls": 6
+    }
+  ]
+}

@@ -44,6 +44,11 @@ export class OfficeStorageService {
       .pipe(map((response) => response.data?.items ?? []));
   }
 
+  get(id: string): Observable<OfficeDocumentMeta> {
+    return this.http.get<Envelope<OfficeDocumentMeta>>(`${this.base}/${id}`)
+      .pipe(map((response) => response.data));
+  }
+
   content(id: string, version?: number): Observable<ArrayBuffer> {
     let params = new HttpParams();
     if (version) params = params.set('version', version);

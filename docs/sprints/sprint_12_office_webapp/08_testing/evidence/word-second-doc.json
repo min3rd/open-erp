@@ -1,0 +1,22 @@
+{
+  "source": "Word 16 Documents.Add() → SaveAs2 docx + ExportAsFixedFormat PDF, then app parity capture",
+  "sample": "word-authored-sample.docx",
+  "word": {
+    "pages": 3,
+    "words": 1134
+  },
+  "app": {
+    "pages": 3
+  },
+  "diceWordMode": {
+    "body": 1,
+    "start": 0.8525,
+    "pagesBelowHalf": 0
+  },
+  "diceCompact": {
+    "body": 1,
+    "start": 0.8482,
+    "pagesBelowHalf": 0
+  },
+  "rows30_47": "Word: row 30 = 58 px bắt đầu trang 46 tại 194,25 pt; row 47 = 58 px bắt đầu trang 55 tại 194,25 pt (2 dòng + 12 px) — app mặc định cho 2 hàng này 35 px (1 dòng) nên cần dữ liệu hiệu chuẩn"
+}

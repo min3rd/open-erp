@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-11-18T10:06:32.144Z",
+  "app": "word",
+  "passed": true,
+  "result": {
+    "headerBefore": "Công ty ABC — Báo cáo nội bộ",
+    "headerEditable": true,
+    "barVisible": true,
+    "headerAfter": "Đầu trang sửa trực tiếp",
+    "barClosed": true,
+    "headerEditStill": false,
+    "barHtml": null,
+    "focused": true,
+    "footerEditable": true,
+    "footerAfter": "Chân trang sửa trực tiếp",
+    "footerBarClosed": true,
+    "barReopened": true,
+    "barButtonClosed": true,
+    "shotEditing": true,
+    "error": null
+  },
+  "errors": []
+}

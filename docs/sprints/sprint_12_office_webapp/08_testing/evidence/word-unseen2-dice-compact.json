@@ -1,0 +1,85 @@
+{
+  "source": ".tmp\\parity-arial3.json",
+  "wordPages": 5,
+  "ourPages": 5,
+  "startDice": {
+    "mean": 0.8535,
+    "median": 0.8627,
+    "ge_0_90": 0,
+    "ge_0_80": 5,
+    "ge_0_50": 5,
+    "lt_0_50": 0
+  },
+  "bodyDice": {
+    "mean": 0.9564,
+    "median": 0.97,
+    "ge_0_90": 4,
+    "ge_0_80": 5,
+    "ge_0_50": 5,
+    "lt_0_50": 0
+  },
+  "worstPages": [
+    {
+      "page": 5,
+      "startDice": 0.863,
+      "bodyDice": 0.848,
+      "word": "Doan 5. Bao cao tien do du an: mo ta ngan ve pham vi, tien do va cac moc ban giao chinh cua tung giai doan trien khai he thong. Bao cao tien",
+      "ours": "tung giai doan trien khai he thong. Bao cao tien do du an: mo ta ngan ve pham vi, tien do va cac moc ban giao chinh cua tung giai doan trien"
+    },
+    {
+      "page": 3,
+      "startDice": 0.863,
+      "bodyDice": 0.965,
+      "word": "Doan 3. Bao cao tien do du an: mo ta ngan ve pham vi, tien do va cac moc ban giao chinh cua tung giai doan trien khai he thong. Bao cao tien",
+      "ours": "Doan 3. Bao cao tien do du an: mo ta ngan ve pham vi, tien do va cac moc ban giao chinh cua tung giai doan trien khai he thong. Bao cao tien"
+    },
+    {
+      "page": 4,
+      "startDice": 0.833,
+      "bodyDice": 0.97,
+      "word": "Doan 4. Bao cao tien do du an: mo ta ngan ve pham vi, tien do va cac moc ban giao chinh cua tung giai doan trien khai he thong. Bao cao tien",
+      "ours": "moc ban giao chinh cua tung giai doan trien khai he thong. Doan 5. Bao cao tien do du an: mo ta ngan ve pham vi, tien do va cac moc ban giao"
+    },
+    {
+      "page": 1,
+      "startDice": 0.846,
+      "bodyDice": 1,
+      "word": "Muc 1. Pham vi giai doan 1 Doan 1. Bao cao tien do du an: mo ta ngan ve pham vi, tien do va cac moc ban giao chinh cua tung giai doan trien ",
+      "ours": "Muc 1. Pham vi giai doan 1 Doan 1. Bao cao tien do du an: mo ta ngan ve pham vi, tien do va cac moc ban giao chinh cua tung giai doan trien "
+    },
+    {
+      "page": 2,
+      "startDice": 0.863,
+      "bodyDice": 1,
+      "word": "Doan 2. Bao cao tien do du an: mo ta ngan ve pham vi, tien do va cac moc ban giao chinh cua tung giai doan trien khai he thong. Bao cao tien",
+      "ours": "Doan 2. Bao cao tien do du an: mo ta ngan ve pham vi, tien do va cac moc ban giao chinh cua tung giai doan trien khai he thong. Bao cao tien"
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "startDice": 0.845771144278607,
+      "bodyDice": 1
+    },
+    {
+      "page": 2,
+      "startDice": 0.8627450980392157,
+      "bodyDice": 1
+    },
+    {
+      "page": 3,
+      "startDice": 0.8627450980392157,
+      "bodyDice": 0.9647543092359145
+    },
+    {
+      "page": 4,
+      "startDice": 0.8333333333333334,
+      "bodyDice": 0.969963749352667
+    },
+    {
+      "page": 5,
+      "startDice": 0.8627450980392157,
+      "bodyDice": 0.8475199020208206
+    }
+  ]
+}

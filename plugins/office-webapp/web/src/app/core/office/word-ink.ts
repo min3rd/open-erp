@@ -8,6 +8,10 @@ export interface InkStroke {
   color: string;
   width: number;
   points: InkPoint[];
+  /** Pen mode; InkML stores translucency for highlighter strokes. */
+  style?: 'pen' | 'highlighter';
+  /** InkML brush line style (solid when omitted). */
+  lineStyle?: 'solid' | 'dashed' | 'dotted';
   paragraphIndex?: number;
   page?: number;
   createdAt?: string;
@@ -93,19 +97,23 @@ function parseInkml(root: XmlNode, pageWidthIn: number, pageHeightIn: number): I
   }
   const order = channels.length ? channels : ['X', 'Y', 'F'];
   const calibrated = attr(root, 'oerp:calibrated') === 'word';
-  const brushes = new Map<string, { color: string; widthPx: number }>();
+  const brushes = new Map<string, { color: string; widthPx: number; style?: 'pen' | 'highlighter'; lineStyle?: 'solid' | 'dashed' | 'dotted' }>();
   for (const brush of descendants(root, 'inkml:brush')) {
     const id = attr(brush, 'xml:id') ?? attr(brush, 'id');
     if (!id) continue;
     let color = '#dc2626';
     let widthPx = 2;
+    let style: 'pen' | 'highlighter' | undefined;
+    let lineStyle: 'solid' | 'dashed' | 'dotted' | undefined;
     for (const property of descendants(brush, 'inkml:brushProperty')) {
       const name = attr(property, 'name');
       const value = attr(property, 'value') ?? '';
       if (name === 'color' && value) color = value;
       if (name === 'width') widthPx = Math.max(0.5, (Number(value) || 0) * (PX_PER_INCH / 2.54));
+      if (name === 'transparency' && Number(value) > 0) style = 'highlighter';
+      if (name === 'lineStyle' && (value === 'dashed' || value === 'dotted')) lineStyle = value;
     }
-    brushes.set(id, { color, widthPx });
+    brushes.set(id, { color, widthPx, style, lineStyle });
   }
 
   const strokes: InkStroke[] = [];
@@ -139,6 +147,8 @@ function parseInkml(root: XmlNode, pageWidthIn: number, pageHeightIn: number): I
         id,
         color: brush?.color ?? '#dc2626',
         width: brush?.widthPx ?? 2,
+        style: brush?.style,
+        lineStyle: brush?.lineStyle,
         page,
         points,
       });
@@ -222,9 +232,9 @@ export function inkPart(document: WordDocument): { name: string; data: string } 
 function buildInkml(document: WordDocument, strokes: InkStroke[]): XmlNode {
   const pageWidthIn = (document.pageSize?.width ?? 816) / PX_PER_INCH;
   const pageHeightIn = (document.pageSize?.height ?? 1056) / PX_PER_INCH;
-  const brushes = new Map<string, { id: string; color: string; widthCm: number }>();
+  const brushes = new Map<string, { id: string; color: string; widthCm: number; style?: 'pen' | 'highlighter'; lineStyle?: 'solid' | 'dashed' | 'dotted' }>();
   const brushId = (stroke: InkStroke): string => {
-    const key = `${stroke.color}|${stroke.width}`;
+    const key = `${stroke.color}|${stroke.width}|${stroke.style ?? 'pen'}|${stroke.lineStyle ?? 'solid'}`;
     const existing = brushes.get(key);
     if (existing) return existing.id;
     const id = `br${brushes.size}`;
@@ -232,6 +242,8 @@ function buildInkml(document: WordDocument, strokes: InkStroke[]): XmlNode {
       id,
       color: stroke.color,
       widthCm: Math.round(stroke.width * (2.54 / PX_PER_INCH) * 100000) / 100000,
+      style: stroke.style,
+      lineStyle: stroke.lineStyle,
     });
     return id;
   };
@@ -273,6 +285,9 @@ function buildInkml(document: WordDocument, strokes: InkStroke[]): XmlNode {
           brushPropertyNode('width', brush.widthCm.toFixed(5), 'cm'),
           brushPropertyNode('height', brush.widthCm.toFixed(5), 'cm'),
           brushPropertyNode('color', brush.color, undefined),
+          ...(brush.style === 'highlighter' ? [brushPropertyNode('transparency', '0.65', undefined)] : []),
+          ...(brush.lineStyle && brush.lineStyle !== 'solid'
+            ? [brushPropertyNode('lineStyle', brush.lineStyle, undefined)] : []),
           brushPropertyNode('fitToCurve', '1', undefined),
         ],
       })),

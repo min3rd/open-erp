@@ -1,4 +1,5 @@
 import { attr, descendants, findChild, findChildren, parseXml, textOf, type XmlNode } from '../binary/xml';
+import { findZipEntry } from '../binary/zip';
 import type { WordDocument } from './types';
 
 export type HeaderFooterKind = 'header' | 'footer';
@@ -12,6 +13,8 @@ export interface HeaderFooterRef {
   xmlRoot: XmlNode;
   text: string;
   hasPageNumber: boolean;
+  hasNumPages?: boolean;
+  tableRows?: Array<Array<{ text: string; align?: 'left' | 'center' | 'right' }>>;
 }
 
 export interface WordSectionInfo {
@@ -110,7 +113,7 @@ export function ensureHeaderFooter(
   const existing = (kind === 'header' ? section.headers : section.footers).find((item) => item.type === type);
   if (existing) return existing;
 
-  const number = nextPartNumber(kind, entries);
+  const number = nextPartNumber(kind, entries, document);
   const path = `word/${kind}${number}.xml`;
   const rootName = kind === 'header' ? 'w:hdr' : 'w:ftr';
   const xmlRoot: XmlNode = {
@@ -352,58 +355,83 @@ function readReference(
   const target = relId ? rels.get(relId) : undefined;
   if (!target) return null;
   const path = normalizeWordTarget(target);
-  const bytes = entries.get(path);
-  if (!bytes) return null;
-  const xmlRoot = findChild(parseXml(new TextDecoder('utf-8').decode(bytes)), kind === 'header' ? 'w:hdr' : 'w:ftr');
+  const entry = findZipEntry(entries, path);
+  if (!entry) return null;
+  const xmlRoot = findChild(parseXml(new TextDecoder('utf-8').decode(entry.data)), kind === 'header' ? 'w:hdr' : 'w:ftr');
   if (!xmlRoot) return null;
-  const state = { hasPageNumber: false };
+  const state = { hasPageNumber: false, hasNumPages: false };
   const text = findChildren(xmlRoot, 'w:p').map((paragraph) => collectFieldText(paragraph, state)).join('\n').trim();
+  const tables = findChildren(xmlRoot, 'w:tbl');
+  const tableRows: HeaderFooterRef['tableRows'] = [];
+  for (const tbl of tables) {
+    for (const tr of findChildren(tbl, 'w:tr')) {
+      const rowCells = findChildren(tr, 'w:tc').map((tc) => {
+        const cellParagraphs = findChildren(tc, 'w:p');
+        const cellText = cellParagraphs.map((p) => collectFieldText(p, state)).join('\n').trim();
+        const jc = attr(findChild(findChild(cellParagraphs[0] ?? null, 'w:pPr'), 'w:jc'), 'w:val');
+        const align: 'left' | 'center' | 'right' | undefined =
+          jc === 'center' ? 'center' : jc === 'right' ? 'right' : jc === 'left' ? 'left' : undefined;
+        return { text: cellText, align };
+      });
+      if (rowCells.length) tableRows.push(rowCells);
+    }
+  }
   return {
     kind,
     type: (attr(reference, 'w:type') as HeaderFooterType) ?? 'default',
-    path,
+    path: entry.path,
     relId,
     xmlRoot,
     text,
     hasPageNumber: state.hasPageNumber,
+    hasNumPages: state.hasNumPages || undefined,
+    tableRows: tableRows.length ? tableRows : undefined,
   };
 }
 
 /**
- * Collect visible text while detecting PAGE fields. Simple fields (`w:fldSimple`)
- * and complex fields (`w:fldChar begin`/`instrText`/`separate`/`end`) both mark
- * the reference as dynamic; cached field results are skipped so stale page
- * numbers from the original document never render as static text.
+ * Collect visible text while detecting PAGE and NUMPAGES fields. Simple fields
+ * (`w:fldSimple`) and complex fields (`w:fldChar begin`/`instrText`/`separate`/`end`)
+ * both mark the reference as dynamic; cached field results are skipped so stale
+ * page numbers from the original document never render as static text.
  */
-function collectFieldText(node: XmlNode, state: { hasPageNumber: boolean }): string {
+function collectFieldText(node: XmlNode, state: { hasPageNumber: boolean; hasNumPages?: boolean }): string {
   let text = '';
   let fieldOpen = false;
   let pageField = false;
   let inPageResult = false;
+  let numPagesField = false;
   const walk = (current: XmlNode): void => {
     if (current.name === 'w:fldChar') {
       const type = attr(current, 'w:fldCharType');
       if (type === 'begin') {
         fieldOpen = true;
         pageField = false;
+        numPagesField = false;
       } else if (type === 'separate') {
-        if (pageField) inPageResult = true;
+        if (pageField || numPagesField) inPageResult = true;
       } else if (type === 'end') {
         fieldOpen = false;
         pageField = false;
+        numPagesField = false;
         inPageResult = false;
       }
       return;
     }
     if (current.name === 'w:instrText') {
-      if (fieldOpen && /PAGE/i.test(current.text)) {
+      if (fieldOpen && /\bNUMPAGES\b/i.test(current.text)) {
+        numPagesField = true;
+        state.hasNumPages = true;
+      } else if (fieldOpen && /\bPAGE\b/i.test(current.text)) {
         pageField = true;
         state.hasPageNumber = true;
       }
       return;
     }
     if (current.name === 'w:fldSimple') {
-      if (/PAGE/i.test(attr(current, 'w:instr') ?? '')) state.hasPageNumber = true;
+      const instr = attr(current, 'w:instr') ?? '';
+      if (/\bNUMPAGES\b/i.test(instr)) state.hasNumPages = true;
+      else if (/\bPAGE\b/i.test(instr)) state.hasPageNumber = true;
       return;
     }
     if (inPageResult) return;
@@ -461,13 +489,21 @@ function addContentType(entries: Map<string, Uint8Array> | undefined, partName: 
   entries.set('[Content_Types].xml', new TextEncoder().encode(xml));
 }
 
-function nextPartNumber(kind: HeaderFooterKind, entries?: Map<string, Uint8Array>): number {
+function nextPartNumber(
+  kind: HeaderFooterKind, entries?: Map<string, Uint8Array>, document?: WordDocument,
+): number {
   let max = 0;
   const pattern = new RegExp(`^word/${kind}(\\d+)\\.xml$`);
-  entries?.forEach((_value, name) => {
+  const consider = (name: string): void => {
     const match = pattern.exec(name);
     if (match) max = Math.max(max, Number(match[1]));
-  });
+  };
+  entries?.forEach((_value, name) => consider(name));
+  // Refs created earlier in this session are not in `entries` until save, and
+  // two sections added back-to-back must not share header1.xml.
+  for (const section of document?.sections ?? []) {
+    for (const ref of kind === 'header' ? section.headers : section.footers) consider(ref.path);
+  }
   return max + 1;
 }
 

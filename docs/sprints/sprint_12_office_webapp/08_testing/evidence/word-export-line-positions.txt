@@ -1,0 +1,16 @@
+page 1: text-runs=9 distinct-baselines=9
+  y= 1021.8  Header section 1
+  y=  925.0  Báo cáo Sprint 12
+  y=  888.2  Office WebApp đọc trực tiếp .docx trên t
+  y=  864.0  Tiếng Việt: ă â ê ô ơ ư đ — 0123456789
+  y=  838.8  Hạng mục Trạng thái
+  y=  812.9  Word parser Hoàn thành
+  y=  786.9  Excel parser Hoàn thành
+  y=  752.9  Kết luận: nền tảng OOXML thuần TypeScrip
+  y=   34.6  Footer section 1
+  line-level: YES
+page 2: text-runs=3 distinct-baselines=3
+  y= 1021.8  Header section 2
+  y=  950.0  Second section body
+  y=   34.6  Footer section 2
+  line-level: YES

@@ -1,0 +1,142 @@
+{
+  "source": "Word COM Characters.Information(10) vs app DOM lines, sample-real-proposal.docx, bảng 6 cột",
+  "note": "Cac hang con lech (30, 47, 51, 72, 75) deu do o cot \"Noi dung\" (index 2) ngan: Word ngat 2 dong, app 1 dong. Van ban va be rong cot y het nhau.",
+  "rows": [
+    {
+      "row": 29,
+      "wordLines": [
+        1,
+        1,
+        2,
+        19,
+        1,
+        22
+      ],
+      "note": "app: 2 dong o c2 -> khop; hang cao 521 px vs Word 534 px (thieu spaceAfter)"
+    },
+    {
+      "row": 30,
+      "wordLines": [
+        1,
+        1,
+        2,
+        1,
+        1,
+        1
+      ],
+      "appLines": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "text": "Tinh kha dung",
+      "note": "Word 2 dong, app 1 dong"
+    },
+    {
+      "row": 46,
+      "wordLines": [
+        1,
+        1,
+        2,
+        1,
+        1,
+        1
+      ],
+      "text": "Kha nang bao tri"
+    },
+    {
+      "row": 47,
+      "wordLines": [
+        1,
+        1,
+        2,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "row": 50,
+      "wordLines": [
+        1,
+        1,
+        2,
+        18,
+        1,
+        22
+      ],
+      "note": "app c2 cung 2 dong"
+    },
+    {
+      "row": 51,
+      "wordLines": [
+        1,
+        1,
+        2,
+        12,
+        1,
+        18
+      ]
+    },
+    {
+      "row": 71,
+      "wordLines": [
+        1,
+        1,
+        2,
+        1,
+        1,
+        1
+      ],
+      "text": "Bao ve du lieu ca nhan"
+    },
+    {
+      "row": 72,
+      "wordLines": [
+        1,
+        1,
+        9,
+        16,
+        1,
+        21
+      ]
+    },
+    {
+      "row": 74,
+      "wordLines": [
+        1,
+        1,
+        5,
+        7,
+        1,
+        19
+      ]
+    },
+    {
+      "row": 75,
+      "wordLines": [
+        1,
+        1,
+        3,
+        8,
+        1,
+        20
+      ]
+    }
+  ],
+  "textWidthThresholds": {
+    "longCell257Chars": {
+      "97px": 25,
+      "98px": 24,
+      "word": 24
+    },
+    "shortCell13Chars": {
+      "98.02px": 1,
+      "word": 2
+    }
+  },
+  "conclusion": "Cung mot be rong 98 px cho 24 dong dung o o dai nhung chi 1 dong o o ngan (Word 2) => chenh lech advance tung chuoi ~1 px, khong co be rong chung nao thoa ca hai; muon 80/80 phai hieu chuan so dong theo tung o."
+}

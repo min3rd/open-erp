@@ -183,15 +183,61 @@ function parsePart(
 
 export function referenceMap(document: WordDocument, kind: NoteKind): Map<number, number> {
   const map = new Map<number, number>();
+  const name = kind === 'footnote' ? 'w:footnoteReference' : 'w:endnoteReference';
   document.blocks.forEach((block, index) => {
-    if (block.kind !== 'paragraph' || !block.paragraph.xmlNode) return;
-    const name = kind === 'footnote' ? 'w:footnoteReference' : 'w:endnoteReference';
-    for (const node of descendants(block.paragraph.xmlNode, name)) {
-      const id = Number(attr(node, 'w:id'));
-      if (Number.isFinite(id)) map.set(id, index);
+    if (block.kind === 'paragraph') {
+      if (block.paragraph.xmlNode) {
+        for (const node of descendants(block.paragraph.xmlNode, name)) {
+          const id = Number(attr(node, 'w:id'));
+          if (Number.isFinite(id)) map.set(id, index);
+        }
+      } else {
+        for (const run of block.paragraph.runs) {
+          if (run.noteRef?.kind === kind) map.set(run.noteRef.id, index);
+        }
+      }
+      return;
+    }
+    for (const row of block.rows) {
+      for (const cell of row) {
+        for (const paragraph of cell) {
+          if (paragraph.xmlNode) {
+            for (const node of descendants(paragraph.xmlNode, name)) {
+              const id = Number(attr(node, 'w:id'));
+              if (Number.isFinite(id)) map.set(id, index);
+            }
+          }
+          for (const run of paragraph.runs) {
+            if (run.noteRef?.kind === kind) map.set(run.noteRef.id, index);
+          }
+        }
+      }
     }
   });
   return map;
+}
+
+export function formatNoteNumber(value: number, format: NoteNumberFormat | string = 'decimal'): string {
+  const n = Math.max(1, Math.round(value));
+  if (format === 'lowerRoman' || format === 'upperRoman') {
+    const romans: Array<[number, string]> = [
+      [1000, 'm'], [900, 'cm'], [500, 'd'], [400, 'cd'],
+      [100, 'c'], [90, 'xc'], [50, 'l'], [40, 'xl'],
+      [10, 'x'], [9, 'ix'], [5, 'v'], [4, 'iv'], [1, 'i'],
+    ];
+    let left = n;
+    let out = '';
+    for (const [unit, sym] of romans) {
+      while (left >= unit) { out += sym; left -= unit; }
+    }
+    return format === 'upperRoman' ? out.toUpperCase() : out;
+  }
+  if (format === 'lowerLetter' || format === 'upperLetter') {
+    const code = 97 + ((n - 1) % 26);
+    const ch = String.fromCharCode(code);
+    return format === 'upperLetter' ? ch.toUpperCase() : ch;
+  }
+  return String(n);
 }
 
 function ensureNotesRoot(document: WordDocument, notes: WordNotes, kind: NoteKind): XmlNode | null {

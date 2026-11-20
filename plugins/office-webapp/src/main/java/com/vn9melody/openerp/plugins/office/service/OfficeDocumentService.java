@@ -13,9 +13,11 @@ import com.vn9melody.openerp.plugins.office.dto.UpdateOfficeDocumentRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -23,7 +25,9 @@ import java.util.UUID;
 @ApplicationScoped
 public class OfficeDocumentService {
 
-    private static final Set<String> EXTENSIONS = Set.of("docx", "xlsx", "pptx", "csv", "pdf");
+    private static final Set<String> MACRO_EXTENSIONS = Set.of("docm", "dotm");
+    private static final Set<String> EXTENSIONS = Set.of(
+            "docx", "doc", "dotx", "rtf", "odt", "xml", "xlsx", "pptx", "csv", "pdf");
     private static final Set<String> DOC_TYPES = Set.of("WORD", "EXCEL", "POWERPOINT", "CSV", "PDF");
     private static final Set<String> STATUSES = Set.of("ACTIVE", "ARCHIVED", "DELETED");
     private static final long MAX_CONTENT_BYTES = 25L * 1024 * 1024;
@@ -61,15 +65,7 @@ public class OfficeDocumentService {
         if (filename == null || filename.isBlank()) {
             throw new ApiException(400, OfficeErrorCode.OFFICE_TITLE_REQUIRED, "original_filename is required");
         }
-        String extension = trim(request.fileExtension());
-        if (extension == null) {
-            extension = extensionOf(filename);
-        }
-        extension = extension == null ? null : extension.toLowerCase();
-        if (extension == null || !EXTENSIONS.contains(extension)) {
-            throw new ApiException(400, OfficeErrorCode.OFFICE_UNSUPPORTED_EXTENSION,
-                    "Unsupported office extension");
-        }
+        String extension = validateExtension(request.fileExtension(), filename);
         String docType = trim(request.docType());
         if (docType == null) {
             docType = docTypeOf(extension);
@@ -285,14 +281,43 @@ public class OfficeDocumentService {
         return OfficeDocumentDto.from(result.first());
     }
 
-    private static void validateMagic(String extension, byte[] bytes) {
-        boolean zip = bytes.length >= 4 && bytes[0] == 0x50 && bytes[1] == 0x4b && bytes[2] == 0x03 && bytes[3] == 0x04;
-        boolean ole2 = bytes.length >= 8 && (bytes[0] & 0xff) == 0xd0 && (bytes[1] & 0xff) == 0xcf
-                && (bytes[2] & 0xff) == 0x11 && (bytes[3] & 0xff) == 0xe0;
+    static String validateExtension(String rawExtension, String filename) {
+        String extension = trim(rawExtension);
+        if (extension == null) {
+            extension = extensionOf(filename);
+        }
+        extension = extension == null ? null : extension.toLowerCase(Locale.ROOT);
+        if (extension != null && MACRO_EXTENSIONS.contains(extension)) {
+            throw new ApiException(400, OfficeErrorCode.OFFICE_MACRO_FILE_UNSUPPORTED,
+                    "Macro-enabled Word documents are not supported", Map.of("extension", extension));
+        }
+        if (extension == null || !EXTENSIONS.contains(extension)) {
+            throw new ApiException(400, OfficeErrorCode.OFFICE_UNSUPPORTED_EXTENSION,
+                    "Unsupported office extension");
+        }
+        return extension;
+    }
+
+    static void validateMagic(String extension, byte[] bytes) {
+        boolean zip = bytes.length >= 4 && bytes[0] == 0x50 && bytes[1] == 0x4b
+                && ((bytes[2] == 0x03 && bytes[3] == 0x04) || (bytes[2] == 0x05 && bytes[3] == 0x06));
+        boolean ole2 = bytes.length >= 8
+                && (bytes[0] & 0xff) == 0xd0 && (bytes[1] & 0xff) == 0xcf
+                && (bytes[2] & 0xff) == 0x11 && (bytes[3] & 0xff) == 0xe0
+                && (bytes[4] & 0xff) == 0xa1 && (bytes[5] & 0xff) == 0xb1
+                && (bytes[6] & 0xff) == 0x1a && (bytes[7] & 0xff) == 0xe1;
         boolean pdf = bytes.length >= 5 && bytes[0] == '%' && bytes[1] == 'P' && bytes[2] == 'D' && bytes[3] == 'F' && bytes[4] == '-';
-        String ext = extension == null ? "" : extension.toLowerCase();
+        String head = textHead(bytes);
+        boolean rtf = head.startsWith("{\\rtf");
+        boolean xml = head.startsWith("<?xml") || head.startsWith("<pkg:") || head.startsWith("<w:worddocument") || head.startsWith("<worddocument");
+        boolean html = head.startsWith("<!doctype") || head.startsWith("<html") || head.startsWith("<meta")
+                || head.startsWith("mime-version:") || head.startsWith("from:");
+        String ext = extension == null ? "" : extension.toLowerCase(Locale.ROOT);
         boolean valid = switch (ext) {
-            case "docx", "xlsx", "pptx" -> zip;
+            case "docx", "dotx", "odt", "xlsx", "pptx" -> zip;
+            case "rtf" -> rtf;
+            case "xml" -> xml;
+            case "doc" -> ole2 || rtf || zip || xml || html;
             case "pdf" -> pdf;
             case "csv" -> !containsNul(bytes);
             default -> zip || ole2 || pdf || !containsNul(bytes);
@@ -301,6 +326,20 @@ public class OfficeDocumentService {
             throw new ApiException(400, OfficeErrorCode.OFFICE_INVALID_MAGIC_BYTES,
                     "File signature does not match its extension", Map.of("extension", ext));
         }
+    }
+
+    private static String textHead(byte[] bytes) {
+        if (bytes.length == 0 || containsNul(sliceHead(bytes, 64))) return "";
+        String sample = new String(bytes, 0, Math.min(bytes.length, 512), StandardCharsets.UTF_8);
+        if (!sample.isEmpty() && sample.charAt(0) == '\uFEFF') sample = sample.substring(1);
+        return sample.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private static byte[] sliceHead(byte[] bytes, int max) {
+        int len = Math.min(bytes.length, max);
+        byte[] out = new byte[len];
+        System.arraycopy(bytes, 0, out, 0, len);
+        return out;
     }
 
     private static boolean containsNul(byte[] bytes) {
@@ -317,9 +356,9 @@ public class OfficeDocumentService {
         return dot < 0 || dot == filename.length() - 1 ? null : filename.substring(dot + 1);
     }
 
-    private static String docTypeOf(String extension) {
+    static String docTypeOf(String extension) {
         return switch (extension) {
-            case "docx" -> "WORD";
+            case "docx", "doc", "dotx", "rtf", "odt", "xml" -> "WORD";
             case "xlsx" -> "EXCEL";
             case "pptx" -> "POWERPOINT";
             case "csv" -> "CSV";
@@ -328,11 +367,16 @@ public class OfficeDocumentService {
         };
     }
 
-    private static String defaultMime(String mime, String extension) {
+    static String defaultMime(String mime, String extension) {
         String value = trim(mime);
         if (value != null && !value.isBlank()) return value;
         return switch (extension) {
             case "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            case "dotx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.template";
+            case "doc" -> "application/msword";
+            case "rtf" -> "application/rtf";
+            case "odt" -> "application/vnd.oasis.opendocument.text";
+            case "xml" -> "application/xml";
             case "xlsx" -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
             case "pptx" -> "application/vnd.openxmlformats-officedocument.presentationml.presentation";
             case "csv" -> "text/csv";

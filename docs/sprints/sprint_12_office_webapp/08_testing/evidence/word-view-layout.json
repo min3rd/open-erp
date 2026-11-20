@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-11-20T01:34:59.613Z",
+  "passed": true,
+  "result": {
+    "webFound": true,
+    "webOn": true,
+    "webContinuous": true,
+    "webActive": true,
+    "pageFillsStage": true,
+    "pagesBefore": 1,
+    "printFound": true,
+    "printOffWeb": true,
+    "printSeparate": true,
+    "printActive": true,
+    "hyphenClass": true,
+    "hyphenStyle": "auto",
+    "state": "Đã lưu",
+    "error": null
+  },
+  "persisted": {
+    "autoHyphenation": true,
+    "settingsRel": true,
+    "output": "auto=true\r\nrel=true"
+  },
+  "errors": []
+}

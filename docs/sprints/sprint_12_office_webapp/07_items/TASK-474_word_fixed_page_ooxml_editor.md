@@ -189,6 +189,34 @@
 | `08_testing/evidence/task-474-table.png` | Bảng + tab contextual |
 | `08_testing/evidence/task-474-ime.md` | Biên bản gõ Telex/VNI từng ký tự |
 | `08_testing/evidence/task-474-word-count.md` | Số từ/trang trước–sau |
+| `08_testing/evidence/word-command-search.png` | Alt+Q command palette + status bar Word 365 |
+| `08_testing/evidence/word-context-menu-table.png` | Context menu chuột phải trong bảng |
+| `08_testing/evidence/word-navigation-pane.png` | Navigation pane 3 tab (Tiêu đề/Trang/Kết quả) |
+| `08_testing/evidence/word-picture-tab.png` | Tab ngữ cảnh Ảnh + Alt Text |
+| `08_testing/evidence/word-shape-tab.png` | Tab ngữ cảnh Hình + fill/outline |
+| `08_testing/evidence/word-header-footer-inline.png` | Sửa header trực tiếp trên trang |
+| `08_testing/evidence/word-header-footer-inline.json` | CDP header/footer inline PASS |
+| `08_testing/evidence/word-header-footer-sections.png` | Header riêng section 2 |
+| `08_testing/evidence/word-header-footer-sections.json` | CDP 2 section PASS |
+| `08_testing/evidence/word-export.pdf` | PDF thật xuất từ Word |
+| `08_testing/evidence/word-export-page1.jpg` | Trang 1 PDF |
+| `08_testing/evidence/word-export-image-page1.jpg` | PDF có ảnh |
+| `08_testing/evidence/word-export.json` | CDP tải PDF PASS |
+| `08_testing/evidence/word-export-text.txt` | pypdf trích text layer Unicode |
+| `08_testing/evidence/word-export-line-positions.txt` | pypdf baseline theo dòng |
+| `08_testing/evidence/word-command-audit.json` | Audit 199 lệnh/0 thiếu dispatch + i18n |
+| `08_testing/evidence/word-365-catalog.json` | Catalog Word 365 Current Channel |
+| `08_testing/evidence/word-365-coverage.json` | Đối chiếu 548 mapped + 40 partial |
+| `08_testing/evidence/word-draw-ink.json` | CDP Draw highlighter/ruler + ẩn/hiện/xóa mực |
+| `08_testing/evidence/word-layout-margins.json` | CDP lề tùy chỉnh 4 phía + hyphenate CSS |
+| `08_testing/evidence/word-view-layout.json` | CDP Print/Web layout + lưu `w:autoHyphenation` |
+| `08_testing/evidence/word-ink-tools.json` | CDP tẩy/lasso/mouse-touch/favorite + InkML transparency |
+| `08_testing/evidence/word-smartart-word.json` | Word 16.0 mở SmartArt 3 node |
+| `08_testing/evidence/word-page-dice.json` | Dice Word PDF vs app: start 0,867/body 0,610 |
+| `08_testing/evidence/word-smartart.png` | SmartArt tạo mới + sửa node |
+| `08_testing/evidence/word-smartart.json` | CDP SmartArt PASS |
+| `08_testing/evidence/word-parity-ux.json` | Kết quả CDP: 0 lỗi runtime, danh sách lệnh tìm được |
+| [TR-S12-003](../08_testing/03_TR-S12-003_word_365_parity_ux.md) | Biên bản kiểm thử tương đương UI Word 365 |
 
 ## 7. Ngoài phạm vi (chỉ dịch vụ/không khả thi client)
 

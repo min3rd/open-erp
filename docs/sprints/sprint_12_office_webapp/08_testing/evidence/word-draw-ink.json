@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-11-18T11:48:16.898Z",
+  "passed": true,
+  "result": {
+    "highlighterFound": true,
+    "highlighterActive": true,
+    "penActive": false,
+    "color": "#fde047",
+    "width": "12",
+    "drawnPixels": 3180,
+    "drawn": true,
+    "hideFound": true,
+    "hiddenPixels": 0,
+    "hidden": true,
+    "hideActive": true,
+    "panelClosed": true,
+    "restoredPixels": 3180,
+    "restored": true,
+    "hideInactive": true,
+    "clearedPixels": 0,
+    "cleared": true,
+    "rulerFound": true,
+    "rulerVisible": true,
+    "rulerActive": true,
+    "error": null
+  },
+  "errors": []
+}

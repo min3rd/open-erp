@@ -1,0 +1,133 @@
+{
+  "loaded": {
+    "titleH": 48,
+    "tabH": 31,
+    "ribbonH": 45,
+    "statusH": 25,
+    "hasAutosave": false,
+    "hasAppIcon": true,
+    "noFakeSwatchText": true,
+    "hasFitSvg": true,
+    "statusZoomSvgCount": 2,
+    "caretMenuSvgCount": 3,
+    "iconChecks": {
+      "growDiffShrink": true,
+      "fontColorAccent": true,
+      "highlightAccent": true,
+      "shadingAccent": true,
+      "hasBordersMenu": true
+    },
+    "titleText": "sample.docx",
+    "hasDashWord": false,
+    "tabs": [
+      "Trang chủ",
+      "Chèn",
+      "Bố cục",
+      "Tham chiếu",
+      "Xem lại",
+      "Xem",
+      "Trợ giúp"
+    ],
+    "rightBtns": [
+      "Bình luận",
+      "Đang chỉnh sửa",
+      "Chia sẻ"
+    ],
+    "hasNavFloat": true,
+    "hasFit": true,
+    "hasBgToggle": true,
+    "ribbonSingle": true
+  },
+  "darkCheck": {
+    "chromeDark": true,
+    "pageDark": true,
+    "panelBg": "rgb(41, 41, 41)",
+    "countRows": 5,
+    "pageCountDom": 1,
+    "pageCountStat": 1
+  },
+  "autoSelectAndFormatCheck": {
+    "boldAppliedOnOpen": true,
+    "beforeSize": 18,
+    "afterGrow1": 20,
+    "afterGrow2": 22,
+    "afterShrink": 20,
+    "bottomBorderOnly": true,
+    "borderCleared": true,
+    "lh2": "42.56px",
+    "lh5": "31.92px"
+  },
+  "bgToggleCheck": {
+    "pageDarkAfterToggle": false,
+    "chromeStillDark": true
+  },
+  "fileCheck": {
+    "dropWidth": 268,
+    "hasBackstage": false,
+    "flyoutItems": [
+      "Tải xuống dạng PDF",
+      "Tải xuống PDF kèm bình luận",
+      "Tải xuống dạng ODT",
+      "Tải xuống dạng Markdown"
+    ],
+    "flyoutSvgCount": 4
+  },
+  "odtMagicOk": true,
+  "tableGridCheck": {
+    "gridCells": 80,
+    "headerText": "4 x 3 Bảng"
+  },
+  "tableInsertedCheck": {
+    "beforeTables": 1,
+    "afterTables": 2,
+    "ctxTabs": [
+      "Thiết kế bảng",
+      "Bố cục bảng"
+    ]
+  },
+  "colorStyleCheck": {
+    "swatches": 70,
+    "styleItems": 11
+  },
+  "findReplaceCheck": {
+    "navW": 280,
+    "wordToken": "Sprint",
+    "findHits": 1,
+    "hasReplaceInputs": true
+  },
+  "commentCheck": {
+    "cards": 1
+  },
+  "pdfMagicOk": true,
+  "classicCheck": {
+    "classicH": 104,
+    "groupLabels": 5,
+    "fontNoOverlap": true,
+    "fontChildrenInside": true,
+    "showMarksDiffOptions": true,
+    "classicSpacingIsBtn": true
+  },
+  "miniCtxCheck": {
+    "fitZoom": "1.71",
+    "hasMiniToolbar": true,
+    "miniBtns": 9,
+    "ctxItems": 20,
+    "ctxShortcuts": 9,
+    "ctxInsideViewport": true
+  },
+  "editKeyCheck": {
+    "splitNoDuplicate": true,
+    "deleteMergedBack": true,
+    "tabMovedNextCell": true
+  },
+  "mobileCheck": {
+    "innerWidth": 390,
+    "scrollWidth": 390,
+    "overflow": 0,
+    "visibleBtnCount": 17,
+    "minTouchH": 40,
+    "minTouchW": 40
+  },
+  "pageErrors": [],
+  "consoleErrors": []
+}

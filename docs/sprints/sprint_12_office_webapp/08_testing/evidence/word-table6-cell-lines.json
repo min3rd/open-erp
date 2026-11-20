@@ -1,0 +1,470 @@
+﻿[
+    {
+        "row":  185,
+        "cell":  3,
+        "chars":  36,
+        "lines":  4
+    },
+    {
+        "row":  185,
+        "cell":  4,
+        "chars":  202,
+        "lines":  19
+    },
+    {
+        "row":  185,
+        "cell":  6,
+        "chars":  206,
+        "lines":  18
+    },
+    {
+        "row":  186,
+        "cell":  3,
+        "chars":  66,
+        "lines":  6
+    },
+    {
+        "row":  186,
+        "cell":  4,
+        "chars":  217,
+        "lines":  21
+    },
+    {
+        "row":  186,
+        "cell":  6,
+        "chars":  236,
+        "lines":  21
+    },
+    {
+        "row":  187,
+        "cell":  3,
+        "chars":  26,
+        "lines":  3
+    },
+    {
+        "row":  187,
+        "cell":  4,
+        "chars":  2,
+        "lines":  1
+    },
+    {
+        "row":  187,
+        "cell":  6,
+        "chars":  1,
+        "lines":  1
+    },
+    {
+        "row":  188,
+        "cell":  3,
+        "chars":  40,
+        "lines":  4
+    },
+    {
+        "row":  188,
+        "cell":  4,
+        "chars":  157,
+        "lines":  16
+    },
+    {
+        "row":  188,
+        "cell":  6,
+        "chars":  171,
+        "lines":  15
+    },
+    {
+        "row":  189,
+        "cell":  3,
+        "chars":  13,
+        "lines":  2
+    },
+    {
+        "row":  189,
+        "cell":  4,
+        "chars":  241,
+        "lines":  23
+    },
+    {
+        "row":  189,
+        "cell":  6,
+        "chars":  183,
+        "lines":  16
+    },
+    {
+        "row":  190,
+        "cell":  3,
+        "chars":  22,
+        "lines":  2
+    },
+    {
+        "row":  190,
+        "cell":  4,
+        "chars":  2,
+        "lines":  1
+    },
+    {
+        "row":  190,
+        "cell":  6,
+        "chars":  1,
+        "lines":  1
+    },
+    {
+        "row":  191,
+        "cell":  3,
+        "chars":  42,
+        "lines":  4
+    },
+    {
+        "row":  191,
+        "cell":  4,
+        "chars":  200,
+        "lines":  20
+    },
+    {
+        "row":  191,
+        "cell":  6,
+        "chars":  204,
+        "lines":  17
+    },
+    {
+        "row":  192,
+        "cell":  3,
+        "chars":  38,
+        "lines":  4
+    },
+    {
+        "row":  192,
+        "cell":  4,
+        "chars":  200,
+        "lines":  20
+    },
+    {
+        "row":  192,
+        "cell":  6,
+        "chars":  204,
+        "lines":  17
+    },
+    {
+        "row":  193,
+        "cell":  3,
+        "chars":  13,
+        "lines":  2
+    },
+    {
+        "row":  193,
+        "cell":  4,
+        "chars":  2,
+        "lines":  1
+    },
+    {
+        "row":  193,
+        "cell":  6,
+        "chars":  1,
+        "lines":  1
+    },
+    {
+        "row":  194,
+        "cell":  3,
+        "chars":  39,
+        "lines":  4
+    },
+    {
+        "row":  194,
+        "cell":  4,
+        "chars":  96,
+        "lines":  9
+    },
+    {
+        "row":  194,
+        "cell":  6,
+        "chars":  170,
+        "lines":  15
+    },
+    {
+        "row":  195,
+        "cell":  3,
+        "chars":  25,
+        "lines":  2
+    },
+    {
+        "row":  195,
+        "cell":  4,
+        "chars":  187,
+        "lines":  17
+    },
+    {
+        "row":  195,
+        "cell":  6,
+        "chars":  187,
+        "lines":  17
+    },
+    {
+        "row":  196,
+        "cell":  3,
+        "chars":  23,
+        "lines":  2
+    },
+    {
+        "row":  196,
+        "cell":  4,
+        "chars":  155,
+        "lines":  15
+    },
+    {
+        "row":  196,
+        "cell":  6,
+        "chars":  185,
+        "lines":  17
+    },
+    {
+        "row":  197,
+        "cell":  3,
+        "chars":  28,
+        "lines":  3
+    },
+    {
+        "row":  197,
+        "cell":  4,
+        "chars":  188,
+        "lines":  16
+    },
+    {
+        "row":  197,
+        "cell":  6,
+        "chars":  190,
+        "lines":  17
+    },
+    {
+        "row":  198,
+        "cell":  3,
+        "chars":  31,
+        "lines":  3
+    },
+    {
+        "row":  198,
+        "cell":  4,
+        "chars":  158,
+        "lines":  15
+    },
+    {
+        "row":  198,
+        "cell":  6,
+        "chars":  193,
+        "lines":  17
+    },
+    {
+        "row":  199,
+        "cell":  3,
+        "chars":  38,
+        "lines":  4
+    },
+    {
+        "row":  199,
+        "cell":  4,
+        "chars":  200,
+        "lines":  18
+    },
+    {
+        "row":  199,
+        "cell":  6,
+        "chars":  200,
+        "lines":  18
+    },
+    {
+        "row":  200,
+        "cell":  3,
+        "chars":  41,
+        "lines":  4
+    },
+    {
+        "row":  200,
+        "cell":  4,
+        "chars":  168,
+        "lines":  16
+    },
+    {
+        "row":  200,
+        "cell":  6,
+        "chars":  203,
+        "lines":  18
+    },
+    {
+        "row":  201,
+        "cell":  3,
+        "chars":  40,
+        "lines":  4
+    },
+    {
+        "row":  201,
+        "cell":  4,
+        "chars":  120,
+        "lines":  11
+    },
+    {
+        "row":  201,
+        "cell":  6,
+        "chars":  223,
+        "lines":  20
+    },
+    {
+        "row":  202,
+        "cell":  3,
+        "chars":  17,
+        "lines":  2
+    },
+    {
+        "row":  202,
+        "cell":  4,
+        "chars":  2,
+        "lines":  1
+    },
+    {
+        "row":  202,
+        "cell":  6,
+        "chars":  1,
+        "lines":  1
+    },
+    {
+        "row":  203,
+        "cell":  3,
+        "chars":  25,
+        "lines":  2
+    },
+    {
+        "row":  203,
+        "cell":  4,
+        "chars":  2,
+        "lines":  1
+    },
+    {
+        "row":  203,
+        "cell":  6,
+        "chars":  1,
+        "lines":  1
+    },
+    {
+        "row":  204,
+        "cell":  3,
+        "chars":  40,
+        "lines":  4
+    },
+    {
+        "row":  204,
+        "cell":  4,
+        "chars":  113,
+        "lines":  10
+    },
+    {
+        "row":  204,
+        "cell":  6,
+        "chars":  171,
+        "lines":  15
+    },
+    {
+        "row":  205,
+        "cell":  3,
+        "chars":  50,
+        "lines":  5
+    },
+    {
+        "row":  205,
+        "cell":  4,
+        "chars":  2,
+        "lines":  1
+    },
+    {
+        "row":  205,
+        "cell":  6,
+        "chars":  1,
+        "lines":  1
+    },
+    {
+        "row":  206,
+        "cell":  3,
+        "chars":  71,
+        "lines":  7
+    },
+    {
+        "row":  206,
+        "cell":  4,
+        "chars":  136,
+        "lines":  12
+    },
+    {
+        "row":  206,
+        "cell":  6,
+        "chars":  215,
+        "lines":  20
+    },
+    {
+        "row":  207,
+        "cell":  3,
+        "chars":  77,
+        "lines":  8
+    },
+    {
+        "row":  207,
+        "cell":  4,
+        "chars":  136,
+        "lines":  12
+    },
+    {
+        "row":  207,
+        "cell":  6,
+        "chars":  215,
+        "lines":  20
+    },
+    {
+        "row":  208,
+        "cell":  3,
+        "chars":  42,
+        "lines":  4
+    },
+    {
+        "row":  208,
+        "cell":  4,
+        "chars":  125,
+        "lines":  12
+    },
+    {
+        "row":  208,
+        "cell":  6,
+        "chars":  206,
+        "lines":  19
+    },
+    {
+        "row":  209,
+        "cell":  3,
+        "chars":  40,
+        "lines":  4
+    },
+    {
+        "row":  209,
+        "cell":  4,
+        "chars":  122,
+        "lines":  11
+    },
+    {
+        "row":  209,
+        "cell":  6,
+        "chars":  203,
+        "lines":  19
+    },
+    {
+        "row":  210,
+        "cell":  3,
+        "chars":  30,
+        "lines":  3
+    },
+    {
+        "row":  210,
+        "cell":  4,
+        "chars":  116,
+        "lines":  11
+    },
+    {
+        "row":  210,
+        "cell":  6,
+        "chars":  177,
+        "lines":  16
+    }
+]

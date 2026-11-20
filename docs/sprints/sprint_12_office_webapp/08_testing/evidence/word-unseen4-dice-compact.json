@@ -1,0 +1,61 @@
+{
+  "source": ".tmp\\parity-unseen4.json",
+  "wordPages": 3,
+  "ourPages": 3,
+  "startDice": {
+    "mean": 0.835,
+    "median": 0.8462,
+    "ge_0_90": 0,
+    "ge_0_80": 3,
+    "ge_0_50": 3,
+    "lt_0_50": 0
+  },
+  "bodyDice": {
+    "mean": 0.9975,
+    "median": 0.9978,
+    "ge_0_90": 3,
+    "ge_0_80": 3,
+    "ge_0_50": 3,
+    "lt_0_50": 0
+  },
+  "worstPages": [
+    {
+      "page": 3,
+      "startDice": 0.806,
+      "bodyDice": 0.995,
+      "word": "thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kiem soat chat luong va ban giao tai lieu cho cac ben lien quan. Mu",
+      "ours": "dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kiem soat chat luong va ban giao tai lieu cho cac ben lie"
+    },
+    {
+      "page": 2,
+      "startDice": 0.853,
+      "bodyDice": 0.998,
+      "word": "Muc 2 cua chuong 2. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kiem soat chat luong va ban giao ",
+      "ours": "Muc 2 cua chuong 2. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kiem soat chat luong va ban giao "
+    },
+    {
+      "page": 1,
+      "startDice": 0.846,
+      "bodyDice": 1,
+      "word": "Chuong 1 - Noi dung tong quat Muc 1 cua chuong 1. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kie",
+      "ours": "Chuong 1 - Noi dung tong quat Muc 1 cua chuong 1. Noi dung kiem thu tinh tong quat cua bo soan thao. Doan van mo ta quy trinh nghiep vu, kie"
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "startDice": 0.8461538461538461,
+      "bodyDice": 1
+    },
+    {
+      "page": 2,
+      "startDice": 0.8530805687203792,
+      "bodyDice": 0.9977703455964325
+    },
+    {
+      "page": 3,
+      "startDice": 0.8056872037914692,
+      "bodyDice": 0.9947368421052631
+    }
+  ]
+}

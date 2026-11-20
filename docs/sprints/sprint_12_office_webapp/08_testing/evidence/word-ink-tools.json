@@ -1,0 +1,34 @@
+{
+  "generated_at": "2026-11-18T12:18:35.521Z",
+  "passed": true,
+  "result": {
+    "highlighterFound": true,
+    "afterDraw": 4043,
+    "eraserSmallFound": true,
+    "eraserSmallActive": true,
+    "afterErase": 0,
+    "erased": true,
+    "beforeLasso": 4088,
+    "lassoFound": true,
+    "lassoActive": true,
+    "selected": true,
+    "afterLassoDelete": 0,
+    "lassoDeleted": true,
+    "touchFound": true,
+    "touchActive": true,
+    "mouseRejected": true,
+    "touchDrawn": true,
+    "favoriteFound": true,
+    "favoriteApplied": true,
+    "mouseModeFound": true,
+    "mouseModeActive": true,
+    "state": "Đã lưu",
+    "error": null
+  },
+  "inkPart": {
+    "transparency": true,
+    "lineStyle": true,
+    "output": "transparency=true\r\nlineStyle=true"
+  },
+  "errors": []
+}

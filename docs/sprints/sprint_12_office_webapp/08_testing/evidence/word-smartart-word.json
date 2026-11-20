@@ -1,0 +1,18 @@
+{
+    "generated_at":  "2026-11-18T19:56:32.7193842+07:00",
+    "document":  "qa-smartart-base.docx",
+    "word_version":  "16.0",
+    "pages":  1,
+    "inline_shapes":  1,
+    "smartart_nodes":  3,
+    "smartart_texts":  [
+                           "Chiến lược",
+                           "Triển khai",
+                           "Đo lường"
+                       ],
+    "layout":  "Basic Block List",
+    "style":  "Intense Effect",
+    "color":  "Colorful Range - Accent Colors 4 to 5",
+    "screenshot":  "word-smartart-word-real.png",
+    "passed":  true
+}

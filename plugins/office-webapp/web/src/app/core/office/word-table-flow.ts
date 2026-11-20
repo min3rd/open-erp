@@ -19,6 +19,8 @@ export interface CellContent {
   lines: CellLine[];
   paddingTop: number;
   paddingBottom: number;
+  /** Line indexes where Word stored a page break inside this cell. */
+  breakLines?: number[];
 }
 
 export interface CellPageState {
@@ -52,7 +54,7 @@ export function newCellState(): CellPageState {
  * - consumes at least one line per cell when the page is empty (forces progress)
  * - clips each cell to [clipTop, clipBottom] like ONLYOFFICE's Set_ClipInfo
  */
-export function flowRow(cells: CellContent[], states: CellPageState[], available: number): RowFragment {
+export function flowRow(cells: CellContent[], states: CellPageState[], available: number, breakGate = 0.85): RowFragment {
   const budget = Math.max(1, available);
   const slices: CellPageSlice[] = [];
   let height = 0;
@@ -65,9 +67,14 @@ export function flowRow(cells: CellContent[], states: CellPageState[], available
     const padding = (cell.paddingTop ?? 0) + (cell.paddingBottom ?? 0);
     const cellBudget = Math.max(1, budget - padding);
     const start = state.cursor;
+    const breakLines = cell.breakLines ?? [];
     let consumed = 0;
     let line = start;
     while (line < cell.lines.length) {
+      // Word's own page break inside this cell. The hint is only trusted once the
+      // page is nearly full: our line numbering can sit a line or two away from
+      // Word's, so an early hint would cut the page short for no reason.
+      if (consumed > 0 && consumed >= cellBudget * breakGate && breakLines.includes(line)) break;
       const next = cell.lines[line].height;
       if (consumed + next > cellBudget && consumed > 0) break;
       if (consumed + next > cellBudget && consumed === 0 && state.firstPageHasContent) break;
@@ -150,4 +157,55 @@ export function paginateTableRows(
     }
   }
   return layout;
+}
+
+export interface CellLineBuild {
+  lines: CellLine[];
+  /** Character offset of every line start, plus one terminator. */
+  offsets: number[];
+  paragraphStarts: number[];
+  paddingTop: number;
+}
+
+/**
+ * Turns a cell's paragraphs into the line list row flow consumes. Every entry of
+ * `lines` — including the gap a paragraph spacing adds — gets a matching offset,
+ * because pagination maps line indexes back to character offsets when it slices
+ * the cell at a page boundary.
+ */
+export function buildCellLines(
+  paragraphs: Array<{ runs: Array<{ text?: string }>; spaceBeforePx?: number; spaceAfterPx?: number }>,
+  wrap: (text: string, paragraphIndex: number) => Array<{ start: number; end: number }>,
+  lineHeightOf: (paragraphIndex: number) => number,
+): CellLineBuild {
+  const lines: CellLine[] = [];
+  const offsets: number[] = [];
+  const paragraphStarts: number[] = [];
+  let cursor = 0;
+  let paddingTop = 0;
+  paragraphs.forEach((paragraph, paragraphIndex) => {
+    const text = paragraph.runs.map((run) => run.text ?? '').join('');
+    const lineHeight = Math.max(1, lineHeightOf(paragraphIndex));
+    paragraphStarts.push(cursor);
+    if (paragraphIndex === 0) paddingTop = paragraph.spaceBeforePx ?? 0;
+    const wrapped = text.length ? wrap(text, paragraphIndex) : [{ start: 0, end: 0 }];
+    for (const line of wrapped) {
+      lines.push({ start: cursor + line.start, end: cursor + line.end, height: lineHeight });
+      offsets.push(cursor + line.start);
+    }
+    cursor += text.length + 1;
+    // Word adds a paragraph's space-after inside the cell too, including the
+    // last paragraph: rows with a 8 pt after are ~11 px taller than the lines.
+    const spacing = paragraph.spaceAfterPx ?? 0;
+    if (spacing > 0) {
+      lines.push({ start: cursor - 1, end: cursor - 1, height: spacing });
+      offsets.push(cursor - 1);
+    }
+  });
+  if (!lines.length) {
+    lines.push({ start: 0, end: 0, height: Math.max(1, lineHeightOf(0)) });
+    offsets.push(0);
+  }
+  offsets.push(cursor);
+  return { lines, offsets, paragraphStarts, paddingTop };
 }

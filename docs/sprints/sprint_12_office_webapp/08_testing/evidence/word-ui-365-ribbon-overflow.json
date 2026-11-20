@@ -1,0 +1,56 @@
+{
+  "captured": "2026-11-19",
+  "app": "plugins/office-webapp (Word)",
+  "method": "agent-browser eval: click every .op-tab, compare .op-ribbon-word scrollWidth vs clientWidth, ignore elements whose right edge exceeds window.innerWidth",
+  "viewports": {
+    "1440x900": {
+      "tabs": 10,
+      "overflow": 0,
+      "offscreenGroups": 0,
+      "consoleErrors": 0
+    },
+    "1280x800": {
+      "tabs": 10,
+      "overflow": 0,
+      "offscreenGroups": 0
+    },
+    "390x844": {
+      "ribbon": "display:none (mobile layout)",
+      "docOverflow": 0,
+      "bodyOverflow": 0
+    }
+  },
+  "perTab1440": [
+    "Trang chủ: overflow=0 groups=5 offscreen=[]",
+    "Chèn: overflow=0 groups=8 offscreen=[]",
+    "Vẽ: overflow=0 groups=1 offscreen=[]",
+    "Thiết kế: overflow=0 groups=2 offscreen=[]",
+    "Bố cục: overflow=0 groups=5 offscreen=[]",
+    "Tham chiếu: overflow=0 groups=5 offscreen=[]",
+    "Thư tín: overflow=0 groups=5 offscreen=[]",
+    "Xem lại: overflow=0 groups=5 offscreen=[]",
+    "Xem: overflow=0 groups=5 offscreen=[]",
+    "Trợ giúp: overflow=0 groups=1 offscreen=[]"
+  ],
+  "perTab1280": [
+    "Trang chủ: overflow=0 groups=5 offscreen=[]",
+    "Chèn: overflow=0 groups=8 offscreen=[]",
+    "Vẽ: overflow=0 groups=1 offscreen=[]",
+    "Thiết kế: overflow=0 groups=2 offscreen=[]",
+    "Bố cục: overflow=0 groups=5 offscreen=[]",
+    "Tham chiếu: overflow=0 groups=5 offscreen=[]",
+    "Thư tín: overflow=0 groups=5 offscreen=[]",
+    "Xem lại: overflow=0 groups=5 offscreen=[]",
+    "Xem: overflow=0 groups=5 offscreen=[]",
+    "Trợ giúp: overflow=0 groups=1 offscreen=[]"
+  ],
+  "fixes": [
+    "Insert tab: per-tab tightening (data-tab=insert) so all 8 groups fit 1440",
+    "<=1366 px: narrower large buttons, 68 px max select width, 10.5 px ribbom chips",
+    "Arrange group: 8 items rendered as 18 px small rows (2-3 rows) instead of 74 px tiles, so caption and second row stay inside the 104 px band"
+  ],
+  "tests": {
+    "office:test": "423 passed, 0 failed",
+    "qa-i18n-keys": "vi 856/0 missing, en 856/0 missing"
+  }
+}

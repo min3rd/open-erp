@@ -1,0 +1,150 @@
+{
+  "source": "page text comparison for word-authored-large.docx (app vs Word PDF)",
+  "pages": [
+    {
+      "page": 1,
+      "ourChars": 2428,
+      "wordChars": 2428,
+      "charDelta": 0,
+      "ourStart": "Chuong 1 - Noi dung kiem thu phan trang Doan 1 cua chuong 1.",
+      "wordStart": "Chuong 1 - Noi dung kiem thu phan trang Doan 1 cua chuong 1."
+    },
+    {
+      "page": 2,
+      "ourChars": 1838,
+      "wordChars": 1838,
+      "charDelta": 0,
+      "ourStart": "soat truy cap va bao mat du lieu tren he thong thong tin. Mo",
+      "wordStart": "soat truy cap va bao mat du lieu tren he thong thong tin. Mo"
+    },
+    {
+      "page": 3,
+      "ourChars": 1973,
+      "wordChars": 1973,
+      "charDelta": 0,
+      "ourStart": "Doan 4 cua chuong 2. Day la doan van tieng Viet co dau duoc ",
+      "wordStart": "Doan 4 cua chuong 2. Day la doan van tieng Viet co dau duoc "
+    },
+    {
+      "page": 4,
+      "ourChars": 2428,
+      "wordChars": 2517,
+      "charDelta": -89,
+      "ourStart": "Chuong 3 - Noi dung kiem thu phan trang Doan 1 cua chuong 3.",
+      "wordStart": "Chuong 3 - Noi dung kiem thu phan trang Doan 1 cua chuong 3."
+    },
+    {
+      "page": 5,
+      "ourChars": 1923,
+      "wordChars": 1924,
+      "charDelta": -1,
+      "ourStart": "soat truy cap va bao mat du lieu tren he thong thong tin. Mo",
+      "wordStart": "dong va trai tren nhieu trang khac nhau, kem theo danh sach "
+    },
+    {
+      "page": 6,
+      "ourChars": 1888,
+      "wordChars": 1798,
+      "charDelta": 90,
+      "ourStart": "kiem tra phan trang. Noi dung mo ta nghiep vu quan ly can bo",
+      "wordStart": "soat truy cap va bao mat du lieu tren he thong thong tin. Mo"
+    },
+    {
+      "page": 7,
+      "ourChars": 2428,
+      "wordChars": 2517,
+      "charDelta": -89,
+      "ourStart": "Chuong 5 - Noi dung kiem thu phan trang Doan 1 cua chuong 5.",
+      "wordStart": "Chuong 5 - Noi dung kiem thu phan trang Doan 1 cua chuong 5."
+    },
+    {
+      "page": 8,
+      "ourChars": 1923,
+      "wordChars": 1924,
+      "charDelta": -1,
+      "ourStart": "soat truy cap va bao mat du lieu tren he thong thong tin. Mo",
+      "wordStart": "dong va trai tren nhieu trang khac nhau, kem theo danh sach "
+    },
+    {
+      "page": 9,
+      "ourChars": 1888,
+      "wordChars": 1798,
+      "charDelta": 90,
+      "ourStart": "kiem tra phan trang. Noi dung mo ta nghiep vu quan ly can bo",
+      "wordStart": "soat truy cap va bao mat du lieu tren he thong thong tin. Mo"
+    },
+    {
+      "page": 10,
+      "ourChars": 2428,
+      "wordChars": 2517,
+      "charDelta": -89,
+      "ourStart": "Chuong 7 - Noi dung kiem thu phan trang Doan 1 cua chuong 7.",
+      "wordStart": "Chuong 7 - Noi dung kiem thu phan trang Doan 1 cua chuong 7."
+    },
+    {
+      "page": 11,
+      "ourChars": 1923,
+      "wordChars": 1924,
+      "charDelta": -1,
+      "ourStart": "soat truy cap va bao mat du lieu tren he thong thong tin. Mo",
+      "wordStart": "dong va trai tren nhieu trang khac nhau, kem theo danh sach "
+    },
+    {
+      "page": 12,
+      "ourChars": 1888,
+      "wordChars": 1798,
+      "charDelta": 90,
+      "ourStart": "kiem tra phan trang. Noi dung mo ta nghiep vu quan ly can bo",
+      "wordStart": "soat truy cap va bao mat du lieu tren he thong thong tin. Mo"
+    },
+    {
+      "page": 13,
+      "ourChars": 2428,
+      "wordChars": 2517,
+      "charDelta": -89,
+      "ourStart": "Chuong 9 - Noi dung kiem thu phan trang Doan 1 cua chuong 9.",
+      "wordStart": "Chuong 9 - Noi dung kiem thu phan trang Doan 1 cua chuong 9."
+    },
+    {
+      "page": 14,
+      "ourChars": 1928,
+      "wordChars": 1929,
+      "charDelta": -1,
+      "ourStart": "soat truy cap va bao mat du lieu tren he thong thong tin. Mo",
+      "wordStart": "dong va trai tren nhieu trang khac nhau, kem theo danh sach "
+    },
+    {
+      "page": 15,
+      "ourChars": 1918,
+      "wordChars": 1828,
+      "charDelta": 90,
+      "ourStart": "kiem tra phan trang. Noi dung mo ta nghiep vu quan ly can bo",
+      "wordStart": "soat truy cap va bao mat du lieu tren he thong thong tin. Mo"
+    },
+    {
+      "page": 16,
+      "ourChars": 2436,
+      "wordChars": 2525,
+      "charDelta": -89,
+      "ourStart": "Chuong 11 - Noi dung kiem thu phan trang Doan 1 cua chuong 1",
+      "wordStart": "Chuong 11 - Noi dung kiem thu phan trang Doan 1 cua chuong 1"
+    },
+    {
+      "page": 17,
+      "ourChars": 1955,
+      "wordChars": 1956,
+      "charDelta": -1,
+      "ourStart": "soat truy cap va bao mat du lieu tren he thong thong tin. Mo",
+      "wordStart": "dong va trai tren nhieu trang khac nhau, kem theo danh sach "
+    },
+    {
+      "page": 18,
+      "ourChars": 1918,
+      "wordChars": 1828,
+      "charDelta": 90,
+      "ourStart": "kiem tra phan trang. Noi dung mo ta nghiep vu quan ly can bo",
+      "wordStart": "soat truy cap va bao mat du lieu tren he thong thong tin. Mo"
+    }
+  ],
+  "note": "Lech noi dung theo trang chi ~2 dong moi chuong (vi du trang 5: app 1923 ky tu ket thuc truoc doan 5, Word 1924 ky tu ket thuc trong doan 5) — khong mat noi dung; body Dice >= 0,90 tren ca 18 trang"
+}

@@ -1,0 +1,23 @@
+{
+  "source": "Word 16: brand-new document (6 chapters + 4x3 tables + landscape section), NO calibration file",
+  "sample": "word-authored-unseen.docx",
+  "word": {
+    "pages": 6,
+    "words": 2508,
+    "sections": 2
+  },
+  "app": {
+    "pages": 6
+  },
+  "diceWordMode": {
+    "body": 0.9669,
+    "start": 0.6898,
+    "pagesBelowHalfStart": 1
+  },
+  "diceCompact": {
+    "body": 0.9673,
+    "start": 0.7625,
+    "pagesBelowHalfStart": 0
+  },
+  "verdict": "Out of the box (no calibration) the editor matches the page count and keeps every page above 0.5 start Dice on this unseen document"
+}

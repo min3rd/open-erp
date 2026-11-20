@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-11-18T11:36:45.689Z",
+  "passed": true,
+  "result": {
+    "buttonFound": true,
+    "panelOpen": true,
+    "created": true,
+    "createdTexts": [
+      "Một",
+      "Hai",
+      "Ba"
+    ],
+    "prefilled": "Một\nHai\nBa",
+    "editedCount": 2,
+    "editedTexts": [
+      "Alpha",
+      "Beta"
+    ],
+    "error": null
+  },
+  "errors": []
+}

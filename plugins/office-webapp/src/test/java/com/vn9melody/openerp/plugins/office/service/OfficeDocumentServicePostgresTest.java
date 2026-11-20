@@ -4,6 +4,7 @@ import com.vn9melody.openerp.plugin.sdk.api.ApiException;
 import com.vn9melody.openerp.plugin.sdk.data.PluginDataClient;
 import com.vn9melody.openerp.plugin.sdk.data.PluginQueryResult;
 import com.vn9melody.openerp.plugin.sdk.runtime.TenantContext;
+import com.vn9melody.openerp.plugins.office.api.OfficeErrorCode;
 import com.vn9melody.openerp.plugins.office.dto.CreateOfficeDocumentRequest;
 import com.vn9melody.openerp.plugins.office.dto.OfficeDocumentDto;
 import com.vn9melody.openerp.plugins.office.dto.OfficeDocumentPermissionDto;
@@ -196,6 +197,62 @@ class OfficeDocumentServicePostgresTest {
         OfficeDocumentDto deleted = service.delete(second.id());
         assertEquals("DELETED", deleted.status());
         assertNotNull(service.get(second.id()));
+    }
+
+    @Test
+    void supportsAllWordFormatsAndRejectsMacros() {
+        context.use(tenantA, owner);
+
+        byte[] ole2 = new byte[] {
+                (byte) 0xd0, (byte) 0xcf, 0x11, (byte) 0xe0, (byte) 0xa1, (byte) 0xb1, 0x1a, (byte) 0xe1, 0, 0
+        };
+        OfficeDocumentDto docOle = service.create(new CreateOfficeDocumentRequest(
+                "Legacy DOC", "legacy.doc", "doc", null, null, 0L));
+        assertEquals("WORD", docOle.docType());
+        assertEquals("application/msword", docOle.mimeType());
+        assertArrayEquals(ole2, service.downloadContent(
+                docOle.id(), service.uploadContent(docOle.id(), ole2, "legacy.doc", "ole2", 1).currentVersion()).bytes());
+
+        byte[] rtfBytes = "{\\rtf1\\ansi Xin chao}".getBytes(StandardCharsets.UTF_8);
+        OfficeDocumentDto docRtf = service.create(new CreateOfficeDocumentRequest(
+                "RTF Disguised", "disguised.doc", "doc", null, null, 0L));
+        assertEquals(2, service.uploadContent(docRtf.id(), rtfBytes, "disguised.doc", "rtf", 1).currentVersion());
+
+        byte[] zipBytes = "PK\u0003\u0004word-zip".getBytes(StandardCharsets.UTF_8);
+        for (String[] spec : new String[][] {
+                {"template.dotx", "dotx", "application/vnd.openxmlformats-officedocument.wordprocessingml.template"},
+                {"libre.odt", "odt", "application/vnd.oasis.opendocument.text"}
+        }) {
+            OfficeDocumentDto dto = service.create(new CreateOfficeDocumentRequest(
+                    spec[0], spec[0], spec[1], null, null, 0L));
+            assertEquals("WORD", dto.docType());
+            assertEquals(spec[2], dto.mimeType());
+            assertEquals(2, service.uploadContent(dto.id(), zipBytes, spec[0], "zip", 1).currentVersion());
+        }
+
+        OfficeDocumentDto rtfDto = service.create(new CreateOfficeDocumentRequest(
+                "Rich Text", "note.rtf", "rtf", null, null, 0L));
+        assertEquals("WORD", rtfDto.docType());
+        assertEquals(2, service.uploadContent(rtfDto.id(), rtfBytes, "note.rtf", "rtf", 1).currentVersion());
+
+        byte[] xmlBytes = "\uFEFF<?xml version=\"1.0\"?><pkg:package/>".getBytes(StandardCharsets.UTF_8);
+        OfficeDocumentDto xmlDto = service.create(new CreateOfficeDocumentRequest(
+                "Flat OPC", "flat.xml", "xml", null, null, 0L));
+        assertEquals("WORD", xmlDto.docType());
+        assertEquals(2, service.uploadContent(xmlDto.id(), xmlBytes, "flat.xml", "xml", 1).currentVersion());
+
+        for (String macroExt : List.of("docm", "dotm")) {
+            ApiException ex = assertThrows(ApiException.class, () -> service.create(
+                    new CreateOfficeDocumentRequest("Macro", "macro." + macroExt, macroExt, "WORD", null, 0L)));
+            assertEquals(400, ex.getStatusCode());
+            assertEquals(OfficeErrorCode.OFFICE_MACRO_FILE_UNSUPPORTED, ex.getCode());
+        }
+
+        byte[] bogus = "NOT_A_VALID_RTF".getBytes(StandardCharsets.UTF_8);
+        ApiException invalidMagic = assertThrows(ApiException.class,
+                () -> service.uploadContent(rtfDto.id(), bogus, "note.rtf", "bad", 2));
+        assertEquals(400, invalidMagic.getStatusCode());
+        assertEquals(OfficeErrorCode.OFFICE_INVALID_MAGIC_BYTES, invalidMagic.getCode());
     }
 
     private void applyMigrations() throws Exception {

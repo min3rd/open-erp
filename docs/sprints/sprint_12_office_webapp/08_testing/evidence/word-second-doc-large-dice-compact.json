@@ -1,0 +1,185 @@
+{
+  "source": ".tmp\\parity-wlarge3.json",
+  "wordPages": 18,
+  "ourPages": 18,
+  "startDice": {
+    "mean": 0.861,
+    "median": 0.8598,
+    "ge_0_90": 0,
+    "ge_0_80": 18,
+    "ge_0_50": 18,
+    "lt_0_50": 0
+  },
+  "bodyDice": {
+    "mean": 1,
+    "median": 1,
+    "ge_0_90": 18,
+    "ge_0_80": 18,
+    "ge_0_50": 18,
+    "lt_0_50": 0
+  },
+  "worstPages": [
+    {
+      "page": 1,
+      "startDice": 0.858,
+      "bodyDice": 1,
+      "word": "Chuong 1 - Noi dung kiem thu phan trang Doan 1 cua chuong 1. Day la doan van tieng Viet co dau duoc Microsoft Word tao ra de kiem tra phan t",
+      "ours": "Chuong 1 - Noi dung kiem thu phan trang Doan 1 cua chuong 1. Day la doan van tieng Viet co dau duoc Microsoft Word tao ra de kiem tra phan t"
+    },
+    {
+      "page": 2,
+      "startDice": 0.86,
+      "bodyDice": 1,
+      "word": "soat truy cap va bao mat du lieu tren he thong thong tin. Moi doan du dai de chiem nhieu dong va trai tren nhieu trang khac nhau, kem theo d",
+      "ours": "soat truy cap va bao mat du lieu tren he thong thong tin. Moi doan du dai de chiem nhieu dong va trai tren nhieu trang khac nhau, kem theo d"
+    },
+    {
+      "page": 3,
+      "startDice": 0.863,
+      "bodyDice": 1,
+      "word": "Doan 4 cua chuong 2. Day la doan van tieng Viet co dau duoc Microsoft Word tao ra de kiem tra phan trang. Noi dung mo ta nghiep vu quan ly c",
+      "ours": "Doan 4 cua chuong 2. Day la doan van tieng Viet co dau duoc Microsoft Word tao ra de kiem tra phan trang. Noi dung mo ta nghiep vu quan ly c"
+    },
+    {
+      "page": 4,
+      "startDice": 0.858,
+      "bodyDice": 1,
+      "word": "Chuong 3 - Noi dung kiem thu phan trang Doan 1 cua chuong 3. Day la doan van tieng Viet co dau duoc Microsoft Word tao ra de kiem tra phan t",
+      "ours": "Chuong 3 - Noi dung kiem thu phan trang Doan 1 cua chuong 3. Day la doan van tieng Viet co dau duoc Microsoft Word tao ra de kiem tra phan t"
+    },
+    {
+      "page": 5,
+      "startDice": 0.864,
+      "bodyDice": 1,
+      "word": "dong va trai tren nhieu trang khac nhau, kem theo danh sach va bang so lieu ben duoi de kiem tra bo cuc. - Muc 1 cua chuong 3 ve nghiep vu v",
+      "ours": "dong va trai tren nhieu trang khac nhau, kem theo danh sach va bang so lieu ben duoi de kiem tra bo cuc. - Muc 1 cua chuong 3 ve nghiep vu v"
+    },
+    {
+      "page": 6,
+      "startDice": 0.86,
+      "bodyDice": 1,
+      "word": "soat truy cap va bao mat du lieu tren he thong thong tin. Moi doan du dai de chiem nhieu dong va trai tren nhieu trang khac nhau, kem theo d",
+      "ours": "soat truy cap va bao mat du lieu tren he thong thong tin. Moi doan du dai de chiem nhieu dong va trai tren nhieu trang khac nhau, kem theo d"
+    },
+    {
+      "page": 7,
+      "startDice": 0.858,
+      "bodyDice": 1,
+      "word": "Chuong 5 - Noi dung kiem thu phan trang Doan 1 cua chuong 5. Day la doan van tieng Viet co dau duoc Microsoft Word tao ra de kiem tra phan t",
+      "ours": "Chuong 5 - Noi dung kiem thu phan trang Doan 1 cua chuong 5. Day la doan van tieng Viet co dau duoc Microsoft Word tao ra de kiem tra phan t"
+    },
+    {
+      "page": 8,
+      "startDice": 0.864,
+      "bodyDice": 1,
+      "word": "dong va trai tren nhieu trang khac nhau, kem theo danh sach va bang so lieu ben duoi de kiem tra bo cuc. - Muc 1 cua chuong 5 ve nghiep vu v",
+      "ours": "dong va trai tren nhieu trang khac nhau, kem theo danh sach va bang so lieu ben duoi de kiem tra bo cuc. - Muc 1 cua chuong 5 ve nghiep vu v"
+    },
+    {
+      "page": 9,
+      "startDice": 0.86,
+      "bodyDice": 1,
+      "word": "soat truy cap va bao mat du lieu tren he thong thong tin. Moi doan du dai de chiem nhieu dong va trai tren nhieu trang khac nhau, kem theo d",
+      "ours": "soat truy cap va bao mat du lieu tren he thong thong tin. Moi doan du dai de chiem nhieu dong va trai tren nhieu trang khac nhau, kem theo d"
+    },
+    {
+      "page": 10,
+      "startDice": 0.858,
+      "bodyDice": 1,
+      "word": "Chuong 7 - Noi dung kiem thu phan trang Doan 1 cua chuong 7. Day la doan van tieng Viet co dau duoc Microsoft Word tao ra de kiem tra phan t",
+      "ours": "Chuong 7 - Noi dung kiem thu phan trang Doan 1 cua chuong 7. Day la doan van tieng Viet co dau duoc Microsoft Word tao ra de kiem tra phan t"
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "startDice": 0.8584905660377359,
+      "bodyDice": 1
+    },
+    {
+      "page": 2,
+      "startDice": 0.8598130841121495,
+      "bodyDice": 1
+    },
+    {
+      "page": 3,
+      "startDice": 0.8625592417061612,
+      "bodyDice": 1
+    },
+    {
+      "page": 4,
+      "startDice": 0.8584905660377359,
+      "bodyDice": 1
+    },
+    {
+      "page": 5,
+      "startDice": 0.8640776699029126,
+      "bodyDice": 1
+    },
+    {
+      "page": 6,
+      "startDice": 0.8598130841121495,
+      "bodyDice": 1
+    },
+    {
+      "page": 7,
+      "startDice": 0.8584905660377359,
+      "bodyDice": 1
+    },
+    {
+      "page": 8,
+      "startDice": 0.8640776699029126,
+      "bodyDice": 1
+    },
+    {
+      "page": 9,
+      "startDice": 0.8598130841121495,
+      "bodyDice": 1
+    },
+    {
+      "page": 10,
+      "startDice": 0.8584905660377359,
+      "bodyDice": 1
+    },
+    {
+      "page": 11,
+      "startDice": 0.8640776699029126,
+      "bodyDice": 1
+    },
+    {
+      "page": 12,
+      "startDice": 0.8598130841121495,
+      "bodyDice": 1
+    },
+    {
+      "page": 13,
+      "startDice": 0.8584905660377359,
+      "bodyDice": 1
+    },
+    {
+      "page": 14,
+      "startDice": 0.8640776699029126,
+      "bodyDice": 1
+    },
+    {
+      "page": 15,
+      "startDice": 0.8598130841121495,
+      "bodyDice": 1
+    },
+    {
+      "page": 16,
+      "startDice": 0.863849765258216,
+      "bodyDice": 1
+    },
+    {
+      "page": 17,
+      "startDice": 0.8640776699029126,
+      "bodyDice": 1
+    },
+    {
+      "page": 18,
+      "startDice": 0.8598130841121495,
+      "bodyDice": 1
+    }
+  ]
+}

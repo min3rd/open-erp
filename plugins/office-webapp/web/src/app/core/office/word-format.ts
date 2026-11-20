@@ -1,5 +1,5 @@
 import { attr, descendants, findChild, parseXml, type XmlNode } from '../binary/xml';
-import type { WordBlock, WordDocument, WordParagraph } from './types';
+import type { WordBlock, WordDocument, WordParagraph, WordNumberingFormat } from './types';
 
 export type WordStyle = 'Normal' | 'NoSpacing' | 'Title' | 'Subtitle' | 'Heading1' | 'Heading2' | 'Heading3'
   | 'Heading4' | 'Heading5' | 'Heading6' | 'Quote';
@@ -14,7 +14,12 @@ export interface ParagraphFormatInput {
   shading?: string;
 }
 
-const PPR_ORDER = ['w:pStyle', 'w:keepNext', 'w:numPr', 'w:spacing', 'w:ind', 'w:jc'];
+export type ParagraphBorderMode = 'bottom' | 'top' | 'left' | 'right' | 'outside' | 'horizontal' | 'none';
+
+const PPR_ORDER = [
+  'w:pStyle', 'w:keepNext', 'w:keepLines', 'w:pageBreakBefore', 'w:numPr',
+  'w:pBdr', 'w:shd', 'w:tabs', 'w:spacing', 'w:ind', 'w:jc',
+];
 const BULLET_NUM_ID = 9001;
 const NUMBER_NUM_ID = 9002;
 const REL_NUMBERING = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering';
@@ -36,6 +41,56 @@ export function parseNumbering(entries: Map<string, Uint8Array>): Map<string, 'b
     const abstractId = attr(findChild(node, 'w:abstractNumId'), 'w:val');
     if (!id || !abstractId) continue;
     result.set(id, abstract.get(abstractId) ?? 'number');
+  }
+  return result;
+}
+
+/**
+ * Level formats of every numbered list, so a paragraph whose numbering comes
+ * from its style (headings) can be labelled the way Word labels it.
+ */
+export function parseNumberingFormats(entries: Map<string, Uint8Array>): Map<string, WordNumberingFormat> {
+  const result = new Map<string, WordNumberingFormat>();
+  const bytes = entries.get('word/numbering.xml');
+  if (!bytes) return result;
+  const root = parseXml(new TextDecoder('utf-8').decode(bytes));
+  const abstract = new Map<string, Map<number, { format: string; text: string; start: number; indentTwips?: number; hangingTwips?: number }>>();
+  for (const node of descendants(root, 'w:abstractNum')) {
+    const id = attr(node, 'w:abstractNumId');
+    if (!id) continue;
+    const levels = new Map<number, { format: string; text: string; start: number; indentTwips?: number; hangingTwips?: number }>();
+    for (const lvl of descendants(node, 'w:lvl')) {
+      const ind = findChild(findChild(lvl, 'w:pPr'), 'w:ind');
+      const left = Number(attr(ind, 'w:left') ?? attr(ind, 'w:start') ?? 0);
+      const hanging = Number(attr(ind, 'w:hanging') ?? 0);
+      levels.set(Number(attr(lvl, 'w:ilvl') ?? 0), {
+        format: attr(findChild(lvl, 'w:numFmt'), 'w:val') ?? 'decimal',
+        text: attr(findChild(lvl, 'w:lvlText'), 'w:val') ?? '',
+        start: Number(attr(findChild(lvl, 'w:start'), 'w:val') ?? 1),
+        indentTwips: left > 0 ? left : undefined,
+        hangingTwips: hanging > 0 ? hanging : undefined,
+      });
+    }
+    abstract.set(id, levels);
+  }
+  for (const node of descendants(root, 'w:num')) {
+    const id = attr(node, 'w:numId');
+    const abstractId = attr(findChild(node, 'w:abstractNumId'), 'w:val');
+    if (!id || !abstractId) continue;
+    const baseLevels = abstract.get(abstractId);
+    const levels = new Map<number, { format: string; text: string; start: number; indentTwips?: number; hangingTwips?: number }>();
+    if (baseLevels) {
+      for (const [lvl, cfg] of baseLevels) levels.set(lvl, { ...cfg });
+    }
+    for (const override of descendants(node, 'w:lvlOverride')) {
+      const ilvl = Number(attr(override, 'w:ilvl') ?? 0);
+      const startOverride = attr(findChild(override, 'w:startOverride'), 'w:val');
+      const existing = levels.get(ilvl);
+      if (existing && startOverride !== undefined) {
+        existing.start = Number(startOverride);
+      }
+    }
+    result.set(id, { abstractId, levels });
   }
   return result;
 }
@@ -100,10 +155,16 @@ export function applyParagraphFormat(document: WordDocument, blockIndex: number,
   }
 
   if (input.shading !== undefined) {
-    const fill = input.shading.replace('#', '').toUpperCase();
-    const shd = setPPrChild(pPr, 'w:shd', { 'w:val': 'clear', 'w:color': 'auto', 'w:fill': fill });
-    shd.attrs['w:fill'] = fill;
-    paragraph.shading = `#${fill}`;
+    const trimmed = input.shading.trim();
+    if (!trimmed) {
+      removePPrChild(pPr, 'w:shd');
+      paragraph.shading = undefined;
+    } else {
+      const fill = trimmed.replace('#', '').toUpperCase();
+      const shd = setPPrChild(pPr, 'w:shd', { 'w:val': 'clear', 'w:color': 'auto', 'w:fill': fill });
+      shd.attrs['w:fill'] = fill;
+      paragraph.shading = `#${fill}`;
+    }
   }
 
   if (input.listType !== undefined) {
@@ -127,16 +188,28 @@ export function applyParagraphFormat(document: WordDocument, blockIndex: number,
   return true;
 }
 
-export function insertPageBreak(document: WordDocument): number {
+export function insertPageBreak(document: WordDocument, afterBlockIndex?: number): number {
   const body = document.xmlRoot ? findChild(document.xmlRoot, 'w:body') : null;
   if (!body) return -1;
   const paragraph: XmlNode = {
     name: 'w:p', attrs: {}, text: '', children: [
-      { name: 'w:r', attrs: {}, text: '', children: [
-        { name: 'w:br', attrs: { 'w:type': 'page' }, text: '', children: [] },
-      ] },
+      {
+        name: 'w:r', attrs: {}, text: '', children: [
+          { name: 'w:br', attrs: { 'w:type': 'page' }, text: '', children: [] },
+        ]
+      },
     ],
   };
+  const anchorBlock = afterBlockIndex !== undefined && afterBlockIndex >= 0 && afterBlockIndex < document.blocks.length
+    ? document.blocks[afterBlockIndex]
+    : undefined;
+  const anchorNode = anchorBlock?.kind === 'paragraph' ? anchorBlock.paragraph.xmlNode : anchorBlock?.kind === 'table' ? anchorBlock.xmlNode : undefined;
+  const anchorPos = anchorNode ? body.children.indexOf(anchorNode) : -1;
+  if (anchorPos >= 0 && afterBlockIndex !== undefined) {
+    body.children.splice(anchorPos + 1, 0, paragraph);
+    document.blocks.splice(afterBlockIndex + 1, 0, { kind: 'paragraph', paragraph: { runs: [{ text: '', pageBreak: true }], xmlNode: paragraph } });
+    return afterBlockIndex + 1;
+  }
   const sections = body.children
     .map((child, index) => (child.name === 'w:sectPr' ? index : -1))
     .filter((index) => index >= 0);
@@ -144,6 +217,33 @@ export function insertPageBreak(document: WordDocument): number {
   body.children.splice(at, 0, paragraph);
   document.blocks.push({ kind: 'paragraph', paragraph: { runs: [{ text: '', pageBreak: true }], xmlNode: paragraph } });
   return document.blocks.length - 1;
+}
+
+/** Inserts an editable blank page at the cursor (or end of document). */
+export function insertBlankPage(document: WordDocument, afterBlockIndex?: number): number {
+  const body = document.xmlRoot ? findChild(document.xmlRoot, 'w:body') : null;
+  if (!body) return -1;
+  const atEnd = afterBlockIndex === undefined || afterBlockIndex < 0 || afterBlockIndex >= document.blocks.length - 1;
+  const breakIndex = insertPageBreak(document, afterBlockIndex);
+  if (breakIndex < 0) return -1;
+  const blankNode: XmlNode = {
+    name: 'w:p', attrs: {}, text: '', children: [
+      { name: 'w:r', attrs: {}, text: '', children: [{ name: 'w:t', attrs: {}, text: '', children: [] }] },
+    ],
+  };
+  const breakBlock = document.blocks[breakIndex];
+  const breakNode = breakBlock?.kind === 'paragraph' ? breakBlock.paragraph.xmlNode : undefined;
+  const bodyBreakPos = breakNode ? body.children.indexOf(breakNode) : -1;
+  if (bodyBreakPos >= 0) {
+    body.children.splice(bodyBreakPos + 1, 0, blankNode);
+  } else {
+    const sections = body.children.map((c, idx) => (c.name === 'w:sectPr' ? idx : -1)).filter((idx) => idx >= 0);
+    body.children.splice(sections.length ? sections[sections.length - 1] : body.children.length, 0, blankNode);
+  }
+  const blankPos = breakIndex + 1;
+  document.blocks.splice(blankPos, 0, { kind: 'paragraph', paragraph: { runs: [{ text: '' }], xmlNode: blankNode } });
+  if (!atEnd) insertPageBreak(document, blankPos);
+  return blankPos;
 }
 
 export function paragraphHasPageBreak(paragraph: WordParagraph): boolean {
@@ -268,29 +368,43 @@ function ensureNumberingContentType(entries: Map<string, Uint8Array>): void {
   entries.set(path, new TextEncoder().encode(types));
 }
 
-export function toggleParagraphBorders(document: WordDocument, blockIndex: number): boolean {
+export function setParagraphBorders(document: WordDocument, blockIndex: number, mode: ParagraphBorderMode): boolean {
   const block = document.blocks[blockIndex];
   if (!block || block.kind !== 'paragraph') return false;
   const node = block.paragraph.xmlNode;
   if (!node) return false;
   const paragraph = block.paragraph;
   const pPr = ensureParagraphProperties(node);
-  if (paragraph.borders) {
-    removePPrChild(pPr, 'w:pBdr');
+  removePPrChild(pPr, 'w:pBdr');
+  if (mode === 'none') {
     paragraph.borders = undefined;
+    paragraph.borderSides = undefined;
     return true;
   }
+  const edges: Array<'top' | 'bottom' | 'left' | 'right'> = mode === 'bottom' ? ['bottom']
+    : mode === 'top' ? ['top']
+      : mode === 'left' ? ['left']
+        : mode === 'right' ? ['right']
+          : mode === 'horizontal' ? ['top', 'bottom']
+            : ['top', 'left', 'bottom', 'right'];
   const borders: XmlNode = {
     name: 'w:pBdr', attrs: {}, text: '',
-    children: ['top', 'left', 'bottom', 'right'].map((side) => ({
+    children: edges.map((side) => ({
       name: `w:${side}`,
       attrs: { 'w:val': 'single', 'w:sz': '4', 'w:space': '1', 'w:color': '000000' },
       text: '', children: [],
     })),
   };
-  const existing = findChild(pPr, 'w:pBdr');
-  if (existing) pPr.children[pPr.children.indexOf(existing)] = borders;
-  else pPr.children.push(borders);
+  insertOrdered(pPr, borders);
+  const sides: NonNullable<WordParagraph['borderSides']> = {};
+  for (const side of edges) sides[side] = '1px solid #000000';
+  paragraph.borderSides = sides;
   paragraph.borders = true;
   return true;
+}
+
+export function toggleParagraphBorders(document: WordDocument, blockIndex: number): boolean {
+  const block = document.blocks[blockIndex];
+  if (!block || block.kind !== 'paragraph') return false;
+  return setParagraphBorders(document, blockIndex, block.paragraph.borders ? 'none' : 'outside');
 }

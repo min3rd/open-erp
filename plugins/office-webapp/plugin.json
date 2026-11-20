@@ -2,7 +2,7 @@
   "schema_version": "2.0",
   "id": "office-webapp",
   "name": "Office WebApp",
-  "description": "Đọc, sửa và lưu tệp Office (.docx, .xlsx, .pptx, .csv, .pdf) trực tiếp trên trình duyệt.",
+  "description": "Đọc, sửa và lưu tệp Office (.docx, .doc, .dotx, .rtf, .odt, .xml, .xlsx, .pptx, .csv, .pdf) trực tiếp trên trình duyệt.",
   "version": "1.0.0",
   "template_version": "2.0.0",
   "author": "Open-ERP Plugin Team",

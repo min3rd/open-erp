@@ -1,4 +1,5 @@
 import { attr, descendants, findChild, parseXml, serializeXml, type XmlNode } from '../binary/xml';
+import { findZipEntry } from '../binary/zip';
 import type { WordDocument } from './types';
 import { setDocVar } from './word-protect';
 
@@ -7,6 +8,14 @@ export interface WordThemePreset {
   labelKey: string;
   accent: string;
   font: string;
+}
+
+export interface ParsedWordTheme {
+  accent: string;
+  font: string;
+  accents: string[];
+  minorFont?: string;
+  colors?: Record<string, string>;
 }
 
 export const WORD_THEMES: WordThemePreset[] = [
@@ -24,15 +33,88 @@ export const WORD_STYLE_SETS: Array<{ id: string; labelKey: string }> = [
 
 const THEME_PATH = 'word/theme/theme1.xml';
 
-export function parseWordTheme(entries: Map<string, Uint8Array>): { accent: string; font: string } | undefined {
-  const bytes = entries.get(THEME_PATH);
-  if (!bytes) return undefined;
-  const root = parseXml(new TextDecoder('utf-8').decode(bytes));
+export function parseWordTheme(entries: Map<string, Uint8Array>): ParsedWordTheme | undefined {
+  const entry = findZipEntry(entries, THEME_PATH);
+  if (!entry) return undefined;
+  const root = parseXml(new TextDecoder('utf-8').decode(entry.data));
   const scheme = descendants(root, 'a:clrScheme')[0];
-  const accent = attr(descendants(scheme, 'a:accent1')[0] ? findChild(descendants(scheme, 'a:accent1')[0], 'a:srgbClr') : null, 'val');
-  const font = attr(findChild(descendants(root, 'a:majorFont')[0], 'a:latin'), 'typeface');
-  if (!accent && !font) return undefined;
-  return { accent: accent ? `#${accent.toUpperCase()}` : '#1F4E79', font: font || 'Calibri' };
+  const readScheme = (name: string): string | undefined => {
+    const node = descendants(scheme, `a:${name}`)[0];
+    const srgb = node ? findChild(node, 'a:srgbClr') : null;
+    const sys = node ? findChild(node, 'a:sysClr') : null;
+    const value = attr(srgb, 'val') ?? attr(sys, 'lastClr');
+    return value ? `#${value.replace(/^#/, '').toUpperCase()}` : undefined;
+  };
+  const colors: Record<string, string> = {};
+  for (const name of ['dk1', 'lt1', 'dk2', 'lt2', 'accent1', 'accent2', 'accent3', 'accent4', 'accent5', 'accent6', 'hlink', 'folHlink']) {
+    const hex = readScheme(name);
+    if (hex) colors[name] = hex;
+  }
+  if (colors['dk1']) { colors['dark1'] = colors['dk1']; colors['text1'] = colors['dk1']; }
+  if (colors['lt1']) { colors['light1'] = colors['lt1']; colors['background1'] = colors['lt1']; }
+  if (colors['dk2']) { colors['dark2'] = colors['dk2']; colors['text2'] = colors['dk2']; }
+  if (colors['lt2']) { colors['light2'] = colors['lt2']; colors['background2'] = colors['lt2']; }
+
+  const accent = colors['accent1'];
+  const accents = ['accent1', 'accent2', 'accent3', 'accent4', 'accent5', 'accent6']
+    .map((name) => colors[name])
+    .filter((value): value is string => Boolean(value));
+  const majorFont = attr(findChild(descendants(root, 'a:majorFont')[0], 'a:latin'), 'typeface');
+  const minorFont = attr(findChild(descendants(root, 'a:minorFont')[0], 'a:latin'), 'typeface');
+  if (!accent && !majorFont && !Object.keys(colors).length) return undefined;
+  return {
+    accent: accent ?? accents[0] ?? '#1F4E79',
+    font: majorFont || 'Calibri',
+    accents: accents.length ? accents : [accent ?? '#1F4E79'],
+    minorFont: minorFont || undefined,
+    colors: Object.keys(colors).length ? colors : undefined,
+  };
+}
+
+export function resolveThemeColor(
+  theme: ParsedWordTheme | WordDocument['theme'] | undefined,
+  themeColor: string | undefined,
+  tintHex?: string,
+  shadeHex?: string,
+): string | undefined {
+  if (!themeColor) return undefined;
+  const base = theme?.colors?.[themeColor]
+    ?? (themeColor === 'accent1' ? theme?.accent : undefined);
+  if (!base) return undefined;
+  let hex = base.replace('#', '');
+  if (hex.length !== 6) return `#${hex}`;
+  let r = parseInt(hex.slice(0, 2), 16);
+  let g = parseInt(hex.slice(2, 4), 16);
+  let b = parseInt(hex.slice(4, 6), 16);
+  if (tintHex) {
+    const factor = parseInt(tintHex, 16) / 255;
+    if (Number.isFinite(factor)) {
+      r = Math.round(r * factor + 255 * (1 - factor));
+      g = Math.round(g * factor + 255 * (1 - factor));
+      b = Math.round(b * factor + 255 * (1 - factor));
+    }
+  }
+  if (shadeHex) {
+    const factor = parseInt(shadeHex, 16) / 255;
+    if (Number.isFinite(factor)) {
+      r = Math.round(r * factor);
+      g = Math.round(g * factor);
+      b = Math.round(b * factor);
+    }
+  }
+  const toHex = (value: number) => Math.max(0, Math.min(255, value)).toString(16).padStart(2, '0').toUpperCase();
+  hex = `${toHex(r)}${toHex(g)}${toHex(b)}`;
+  return `#${hex}`;
+}
+
+export function resolveThemeFont(
+  theme: ParsedWordTheme | WordDocument['theme'] | undefined,
+  themeAttr: string | undefined,
+): string | undefined {
+  if (!themeAttr || !theme) return undefined;
+  if (themeAttr.startsWith('major')) return theme.font;
+  if (themeAttr.startsWith('minor')) return theme.minorFont ?? theme.font;
+  return undefined;
 }
 
 export function applyWordTheme(document: WordDocument, preset: WordThemePreset): boolean {
